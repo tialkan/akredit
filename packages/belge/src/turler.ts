@@ -1,0 +1,123 @@
+// @akredit/belge veri sözleşmesi. Tüketenler: kanıt hattı (apps/isci), bağlayıcılar (not aktarımı), rapor üretimi.
+
+import type { Capa, Ozet } from "@akredit/cekirdek";
+
+export type BelgeTuru =
+  | "pdf"
+  | "docx"
+  | "xlsx"
+  | "csv"
+  | "pptx"
+  | "odt"
+  | "ods"
+  | "html"
+  | "metin"
+  | "json"
+  | "gorsel"
+  | "bilinmiyor";
+
+export interface BelgeIpucu {
+  /** Özgün dosya adı (uzantı türü tahmin etmeye yardım eder). */
+  ad?: string;
+  mime?: string;
+}
+
+/** Belgeden çıkan, çapası belli bir metin bölümü (PDF sayfası, Word başlığı altı, slayt). */
+export interface BelgeBolumu {
+  capa: Capa;
+  baslik?: string;
+  /** Başlık düzeyi (1 en üst). */
+  duzey?: number;
+  metin: string;
+}
+
+export type HucreDegeri = string | number | null;
+
+export interface Tablo {
+  capa: Capa;
+  ad?: string;
+  satirlar: HucreDegeri[][];
+}
+
+export interface BelgeMetni {
+  tur: BelgeTuru;
+  ozet: Ozet;
+  bolumler: BelgeBolumu[];
+  tablolar: Tablo[];
+  /** Metin katmanı olmayan taranmış belge ya da görsel: OCR kuyruğuna gider. */
+  ocrGerekli: boolean;
+  /** Kullanıcıya gösterilebilir Türkçe uyarılar. */
+  uyarilar: string[];
+  sayfaSayisi?: number;
+}
+
+/** Elektronik tablo ya da CSV'nin ham hücre görünümü (not aktarımı gibi işler için). */
+export interface TabloVerisi {
+  sayfalar: { ad: string; satirlar: HucreDegeri[][] }[];
+}
+
+/** Arama ve atıf birimi. */
+export interface Parca {
+  sira: number;
+  capa: Capa;
+  metin: string;
+}
+
+export interface ParcalamaSecenekleri {
+  /** Hedef parça uzunluğu (karakter). Varsayılan 1000. */
+  hedefUzunluk?: number;
+  /** En büyük parça uzunluğu (karakter). Varsayılan 1600. */
+  enBuyukUzunluk?: number;
+}
+
+export interface CikarmaSecenekleri {
+  /** Bayt cinsinden en büyük girdi. Varsayılan 100 MB. */
+  enBuyukBoyut?: number;
+  /** ZIP tabanlı biçimlerde açılmış toplam boyut sınırı. Varsayılan 500 MB. */
+  enBuyukAcilmisBoyut?: number;
+}
+
+// ---------- Belge üretimi (rapor, ders dosyası, matris dışa aktarımı) ----------
+
+export interface DocxParagraf {
+  tur: "paragraf";
+  metin: string;
+  /** "eksik": eksik bilgi vurgusu; "not": açıklama kutusu. */
+  vurgu?: "eksik" | "not";
+}
+
+export interface DocxTablo {
+  tur: "tablo";
+  basliklar: string[];
+  satirlar: string[][];
+  aciklama?: string;
+}
+
+export interface DocxMadde {
+  tur: "madde";
+  maddeler: string[];
+  numarali?: boolean;
+}
+
+export type DocxIcerik = DocxParagraf | DocxTablo | DocxMadde;
+
+export interface DocxBolumu {
+  baslik?: string;
+  duzey: 1 | 2 | 3;
+  icerik: DocxIcerik[];
+}
+
+export interface DocxModeli {
+  baslik: string;
+  altBaslik?: string;
+  /** Sayfa üstü ve altı metinleri (ör. kurum adı, "Taslak — onaylanmadı"). */
+  ustBilgi?: string;
+  altBilgi?: string;
+  bolumler: DocxBolumu[];
+}
+
+export interface XlsxSayfasi {
+  ad: string;
+  basliklar: string[];
+  satirlar: HucreDegeri[][];
+}
