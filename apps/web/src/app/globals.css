@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+:root {
+  --zemin: #ffffff;
+  --metin: #14171f;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --zemin: #0f1115;
+    --metin: #e8eaf0;
+  }
+}
+
+body {
+  background: var(--zemin);
+  color: var(--metin);
+}

@@ -1,0 +1,17 @@
+{
+  "name": "@akredit/isci",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "description": "Arka plan işleri: kanıt hattı, bağlayıcı zamanlamaları, YZ işleri, rapor üretimi, hatırlatmalar (pg-boss).",
+  "scripts": {
+    "start": "node src/index.ts",
+    "typecheck": "tsc --noEmit -p .",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "pg-boss": "^12.38.0",
+    "pino": "^10.4.0"
+  }
+}

@@ -1,3 +1,17 @@
 node_modules/
 .DS_Store
 *.log
+.next/
+dist/
+coverage/
+.turbo/
+.env
+.env.*
+!.env.ornek
+playwright-report/
+test-results/
+*.tsbuildinfo
+# Yerel veri ve gizli anahtarlar asla depoya girmez
+/veri/
+/yedek/
+next-env.d.ts

@@ -1,37 +1,28 @@
 {
-  "name": "akreddit",
-  "version": "1.1.0",
-  "description": "Kalite komisyonları için akreditasyon hazırlığını kaynaklı, kayıtlı ve onaylı yürüten açık kaynak iş akışı.",
+  "name": "akredit",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Akredit: yükseköğretimde kalite güvencesi ve akreditasyon süreçlerini kanıta dayalı, kayıtlı ve onaylı yürüten açık kaynak platform (akredit.org).",
   "license": "Apache-2.0",
   "author": "Tarık İsmet ALKAN (https://kulular.com.tr)",
-  "homepage": "https://github.com/tialkan/akreddit",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/tialkan/akreddit.git"
-  },
+  "homepage": "https://akredit.org",
   "type": "module",
-  "bin": {
-    "akreddit": "bin/akreddit"
-  },
+  "packageManager": "pnpm@10.34.7",
   "engines": {
-    "node": ">=22.13"
+    "node": ">=22.18"
   },
   "scripts": {
-    "test": "node --test"
+    "check": "biome check .",
+    "format": "biome check --write .",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "pnpm -r --if-present test",
+    "build": "pnpm -r --if-present build",
+    "verify": "pnpm check && pnpm typecheck && pnpm test"
   },
-  "files": [
-    "bin",
-    "lib",
-    "skills",
-    "bilgi",
-    "hooks",
-    "scripts",
-    ".claude-plugin",
-    ".mcp.json",
-    "LICENSE",
-    "NOTICE"
-  ],
-  "dependencies": {
-    "unpdf": "^1.8.1"
+  "devDependencies": {
+    "@biomejs/biome": "^2.6.2",
+    "@types/node": "^22.18.0",
+    "typescript": "~6.0.3",
+    "vitest": "^4.1.12"
   }
 }

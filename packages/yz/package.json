@@ -1,0 +1,19 @@
+{
+  "name": "@akredit/yz",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Sağlayıcıdan bağımsız yapay zekâ katmanı: model bağdaştırıcıları, araç döngüsü, atıf ve KVKK güvenceleri, değerlendirme düzeneği.",
+  "license": "Apache-2.0",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p .",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@akredit/cekirdek": "workspace:*",
+    "zod": "^4.6.7"
+  }
+}

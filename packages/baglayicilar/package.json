@@ -1,0 +1,19 @@
+{
+  "name": "@akredit/baglayicilar",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Kurum sistemleri ve açık veri kaynakları bağlayıcıları: Bologna (Proliz), OBS not aktarımı, YÖK Atlas, AVESİS.",
+  "license": "Apache-2.0",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p .",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@akredit/belge": "workspace:*",
+    "@akredit/cekirdek": "workspace:*"
+  }
+}

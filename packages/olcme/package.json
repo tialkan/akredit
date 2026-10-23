@@ -1,0 +1,18 @@
+{
+  "name": "@akredit/olcme",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Ölçme motoru: soru-ÇK eşlemesinden ders öğrenme çıktısı (ÇK) ve program çıktısı (PÇ) sağlanma düzeyleri, not istatistikleri, madde analizi.",
+  "license": "Apache-2.0",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p .",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@akredit/cekirdek": "workspace:*"
+  }
+}

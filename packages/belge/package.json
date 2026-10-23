@@ -1,0 +1,22 @@
+{
+  "name": "@akredit/belge",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Belge işleme: PDF, Word, Excel, PowerPoint, HTML metin çıkarma (sayfa/bölüm çapalı), parçalama, DOCX/XLSX üretimi.",
+  "license": "Apache-2.0",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p .",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@akredit/cekirdek": "workspace:*",
+    "docx": "^9.14.0",
+    "exceljs": "^4.4.0",
+    "fflate": "^0.8.3",
+    "unpdf": "^1.9.1"
+  }
+}

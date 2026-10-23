@@ -1,0 +1,9 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+# Kurulum betiği çalıştırmasına izin verilen paketler (pnpm 10 varsayılan olarak hepsini engeller).
+onlyBuiltDependencies:
+  - esbuild
+  - sharp
+  - "@biomejs/biome"
