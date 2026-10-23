@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dogrula:
+    name: Doğrula (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ matrix.node }}
+      - name: pnpm
+        run: corepack enable && corepack prepare --activate
+      - run: pnpm install --frozen-lockfile
+      - name: Biçim, tip ve testler
+        run: pnpm verify
+      - name: Web derlemesi
+        run: pnpm --filter @akredit/web build
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+
+  uctan-uca:
+    name: Uçtan uca (Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: dogrula
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: pnpm
+        run: corepack enable && corepack prepare --activate
+      - run: pnpm install --frozen-lockfile
+      - name: Tarayıcı
+        if: hashFiles('apps/web/e2e/**/*.ts') != ''
+        run: pnpm --filter @akredit/web exec playwright install --with-deps chromium
+      - name: Uçtan uca testler
+        if: hashFiles('apps/web/e2e/**/*.ts') != ''
+        run: pnpm --filter @akredit/web e2e
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"

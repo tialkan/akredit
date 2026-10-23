@@ -1,0 +1,19 @@
+{
+  "name": "@akredit/cerceveler",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Akreditasyon çerçeveleri: ölçüt ağaçları, olgunluk düzeyleri, kanıt gereksinimleri, rapor şablonları (YÖKAK, MÜDEK ve diğerleri).",
+  "license": "Apache-2.0",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p .",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@akredit/cekirdek": "workspace:*",
+    "zod": "^4.6.7"
+  }
+}
