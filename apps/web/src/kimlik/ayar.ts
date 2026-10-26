@@ -24,7 +24,11 @@ const SamlAyari = z.object({
   cert: z.string().min(1),
   callbackUrl: z.string().min(1),
   wantAssertionsSigned: z.boolean().default(true),
-  idpMetadata: z.object({ metadata: z.string().optional(), entityID: z.string().optional() }).default({}),
+  /** IdP: ya metaveri XML'i ya da varlık kimliği (YETKİM'de IdP metaverisi federasyondan gelir). */
+  idpMetadata: z.union([
+    z.object({ metadata: z.string().min(1), entityID: z.string().optional() }),
+    z.object({ entityID: z.string().min(1), cert: z.string().optional() }),
+  ]),
   spMetadata: z.object({ entityID: z.string().optional() }).default({}),
   identifierFormat: z.string().optional(),
   mapping: z

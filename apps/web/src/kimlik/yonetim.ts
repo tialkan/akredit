@@ -3,8 +3,8 @@
 // açık değerleri yalnız bir kez döndürülür, günlüğe girmez.
 
 import { randomBytes } from "node:crypto";
-import { type Islem, kiraciIslemi, sema } from "@akredit/vt";
-import { gunlugeYaz } from "@akredit/vt";
+import { ozetHesapla } from "@akredit/cekirdek";
+import { gunlugeYaz, type Islem, kiraciIslemi, sema } from "@akredit/vt";
 import {
   apiAnahtariTalebiDenetle,
   apiAnahtariUret,
@@ -19,7 +19,6 @@ import {
   type Rol,
   yetkiliMi,
 } from "@akredit/yetki";
-import { ozetHesapla } from "@akredit/cekirdek";
 import { and, eq, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { ErisimHatasi, hedefZinciri, type IstekBaglami } from "./erisim.ts";
@@ -170,7 +169,10 @@ export async function davetKabulEt(k: KimlikSunucusu, istek: Request, belirtec: 
     await k.db
       .insert(sema.kimlikUyelik)
       .values({ kullaniciId: oturum.user.id, eposta: davet.eposta, bagliKurumId: kurumId, kisiId });
-  await k.db.update(sema.kimlikDavet).set({ kabulZamani: simdi, kabulEdenKullaniciId: oturum.user.id }).where(eq(sema.kimlikDavet.id, davet.id));
+  await k.db
+    .update(sema.kimlikDavet)
+    .set({ kabulZamani: simdi, kabulEdenKullaniciId: oturum.user.id })
+    .where(eq(sema.kimlikDavet.id, davet.id));
   return { kurumId, kisiId };
 }
 
@@ -191,7 +193,15 @@ export async function rolAta(
     if (!kisi) throw new ErisimHatasi(404, "Kişi bulunamadı.");
     const [atama] = await tx
       .insert(sema.rolAtamasi)
-      .values({ kurumId: b.kisi.kurumId, kisiId, rol, kapsamTuru: kapsam.tur, kapsamId: kapsam.id, baslangic: simdi, bitis: rolBitis })
+      .values({
+        kurumId: b.kisi.kurumId,
+        kisiId,
+        rol,
+        kapsamTuru: kapsam.tur,
+        kapsamId: kapsam.id,
+        baslangic: simdi,
+        bitis: rolBitis,
+      })
       .returning();
     if (!atama) throw new Error("Rol ataması eklenemedi.");
     await gunlugeYaz(
@@ -258,10 +268,19 @@ export async function topluIceAktar(k: KimlikSunucusu, b: IstekBaglami, csv: str
         continue;
       }
       const hedef = await hedefZinciri(tx, kurumId, s.veri.kapsam_turu, kapsamId);
+      if (!hedef) {
+        hatalar.push({ satir: s.satir, ileti: "Kapsam kodu bulunamadı ya da birden çok kayıtla eşleşiyor." });
+        continue;
+      }
       const t = atamaYapabilirMi(
         b.kisi,
-        // biome-ignore lint/style/noNonNullAssertion: kapsamCoz bulduysa zincir vardır.
-        { rol: s.veri.rol, kapsam: { tur: s.veri.kapsam_turu, id: kapsamId }, hedef: hedef!, baslangic: simdi, bitis: s.veri.bitis ?? null },
+        {
+          rol: s.veri.rol,
+          kapsam: { tur: s.veri.kapsam_turu, id: kapsamId },
+          hedef,
+          baslangic: simdi,
+          bitis: s.veri.bitis ?? null,
+        },
         "rol.ata",
         simdi,
       );
@@ -326,7 +345,15 @@ export async function apiAnahtariOlustur(
   const u = apiAnahtariUret(randomBytes(48));
   const [kayit] = await k.db
     .insert(sema.kimlikApiAnahtari)
-    .values({ bagliKurumId: kurumId, kisiId: b.kisi.kisiId, ad, onek: u.onek, ozet: u.ozet, kapsam: t.kapsam, bitis: girdi.bitis })
+    .values({
+      bagliKurumId: kurumId,
+      kisiId: b.kisi.kisiId,
+      ad,
+      onek: u.onek,
+      ozet: u.ozet,
+      kapsam: t.kapsam,
+      bitis: girdi.bitis,
+    })
     .returning();
   if (!kayit) throw new Error("Anahtar eklenemedi.");
   await kiraciIslemi(k.db, kurumId, (tx) =>

@@ -3,8 +3,7 @@
 // Giriş bilgisi (belirteç, kod, çerez) hiçbir zaman günlüğe yazılmaz: kimlik olayları `kimlikOlayi` ile
 // ayıklanır, kütüphanenin kendi günlükleri de `gizliAyikla`dan geçer.
 
-import { sso } from "@better-auth/sso";
-import { kiraciIslemi, sema, type Vt } from "@akredit/vt";
+import { gunlugeYaz, kiraciIslemi, sema, type Vt } from "@akredit/vt";
 import {
   agParmakIzi,
   cihazParmakIzi,
@@ -15,7 +14,7 @@ import {
   SIHIRLI_BAGLANTI_SURESI_SN,
   supheliGirisMi,
 } from "@akredit/yetki";
-import { gunlugeYaz } from "@akredit/vt";
+import { sso } from "@better-auth/sso";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { magicLink } from "better-auth/plugins/magic-link";
@@ -29,9 +28,7 @@ export interface EpostaGonderici {
   supheliGiris(alici: string, ayrinti: { zaman: Date; cihaz: string }): Promise<void>;
 }
 
-export interface Kayitci {
-  (duzey: string, ileti: string, ayrinti?: unknown): void;
-}
+export type Kayitci = (duzey: string, ileti: string, ayrinti?: unknown) => void;
 
 export interface KimlikSecenekleri {
   db: Vt;
