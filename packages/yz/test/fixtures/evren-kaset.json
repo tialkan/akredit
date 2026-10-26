@@ -1,0 +1,10 @@
+{
+  "saglayici": "evren",
+  "model": "glm-5.3",
+  "kayitlar": [
+    {
+      "istek": { "mesajlar": [{ "rol": "kullanici", "icerik": "Merhaba" }] },
+      "yanit": { "icerik": "Merhaba, nasıl yardımcı olabilirim?", "aracCagrilari": [], "kullanim": { "giris": 5, "cikis": 8 } }
+    }
+  ]
+}

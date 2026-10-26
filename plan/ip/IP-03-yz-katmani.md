@@ -1,6 +1,6 @@
 # İP-03: Yapay zekâ katmanı ve güvenceler
 
-- **Durum:** hazır
+- **Durum:** inceleme
 - **Faz:** 1 (Temeller)
 - **Bağımlılık:** yok (atıf ayrıştırıcı `@akredit/cekirdek` içinde hazır)
 - **Sahip olduğu yollar:** `packages/yz/**`, `docs/raporlar/IP-03.md`
@@ -41,13 +41,13 @@ Sağlayıcıdan bağımsız, güvenceleri kodla uygulayan, test edilebilir bir Y
 
 ## Kabul ölçütleri
 
-- [ ] Hiçbir test gerçek ağa çıkmaz; HTTP bağdaştırıcıları sahte `fetch` ile istek biçimi, yeniden deneme ve hata eşlemesi açısından sınanır.
-- [ ] Atıf güvencesi: geçerli, var olmayan kanıt, alıntısı uyuşmayan, atıfsız olgusal cümle ve kısaltma içeren cümle örnekleri.
-- [ ] KVKK: geçerli ve geçersiz T.C. kimlik numaraları (sağlama), IBAN sağlaması, Türkçe ad eşleşmesi ("İLKNUR", "ılgın"), geri çevirme kaybı olmaması.
-- [ ] Ajan döngüsü: `onay_gerektirir` araç çalıştırılmaz; `yasak` araç çağrısı reddedilir; tur sınırı aşılınca durur.
-- [ ] Yapılandırılmış çıktı: geçersiz JSON → onarım → başarı; iki onarımdan sonra `InsanGerekliHatasi`.
-- [ ] Yurt dışı sağlayıcı, izin yokken çağrılamaz (test).
-- [ ] `src/guvence` satır kapsamı ≥ %90; `pnpm verify` temiz.
+- [x] Hiçbir test gerçek ağa çıkmaz; HTTP bağdaştırıcıları sahte `fetch` ile istek biçimi, yeniden deneme ve hata eşlemesi açısından sınanır.
+- [x] Atıf güvencesi: geçerli, var olmayan kanıt, alıntısı uyuşmayan, atıfsız olgusal cümle ve kısaltma içeren cümle örnekleri.
+- [x] KVKK: geçerli ve geçersiz T.C. kimlik numaraları (sağlama), IBAN sağlaması, Türkçe ad eşleşmesi ("İLKNUR", "ılgın"), geri çevirme kaybı olmaması.
+- [x] Ajan döngüsü: `onay_gerektirir` araç çalıştırılmaz; `yasak` araç çağrısı reddedilir; tur sınırı aşılınca durur.
+- [x] Yapılandırılmış çıktı: geçersiz JSON → onarım → başarı; iki onarımdan sonra `InsanGerekliHatasi`.
+- [x] Yurt dışı sağlayıcı, izin yokken çağrılamaz (test).
+- [x] `src/guvence` satır kapsamı ≥ %90; `pnpm verify` temiz.
 
 ## Kapsam dışı
 
@@ -56,3 +56,4 @@ Veritabanına yazma (çağıran yapar), gerçek EVREN/Anthropic çağrısıyla d
 ## Günlük
 
 - 2026-10-23: İP tanımlandı.
+- 2026-10-27: Uygulandı (ajan). Sağlayıcı arayüzü, OpenAI uyumlu (EVREN, vLLM, SGLang, Ollama, OpenAI, OpenRouter) ve Anthropic bağdaştırıcıları, sahte ve kayıt/oynatma sağlayıcıları, yapılandırılmış çıktı (2 onarım → InsanGerekliHatasi), yetkili ajan döngüsü, güvenceler (atıf, sayı, KVKK, istem kalkanı, politika), ölçüm, iki görev (kanit-siniflama, toplanti-bilgisi) ve değerlendirme düzeneği. 100 test, ağsız; src/guvence satır kapsamı %100 (eşik %90, vitest coverage-v8 ile zorunlu). Kararlar: KVKK yer tutucusu yazım başına verilir (geri çevirme birebir); geçersiz sağlamalı TCKN/IBAN maskelenmez; politika yurt dışı sağlayıcıyı izinsiz kurmayı reddeder, izinliyse maskeleyen sarmalayıcı zorunlu. Kalan: gerçek modelle değerlendirme (kapsam dışı), görev çıktısındaki yer tutucuları geri çevirme çağıranın işi.
