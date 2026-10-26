@@ -81,7 +81,12 @@ export function kimlikSunucusuOlustur(s: KimlikSecenekleri) {
     baseURL: ayar.temelAdres,
     basePath: KIMLIK_YOLU,
     secret: ayar.gizli,
-    trustedOrigins: [new URL(ayar.temelAdres).origin, ...ayar.izinliKokenler],
+    // Kurum kimlik sağlayıcılarının kökenleri de güvenilir: OIDC keşif adresi yalnız bunlardan okunur.
+    trustedOrigins: [
+      new URL(ayar.temelAdres).origin,
+      ...ayar.izinliKokenler,
+      ...ayar.ssoSaglayicilari.flatMap((x) => (x.oidcConfig ? [new URL(x.oidcConfig.issuer).origin] : [])),
+    ],
     telemetry: { enabled: false },
     logger: {
       level: "warn",
