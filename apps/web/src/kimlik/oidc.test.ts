@@ -104,4 +104,14 @@ describe("sahte OIDC sağlayıcısıyla giriş", () => {
     await kimlikIstegi(o.k, geri.toString(), { kavanoz });
     expect(kavanoz.cerezler.has("akredit.session_token")).toBe(false);
   });
+
+  it("kurum sağlayıcısı kendi alan adı dışındaki e-postayla başka kurumun üyeliğine bağlanamaz", async () => {
+    // A'nın kimlik sağlayıcısı (alan adı a.ornek.edu.tr) B yöneticisinin e-postasını bildirir.
+    // B yöneticisinin henüz hesabı yok; üyeliği tohumda. Hesap açılmamalı, B'ye bağlanmamalı.
+    idp.kullanici = { sub: "oidc-saldiri", email: o.b.yoneticiEposta, name: "Deneme Saldırgan" };
+    const { kavanoz } = await oidcGiris();
+    expect(kavanoz.cerezler.has("akredit.session_token")).toBe(false);
+    const k = await o.db.select().from(sema.kimlikKullanici);
+    expect(k.map((x) => x.email)).not.toContain(o.b.yoneticiEposta);
+  });
 });
