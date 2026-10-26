@@ -1,1 +1,46 @@
-[]
+[
+  {
+    "kurum": "YÖKAK",
+    "belge": "Alt Ölçütler Rehberi (kapakta 2020)",
+    "adres": "https://www.yokak.gov.tr/documents/national-doc/Ek7AltOlcutlerRehberi.pdf",
+    "erisimTarihi": "2026-10-27",
+    "indirildi": false,
+    "dosya": null,
+    "sha256": null,
+    "durum": "DOĞRULANMADI",
+    "not": "Ağ vekili yokak.gov.tr'yi engelledi (403). Kod ve başlıklar web okumasından alındı; kullanıcı dosyayı indirip özetini yazmalı. Güncel sürüm olup olmadığı denetlenmeli."
+  },
+  {
+    "kurum": "YÖKAK",
+    "belge": "Değerlendirme Programları Kılavuzu 3.3",
+    "adres": "https://www.yokak.gov.tr/documents/national-doc/1_Gündem_Değerlendirme Programları Kılavuzu 3.3 (1).pdf",
+    "erisimTarihi": "2026-10-27",
+    "indirildi": false,
+    "dosya": null,
+    "sha256": null,
+    "durum": "DOĞRULANMADI",
+    "not": "Arama sonucunda bulundu, açılamadı. Rubrik (olgunluk düzeyleri) bu ya da güncel kılavuzdan alınmalı."
+  },
+  {
+    "kurum": "YÖKAK",
+    "belge": "Kurum İç Değerlendirme Raporu (KİDR) hazırlama kılavuzu, güncel sürüm",
+    "adres": "https://www.yokak.gov.tr",
+    "erisimTarihi": "2026-10-27",
+    "indirildi": false,
+    "dosya": null,
+    "sha256": null,
+    "durum": "DOĞRULANMADI",
+    "not": "Resmî dosya adresi bulunamadı; kullanıcı YÖKAK sitesinden indirmeli."
+  },
+  {
+    "kurum": "MÜDEK",
+    "belge": "Değerlendirme ölçütleri, güncel sürüm",
+    "adres": "https://www.mudek.org.tr",
+    "erisimTarihi": "2026-10-27",
+    "indirildi": false,
+    "dosya": null,
+    "sha256": null,
+    "durum": "DOĞRULANMADI",
+    "not": "Ağ vekili mudek.org.tr'yi engelledi; belge adresi bulunamadı. Kullanıcı MÜDEK sitesinden indirmeli."
+  }
+]
