@@ -1,18 +1,151 @@
 @import "tailwindcss";
 
+/* Renkler CSS değişkenleri olarak tanımlanır. Metin/zemin çiftleri WCAG 2.2 AA (4.5:1) üstündedir. */
 :root {
-  --zemin: #ffffff;
-  --metin: #14171f;
+  color-scheme: light;
+  --zemin: #f7f6f2;
+  --yuzey: #ffffff;
+  --yuzey-2: #efede7;
+  --metin: #1a1d23;
+  --soluk: #4b5262;
+  --cizgi: #d4d1c8;
+  --cizgi-guclu: #8a8f9a;
+  --vurgu: #0b5960;
+  --vurgu-metin: #ffffff;
+  --vurgu-zemin: #e3f0ef;
+  --odak: #b5520a;
+  --risk-dusuk: #1c6634;
+  --risk-dusuk-zemin: #e4f1e8;
+  --risk-orta: #84470a;
+  --risk-orta-zemin: #fbefdc;
+  --risk-yuksek: #a1221a;
+  --risk-yuksek-zemin: #fbe6e3;
+  --isi-0: #f1f0ec;
+  --isi-1: #dcebea;
+  --isi-2: #b7d8d6;
+  --isi-3: #82bcb9;
+  --isi-4: #3f8f8c;
+  --isi-5: #0b5960;
+  --isi-metin-koyu: #ffffff;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --zemin: #0f1115;
-    --metin: #e8eaf0;
+    color-scheme: dark;
+    --zemin: #111418;
+    --yuzey: #191d23;
+    --yuzey-2: #222731;
+    --metin: #ebe9e4;
+    --soluk: #aeb5c1;
+    --cizgi: #333a46;
+    --cizgi-guclu: #6c7483;
+    --vurgu: #79cfcf;
+    --vurgu-metin: #0d1a1b;
+    --vurgu-zemin: #17302f;
+    --odak: #ffb067;
+    --risk-dusuk: #8bd8a2;
+    --risk-dusuk-zemin: #142a1b;
+    --risk-orta: #f2bb6b;
+    --risk-orta-zemin: #2f2210;
+    --risk-yuksek: #ffa196;
+    --risk-yuksek-zemin: #36161a;
+    --isi-0: #1c2027;
+    --isi-1: #1b3433;
+    --isi-2: #1f4d4b;
+    --isi-3: #2a6c69;
+    --isi-4: #3e9792;
+    --isi-5: #79cfcf;
+    --isi-metin-koyu: #0d1a1b;
   }
+}
+
+@theme inline {
+  --font-sans: "Source Sans 3 Variable", "Source Sans 3", system-ui, sans-serif;
+  --color-zemin: var(--zemin);
+  --color-yuzey: var(--yuzey);
+  --color-yuzey-2: var(--yuzey-2);
+  --color-metin: var(--metin);
+  --color-soluk: var(--soluk);
+  --color-cizgi: var(--cizgi);
+  --color-cizgi-guclu: var(--cizgi-guclu);
+  --color-vurgu: var(--vurgu);
+  --color-vurgu-metin: var(--vurgu-metin);
+  --color-vurgu-zemin: var(--vurgu-zemin);
+  --color-odak: var(--odak);
+  --color-risk-dusuk: var(--risk-dusuk);
+  --color-risk-dusuk-zemin: var(--risk-dusuk-zemin);
+  --color-risk-orta: var(--risk-orta);
+  --color-risk-orta-zemin: var(--risk-orta-zemin);
+  --color-risk-yuksek: var(--risk-yuksek);
+  --color-risk-yuksek-zemin: var(--risk-yuksek-zemin);
+}
+
+html {
+  font-size: 106.25%; /* 17px: uzun metin ve tablolar için rahat okuma */
 }
 
 body {
   background: var(--zemin);
   color: var(--metin);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  font-feature-settings: "kern", "liga";
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Klavye odağı her zaman görünür (WCAG 2.4.7, 2.4.11). */
+:focus-visible {
+  outline: 3px solid var(--odak);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: var(--vurgu-zemin);
+}
+
+.metin-sayfa h2 {
+  font-size: 1.5rem;
+  font-weight: 650;
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.01em;
+}
+.metin-sayfa h3 {
+  font-size: 1.15rem;
+  font-weight: 650;
+  margin-top: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+.metin-sayfa p,
+.metin-sayfa ul,
+.metin-sayfa ol {
+  margin-top: 0.75rem;
+  max-width: 68ch;
+}
+.metin-sayfa ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+}
+.metin-sayfa ol {
+  list-style: decimal;
+  padding-left: 1.25rem;
+}
+.metin-sayfa a {
+  color: var(--vurgu);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+dialog::backdrop {
+  background: rgb(10 12 16 / 0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
