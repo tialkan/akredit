@@ -190,8 +190,7 @@ export class BellekVeriKaynagi implements VeriKaynagi {
       return hata("Yüksek riskli işler için otomatik onay politikası oluşturulamaz.");
     if (girdi.oneriTurleri.some((t) => ONERI_RISKI[t] === "yuksek"))
       return hata("Seçilen türlerden biri yüksek riskli. Yüksek riskli işler otomatik onaylanamaz.");
-    if (!(girdi.enDusukGuven >= 0 && girdi.enDusukGuven <= 1))
-      return hata("Güven eşiği 0 ile 100 arasında olmalı.");
+    if (!(girdi.enDusukGuven >= 0 && girdi.enDusukGuven <= 1)) return hata("Güven eşiği 0 ile 100 arasında olmalı.");
     const kayit: PolitikaKaydi = {
       id: this.#yeniKimlik("politika") as PolitikaId,
       ad: girdi.ad.trim(),
@@ -214,15 +213,16 @@ export class BellekVeriKaynagi implements VeriKaynagi {
     const p = this.#ayarlar.politikalar.find((x) => x.id === id);
     if (!p) return hata("Politika bulunamadı.");
     if (p.durum === "imzali") return hata("Bu politika zaten imzalanmış.");
-    if (imzalayanAd.trim() !== ORNEK_KULLANICI.ad)
-      return hata("İmzalamak için adınızı hesabınızdaki gibi yazın.");
+    if (imzalayanAd.trim() !== ORNEK_KULLANICI.ad) return hata("İmzalamak için adınızı hesabınızdaki gibi yazın.");
     p.durum = "imzali";
     p.imzalayan = ORNEK_KULLANICI.ad;
     p.imzaZamani = this.#simdi();
     return { tamam: true, deger: structuredClone(p) };
   }
 
-  async ayarlariGuncelle(degisiklik: Partial<Pick<Ayarlar, "yzSaglayici" | "yurtDisiIzni" | "kurumAdi" | "kurumKisaAdi">>) {
+  async ayarlariGuncelle(
+    degisiklik: Partial<Pick<Ayarlar, "yzSaglayici" | "yurtDisiIzni" | "kurumAdi" | "kurumKisaAdi">>,
+  ) {
     this.#ayarlar = { ...this.#ayarlar, ...degisiklik };
     return this.ayarlar();
   }

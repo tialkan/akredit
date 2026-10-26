@@ -180,11 +180,7 @@ describe("okuma", () => {
     // "Öğrenci" geçen iki başlık: memnuniyet anketi (14) ve öğretim elemanı eğitimi değil; danışmanlık değil.
     expect((await k.kanitlar({ arama: "ogrenci" })).map((x) => x.id)).toEqual(["kanit-14"]);
     expect((await k.kanitlar({ olcut: "Ö-7" })).map((x) => x.id)).toEqual(["kanit-12", "kanit-13"]);
-    expect((await k.kanitlar({ kaynakTuru: "eposta" })).map((x) => x.id)).toEqual([
-      "kanit-03",
-      "kanit-17",
-      "kanit-19",
-    ]);
+    expect((await k.kanitlar({ kaynakTuru: "eposta" })).map((x) => x.id)).toEqual(["kanit-03", "kanit-17", "kanit-19"]);
   });
 
   it("panel özeti: bekleyen sayılar kararlarla azalır, süre karar sayısından hesaplanır", async () => {

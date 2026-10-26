@@ -1,7 +1,13 @@
 // Etiketli form öğeleri: metin alanı, çok satırlı metin, seçim ve işaret (onay) kutusu.
 // Her öğe görünür etiket, isteğe bağlı ipucu ve hata iletisiyle aria-describedby üzerinden bağlanır.
 
-import { type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes, useId } from "react";
+import {
+  type InputHTMLAttributes,
+  type ReactNode,
+  type SelectHTMLAttributes,
+  type TextareaHTMLAttributes,
+  useId,
+} from "react";
 
 const ALAN_SINIFI =
   "w-full rounded-md border border-cizgi-guclu bg-yuzey px-3 py-2 text-metin placeholder:text-soluk aria-[invalid=true]:border-risk-yuksek";
@@ -33,7 +39,14 @@ function Altlik({ id, ipucu, hata }: { id: string; ipucu?: ReactNode; hata?: str
   );
 }
 
-export function MetinAlani({ etiket, ipucu, hata, id: verilen, className = "", ...diger }: AlanCercevesi & InputHTMLAttributes<HTMLInputElement>) {
+export function MetinAlani({
+  etiket,
+  ipucu,
+  hata,
+  id: verilen,
+  className = "",
+  ...diger
+}: AlanCercevesi & InputHTMLAttributes<HTMLInputElement>) {
   const uretilen = useId();
   const id = verilen ?? uretilen;
   return (

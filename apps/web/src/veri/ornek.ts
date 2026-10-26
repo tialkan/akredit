@@ -20,16 +20,7 @@ import type {
   ParcaId,
   RiskDuzeyi,
 } from "@akredit/cekirdek";
-import type {
-  Ayarlar,
-  Ders,
-  KanitGorunumu,
-  Kullanici,
-  OneriGorunumu,
-  Program,
-  Rapor,
-  SurecGorevi,
-} from "./kaynak.ts";
+import type { Ayarlar, Ders, KanitGorunumu, Kullanici, OneriGorunumu, Program, Rapor, SurecGorevi } from "./kaynak.ts";
 
 /** Örnek verinin "şimdi"si. */
 export const ORNEK_SIMDI: IsoZaman = "2026-10-27T09:00:00.000Z";
@@ -190,7 +181,11 @@ export const PROGRAMLAR: Program[] = [
         })),
       ),
     ),
-    olcme: programCiktilari.map((pc, p) => ({ ciktiId: pc.id, kod: pc.kod, saglanma: [0.72, 0.64, 0.81, 0.55, 0.47, 0.69][p] ?? 0 })),
+    olcme: programCiktilari.map((pc, p) => ({
+      ciktiId: pc.id,
+      kod: pc.kod,
+      saglanma: [0.72, 0.64, 0.81, 0.55, 0.47, 0.69][p] ?? 0,
+    })),
     esik: 0.6,
   },
 ];

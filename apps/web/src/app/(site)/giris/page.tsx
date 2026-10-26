@@ -11,7 +11,10 @@ export default function Giris() {
     <div className="mx-auto max-w-md px-4 py-14">
       <h1 className="text-3xl font-bold tracking-tight">Giriş</h1>
       <p className="mt-2 text-soluk">Parola yok: e-postanıza tek kullanımlık bir giriş bağlantısı gönderilir.</p>
-      <p role="note" className="mt-4 rounded-md border border-risk-orta bg-risk-orta-zemin px-3 py-2 text-sm text-risk-orta">
+      <p
+        role="note"
+        className="mt-4 rounded-md border border-risk-orta bg-risk-orta-zemin px-3 py-2 text-sm text-risk-orta"
+      >
         Giriş henüz açık değil. Bu ekran önizlemedir.
       </p>
       <form className="mt-6 space-y-4" aria-describedby="giris-not">

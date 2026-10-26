@@ -43,7 +43,9 @@ export function Tablo({
   }, [satirlar, siralama]);
 
   const degistir = (anahtar: string) =>
-    setSiralama((s) => (s?.anahtar === anahtar && s.yon === "artan" ? { anahtar, yon: "azalan" } : { anahtar, yon: "artan" }));
+    setSiralama((s) =>
+      s?.anahtar === anahtar && s.yon === "artan" ? { anahtar, yon: "azalan" } : { anahtar, yon: "artan" },
+    );
 
   return (
     <div className="overflow-x-auto rounded-lg border border-cizgi bg-yuzey">
@@ -55,7 +57,12 @@ export function Tablo({
               const aktif = siralama?.anahtar === s.anahtar;
               const ariaSort = aktif ? (siralama?.yon === "artan" ? "ascending" : "descending") : undefined;
               return (
-                <th key={s.anahtar} scope="col" aria-sort={ariaSort} className={`px-4 py-2 text-sm font-semibold ${s.sinif ?? ""}`}>
+                <th
+                  key={s.anahtar}
+                  scope="col"
+                  aria-sort={ariaSort}
+                  className={`px-4 py-2 text-sm font-semibold ${s.sinif ?? ""}`}
+                >
                   {s.siralanabilir ? (
                     <button
                       type="button"

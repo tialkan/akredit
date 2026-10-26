@@ -36,8 +36,8 @@ export default function NasilCalisir() {
           <strong>Orta risk</strong> (ör. matris katkısı, rapor bölümü): toplu onaylanabilir, kanıt bir tıkla açılır.
         </li>
         <li>
-          <strong>Yüksek risk</strong> (ör. olgunluk düzeyi beyanı, dış kuruma gönderim): her zaman tek tek ve
-          kanıtlar açıkken onaylanır. Otomatik onaya bağlanamaz.
+          <strong>Yüksek risk</strong> (ör. olgunluk düzeyi beyanı, dış kuruma gönderim): her zaman tek tek ve kanıtlar
+          açıkken onaylanır. Otomatik onaya bağlanamaz.
         </li>
       </ul>
       <h3>Otomatik onay politikası</h3>

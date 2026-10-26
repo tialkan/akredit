@@ -37,7 +37,10 @@ export function KenarCubugu({ bekleyenSayisi }: { bekleyenSayisi: number }) {
   const yol = usePathname() ?? "";
   const [acik, setAcik] = useState(false);
   return (
-    <nav aria-label="Panel menüsü" className="border-b border-cizgi bg-yuzey md:min-h-full md:w-64 md:shrink-0 md:border-r md:border-b-0">
+    <nav
+      aria-label="Panel menüsü"
+      className="border-b border-cizgi bg-yuzey md:min-h-full md:w-64 md:shrink-0 md:border-r md:border-b-0"
+    >
       <button
         type="button"
         className="flex min-h-11 w-full items-center gap-2 px-4 font-semibold md:hidden"

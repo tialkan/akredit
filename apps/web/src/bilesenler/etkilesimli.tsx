@@ -145,7 +145,13 @@ export function IletisimKutusu({
             </p>
           ) : null}
         </div>
-        <Dugme tur="sessiz" boy="kucuk" onClick={kapat} aria-label="Kapat" simge={<X aria-hidden className="size-5" />} />
+        <Dugme
+          tur="sessiz"
+          boy="kucuk"
+          onClick={kapat}
+          aria-label="Kapat"
+          simge={<X aria-hidden className="size-5" />}
+        />
       </div>
       <div className="max-h-[65vh] overflow-y-auto px-5 py-4">{children}</div>
       {altlik ? <div className="flex flex-wrap justify-end gap-2 border-t border-cizgi px-5 py-3">{altlik}</div> : null}
@@ -216,7 +222,9 @@ function BildirimKutusu({ kayit, kaldir }: { kayit: BildirimKaydi; kaldir: (id: 
         ? "border-risk-dusuk bg-risk-dusuk-zemin text-risk-dusuk"
         : "border-cizgi-guclu bg-yuzey text-metin";
   return (
-    <div className={`pointer-events-auto flex w-full max-w-md items-start gap-3 rounded-md border px-4 py-3 shadow-lg ${renk}`}>
+    <div
+      className={`pointer-events-auto flex w-full max-w-md items-start gap-3 rounded-md border px-4 py-3 shadow-lg ${renk}`}
+    >
       <p className="flex-1 font-semibold">{kayit.metin}</p>
       <button type="button" onClick={() => kaldir(kayit.id)} aria-label="Bildirimi kapat" className="rounded p-1">
         <X aria-hidden className="size-4" />

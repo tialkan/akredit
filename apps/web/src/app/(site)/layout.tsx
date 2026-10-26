@@ -23,7 +23,10 @@ export default function SiteYerlesimi({ children }: { children: ReactNode }) {
             <ul className="flex flex-wrap gap-x-5 gap-y-1">
               {MENU.map((m) => (
                 <li key={m.href}>
-                  <Link href={m.href} className="inline-flex min-h-11 items-center text-metin hover:text-vurgu hover:underline">
+                  <Link
+                    href={m.href}
+                    className="inline-flex min-h-11 items-center text-metin hover:text-vurgu hover:underline"
+                  >
                     {m.ad}
                   </Link>
                 </li>
