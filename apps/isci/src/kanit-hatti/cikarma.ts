@@ -27,7 +27,7 @@ export function cikarmaHavuzu(ayar: { bellekMb?: number } = {}) {
   let w: Worker | null = null;
   let sayac = 0;
   let sira: Promise<unknown> = Promise.resolve();
-  const bekleyen = new Map<number, (y: Yanit) => void>();
+  const bekleyen = new Map<number, { isci: Worker; f: (y: Yanit) => void }>();
 
   const ac = (): Worker => {
     if (w) return w;
@@ -35,11 +35,10 @@ export function cikarmaHavuzu(ayar: { bellekMb?: number } = {}) {
       resourceLimits: { maxOldGenerationSizeMb: ayar.bellekMb ?? 512 },
     });
     yeni.unref();
-    yeni.on("message", (y: Yanit) => bekleyen.get(y.no)?.(y));
+    yeni.on("message", (y: Yanit) => bekleyen.get(y.no)?.f(y));
     const coku = () => {
       if (w === yeni) w = null;
-      for (const [no, f] of bekleyen) f({ no, hata: true });
-      bekleyen.clear();
+      for (const [no, b] of bekleyen) if (b.isci === yeni) b.f({ no, hata: true });
     };
     yeni.on("error", coku);
     yeni.on("exit", coku);
@@ -66,10 +65,13 @@ export function cikarmaHavuzu(ayar: { bellekMb?: number } = {}) {
         void isci.terminate();
         coz(bos(SURE_DOLDU));
       }, toplamSureMs);
-      bekleyen.set(no, (y) => {
-        clearTimeout(zamanlayici);
-        bekleyen.delete(no);
-        coz(y.sonuc ?? bos(OKUNAMADI));
+      bekleyen.set(no, {
+        isci,
+        f: (y) => {
+          clearTimeout(zamanlayici);
+          bekleyen.delete(no);
+          coz(y.sonuc ?? bos(OKUNAMADI));
+        },
       });
       isci.postMessage({ no, veri, ipucu, secenek: cikarma, kilitle });
     });
