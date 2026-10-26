@@ -1,0 +1,42 @@
+{
+  "_not": "Kurgu kayıtlar: kimlikler, adlar ve sürümler uydurmadır. Şekiller API belgelerine göre yazıldı; canlı hesaptan alınmadı (DOĞRULANMADI).",
+  "driveKok1": {
+    "nextPageToken": "sayfa-2",
+    "files": [
+      { "id": "dosyaA1", "name": "Danışma Kurulu Tutanağı.pdf", "mimeType": "application/pdf", "md5Checksum": "aaaa1111", "modifiedTime": "2025-03-14T08:00:00.000Z", "size": "12" },
+      { "id": "klasorB", "name": "Ders Dosyaları", "mimeType": "application/vnd.google-apps.folder" }
+    ]
+  },
+  "driveKok2": {
+    "files": [
+      { "id": "belgeC", "name": "Öz Değerlendirme Taslağı", "mimeType": "application/vnd.google-apps.document", "modifiedTime": "2025-04-01T10:00:00.000Z" },
+      { "id": "formD", "name": "Kurgu Anket", "mimeType": "application/vnd.google-apps.form", "modifiedTime": "2025-04-01T10:00:00.000Z" }
+    ]
+  },
+  "driveAlt": {
+    "files": [
+      { "id": "dosyaE", "name": "KRG101/ölçme.xlsx", "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "md5Checksum": "eeee5555", "size": "5" }
+    ]
+  },
+  "graphKok1": {
+    "@odata.nextLink": "https://graph.microsoft.com/v1.0/me/drive/items/KOK!1/children?$skiptoken=kurgu",
+    "value": [
+      { "id": "KOK!10", "name": "Program Çıktıları.docx", "eTag": "\"{E1},1\"", "cTag": "\"c:{E1},1\"", "size": 7, "lastModifiedDateTime": "2025-02-02T09:00:00Z", "file": { "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document" } }
+    ]
+  },
+  "graphKok2": {
+    "value": [
+      { "id": "KOK!20", "name": "Arşiv", "folder": { "childCount": 1 } },
+      { "id": "KOK!11", "name": "cok-buyuk.zip", "cTag": "\"c:{E2},3\"", "size": 999999999, "file": { "mimeType": "application/zip" } }
+    ]
+  },
+  "graphAlt": {
+    "value": [{ "id": "KOK!21", "name": "eski.pdf", "cTag": "\"c:{E3},1\"", "size": 3, "file": { "mimeType": "application/pdf" } }]
+  },
+  "tokenYaniti": {
+    "access_token": "kurgu-yeni-erisim",
+    "expires_in": 3599,
+    "scope": "https://www.googleapis.com/auth/drive.readonly",
+    "token_type": "Bearer"
+  }
+}
