@@ -3,6 +3,7 @@
 export * from "./cerceve.ts";
 export * from "./gunluk.ts";
 export * from "./kanit.ts";
+export * from "./kimlik.ts";
 export * from "./kurum.ts";
 export * from "./olcme.ts";
 export * from "./oneri.ts";
