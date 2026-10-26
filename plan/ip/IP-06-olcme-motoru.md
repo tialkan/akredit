@@ -1,6 +1,6 @@
 # İP-06: Ölçme motoru (ÇK ve PÇ sağlanma düzeyi)
 
-- **Durum:** hazır
+- **Durum:** inceleme
 - **Faz:** 1 (Temeller)
 - **Bağımlılık:** yok (girdi türü `@akredit/cekirdek` `DersOlcmeVerisi`)
 - **Sahip olduğu yollar:** `packages/olcme/**`, `docs/olcme-yontemi.md`, `docs/raporlar/IP-06.md`
@@ -36,11 +36,11 @@ const sonuc = dersiOlc(veri /* DersOlcmeVerisi */, { esik: 60, aracAgirligiKulla
 
 ## Kabul ölçütleri
 
-- [ ] 5 öğrenci, 2 araç, 6 soru, 3 ÇK, 4 PÇ'lik elle hesaplanmış örnek: bütün değerler testte, hesap adımları yorumda.
-- [ ] Uç durumlar: girmeyen öğrenci, tam puanı 0 olan soru (bulgu + paydadan çıkar), eşlemesiz soru, tek öğrenci, herkesin aynı puanı (sd 0, alfa tanımsız → null + bulgu), ağırlıklar toplamı ≠ 100.
-- [ ] Sonuçlar girdi sırasından bağımsız (öğrenci ve soru sırası karıştırılınca aynı `girdiOzeti` ve aynı sonuç).
-- [ ] Satır ve dal kapsamı ≥ %95.
-- [ ] `pnpm verify` temiz.
+- [x] 5 öğrenci, 2 araç, 6 soru, 3 ÇK, 4 PÇ'lik elle hesaplanmış örnek: bütün değerler testte, hesap adımları yorumda.
+- [x] Uç durumlar: girmeyen öğrenci, tam puanı 0 olan soru (bulgu + paydadan çıkar), eşlemesiz soru, tek öğrenci, herkesin aynı puanı (sd 0, alfa tanımsız → null + bulgu), ağırlıklar toplamı ≠ 100.
+- [x] Sonuçlar girdi sırasından bağımsız (öğrenci ve soru sırası karıştırılınca aynı `girdiOzeti` ve aynı sonuç).
+- [x] Satır ve dal kapsamı ≥ %95.
+- [x] `pnpm verify` temiz.
 
 ## Kapsam dışı
 
@@ -49,3 +49,4 @@ Not dökümünün okunması (İP-05), ders dosyası belgesinin üretimi (İP-16)
 ## Günlük
 
 - 2026-10-23: İP tanımlandı.
+- 2026-10-27: Uygulandı. `dersiOlc` (soru/araç/karma yöntem, ÇK başarısı, ders içi PÇ, not istatistikleri, madde analizi, 13 kurallı bulgular, örnek kâğıtlar, `hesapSurumu` + `girdiOzeti`), `programPcHesapla` (eşit/AKTS/katkı), `docs/olcme-yontemi.md`. 30 test; kapsam satır %100, dal %97,75 (eşik %95 `vitest.config.ts` ile zorunlu). Kararlar: sd örneklem (n−1); araç ağırlığı varsayılan kapalı; girilmeyen araç ders notunda 0; ağırlıklar ≠ 100 ise not 100'e oranlanır; sorusuz araç `"*"` numaralı sanal soru; varsayılan harf tablosu ve geçme notu 60 "örnek". Yeni geliştirme bağımlılığı: `@vitest/coverage-v8` (MIT, kapsam ölçümü için). Rapor: `docs/raporlar/IP-06.md`.
