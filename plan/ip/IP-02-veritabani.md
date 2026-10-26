@@ -1,6 +1,6 @@
 # İP-02: Veritabanı şeması, kiracı yalıtımı ve değiştirilemez kayıt
 
-- **Durum:** hazır
+- **Durum:** inceleme
 - **Faz:** 1 (Temeller)
 - **Bağımlılık:** yok (türler için `@akredit/cekirdek` sözleşmesi hazır)
 - **Sahip olduğu yollar:** `packages/vt/**`, `docs/raporlar/IP-02.md`
@@ -29,13 +29,13 @@
 
 ## Kabul ölçütleri (PGlite testleri)
 
-- [ ] Bütün göçler boş veritabanına hatasız uygulanır, ikinci kez uygulamak bir şey değiştirmez.
-- [ ] Kiracı yalıtımı: `akredit_uygulama` rolüyle A kurumu bağlamında B'nin satırları görünmez; B'ye ait `kurum_id` ile ekleme reddedilir; `app.kurum_id` ayarlanmadan hiçbir satır görünmez. Her kiracı tablosu için otomatik test (tablo listesi şemadan okunur, elle liste tutulmaz).
-- [ ] Yalnız-ekleme tabloları için UPDATE ve DELETE reddedilir (her tablo için).
-- [ ] Karar tekilliği, politika yüksek risk yasağı, politika dayanağında kimlik zorunluluğu testli.
-- [ ] Günlük zinciri: 100 kayıt sonrası doğrulama NULL; sahip rolüyle tetikleyici kapatılıp bir kayıt değiştirildiğinde doğrulama o kaydın kimliğini döndürür. Uygulama tarafı özet hesabı SQL'inkiyle aynı.
-- [ ] Vektör sütunu ve benzerlik sorgusu (`<=>`) PGlite'ta çalışır.
-- [ ] `pnpm verify` temiz.
+- [x] Bütün göçler boş veritabanına hatasız uygulanır, ikinci kez uygulamak bir şey değiştirmez.
+- [x] Kiracı yalıtımı: `akredit_uygulama` rolüyle A kurumu bağlamında B'nin satırları görünmez; B'ye ait `kurum_id` ile ekleme reddedilir; `app.kurum_id` ayarlanmadan hiçbir satır görünmez. Her kiracı tablosu için otomatik test (tablo listesi şemadan okunur, elle liste tutulmaz).
+- [x] Yalnız-ekleme tabloları için UPDATE ve DELETE reddedilir (her tablo için).
+- [x] Karar tekilliği, politika yüksek risk yasağı, politika dayanağında kimlik zorunluluğu testli.
+- [x] Günlük zinciri: 100 kayıt sonrası doğrulama NULL; sahip rolüyle tetikleyici kapatılıp bir kayıt değiştirildiğinde doğrulama o kaydın kimliğini döndürür. Uygulama tarafı özet hesabı SQL'inkiyle aynı.
+- [x] Vektör sütunu ve benzerlik sorgusu (`<=>`) PGlite'ta çalışır.
+- [x] `pnpm verify` temiz.
 
 ## Notlar
 
@@ -46,3 +46,4 @@
 ## Günlük
 
 - 2026-10-23: İP tanımlandı.
+- 2026-10-27: Uygulandı (inceleme). 41 tablolu Drizzle şeması; göçler 0000 (vector, roller), 0001 (drizzle-kit), 0002 (yetkiler, şemadan döngüyle RLS, yalnız-ekleme tetikleyicileri, karar/politika kuralları, günlük özet zinciri ve `gunluk_zinciri_dogrula`). `kiraciIslemi`, `gunlugeYaz`, `zinciriDogrula`, `zinciriDisaridanDogrula`, `gocleriUygula`, `tohumla`. 39 PGlite testi; bütün kabul ölçütleri karşılandı. Kararlar: çerçeve tabloları kurumlar arası ortak (yalnız okuma); politika kararında karar veren = imzalayan; yeni bağımlılık `@electric-sql/pglite-pgvector@0.0.12`. Kalan: eşzamanlı günlük eklemesinin gerçek PostgreSQL'de sınanması (İP-08). Rapor: `docs/raporlar/IP-02.md`.
