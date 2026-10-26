@@ -4,7 +4,7 @@
 import { gocleriUygula, pgliteBaglantisi, sema, type Vt } from "@akredit/vt";
 import { sql } from "drizzle-orm";
 import type { KimlikAyari, SsoSaglayicisi } from "./ayar.ts";
-import { type EpostaGonderici, kimlikSunucusuOlustur, type KimlikSunucusu } from "./sunucu.ts";
+import { type EpostaGonderici, type KimlikSunucusu, kimlikSunucusuOlustur } from "./sunucu.ts";
 
 export const ADRES = "http://akredit.test";
 export const KURUM_A = "01900000-0000-7000-8000-00000000000a";
@@ -180,7 +180,13 @@ export async function sihirliGiris(o: TestOrtami, eposta: string, basliklar: Rec
 /** Korumalı isteğe uygun Request üretir. */
 export function istek(
   yol: string,
-  s: { kavanoz?: CerezKavanozu; anahtar?: string; yontem?: string; koken?: string | null; basliklar?: Record<string, string> } = {},
+  s: {
+    kavanoz?: CerezKavanozu;
+    anahtar?: string;
+    yontem?: string;
+    koken?: string | null;
+    basliklar?: Record<string, string>;
+  } = {},
 ): Request {
   const h = new Headers(s.basliklar ?? {});
   if (s.koken !== null) h.set("origin", s.koken ?? ADRES);

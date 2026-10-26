@@ -2,8 +2,7 @@
 // anahtarıyla gelir. Bağlam her zaman tek bir kuruma bağlıdır; kiracı verisi yalnız `kiraciIslemi` içinde,
 // satır güvenliğiyle okunur. Hedefin kapsam zinciri veritabanından kurulur, istemciden alınmaz.
 
-import { type Islem, kiraciIslemi, sema } from "@akredit/vt";
-import { gunlugeYaz } from "@akredit/vt";
+import { gunlugeYaz, type Islem, kiraciIslemi, sema } from "@akredit/vt";
 import {
   type ApiAnahtariKaydi,
   apiAnahtariAyristir,
@@ -113,7 +112,12 @@ async function anahtarBaglami(k: KimlikSunucusu, metin: string): Promise<IstekBa
 }
 
 /** Hedefin kapsam zinciri. Kiracı işleminde çalışır: başka kurumun kaydı görünmez, `null` döner. */
-export async function hedefZinciri(tx: Islem, kurumId: string, tur: KapsamTuru, id: string): Promise<YetkiHedefi | null> {
+export async function hedefZinciri(
+  tx: Islem,
+  kurumId: string,
+  tur: KapsamTuru,
+  id: string,
+): Promise<YetkiHedefi | null> {
   const kok = { tur: "kurum" as const, id: kurumId };
   if (tur === "kurum") {
     const [k] = await tx.select({ id: sema.kurum.id }).from(sema.kurum).where(eq(sema.kurum.id, id));
@@ -215,9 +219,16 @@ export function korumali(
   return async (istek) => {
     try {
       const anahtarla = istek.headers.get("authorization")?.startsWith("Bearer ") ?? false;
-      const koken = istek.headers.get("origin") ?? (istek.headers.get("referer") ? new URL(istek.headers.get("referer") as string).origin : null);
+      const koken =
+        istek.headers.get("origin") ??
+        (istek.headers.get("referer") ? new URL(istek.headers.get("referer") as string).origin : null);
       const izinli = [k.ayar.temelAdres, ...k.ayar.izinliKokenler];
-      if (!csrfDenetle({ yontem: istek.method, koken, fetchSite: istek.headers.get("sec-fetch-site"), apiAnahtariyla: anahtarla }, izinli))
+      if (
+        !csrfDenetle(
+          { yontem: istek.method, koken, fetchSite: istek.headers.get("sec-fetch-site"), apiAnahtariyla: anahtarla },
+          izinli,
+        )
+      )
         return Response.json({ hata: "İstek bu siteden gelmedi. Sayfayı yenileyip yeniden deneyin." }, { status: 403 });
       return await isleyici(istek, await istekBaglami(k, istek));
     } catch (e) {
