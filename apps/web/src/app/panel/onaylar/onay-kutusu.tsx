@@ -51,6 +51,7 @@ export function OnayKutusu({
   const [politika, setPolitika] = useState<OneriGorunumu | null>(null);
   const [yardim, setYardim] = useState(false);
   const [sonKararSayisi, setSonKararSayisi] = useState(0);
+  const [hazir, setHazir] = useState(false);
   const satirlar = useRef<Map<OneriId, HTMLElement>>(new Map());
 
   const yenile = useCallback(async () => {
@@ -59,6 +60,7 @@ export function OnayKutusu({
   }, [kaynak]);
 
   useEffect(() => {
+    setHazir(true);
     void yenile();
   }, [yenile]);
 
@@ -149,7 +151,7 @@ export function OnayKutusu({
 
   return (
     <>
-      <div className="mb-4 flex flex-wrap items-center gap-3">
+      <div className="mb-4 flex flex-wrap items-center gap-3" data-hazir={hazir ? "evet" : undefined}>
         <p className="text-soluk" aria-live="polite">
           {oneriler.length} öneri bekliyor · bu oturumda {sonKararSayisi} karar verdiniz
         </p>
