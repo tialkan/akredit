@@ -1,6 +1,6 @@
 // Test yardımcıları: ZIP tabanlı küçük örnek belgeler (ODT, ODS, ODP, PPTX, DOCX) üretir.
 
-import { strToU8, zipSync, type Zippable } from "fflate";
+import { strToU8, type Zippable, zipSync } from "fflate";
 
 export function zip(dosyalar: Record<string, string | Uint8Array>, odfMime?: string): Uint8Array {
   const z: Zippable = {};
@@ -15,7 +15,10 @@ const OFFICE_NS =
 
 export function odf(tur: "text" | "spreadsheet" | "presentation", govde: string): Uint8Array {
   const icerik = `<?xml version="1.0" encoding="UTF-8"?><office:document-content ${OFFICE_NS}><office:body><office:${tur}>${govde}</office:${tur}></office:body></office:document-content>`;
-  return zip({ "content.xml": icerik, "META-INF/manifest.xml": "<manifest/>" }, `application/vnd.oasis.opendocument.${tur}`);
+  return zip(
+    { "content.xml": icerik, "META-INF/manifest.xml": "<manifest/>" },
+    `application/vnd.oasis.opendocument.${tur}`,
+  );
 }
 
 const CT = '<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"/>';
@@ -36,13 +39,19 @@ export function pptx(slaytlar: { baslik: string; govde: string[]; not?: string; 
   slaytlar.forEach((s, i) => {
     const n = i + 1;
     sld.push(`<p:sldId id="${255 + n}" r:id="rId${n}"/>`);
-    rels.push(`<Relationship Id="rId${n}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide" Target="slides/slide${n}.xml"/>`);
+    rels.push(
+      `<Relationship Id="rId${n}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide" Target="slides/slide${n}.xml"/>`,
+    );
     const tablo = s.tablo
       ? `<p:graphicFrame><a:graphic><a:graphicData><a:tbl>${s.tablo
-          .map((r) => `<a:tr>${r.map((h) => `<a:tc><a:txBody><a:p><a:r><a:t>${h}</a:t></a:r></a:p></a:txBody></a:tc>`).join("")}</a:tr>`)
+          .map(
+            (r) =>
+              `<a:tr>${r.map((h) => `<a:tc><a:txBody><a:p><a:r><a:t>${h}</a:t></a:r></a:p></a:txBody></a:tc>`).join("")}</a:tr>`,
+          )
           .join("")}</a:tbl></a:graphicData></a:graphic></p:graphicFrame>`
       : "";
-    d[`ppt/slides/slide${n}.xml`] = `<?xml version="1.0"?><p:sld ${P_NS}><p:cSld><p:spTree>${sekil("title", [s.baslik])}${sekil(undefined, s.govde)}${tablo}</p:spTree></p:cSld></p:sld>`;
+    d[`ppt/slides/slide${n}.xml`] =
+      `<?xml version="1.0"?><p:sld ${P_NS}><p:cSld><p:spTree>${sekil("title", [s.baslik])}${sekil(undefined, s.govde)}${tablo}</p:spTree></p:cSld></p:sld>`;
     if (s.not) {
       d[`ppt/slides/_rels/slide${n}.xml.rels`] =
         `<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId9" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/notesSlide" Target="../notesSlides/notesSlide${n}.xml"/></Relationships>`;
@@ -51,7 +60,8 @@ export function pptx(slaytlar: { baslik: string; govde: string[]; not?: string; 
     }
   });
   // Sunum sırası slayt dosya adından farklı olabilir: presentation.xml sırası esas alınır.
-  d["ppt/presentation.xml"] = `<?xml version="1.0"?><p:presentation ${P_NS}><p:sldIdLst>${sld.join("")}</p:sldIdLst></p:presentation>`;
+  d["ppt/presentation.xml"] =
+    `<?xml version="1.0"?><p:presentation ${P_NS}><p:sldIdLst>${sld.join("")}</p:sldIdLst></p:presentation>`;
   d["ppt/_rels/presentation.xml.rels"] =
     `<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${rels.join("")}</Relationships>`;
   return zip(d);

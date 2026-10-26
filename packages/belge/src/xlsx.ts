@@ -68,7 +68,11 @@ export function sutunHarfi(n: number): string {
 
 /** Excel sayfa adı en çok 31 karakter ve \ / ? * [ ] : içeremez. */
 function sayfaAdi(ad: string, kullanilan: Set<string>): string {
-  let temel = ad.replace(/[\\/?*[\]:]/g, " ").trim().slice(0, 31) || "Sayfa";
+  let temel =
+    ad
+      .replace(/[\\/?*[\]:]/g, " ")
+      .trim()
+      .slice(0, 31) || "Sayfa";
   let i = 2;
   let aday = temel;
   while (kullanilan.has(aday.toLocaleLowerCase("tr"))) {

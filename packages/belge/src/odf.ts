@@ -56,7 +56,11 @@ export function odtOku(zip: ZipIcerik): OkumaSonucu {
       const m = odfMetin(d).trim();
       if (m) ekle(onEk + m);
     } else if (d.ad === "table:table") {
-      tablolar.push({ capa: { ...simdiki.capa }, ad: d.oz["table:name"] ?? `Tablo ${tablolar.length + 1}`, satirlar: odfTabloMetin(d) });
+      tablolar.push({
+        capa: { ...simdiki.capa },
+        ad: d.oz["table:name"] ?? `Tablo ${tablolar.length + 1}`,
+        satirlar: odfTabloMetin(d),
+      });
     } else if (d.ad === "text:list") {
       for (const oge of cocuklar(d, "text:list-item")) for (const c of cocuklar(oge)) isle(c, "- ");
     } else if (d.ad === "text:section" || d.ad === "text:list-item") {
@@ -99,7 +103,11 @@ export function odsTablo(t: XmlDugum): HucreDegeri[][] {
         while (satir.length > 0 && satir[satir.length - 1] === null) satir.pop();
         const tekrar = Math.min(Number(r.oz["table:number-rows-repeated"] ?? 1) || 1, EN_COK_TEKRAR);
         for (let i = 0; i < tekrar; i++) satirlar.push([...satir]);
-      } else if (r.ad === "table:table-rows" || r.ad === "table:table-header-rows" || r.ad === "table:table-row-group") {
+      } else if (
+        r.ad === "table:table-rows" ||
+        r.ad === "table:table-header-rows" ||
+        r.ad === "table:table-row-group"
+      ) {
         satirTopla(r);
       }
     }
@@ -114,7 +122,10 @@ export function odsSayfalari(zip: ZipIcerik): { ad: string; satirlar: HucreDeger
   if (!x) return [];
   const kok = altlar(x, "office:spreadsheet")[0];
   if (!kok) return [];
-  return cocuklar(kok, "table:table").map((t, i) => ({ ad: t.oz["table:name"] ?? `Sayfa${i + 1}`, satirlar: odsTablo(t) }));
+  return cocuklar(kok, "table:table").map((t, i) => ({
+    ad: t.oz["table:name"] ?? `Sayfa${i + 1}`,
+    satirlar: odsTablo(t),
+  }));
 }
 
 // ---------------- ODP ----------------

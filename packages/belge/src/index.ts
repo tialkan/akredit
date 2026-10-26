@@ -5,8 +5,8 @@ import { ozetHesapla } from "@akredit/cekirdek";
 import { csvOku, metneCevir } from "./csv.ts";
 import { docxYaz } from "./docx-uret.ts";
 import { htmlOku, metinOku } from "./html.ts";
-import { docxOku, type OkumaSonucu, pptxOku } from "./ooxml.ts";
 import { odpOku, odsSayfalari, odtOku } from "./odf.ts";
+import { docxOku, type OkumaSonucu, pptxOku } from "./ooxml.ts";
 import { parcalaUygula } from "./parcala.ts";
 import { pdfOku, ZamanAsimi } from "./pdf.ts";
 import { odfMi, oleMi, turTahminEt as turTahmini, uzanti } from "./tur.ts";
@@ -23,7 +23,7 @@ import type {
   TabloVerisi,
   XlsxSayfasi,
 } from "./turler.ts";
-import { xlsxSayfalari, xlsxYaz, sutunHarfi } from "./xlsx.ts";
+import { sutunHarfi, xlsxSayfalari, xlsxYaz } from "./xlsx.ts";
 import { XmlHatasi } from "./xml.ts";
 import { GuvenlikHatasi, VARSAYILAN_ZIP, type ZipSinirlari, zipAc } from "./zip.ts";
 
@@ -54,9 +54,11 @@ const ESKI_GENEL =
   "Bu dosya eski bir Office biçiminde ve doğrudan okunamıyor. Dosyayı açıp yeni biçimde (.docx, .xlsx, .pptx) ya da PDF olarak kaydedin, sonra yeniden yükleyin.";
 
 function hataUyarisi(e: unknown): string {
-  if (e instanceof GuvenlikHatasi) return `${e.message} Güvenlik nedeniyle dosya açılmadı; dosyanın kaynağını denetleyin.`;
+  if (e instanceof GuvenlikHatasi)
+    return `${e.message} Güvenlik nedeniyle dosya açılmadı; dosyanın kaynağını denetleyin.`;
   if (e instanceof XmlHatasi) return `Dosya okunamadı: ${e.message} Dosyayı yeniden kaydedip tekrar yükleyin.`;
-  if (e instanceof ZamanAsimi) return "Dosyayı okumak çok uzun sürdü ve yarıda bırakıldı. Dosyayı küçültüp ya da yeniden kaydedip tekrar yükleyin.";
+  if (e instanceof ZamanAsimi)
+    return "Dosyayı okumak çok uzun sürdü ve yarıda bırakıldı. Dosyayı küçültüp ya da yeniden kaydedip tekrar yükleyin.";
   return "Dosya okunamadı, bozuk olabilir. Dosyayı yeniden kaydedip tekrar yükleyin.";
 }
 
@@ -79,7 +81,12 @@ function sayfalardanSonuc(sayfalar: { ad: string; satirlar: HucreDegeri[][] }[],
   return { bolumler, tablolar, uyarilar: [] };
 }
 
-async function oku(veri: Uint8Array, tur: BelgeTuru, ipucu: BelgeIpucu | undefined, secenek: CikarmaSecenekleri | undefined): Promise<OkumaSonucu & { ocrGerekli?: boolean }> {
+async function oku(
+  veri: Uint8Array,
+  tur: BelgeTuru,
+  ipucu: BelgeIpucu | undefined,
+  secenek: CikarmaSecenekleri | undefined,
+): Promise<OkumaSonucu & { ocrGerekli?: boolean }> {
   const sinir = sinirlar(secenek);
   switch (tur) {
     case "pdf":
@@ -109,17 +116,30 @@ async function oku(veri: Uint8Array, tur: BelgeTuru, ipucu: BelgeIpucu | undefin
       return metinOku(metneCevir(veri).metin, u === "md" || u === "markdown" || ipucu?.mime === "text/markdown");
     }
     case "gorsel":
-      return { bolumler: [], tablolar: [], uyarilar: ["Bu bir görsel; içindeki yazı ancak metin tanıma (OCR) ile okunabilir. OCR sırasına alınmalı."], ocrGerekli: true };
+      return {
+        bolumler: [],
+        tablolar: [],
+        uyarilar: ["Bu bir görsel; içindeki yazı ancak metin tanıma (OCR) ile okunabilir. OCR sırasına alınmalı."],
+        ocrGerekli: true,
+      };
     case "bilinmiyor": {
       if (oleMi(veri)) return { bolumler: [], tablolar: [], uyarilar: [ESKI_BICIM[uzanti(ipucu?.ad)] ?? ESKI_GENEL] };
       const eski = ESKI_BICIM[uzanti(ipucu?.ad)];
-      return { bolumler: [], tablolar: [], uyarilar: [eski ?? "Bu dosya türü tanınmadı. PDF, Word, Excel, PowerPoint, CSV ya da metin dosyası yükleyin."] };
+      return {
+        bolumler: [],
+        tablolar: [],
+        uyarilar: [eski ?? "Bu dosya türü tanınmadı. PDF, Word, Excel, PowerPoint, CSV ya da metin dosyası yükleyin."],
+      };
     }
   }
 }
 
 /** Belgeden çapalı metin, tablolar ve uyarılar çıkarır. Taranmış belgede `ocrGerekli` true döner. */
-export async function metinCikar(veri: Uint8Array, ipucu?: BelgeIpucu, secenek?: CikarmaSecenekleri): Promise<BelgeMetni> {
+export async function metinCikar(
+  veri: Uint8Array,
+  ipucu?: BelgeIpucu,
+  secenek?: CikarmaSecenekleri,
+): Promise<BelgeMetni> {
   const ozet = ozetHesapla(veri);
   const enBuyuk = secenek?.enBuyukBoyut ?? VARSAYILAN_BOYUT;
   if (veri.byteLength > enBuyuk) {
@@ -129,7 +149,9 @@ export async function metinCikar(veri: Uint8Array, ipucu?: BelgeIpucu, secenek?:
       bolumler: [],
       tablolar: [],
       ocrGerekli: false,
-      uyarilar: [`Dosya çok büyük (en çok ${Math.floor(enBuyuk / (1024 * 1024))} MB). Dosyayı bölerek ya da küçülterek yükleyin.`],
+      uyarilar: [
+        `Dosya çok büyük (en çok ${Math.floor(enBuyuk / (1024 * 1024))} MB). Dosyayı bölerek ya da küçülterek yükleyin.`,
+      ],
     };
   }
   let tur: BelgeTuru = "bilinmiyor";
@@ -145,7 +167,12 @@ export async function metinCikar(veri: Uint8Array, ipucu?: BelgeIpucu, secenek?:
       uyarilar: s.uyarilar,
     };
     if (s.sayfaSayisi !== undefined) sonuc.sayfaSayisi = s.sayfaSayisi;
-    if (!sonuc.ocrGerekli && sonuc.uyarilar.length === 0 && sonuc.bolumler.length === 0 && sonuc.tablolar.length === 0) {
+    if (
+      !sonuc.ocrGerekli &&
+      sonuc.uyarilar.length === 0 &&
+      sonuc.bolumler.length === 0 &&
+      sonuc.tablolar.length === 0
+    ) {
       sonuc.uyarilar.push("Dosyada okunabilir metin bulunamadı.");
     }
     return sonuc;
@@ -155,7 +182,11 @@ export async function metinCikar(veri: Uint8Array, ipucu?: BelgeIpucu, secenek?:
 }
 
 /** XLSX, ODS ya da CSV dosyasını ham hücre tablosu olarak okur. */
-export async function tabloOku(veri: Uint8Array, ipucu?: BelgeIpucu, secenek?: CikarmaSecenekleri): Promise<TabloVerisi> {
+export async function tabloOku(
+  veri: Uint8Array,
+  ipucu?: BelgeIpucu,
+  secenek?: CikarmaSecenekleri,
+): Promise<TabloVerisi> {
   const enBuyuk = secenek?.enBuyukBoyut ?? VARSAYILAN_BOYUT;
   if (veri.byteLength > enBuyuk) return { sayfalar: [], uyarilar: ["Dosya çok büyük. Dosyayı bölerek yükleyin."] };
   try {
@@ -167,7 +198,10 @@ export async function tabloOku(veri: Uint8Array, ipucu?: BelgeIpucu, secenek?: C
     if (tur === "ods") return { sayfalar: odsSayfalari(zipAc(veri, sinirlar(secenek), (a) => a === "content.xml")) };
     if (tur === "csv" || tur === "metin") return { sayfalar: [{ ad: "CSV", satirlar: csvOku(veri).satirlar }] };
     if (oleMi(veri) || uzanti(ipucu?.ad) === "xls") return { sayfalar: [], uyarilar: [ESKI_BICIM.xls as string] };
-    return { sayfalar: [], uyarilar: ["Bu dosya bir tablo değil. Excel (.xlsx), LibreOffice (.ods) ya da CSV dosyası yükleyin."] };
+    return {
+      sayfalar: [],
+      uyarilar: ["Bu dosya bir tablo değil. Excel (.xlsx), LibreOffice (.ods) ya da CSV dosyası yükleyin."],
+    };
   } catch (e) {
     return { sayfalar: [], uyarilar: [hataUyarisi(e)] };
   }

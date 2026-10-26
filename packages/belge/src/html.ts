@@ -44,7 +44,9 @@ export function htmlOku(html: string): OkumaSonucu {
     }
     if (/^<table\b/i.test(p)) {
       const satirlar = [...p.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr\s*>/gi)].map((tr) =>
-        [...(tr[1] as string).matchAll(/<t[hd]\b[^>]*>([\s\S]*?)<\/t[hd]\s*>/gi)].map((td) => etiketsiz(td[1] as string)),
+        [...(tr[1] as string).matchAll(/<t[hd]\b[^>]*>([\s\S]*?)<\/t[hd]\s*>/gi)].map((td) =>
+          etiketsiz(td[1] as string),
+        ),
       );
       tablolar.push({ capa: { ...simdiki.capa }, ad: `Tablo ${tablolar.length + 1}`, satirlar });
       continue;
