@@ -4,9 +4,9 @@
 // Doluluk oranı sayfadan alınmaz, yerleşen / kontenjan olarak burada hesaplanır.
 
 import { z } from "zod";
+import { BaglayiciHatasi, istek, type KullanimKosulu, sinirlayici } from "../avesis/istek.ts";
 import type { DisBaglam, Kaynak } from "../baglayici.ts";
 import { tablolar } from "../bologna-proliz/ayristir.ts";
-import { BaglayiciHatasi, istek, type KullanimKosulu, sinirlayici } from "../avesis/istek.ts";
 
 export const YOKATLAS_KOSULU: KullanimKosulu = {
   kaynak: "YÖK Atlas (Yükseköğretim Kurulu)",
@@ -89,7 +89,8 @@ export function programIstatistigiCoz(html: string, programKodu: string): Progra
       sonuc[alan] = alan === "tabanPuan" ? ondalik(deger) : tamsayi(deger);
     }
   }
-  if (!satirSayisi) throw new BaglayiciHatasi("YÖK Atlas sayfasında istatistik tablosu bulunamadı; sayfa yapısı değişmiş olabilir.");
+  if (!satirSayisi)
+    throw new BaglayiciHatasi("YÖK Atlas sayfasında istatistik tablosu bulunamadı; sayfa yapısı değişmiş olabilir.");
   if (sonuc.kontenjan && sonuc.yerlesen !== null)
     sonuc.doluluk = Math.round((sonuc.yerlesen / sonuc.kontenjan) * 10_000) / 10_000;
   return ProgramIstatistigiSemasi.parse(sonuc);
@@ -100,7 +101,11 @@ export async function programIstatistikleriniOku(
   kodlar: string[],
   baglam: DisBaglam,
   secenek: { tur?: "lisans" | "onlisans"; aralikMs?: number } = {},
-): Promise<{ programlar: ProgramIstatistigi[]; kaynaklar: Kaynak[]; hatalar: { programKodu: string; ileti: string }[] }> {
+): Promise<{
+  programlar: ProgramIstatistigi[];
+  kaynaklar: Kaynak[];
+  hatalar: { programKodu: string; ileti: string }[];
+}> {
   const sinir = sinirlayici(baglam, Math.max(secenek.aralikMs ?? 0, YOKATLAS_KOSULU.enAzAralikMs));
   const programlar: ProgramIstatistigi[] = [];
   const kaynaklar: Kaynak[] = [];

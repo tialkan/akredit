@@ -23,7 +23,7 @@ export function sahteBaglam(
       beklemeler.push(ms);
       simdi += ms;
     },
-    fetch: (async (girdi: RequestInfo | URL, init?: RequestInit) => {
+    fetch: (async (girdi: string | URL | Request, init?: RequestInit) => {
       const adres = String(girdi);
       const h = new Headers(init?.headers);
       const basliklar: Record<string, string> = {};
@@ -40,7 +40,7 @@ export function sahteBaglam(
       const y = yanitlar[adres] ?? yanitlar[`${init?.method ?? "GET"} ${adres}`];
       if (y === undefined) return new Response("yok", { status: 404 });
       if (typeof y === "string") return new Response(y, { status: 200 });
-      return new Response(y.govde as BodyInit, {
+      return new Response(y.govde as ConstructorParameters<typeof Response>[0], {
         status: y.durum ?? 200,
         headers: y.tur ? { "content-type": y.tur } : {},
       });

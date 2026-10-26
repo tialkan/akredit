@@ -37,7 +37,10 @@ describe("MIME ayrıştırma", () => {
   it("yardımcılar: kodlu sözcük, parametre, adres", () => {
     expect(kodluSozcukCoz("=?UTF-8?Q?=C3=96l=C3=A7me_raporu?=")).toBe("Ölçme raporu");
     expect(kodluSozcukCoz("düz metin")).toBe("düz metin");
-    expect(parametreler('attachment; filename="a;b.pdf"')).toEqual({ deger: "attachment", param: { filename: "a;b.pdf" } });
+    expect(parametreler('attachment; filename="a;b.pdf"')).toEqual({
+      deger: "attachment",
+      param: { filename: "a;b.pdf" },
+    });
     expect(parametreler("x; name*=iso-8859-9''%FEube.pdf").param.name).toBe("şube.pdf");
     expect(adresAl('"Ad, Soyad" <A@B.edu.tr>')).toBe("a@b.edu.tr");
     expect(adresAl("c@d.edu.tr")).toBe("c@d.edu.tr");
@@ -77,7 +80,9 @@ function sahteSoket(uidValidity: number, iletiler: Record<number, Uint8Array>, a
     } else if (g === "") {
       s("A001 NO [AUTHENTICATIONFAILED] Gecersiz\r\n");
     } else if (g.startsWith("EXAMINE")) {
-      s(`* ${Object.keys(iletiler).length} EXISTS\r\n* OK [UIDVALIDITY ${uidValidity}] UIDs valid\r\n* OK [UIDNEXT 99] x\r\n${etiket} OK [READ-ONLY] EXAMINE tamam\r\n`);
+      s(
+        `* ${Object.keys(iletiler).length} EXISTS\r\n* OK [UIDVALIDITY ${uidValidity}] UIDs valid\r\n* OK [UIDNEXT 99] x\r\n${etiket} OK [READ-ONLY] EXAMINE tamam\r\n`,
+      );
     } else if (g.startsWith("UID SEARCH UID ")) {
       const bas = Number(g.match(/UID (\d+):\*/)?.[1]);
       const tum = Object.keys(iletiler).map(Number);
@@ -87,8 +92,15 @@ function sahteSoket(uidValidity: number, iletiler: Record<number, Uint8Array>, a
     } else if (g.startsWith("UID FETCH ")) {
       const uid = Number(g.split(" ")[2]);
       const v = iletiler[uid];
-      if (!v) return s(`${etiket} NO yok\r\n`);
-      kuyruk.push(Buffer.from(`* ${uid} FETCH (UID ${uid} BODY[] {${v.length}}\r\n`, "latin1"), Buffer.from(v), Buffer.from(")\r\n"));
+      if (!v) {
+        s(`${etiket} NO yok\r\n`);
+        return;
+      }
+      kuyruk.push(
+        Buffer.from(`* ${uid} FETCH (UID ${uid} BODY[] {${v.length}}\r\n`, "latin1"),
+        Buffer.from(v),
+        Buffer.from(")\r\n"),
+      );
       s(`${etiket} OK FETCH tamam\r\n`);
     } else if (g === "LOGOUT") s(`* BYE\r\n${etiket} OK LOGOUT\r\n`);
     else s(`${etiket} BAD\r\n`);

@@ -15,7 +15,10 @@ export interface Soket {
   kapat(): Promise<void>;
 }
 
-export const ImapDurumuSemasi = z.object({ uidGecerlilik: z.number().int().nonnegative(), sonUid: z.number().int().nonnegative() });
+export const ImapDurumuSemasi = z.object({
+  uidGecerlilik: z.number().int().nonnegative(),
+  sonUid: z.number().int().nonnegative(),
+});
 export type ImapDurumu = z.infer<typeof ImapDurumuSemasi>;
 
 export class ImapHatasi extends Error {}
@@ -79,7 +82,11 @@ export interface ImapEsitlemeSonucu {
   uyarilar: string[];
 }
 
-export async function imapEsitle(soket: Soket, onceki: ImapDurumu | null, s: ImapSecenegi): Promise<ImapEsitlemeSonucu> {
+export async function imapEsitle(
+  soket: Soket,
+  onceki: ImapDurumu | null,
+  s: ImapSecenegi,
+): Promise<ImapEsitlemeSonucu> {
   const ok = new Okuyucu(soket);
   let sayac = 0;
   const kayit = (x: string) => s.kayit?.(x);
@@ -128,7 +135,8 @@ export async function imapEsitle(soket: Soket, onceki: ImapDurumu | null, s: Ima
     if (!uv) throw new ImapHatasi("Posta sunucusunun yanıtı okunamadı.");
     const uidGecerlilik = Number(uv);
     const bas = onceki && onceki.uidGecerlilik === uidGecerlilik ? onceki.sonUid : 0;
-    if (onceki && onceki.uidGecerlilik !== uidGecerlilik) uyarilar.push("Posta klasörü sunucuda yeniden oluşturulmuş; baştan eşitlendi.");
+    if (onceki && onceki.uidGecerlilik !== uidGecerlilik)
+      uyarilar.push("Posta klasörü sunucuda yeniden oluşturulmuş; baştan eşitlendi.");
 
     const ara = await komut(`UID SEARCH UID ${bas + 1}:*`);
     if (ara.durum !== "OK") throw new ImapHatasi("Posta klasöründe arama yapılamadı.");
@@ -151,7 +159,9 @@ export async function imapEsitle(soket: Soket, onceki: ImapDurumu | null, s: Ima
         uyarilar.push("Bir ileti okunamadı; sonraki eşitlemede yeniden denenecek.");
         break; // sonUid ilerlemez, ileti kaybolmaz
       }
-      const s_ = f.satirlar.find((x) => new RegExp(`^\\* \\d+ FETCH .*UID ${uid}\\b`, "i").test(x.metin) && x.literaller.length);
+      const s_ = f.satirlar.find(
+        (x) => new RegExp(`^\\* \\d+ FETCH .*UID ${uid}\\b`, "i").test(x.metin) && x.literaller.length,
+      );
       const ham = s_?.literaller[0];
       if (ham) {
         try {

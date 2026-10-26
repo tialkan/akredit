@@ -6,8 +6,8 @@
 
 import { createCipheriv, createDecipheriv, hkdfSync, randomBytes } from "node:crypto";
 import { z } from "zod";
-import type { DisBaglam } from "../baglayici.ts";
 import { BaglayiciHatasi, istek, sinirlayici } from "../avesis/istek.ts";
+import type { DisBaglam } from "../baglayici.ts";
 
 export type OAuthSaglayici = "google" | "microsoft";
 
@@ -32,7 +32,10 @@ const b64c = (s: string) => new Uint8Array(Buffer.from(s, "base64url"));
  * Ana anahtarla (32 bayt, ortam değişkeninden ya da KMS'den; depoya girmez) kasa oluşturur.
  * `rastgele` testte belirlenimci IV vermek içindir.
  */
-export function belirtecKasasi(anaAnahtar: Uint8Array, rastgele: (n: number) => Uint8Array = (n) => randomBytes(n)): BelirtecKasasi {
+export function belirtecKasasi(
+  anaAnahtar: Uint8Array,
+  rastgele: (n: number) => Uint8Array = (n) => randomBytes(n),
+): BelirtecKasasi {
   if (anaAnahtar.length !== 32) throw new Error("Ana anahtar 32 bayt olmalı.");
   const anahtar = (kurumId: string, s: OAuthSaglayici) =>
     new Uint8Array(hkdfSync("sha256", anaAnahtar, new TextEncoder().encode(kurumId), `akredit-oauth-${s}`, 32));
@@ -48,7 +51,8 @@ export function belirtecKasasi(anaAnahtar: Uint8Array, rastgele: (n: number) => 
     },
     coz(sifreli, kurumId, s) {
       const p = sifreli.split(".");
-      if (p.length !== 4 || p[0] !== "v1") throw new BaglayiciHatasi("Bağlantı bilgisi okunamadı; hesabı yeniden bağlayın.");
+      if (p.length !== 4 || p[0] !== "v1")
+        throw new BaglayiciHatasi("Bağlantı bilgisi okunamadı; hesabı yeniden bağlayın.");
       try {
         const dc = createDecipheriv("aes-256-gcm", anahtar(kurumId, s), b64c(p[1] ?? ""));
         dc.setAAD(aad(kurumId, s));

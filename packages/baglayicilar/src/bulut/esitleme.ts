@@ -5,8 +5,8 @@
 // canlı hesaptan alınmadı. DOĞRULANMADI. Kapsamlar: Drive "drive.readonly", Graph "Files.Read".
 
 import { z } from "zod";
-import type { DisBaglam, Kaynak } from "../baglayici.ts";
 import { BaglayiciHatasi, istek, type KullanimKosulu, sinirlayici } from "../avesis/istek.ts";
+import type { DisBaglam, Kaynak } from "../baglayici.ts";
 import type { BaglayiciKanitGirdisi } from "../ebys/kanit.ts";
 import type { OAuthSaglayici } from "./belirtec.ts";
 
@@ -100,11 +100,12 @@ interface Oge {
   disaMime?: string;
 }
 
-const temizAd = (s: string) => s.replace(/[\\/:*?"<>|\u0000-\u001f]/g, "_").slice(0, 200) || "adsiz";
+const temizAd = (s: string) => s.replace(/[\\/:*?"<>|\p{Cc}]/gu, "_").slice(0, 200) || "adsiz";
 
 async function json<T>(y: Response, sema: z.ZodType<T>): Promise<T> {
   const d = sema.safeParse(await y.json().catch(() => null));
-  if (!d.success) throw new BaglayiciHatasi("Bulut hizmetinin yanıtı beklenen biçimde değil; daha sonra yeniden deneyin.");
+  if (!d.success)
+    throw new BaglayiciHatasi("Bulut hizmetinin yanıtı beklenen biçimde değil; daha sonra yeniden deneyin.");
   return d.data;
 }
 
@@ -179,7 +180,8 @@ export async function klasorEsitle(
       let adres: string | undefined =
         `${GRAPH}/me/drive/items/${encodeURIComponent(k.id)}/children?$select=id,name,eTag,cTag,size,lastModifiedDateTime,folder,file&$top=200`;
       while (adres) {
-        if (!adres.startsWith(`${GRAPH}/`)) throw new BaglayiciHatasi("Bulut hizmetinin yanıtı beklenen biçimde değil.");
+        if (!adres.startsWith(`${GRAPH}/`))
+          throw new BaglayiciHatasi("Bulut hizmetinin yanıtı beklenen biçimde değil.");
         const l: z.infer<typeof GraphListesi> = await json(await al(adres), GraphListesi);
         for (const f of l.value) {
           const yol = `${k.yol}${temizAd(f.name)}`;
@@ -232,7 +234,12 @@ export async function klasorEsitle(
       veri,
       dosyaAdi: o.ad,
       kaynakTuru: "baglayici",
-      kaynakAyrinti: { baglayici: saglayici === "google" ? "google-drive" : "onedrive", dosyaId: o.id, yol: o.yol.slice(0, 400), surum: o.surum.slice(0, 200) },
+      kaynakAyrinti: {
+        baglayici: saglayici === "google" ? "google-drive" : "onedrive",
+        dosyaId: o.id,
+        yol: o.yol.slice(0, 400),
+        surum: o.surum.slice(0, 200),
+      },
     };
     if (o.mime) g.mime = o.mime;
     girdiler.push(g);
