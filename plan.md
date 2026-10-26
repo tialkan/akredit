@@ -132,17 +132,17 @@ Durumlar: **hazır** (başlanabilir), **devam**, **inceleme**, **tamam**, **bekl
 
 | İP | Ad | Faz | Durum | Bağımlılık |
 |---|---|---|---|---|
-| [01](plan/ip/IP-01-cekirdek.md) | Çekirdek alan mantığı | 1 | devam | — |
-| [02](plan/ip/IP-02-veritabani.md) | Veritabanı, kiracı yalıtımı, değiştirilemez kayıt | 1 | devam | — |
-| [03](plan/ip/IP-03-yz-katmani.md) | YZ katmanı ve güvenceler | 1 | devam | — |
-| [04](plan/ip/IP-04-belge-isleme.md) | Belge işleme | 1 | devam | — |
-| [05](plan/ip/IP-05-baglayicilar.md) | Bağlayıcılar I (Bologna, OBS not aktarımı) | 1 | devam | — |
-| [06](plan/ip/IP-06-olcme-motoru.md) | Ölçme motoru (ÇK/PÇ) | 1 | devam | — |
-| [07](plan/ip/IP-07-web-iskeleti.md) | Web iskeleti, tasarım sistemi, onay kutusu arayüzü | 1 | devam | — |
+| [01](plan/ip/IP-01-cekirdek.md) | Çekirdek alan mantığı | 1 | tamam | — |
+| [02](plan/ip/IP-02-veritabani.md) | Veritabanı, kiracı yalıtımı, değiştirilemez kayıt | 1 | tamam | — |
+| [03](plan/ip/IP-03-yz-katmani.md) | YZ katmanı ve güvenceler | 1 | tamam | — |
+| [04](plan/ip/IP-04-belge-isleme.md) | Belge işleme | 1 | tamam | — |
+| [05](plan/ip/IP-05-baglayicilar.md) | Bağlayıcılar I (Bologna, OBS not aktarımı) | 1 | tamam | — |
+| [06](plan/ip/IP-06-olcme-motoru.md) | Ölçme motoru (ÇK/PÇ) | 1 | tamam | — |
+| [07](plan/ip/IP-07-web-iskeleti.md) | Web iskeleti, tasarım sistemi, onay kutusu arayüzü | 1 | tamam | — |
 | [08](plan/ip/IP-08-gelistirme-altyapisi.md) | Geliştirme altyapısı ve CI | 1 | devam | — |
-| [09](plan/ip/IP-09-kimlik-ve-yetki.md) | Kimlik doğrulama, kiracı ve yetki | 2 | bekliyor | 02, 07 |
-| [10](plan/ip/IP-10-kanit-hatti.md) | Kanıt hattı ve nesne deposu | 2 | bekliyor | 02, 03, 04 |
-| [11](plan/ip/IP-11-cerceveler.md) | Akreditasyon çerçeve kütüphanesi | 2 | bekliyor | 01, araştırma |
+| [09](plan/ip/IP-09-kimlik-ve-yetki.md) | Kimlik doğrulama, kiracı ve yetki | 2 | devam | 02, 07 |
+| [10](plan/ip/IP-10-kanit-hatti.md) | Kanıt hattı ve nesne deposu | 2 | devam | 02, 03, 04 |
+| [11](plan/ip/IP-11-cerceveler.md) | Akreditasyon çerçeve kütüphanesi | 2 | devam | 01, araştırma |
 | [12](plan/ip/IP-12-servis-ve-api.md) | Servis katmanı ve API | 2 | bekliyor | 01, 02, 09 |
 | [13](plan/ip/IP-13-onay-ve-yetki-devri.md) | Onay kutusu arka ucu ve yetki devri | 2 | bekliyor | 12, 14 |
 | [14](plan/ip/IP-14-surec-motoru.md) | Süreç motoru, takvim, bildirim | 2 | bekliyor | 02, 12 |
