@@ -1,0 +1,97 @@
+# Yerel geliştirme ortamı: PostgreSQL 17 + pgvector, MinIO (S3 uyumlu nesne deposu), Mailpit (e-posta yakalayıcı).
+# Kullanım (depo kökünden):
+#   cp .env.ornek .env
+#   docker compose -f infra/gelistirme/docker-compose.yml --env-file .env up -d
+# `goc` hizmeti veritabanı hazır olunca packages/vt göçlerini uygular ve çıkar.
+# Parolalar yalnız yerel geliştirme içindir; üretimde kullanılmaz.
+
+name: akredit
+
+services:
+  vt:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-akredit}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-yerel-gelistirme}
+      POSTGRES_DB: ${POSTGRES_DB:-akredit}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - vt-veri:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  goc:
+    image: node:22-alpine
+    working_dir: /depo
+    # Depo salt okunur bağlanır; bağımlılıklar kapsayıcıya ayrı birimde kurulur.
+    command:
+      - sh
+      - -c
+      - >-
+        corepack enable && cp -r /kaynak/. /depo/ 2>/dev/null; cd /depo &&
+        pnpm install --frozen-lockfile --filter @akredit/vt... &&
+        node infra/gelistirme/goc.ts
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-akredit}:${POSTGRES_PASSWORD:-yerel-gelistirme}@vt:5432/${POSTGRES_DB:-akredit}
+      COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
+    volumes:
+      - ../../package.json:/kaynak/package.json:ro
+      - ../../pnpm-lock.yaml:/kaynak/pnpm-lock.yaml:ro
+      - ../../pnpm-workspace.yaml:/kaynak/pnpm-workspace.yaml:ro
+      - ../../packages/vt:/kaynak/packages/vt:ro
+      - ../../packages/cekirdek:/kaynak/packages/cekirdek:ro
+      - ./goc.ts:/kaynak/infra/gelistirme/goc.ts:ro
+      - goc-depo:/depo
+    depends_on:
+      vt:
+        condition: service_healthy
+    restart: "no"
+
+  depo:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${S3_ERISIM_ANAHTARI:-akredit}
+      MINIO_ROOT_PASSWORD: ${S3_GIZLI_ANAHTAR:-yerel-gelistirme}
+    ports:
+      - "127.0.0.1:${S3_PORT:-9000}:9000"
+      - "127.0.0.1:${S3_KONSOL_PORT:-9001}:9001"
+    volumes:
+      - depo-veri:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  depo-kova:
+    image: minio/mc:latest
+    depends_on:
+      depo:
+        condition: service_healthy
+    entrypoint:
+      - sh
+      - -c
+      - >-
+        mc alias set yerel http://depo:9000 "$$S3_ERISIM_ANAHTARI" "$$S3_GIZLI_ANAHTAR" &&
+        mc mb --ignore-existing --with-lock "yerel/$$S3_KOVA"
+    environment:
+      S3_ERISIM_ANAHTARI: ${S3_ERISIM_ANAHTARI:-akredit}
+      S3_GIZLI_ANAHTAR: ${S3_GIZLI_ANAHTAR:-yerel-gelistirme}
+      S3_KOVA: ${S3_KOVA:-akredit-kanit}
+    restart: "no"
+
+  posta:
+    image: axllent/mailpit:latest
+    ports:
+      - "127.0.0.1:${SMTP_PORT:-1025}:1025"
+      - "127.0.0.1:${POSTA_ARAYUZ_PORT:-8025}:8025"
+
+volumes:
+  vt-veri:
+  depo-veri:
+  goc-depo:
