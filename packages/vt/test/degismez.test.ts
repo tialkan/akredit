@@ -110,7 +110,8 @@ describe("karar kuralları", () => {
         tx.insert(s.yetkiPolitikasi).values({
           kurumId: KURUM_A,
           ad: "Her şey",
-          oneriTurleri: ["olgunluk_duzeyi"],
+          // Yüksek riskli tür 0003 tetikleyicisiyle ayrıca reddedilir (inceleme.test.ts); burada CHECK sınanır.
+          oneriTurleri: ["kanit_etiketi"],
           enYuksekRisk: "yuksek",
           enDusukGuven: 0,
           imzalayanKisiId: a.kisi,
