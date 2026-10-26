@@ -212,10 +212,7 @@ describe("alma yolları", { timeout: 60_000 }, () => {
     expect(d("a@kotuornek.edu.tr").gecerli).toBe(false);
     // Saldırganın kendi alan adıyla SPF ve DKIM geçer ama From alan adıyla hizalı değildir; hizalamayı
     // yalnız DMARC sonucu gösterir. DMARC geçmeyen ileti kurum adına kabul edilmez.
-    const hizasiz = gonderenDogrula(
-      { ...ileti, konu: "", dogrulama: { spf: "pass", dkim: "pass", dmarc: "none" } },
-      p,
-    );
+    const hizasiz = gonderenDogrula({ ...ileti, konu: "", dogrulama: { spf: "pass", dkim: "pass", dmarc: "none" } }, p);
     expect(hizasiz.gecerli).toBe(false);
     await h.kuyruk.bosalt();
     const k = await durumOzeti(h.db, KURUM);
