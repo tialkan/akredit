@@ -35,7 +35,20 @@ export function metinAramaAnahtari(metin: string): string {
     .trim();
 }
 
-const AYLAR = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+const AYLAR = [
+  "Ocak",
+  "Şubat",
+  "Mart",
+  "Nisan",
+  "Mayıs",
+  "Haziran",
+  "Temmuz",
+  "Ağustos",
+  "Eylül",
+  "Ekim",
+  "Kasım",
+  "Aralık",
+];
 
 /** "2026-10-31" ya da ISO zaman → "31 Ekim 2026". Saat dilimine bağlı değildir (tarih kısmı okunur). */
 export function tarihYaz(iso: string): string {

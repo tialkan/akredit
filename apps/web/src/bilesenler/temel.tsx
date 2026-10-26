@@ -120,7 +120,7 @@ export function KirintiYolu({ ogeler }: { ogeler: KirintiOgesi[] }) {
         {ogeler.map((o, i) => {
           const son = i === ogeler.length - 1;
           return (
-            <li key={`${o.ad}-${i}`} className="flex items-center gap-1">
+            <li key={o.href ?? o.ad} className="flex items-center gap-1">
               {o.href && !son ? (
                 <Link href={o.href} className="underline underline-offset-2 hover:text-metin">
                   {o.ad}
