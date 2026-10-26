@@ -97,10 +97,15 @@ export function eypOku(veri: Uint8Array, paketAdi: string): EypSonucu {
     : { konu: null, tarih: null, sayi: null, gizlilik: null };
   if (!ustAd) uyarilar.push("Pakette üstveri bulunamadı; tarih ve sayı boş bırakıldı.");
   if (ustveri.gizlilik && /gizli/i.test(ustveri.gizlilik) && !/tasnif d[ıi][sş][ıi]/i.test(ustveri.gizlilik))
-    throw new BaglayiciHatasi("Gizlilik dereceli yazılar sisteme alınmaz. Yazının gizliliği kaldırıldıktan sonra yükleyin.");
+    throw new BaglayiciHatasi(
+      "Gizlilik dereceli yazılar sisteme alınmaz. Yazının gizliliği kaldırıldıktan sonra yükleyin.",
+    );
   const girdiler: BaglayiciKanitGirdisi[] = [];
   for (const [ad, d] of icerik) {
-    if (ad === ustAd || /^\[content_types\]\.xml$|(^|\/)_rels\/|\.rels$|imza|signature|\.p7s$|nihaiozet|paketozeti/i.test(ad))
+    if (
+      ad === ustAd ||
+      /^\[content_types\]\.xml$|(^|\/)_rels\/|\.rels$|imza|signature|\.p7s$|nihaiozet|paketozeti/i.test(ad)
+    )
       continue;
     const uz = ad.split(".").pop()?.toLowerCase() ?? "";
     const dosyaAdi = ad.split("/").pop() ?? ad;
@@ -144,7 +149,8 @@ export function evrakListesiOku(tablo: TabloVerisi): { kayitlar: EvrakKaydi[]; u
   const s = tablo.sayfalar[0];
   if (!s) return { kayitlar: [], uyarilar: ["Dosyada sayfa yok."] };
   const bas = s.satirlar.findIndex((r) => r.some((h) => d(h) === "konu"));
-  if (bas < 0) return { kayitlar: [], uyarilar: ["Konu sütunu bulunamadı; dosyanın evrak listesi olduğunu denetleyin."] };
+  if (bas < 0)
+    return { kayitlar: [], uyarilar: ["Konu sütunu bulunamadı; dosyanın evrak listesi olduğunu denetleyin."] };
   const b = (s.satirlar[bas] ?? []).map(d);
   const sira = (re: RegExp) => b.findIndex((x) => re.test(x));
   const iSayi = sira(/^(sayı|sayi|evrak sayısı|belge no)$/);

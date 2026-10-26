@@ -71,10 +71,13 @@ export function avesisSayfaCoz(html: string): AvesisProfili {
     ilk(temiz, /<h1\b[^>]*>([\s\S]*?)<\/h1>/i) ??
     ilk(temiz, /<meta\s+property="og:title"\s+content="([^"]*)"/i) ??
     ilk(temiz, /<title>([\s\S]*?)<\/title>/i);
-  if (!ad) throw new BaglayiciHatasi("Sayfada akademisyen adı bulunamadı; adresin bir profil sayfası olduğunu denetleyin.");
+  if (!ad)
+    throw new BaglayiciHatasi("Sayfada akademisyen adı bulunamadı; adresin bir profil sayfası olduğunu denetleyin.");
   const unvan = ilk(temiz, /class="[^"]*\b(?:unvan|title-name|academic-title)\b[^"]*"[^>]*>([\s\S]*?)</i);
   const birim = ilk(temiz, /class="[^"]*\b(?:birim|unit|department)\b[^"]*"[^>]*>([\s\S]*?)</i);
-  const alanBlok = temiz.match(/class="[^"]*\b(?:arastirma-alanlari|research-areas)\b[^"]*"[^>]*>([\s\S]*?)<\/(?:ul|div)>/i);
+  const alanBlok = temiz.match(
+    /class="[^"]*\b(?:arastirma-alanlari|research-areas)\b[^"]*"[^>]*>([\s\S]*?)<\/(?:ul|div)>/i,
+  );
   const arastirmaAlanlari = alanBlok
     ? [...(alanBlok[1] ?? "").matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/gi)].map((m) => metin(m[1] ?? "")).filter(Boolean)
     : [];
@@ -111,7 +114,10 @@ export async function avesisProfiliOku(
   secenek: { altSayfalar?: string[]; aralikMs?: number } = {},
 ): Promise<AvesisOkumaSonucu> {
   const u = adresDenetle(adres, avesisMakinesiMi);
-  const sinir = sinirlayici(baglam, Math.max(secenek.aralikMs ?? AVESIS_KOSULU.enAzAralikMs, AVESIS_KOSULU.enAzAralikMs));
+  const sinir = sinirlayici(
+    baglam,
+    Math.max(secenek.aralikMs ?? AVESIS_KOSULU.enAzAralikMs, AVESIS_KOSULU.enAzAralikMs),
+  );
   const kaynaklar: Kaynak[] = [];
   const oku = async (a: string) => {
     const y = await istek(baglam, sinir, a);

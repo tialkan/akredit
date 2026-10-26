@@ -18,9 +18,24 @@ describe("UBYS / OBS not listesi içe aktarımı", () => {
       { ad: "Bütünleme", agirlik: null },
     ]);
     expect(r.ogrenciler).toEqual([
-      { ogrenci: "T-100000009", notlar: { "Vize (%40)": 55, "Final (%60)": 70, Bütünleme: null }, ortalama: 64, harf: "CC" },
-      { ogrenci: "T-200000009", notlar: { "Vize (%40)": "devamsiz", "Final (%60)": 40, Bütünleme: null }, ortalama: 16, harf: "FF" },
-      { ogrenci: "T-300000009", notlar: { "Vize (%40)": 80.5, "Final (%60)": null, Bütünleme: null }, ortalama: 48.2, harf: "DD" },
+      {
+        ogrenci: "T-100000009",
+        notlar: { "Vize (%40)": 55, "Final (%60)": 70, Bütünleme: null },
+        ortalama: 64,
+        harf: "CC",
+      },
+      {
+        ogrenci: "T-200000009",
+        notlar: { "Vize (%40)": "devamsiz", "Final (%60)": 40, Bütünleme: null },
+        ortalama: 16,
+        harf: "FF",
+      },
+      {
+        ogrenci: "T-300000009",
+        notlar: { "Vize (%40)": 80.5, "Final (%60)": null, Bütünleme: null },
+        ortalama: 48.2,
+        harf: "DD",
+      },
     ]);
     // CSV satır 7'de "abc", satır 9'da yinelenen numara, satır 10'da numarasız satır.
     expect(r.bulgular).toEqual([
@@ -29,7 +44,8 @@ describe("UBYS / OBS not listesi içe aktarımı", () => {
       { kod: "numarasiz", ileti: "Öğrenci numarası olmayan satır atlandı.", hucre: "A10" },
     ]);
     const json = JSON.stringify(r);
-    for (const yasak of ["900000001", "Deneme Örnek", "Kurgu Hayali", "00000000000", "Satırsız"]) expect(json).not.toContain(yasak);
+    for (const yasak of ["900000001", "Deneme Örnek", "Kurgu Hayali", "00000000000", "Satırsız"])
+      expect(json).not.toContain(yasak);
   });
 
   it("XLSX dışa aktarımında ağırlık toplamı ve aralık dışı not bulgusu", async () => {

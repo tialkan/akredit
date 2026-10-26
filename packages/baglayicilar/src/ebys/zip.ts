@@ -38,7 +38,8 @@ export function zipOku(veri: Uint8Array, sinir: ZipSiniri = VARSAYILAN_ZIP_SINIR
     const ad = td.decode(veri.subarray(p + 46, p + 46 + adUz));
     p += 46 + adUz + ekUz + yorumUz;
     if (ad.endsWith("/")) continue;
-    if (ad.startsWith("/") || ad.split(/[\\/]/).includes("..")) throw new BaglayiciHatasi("Pakette güvensiz dosya yolu var.");
+    if (ad.startsWith("/") || ad.split(/[\\/]/).includes(".."))
+      throw new BaglayiciHatasi("Pakette güvensiz dosya yolu var.");
     toplam += acik;
     if (toplam > sinir.enBuyukToplam || (sikisik > 0 && acik / sikisik > sinir.enBuyukOran))
       throw new BaglayiciHatasi("Paket açıldığında çok büyük; daha küçük paketler yükleyin.");

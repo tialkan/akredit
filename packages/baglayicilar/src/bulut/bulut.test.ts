@@ -37,7 +37,11 @@ describe("Google Drive eşitleme", () => {
     const r = await klasorEsitle("google", "KOK", "kurgu-erisim", {}, s.baglam);
     expect(r.girdiler.map((g) => [g.dosyaAdi, g.mime, new TextDecoder().decode(g.veri)])).toEqual([
       ["Danışma Kurulu Tutanağı.pdf", "application/pdf", "%PDF-kurgu1"],
-      ["Öz Değerlendirme Taslağı.docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "DOCX-kurgu"],
+      [
+        "Öz Değerlendirme Taslağı.docx",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "DOCX-kurgu",
+      ],
       ["KRG101_ölçme.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "XLSX!"],
     ]);
     expect(r.girdiler[2]?.kaynakAyrinti).toEqual({

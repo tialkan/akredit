@@ -43,7 +43,8 @@ describe("AVESİS okuma", () => {
   it("profil ve alt sayfayı en az 1 sn aralıkla, kaynağı kaydederek okur", async () => {
     const s = sahteBaglam({
       [ADRES]: profilHtml,
-      [`${ADRES}/yayinlar`]: "<h1>Deneme Örnekoğlu</h1><h2>Kitaplar</h2><ul><li>Kurgu kitap, Hayali Yayınevi, 2019</li></ul>",
+      [`${ADRES}/yayinlar`]:
+        "<h1>Deneme Örnekoğlu</h1><h2>Kitaplar</h2><ul><li>Kurgu kitap, Hayali Yayınevi, 2019</li></ul>",
     });
     const r = await avesisProfiliOku(ADRES, s.baglam, { altSayfalar: ["/deneme.ornekoglu/yayinlar"], aralikMs: 10 });
     expect(r.profil.etkinlikler.at(-1)).toMatchObject({ tur: "kitap", yil: 2019 });
@@ -59,9 +60,9 @@ describe("AVESİS okuma", () => {
     await expect(avesisProfiliOku("https://ornek.com/x", s.baglam)).rejects.toThrow(BaglayiciHatasi);
     await expect(avesisProfiliOku("http://avesis.ornek.edu.tr/x", s.baglam)).rejects.toThrow(/https/);
     await expect(avesisProfiliOku("https://a:b@avesis.ornek.edu.tr/x", s.baglam)).rejects.toThrow(/giriş/);
-    await expect(
-      avesisProfiliOku(ADRES, s.baglam, { altSayfalar: ["https://avesis.baska.edu.tr/x"] }),
-    ).rejects.toThrow(BaglayiciHatasi);
+    await expect(avesisProfiliOku(ADRES, s.baglam, { altSayfalar: ["https://avesis.baska.edu.tr/x"] })).rejects.toThrow(
+      BaglayiciHatasi,
+    );
   });
 
   it("HTTP 429 ve 500 Türkçe iletiyle döner", async () => {
@@ -80,7 +81,9 @@ describe("AVESİS okuma", () => {
       },
       sayfaHtml: async (a: string) => {
         olaylar.push(`sayfa ${a}`);
-        return a.endsWith("/panel") ? profilHtml : "<h1>X</h1><h2>Tezler</h2><ul><li>Kurgu yüksek lisans tezi, 2020</li></ul>";
+        return a.endsWith("/panel")
+          ? profilHtml
+          : "<h1>X</h1><h2>Tezler</h2><ul><li>Kurgu yüksek lisans tezi, 2020</li></ul>";
       },
     };
     const r = await avesisPaneliOku(oturum, "https://avesis.ornek.edu.tr/panel", ["/panel/tez"], s.baglam);

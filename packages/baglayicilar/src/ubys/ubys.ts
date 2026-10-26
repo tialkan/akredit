@@ -56,7 +56,7 @@ const DEGERLENDIRME =
   /^(vize|ara sınav|arasınav|ara sinav|final|yarıyıl sonu|yy sonu|bütünleme|butunleme|büt|ödev|odev|proje|kısa sınav|quiz|uygulama|laboratuvar|lab|sözlü|mazeret)/;
 
 export function sutunTuru(baslik: string): ObsSutunu["tur"] {
-  const b = baslik.replace(/\s*[(\[].*$/, "").trim();
+  const b = baslik.replace(/\s*[([].*$/, "").trim();
   if (NO.test(b)) return "no";
   if (KISISEL.test(b)) return "kisisel";
   if (HARF.test(b)) return "harf";
@@ -74,7 +74,9 @@ export function saglayiciTahmin(basliklar: string[], ustMetin: string): ObsSagla
   return "genel";
 }
 
-function notOku(h: HucreDegeri | undefined): { tur: "sayi"; d: number } | { tur: "devamsiz" } | { tur: "bos" } | { tur: "gecersiz" } {
+function notOku(
+  h: HucreDegeri | undefined,
+): { tur: "sayi"; d: number } | { tur: "devamsiz" } | { tur: "bos" } | { tur: "gecersiz" } {
   if (h === null || h === undefined || duz(h) === "") return { tur: "bos" };
   if (typeof h === "number") return Number.isFinite(h) ? { tur: "sayi", d: h } : { tur: "gecersiz" };
   const t = duz(h);
@@ -114,7 +116,10 @@ export function obsDisaAktarimiOku(
   const satirlar = sayfa.satirlar;
   const basSira = satirlar.slice(0, 20).findIndex((r) => r.some((h) => NO.test(duz(h))));
   if (basSira < 0) {
-    bulgular.push({ kod: "baslik_yok", ileti: "Öğrenci numarası sütunu bulunamadı. Dosyanın not listesi olduğunu denetleyin." });
+    bulgular.push({
+      kod: "baslik_yok",
+      ileti: "Öğrenci numarası sütunu bulunamadı. Dosyanın not listesi olduğunu denetleyin.",
+    });
     return bos;
   }
   const ustMetin = satirlar
@@ -132,14 +137,23 @@ export function obsDisaAktarimiOku(
     const ag = a ? (a[1] ?? a[2]) : undefined;
     return { sira, baslik, tur: sutunTuru(duz(baslik)), agirlik: ag ? Number(ag.replace(",", ".")) : null };
   });
-  const saglayici = secenek.saglayici ?? saglayiciTahmin(sutunlar.map((s) => duz(s.baslik)), duz(ustMetin));
+  const saglayici =
+    secenek.saglayici ??
+    saglayiciTahmin(
+      sutunlar.map((s) => duz(s.baslik)),
+      duz(ustMetin),
+    );
   const noS = sutunlar.find((s) => s.tur === "no");
   const degS = sutunlar.filter((s) => s.tur === "degerlendirme");
   const ortS = sutunlar.find((s) => s.tur === "ortalama");
   const harfS = sutunlar.find((s) => s.tur === "harf");
   if (!degS.length) bulgular.push({ kod: "degerlendirme_yok", ileti: "Not sütunu (vize, final, ödev…) bulunamadı." });
   const agToplam = degS.reduce((t, s) => t + (s.agirlik ?? 0), 0);
-  if (degS.some((s) => s.agirlik !== null) && Math.abs(agToplam - 100) > 0.01 && !degS.some((s) => /büt/i.test(s.baslik)))
+  if (
+    degS.some((s) => s.agirlik !== null) &&
+    Math.abs(agToplam - 100) > 0.01 &&
+    !degS.some((s) => /büt/i.test(s.baslik))
+  )
     bulgular.push({ kod: "agirlik_toplami", ileti: `Değerlendirme ağırlıklarının toplamı %${agToplam}, %100 olmalı.` });
 
   const gorulen = new Set<string>();
@@ -149,16 +163,29 @@ export function obsDisaAktarimiOku(
     const satirNo = i + 1;
     const no = String(r[noS?.sira ?? 0] ?? "").trim();
     if (!no) {
-      if (r.some((h) => duz(h) !== "")) bulgular.push({ kod: "numarasiz", ileti: "Öğrenci numarası olmayan satır atlandı.", hucre: `${harfSutun(noS?.sira ?? 0)}${satirNo}` });
+      if (r.some((h) => duz(h) !== ""))
+        bulgular.push({
+          kod: "numarasiz",
+          ileti: "Öğrenci numarası olmayan satır atlandı.",
+          hucre: `${harfSutun(noS?.sira ?? 0)}${satirNo}`,
+        });
       continue;
     }
     if (!/^[0-9A-Za-z-]{3,20}$/.test(no)) {
-      bulgular.push({ kod: "numara_gecersiz", ileti: "Öğrenci numarası geçersiz; satır atlandı.", hucre: `${harfSutun(noS?.sira ?? 0)}${satirNo}` });
+      bulgular.push({
+        kod: "numara_gecersiz",
+        ileti: "Öğrenci numarası geçersiz; satır atlandı.",
+        hucre: `${harfSutun(noS?.sira ?? 0)}${satirNo}`,
+      });
       continue;
     }
     const ogrenci = secenek.takmaAd(no);
     if (gorulen.has(ogrenci)) {
-      bulgular.push({ kod: "yinelenen", ileti: "Aynı öğrenci birden çok kez var; ilki alındı.", hucre: `${harfSutun(noS?.sira ?? 0)}${satirNo}` });
+      bulgular.push({
+        kod: "yinelenen",
+        ileti: "Aynı öğrenci birden çok kez var; ilki alındı.",
+        hucre: `${harfSutun(noS?.sira ?? 0)}${satirNo}`,
+      });
       continue;
     }
     gorulen.add(ogrenci);
@@ -176,7 +203,11 @@ export function obsDisaAktarimiOku(
       }
     }
     const o = ortS ? notOku(r[ortS.sira]) : { tur: "bos" as const };
-    const harf = harfS ? String(r[harfS.sira] ?? "").trim().toUpperCase() || null : null;
+    const harf = harfS
+      ? String(r[harfS.sira] ?? "")
+          .trim()
+          .toUpperCase() || null
+      : null;
     ogrenciler.push({ ogrenci, notlar, ortalama: o.tur === "sayi" ? o.d : null, harf });
   }
   return ObsSonucuSemasi.parse({
