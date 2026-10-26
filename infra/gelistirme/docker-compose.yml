@@ -27,25 +27,13 @@ services:
   goc:
     image: node:22-alpine
     working_dir: /depo
-    # Depo salt okunur bağlanır; bağımlılıklar kapsayıcıya ayrı birimde kurulur.
-    command:
-      - sh
-      - -c
-      - >-
-        corepack enable && cp -r /kaynak/. /depo/ 2>/dev/null; cd /depo &&
-        pnpm install --frozen-lockfile --filter @akredit/vt... &&
-        node infra/gelistirme/goc.ts
+    # Depo salt okunur bağlanır ve yerelde kurulu bağımlılıklar kullanılır: önce `pnpm install` çalıştırın.
+    # Kullanılan sürücüler (postgres, PGlite) saf JavaScript/WASM olduğundan işletim sisteminden bağımsızdır.
+    command: ["node", "infra/gelistirme/goc.ts"]
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER:-akredit}:${POSTGRES_PASSWORD:-yerel-gelistirme}@vt:5432/${POSTGRES_DB:-akredit}
-      COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
     volumes:
-      - ../../package.json:/kaynak/package.json:ro
-      - ../../pnpm-lock.yaml:/kaynak/pnpm-lock.yaml:ro
-      - ../../pnpm-workspace.yaml:/kaynak/pnpm-workspace.yaml:ro
-      - ../../packages/vt:/kaynak/packages/vt:ro
-      - ../../packages/cekirdek:/kaynak/packages/cekirdek:ro
-      - ./goc.ts:/kaynak/infra/gelistirme/goc.ts:ro
-      - goc-depo:/depo
+      - ../..:/depo:ro
     depends_on:
       vt:
         condition: service_healthy
@@ -94,4 +82,3 @@ services:
 volumes:
   vt-veri:
   depo-veri:
-  goc-depo:
