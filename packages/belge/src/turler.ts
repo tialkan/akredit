@@ -54,6 +54,8 @@ export interface BelgeMetni {
 /** Elektronik tablo ya da CSV'nin ham hücre görünümü (not aktarımı gibi işler için). */
 export interface TabloVerisi {
   sayfalar: { ad: string; satirlar: HucreDegeri[][] }[];
+  /** Okunamayan ya da desteklenmeyen dosyada kullanıcıya gösterilebilir Türkçe uyarılar. */
+  uyarilar?: string[];
 }
 
 /** Arama ve atıf birimi. */
@@ -75,6 +77,12 @@ export interface CikarmaSecenekleri {
   enBuyukBoyut?: number;
   /** ZIP tabanlı biçimlerde açılmış toplam boyut sınırı. Varsayılan 500 MB. */
   enBuyukAcilmisBoyut?: number;
+  /** ZIP tabanlı biçimlerde en çok dosya sayısı. Varsayılan 10 000. */
+  enBuyukDosyaSayisi?: number;
+  /** ZIP içindeki bir dosyanın en büyük sıkıştırma oranı (1 MB üstü dosyalar için). Varsayılan 200. */
+  enBuyukSikistirmaOrani?: number;
+  /** PDF ayrıştırma zaman sınırı (ms). Varsayılan 30 000. */
+  zamanAsimiMs?: number;
 }
 
 // ---------- Belge üretimi (rapor, ders dosyası, matris dışa aktarımı) ----------
