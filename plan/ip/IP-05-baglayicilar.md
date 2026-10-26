@@ -1,6 +1,6 @@
 # İP-05: Bağlayıcılar I (Bologna ve OBS not aktarımı)
 
-- **Durum:** hazır
+- **Durum:** inceleme
 - **Faz:** 1 (Temeller)
 - **Bağımlılık:** yok (türler: `@akredit/cekirdek` `BolognaVerisi`, `OgrenciPuani`; `@akredit/belge` `TabloVerisi` türü)
 - **Sahip olduğu yollar:** `packages/baglayicilar/**`, `docs/raporlar/IP-05.md`
@@ -32,10 +32,10 @@ Kanıtı ve veriyi hocadan istemeden kaynağından almak. İlk iki kaynak: herke
 
 ## Kabul ölçütleri
 
-- [ ] Taşınan Bologna ayrıştırıcısı CLI testleriyle aynı sonuçları verir; CLI testleri hâlâ geçer.
-- [ ] Uçtan uca `programiOku` testi ağsız, sahte `fetch` ile çalışır; istek sırası ve aralığı doğrulanır.
-- [ ] Not aktarımı: üç biçim doğru okunur; hatalı hücreler bulgu olarak döner, süreç çökmez; çıktıda hiçbir öğrenci numarası ya da adı bulunmaz (test bunu metin taramasıyla doğrular).
-- [ ] `pnpm verify` temiz.
+- [x] Taşınan Bologna ayrıştırıcısı CLI testleriyle aynı sonuçları verir; CLI testleri hâlâ geçer.
+- [x] Uçtan uca `programiOku` testi ağsız, sahte `fetch` ile çalışır; istek sırası ve aralığı doğrulanır.
+- [x] Not aktarımı: üç biçim doğru okunur; hatalı hücreler bulgu olarak döner, süreç çökmez; çıktıda hiçbir öğrenci numarası ya da adı bulunmaz (test bunu metin taramasıyla doğrular).
+- [x] `pnpm verify` temiz.
 
 ## Kapsam dışı
 
@@ -44,3 +44,4 @@ AVESİS, YÖK Atlas, UBYS ve kimlik doğrulamalı OBS ekranları (İP-23). Bu ka
 ## Günlük
 
 - 2026-10-23: İP tanımlandı.
+- 2026-10-27: Uygulandı (dal `ip/05-baglayicilar`). `DisBaglam`/`Kaynak` arayüzü, Bologna ayrıştırıcısının birebir TypeScript taşıması (`src/bologna-proliz/`), `programiOku` bağlamlı okuyucu, OBS not aktarımı (`src/not-aktarimi/`: başlık tespiti, tam puan kaynakları, GR/DZ, zod'lu `NotAktarimProfili`, adresli bulgular), README bölümleri. 28 Vitest testi; CLI ile eşdeğerlik testi CLI modülünü doğrudan çağırıp kurgu sayfalarda karşılaştırır; CLI'nin 23 testi geçer. Kararlar: User-Agent ASCII (`hazirligi`), çünkü HTTP başlıkları Latin-1 olmalı; ilk istekten önce beklenmez (CLI ile aynı); tam puanı aşan, negatif ya da sayı olmayan puan `null` olur ve bulgu üretir; bulgular hücre değerini içermez. `zod` pakete eklendi. Ayrıntı: `docs/raporlar/IP-05.md`.
