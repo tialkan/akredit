@@ -29,12 +29,36 @@ importers:
 
   apps/isci:
     dependencies:
+      '@akredit/belge':
+        specifier: workspace:*
+        version: link:../../packages/belge
+      '@akredit/cekirdek':
+        specifier: workspace:*
+        version: link:../../packages/cekirdek
+      '@akredit/depo':
+        specifier: workspace:*
+        version: link:../../packages/depo
+      '@akredit/vt':
+        specifier: workspace:*
+        version: link:../../packages/vt
+      '@akredit/yz':
+        specifier: workspace:*
+        version: link:../../packages/yz
+      drizzle-orm:
+        specifier: ^0.45.4
+        version: 0.45.4(@electric-sql/pglite@0.5.11)(@opentelemetry/api@1.10.0)(pg@8.23.1)(postgres@3.4.9)
+      fflate:
+        specifier: ^0.8.3
+        version: 0.8.3
       pg-boss:
         specifier: ^12.38.0
         version: 12.38.0(@opentelemetry/api@1.10.0)
       pino:
         specifier: ^10.4.0
         version: 10.4.0
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
 
   apps/web:
     dependencies:
@@ -126,6 +150,12 @@ importers:
       zod:
         specifier: ^4.6.7
         version: 4.6.7
+
+  packages/depo:
+    dependencies:
+      '@akredit/cekirdek':
+        specifier: workspace:*
+        version: link:../cekirdek
 
   packages/olcme:
     dependencies:
