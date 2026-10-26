@@ -1,6 +1,7 @@
 // Ajan döngüsü: apps/cli/lib/ajan.mjs düzeninin genelleştirilmiş hali.
 // Yetki kodla uygulanır: "onay_gerektirir" araç çalıştırılmaz, "bekleyen onay" olarak döner; "yasak" reddedilir.
 import { z } from "zod";
+import { guvenilmeyenSar } from "./guvence/istem-kalkani.ts";
 import { type AracCagrisi, type AracTanimi, type Mesaj, type Saglayici, YzHatasi } from "./saglayici.ts";
 
 export type AracYetkisi = "okuma" | "oneri" | "onay_gerektirir" | "yasak";
@@ -129,7 +130,8 @@ export async function ajanCalistir(ayar: AjanAyari): Promise<AjanSonucu> {
       try {
         const sonuc = await arac.calistir(arg.data, ayar.sinyal ? { sinyal: ayar.sinyal } : {});
         const metin = typeof sonuc === "string" ? sonuc : JSON.stringify(sonuc);
-        cevapla(kisalt(metin ?? "", ciktiSiniri));
+        // Araç çıktısı (belge, web, e-posta metni) veridir: sınırlayıcıya alınır, talimat kalıpları işaretlenir.
+        cevapla(guvenilmeyenSar(kisalt(metin ?? "", ciktiSiniri), { kaynak: `arac:${c.ad}` }).metin);
         ayar.olay?.({ tur: "arac_calisti", arac: c.ad, cagriId: c.id, basarili: true });
       } catch (e) {
         cevapla(`HATA: ${e instanceof Error ? e.message : String(e)}`);
