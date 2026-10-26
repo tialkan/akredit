@@ -139,11 +139,11 @@ Durumlar: **hazır** (başlanabilir), **devam**, **inceleme**, **tamam**, **bekl
 | [05](plan/ip/IP-05-baglayicilar.md) | Bağlayıcılar I (Bologna, OBS not aktarımı) | 1 | tamam | — |
 | [06](plan/ip/IP-06-olcme-motoru.md) | Ölçme motoru (ÇK/PÇ) | 1 | tamam | — |
 | [07](plan/ip/IP-07-web-iskeleti.md) | Web iskeleti, tasarım sistemi, onay kutusu arayüzü | 1 | tamam | — |
-| [08](plan/ip/IP-08-gelistirme-altyapisi.md) | Geliştirme altyapısı ve CI | 1 | devam | — |
-| [09](plan/ip/IP-09-kimlik-ve-yetki.md) | Kimlik doğrulama, kiracı ve yetki | 2 | devam | 02, 07 |
-| [10](plan/ip/IP-10-kanit-hatti.md) | Kanıt hattı ve nesne deposu | 2 | devam | 02, 03, 04 |
-| [11](plan/ip/IP-11-cerceveler.md) | Akreditasyon çerçeve kütüphanesi | 2 | devam | 01, araştırma |
-| [12](plan/ip/IP-12-servis-ve-api.md) | Servis katmanı ve API | 2 | bekliyor | 01, 02, 09 |
+| [08](plan/ip/IP-08-gelistirme-altyapisi.md) | Geliştirme altyapısı ve CI | 1 | inceleme | — |
+| [09](plan/ip/IP-09-kimlik-ve-yetki.md) | Kimlik doğrulama, kiracı ve yetki | 2 | tamam | 02, 07 |
+| [10](plan/ip/IP-10-kanit-hatti.md) | Kanıt hattı ve nesne deposu | 2 | tamam | 02, 03, 04 |
+| [11](plan/ip/IP-11-cerceveler.md) | Akreditasyon çerçeve kütüphanesi | 2 | inceleme | 01, araştırma |
+| [12](plan/ip/IP-12-servis-ve-api.md) | Servis katmanı ve API | 2 | devam | 01, 02, 09 |
 | [13](plan/ip/IP-13-onay-ve-yetki-devri.md) | Onay kutusu arka ucu ve yetki devri | 2 | bekliyor | 12, 14 |
 | [14](plan/ip/IP-14-surec-motoru.md) | Süreç motoru, takvim, bildirim | 2 | bekliyor | 02, 12 |
 | [15](plan/ip/IP-15-bologna-otomasyonu.md) | Bologna ders paketi otomasyonu | 3 | bekliyor | 01, 03, 05, 12, 13 |
@@ -154,12 +154,12 @@ Durumlar: **hazır** (başlanabilir), **devam**, **inceleme**, **tamam**, **bekl
 | [20](plan/ip/IP-20-kidr-bidr.md) | BİDR, KİDR, olgunluk değerlendirmesi | 4 | bekliyor | 11, 12, 14 |
 | [21](plan/ip/IP-21-gostergeler.md) | Göstergeler ve stratejik plan | 4 | bekliyor | 05, 12 |
 | [22](plan/ip/IP-22-degerlendirici-portali.md) | Değerlendirici portalı, sanal kanıt odası | 4 | bekliyor | 09, 10, 12 |
-| [23](plan/ip/IP-23-baglayicilar-2.md) | Bağlayıcılar II (AVESİS, YÖK Atlas, UBYS, EBYS, e-posta, bulut) | 4 | bekliyor | 05, 10 |
+| [23](plan/ip/IP-23-baglayicilar-2.md) | Bağlayıcılar II (AVESİS, YÖK Atlas, UBYS, EBYS, e-posta, bulut) | 4 | devam | 05, 10 |
 | [24](plan/ip/IP-24-cli-birlesmesi.md) | CLI ve Claude Code eklentisinin birleşmesi | 4 | bekliyor | 01, 12 |
 | [25](plan/ip/IP-25-mcp-sunucusu.md) | MCP sunucusu | 4 | bekliyor | 12, 13 |
 | [26](plan/ip/IP-26-uretim-altyapisi.md) | Üretim altyapısı ve akredit.org | 5 | bekliyor | 08 |
 | [27](plan/ip/IP-27-guvenlik-denetimi.md) | Güvenlik sertleştirme ve bağımsız denetim | 5 | bekliyor | 09-26 |
-| [28](plan/ip/IP-28-kvkk-hukuk.md) | KVKK ve hukuk paketi | 5 | bekliyor | araştırma |
+| [28](plan/ip/IP-28-kvkk-hukuk.md) | KVKK ve hukuk paketi | 5 | devam | araştırma |
 | [29](plan/ip/IP-29-belgeler-egitim.md) | Kullanıcı belgeleri ve eğitim | 5 | bekliyor | 07+ |
 | [30](plan/ip/IP-30-pilot.md) | Pilot ve iş yükü ölçümü | 5 | bekliyor | Faz 3 |
 | [31](plan/ip/IP-31-erisilebilirlik-performans.md) | Erişilebilirlik ve performans | 5 | bekliyor | 07, 12 |
