@@ -119,8 +119,7 @@ export const cerceveSemasi = z
         sorun(`${o.kod}: resmî metin için kaynak belgenin SHA-256 özeti kayıtlı olmalı.`);
     }
     for (const b of c.raporSablonu)
-      for (const k of b.olcutKodlari)
-        if (!kodlar.has(k)) sorun(`Rapor bölümü ${b.kod} bilinmeyen ölçüte bağlı: ${k}`);
+      for (const k of b.olcutKodlari) if (!kodlar.has(k)) sorun(`Rapor bölümü ${b.kod} bilinmeyen ölçüte bağlı: ${k}`);
     if (c.dogrulandi) {
       if (!c.dogrulayan || !c.dogrulamaZamani) sorun("Doğrulanan çerçevede doğrulayan ve zaman yazılmalı.");
       if (c.resmi && hepsi.some((o) => o.metinDurumu !== "resmi"))

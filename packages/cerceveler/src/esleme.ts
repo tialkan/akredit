@@ -41,8 +41,7 @@ export function eslemeOnerisiDogrula(oneri: unknown, cerceveler: readonly Cercev
   const hatalar: string[] = [];
   if (!olcutVarMi(cerceveler, p.data.kaynak)) hatalar.push(`Kaynak ölçüt bulunamadı: ${p.data.kaynak.olcutKod}`);
   if (!olcutVarMi(cerceveler, p.data.hedef)) hatalar.push(`Hedef ölçüt bulunamadı: ${p.data.hedef.olcutKod}`);
-  if (p.data.kaynak.cerceveKod === p.data.hedef.cerceveKod)
-    hatalar.push("Eşleme iki farklı çerçeve arasında olmalı.");
+  if (p.data.kaynak.cerceveKod === p.data.hedef.cerceveKod) hatalar.push("Eşleme iki farklı çerçeve arasında olmalı.");
   return hatalar;
 }
 
@@ -61,7 +60,10 @@ export function eslemeKarariDogrula(
 }
 
 /** Yalnız onaylanmış öneriler geçerli eşlemedir. */
-export function gecerliEslemeler(oneriler: readonly EslemeOnerisi[], kararlar: readonly EslemeKarari[]): EslemeOnerisi[] {
+export function gecerliEslemeler(
+  oneriler: readonly EslemeOnerisi[],
+  kararlar: readonly EslemeKarari[],
+): EslemeOnerisi[] {
   const onayli = new Set(kararlar.filter((k) => k.sonuc === "onaylandi" && k.kararVeren.trim()).map((k) => k.oneriId));
   return oneriler.filter((o) => onayli.has(o.id));
 }

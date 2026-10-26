@@ -85,8 +85,7 @@ export function taslakCerceve(girdi: {
   sayfalar: readonly BelgeSayfasi[];
   desen?: RegExp;
 }): { cerceve: Cerceve; uyarilar: string[] } {
-  if (!girdi.kaynak.sha256)
-    throw new Error("Belge özeti yok. Önce resmî belgeyi indirip özetini kaydedin.");
+  if (!girdi.kaynak.sha256) throw new Error("Belge özeti yok. Önce resmî belgeyi indirip özetini kaydedin.");
   const { olcutler, uyarilar } = olcutTaslagiCikar(girdi.sayfalar, girdi.desen);
   if (olcutler.length === 0) throw new Error("Belgede ölçüt bulunamadı. Kod desenini denetleyin.");
   const cerceve = cerceveSemasi.parse({
