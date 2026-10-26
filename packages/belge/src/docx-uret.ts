@@ -87,7 +87,9 @@ function icerikOgeleri(i: DocxIcerik, listeNo: { n: number }): (Paragraph | Tabl
       });
       const sonuc: (Paragraph | Table)[] = [tablo];
       if (i.aciklama) {
-        sonuc.push(new Paragraph({ children: [new TextRun({ text: i.aciklama, italics: true, size: 18, language: DIL })] }));
+        sonuc.push(
+          new Paragraph({ children: [new TextRun({ text: i.aciklama, italics: true, size: 18, language: DIL })] }),
+        );
       }
       return sonuc;
     }
@@ -101,38 +103,76 @@ function numaraliSayisi(model: DocxModeli): number {
 }
 
 export async function docxYaz(model: DocxModeli): Promise<Uint8Array> {
-  const govde: (Paragraph | Table)[] = [new Paragraph({ heading: HeadingLevel.TITLE, children: [new TextRun({ text: model.baslik, language: DIL })] })];
+  const govde: (Paragraph | Table)[] = [
+    new Paragraph({ heading: HeadingLevel.TITLE, children: [new TextRun({ text: model.baslik, language: DIL })] }),
+  ];
   if (model.altBaslik) {
-    govde.push(new Paragraph({ children: [new TextRun({ text: model.altBaslik, italics: true, size: 28, language: DIL })] }));
+    govde.push(
+      new Paragraph({ children: [new TextRun({ text: model.altBaslik, italics: true, size: 28, language: DIL })] }),
+    );
   }
   const listeNo = { n: 0 };
   for (const b of model.bolumler) {
-    if (b.baslik) govde.push(new Paragraph({ heading: BASLIKLAR[b.duzey - 1], children: [new TextRun({ text: b.baslik, language: DIL })] }));
+    if (b.baslik)
+      govde.push(
+        new Paragraph({ heading: BASLIKLAR[b.duzey - 1], children: [new TextRun({ text: b.baslik, language: DIL })] }),
+      );
     for (const i of b.icerik) govde.push(...icerikOgeleri(i, listeNo));
   }
   const numaraliTanimlar = Array.from({ length: numaraliSayisi(model) }, (_, k) => ({
     reference: `numarali-${k}`,
-    levels: [{ level: 0, format: LevelFormat.DECIMAL, text: "%1.", alignment: AlignmentType.START, style: { paragraph: { indent: { left: 720, hanging: 360 } } } }],
+    levels: [
+      {
+        level: 0,
+        format: LevelFormat.DECIMAL,
+        text: "%1.",
+        alignment: AlignmentType.START,
+        style: { paragraph: { indent: { left: 720, hanging: 360 } } },
+      },
+    ],
   }));
   const belge = new Document({
     creator: "Akredit",
     title: model.baslik,
     styles: {
       default: { document: { run: { font: "Calibri", size: 22, language: DIL } } },
-      paragraphStyles: [baslikStili("Heading1", "Heading 1", 32), baslikStili("Heading2", "Heading 2", 28), baslikStili("Heading3", "Heading 3", 24)],
+      paragraphStyles: [
+        baslikStili("Heading1", "Heading 1", 32),
+        baslikStili("Heading2", "Heading 2", 28),
+        baslikStili("Heading3", "Heading 3", 24),
+      ],
     },
     numbering: {
       config: [
         {
           reference: "madde",
-          levels: [{ level: 0, format: LevelFormat.BULLET, text: "•", alignment: AlignmentType.START, style: { paragraph: { indent: { left: 720, hanging: 360 } } } }],
+          levels: [
+            {
+              level: 0,
+              format: LevelFormat.BULLET,
+              text: "•",
+              alignment: AlignmentType.START,
+              style: { paragraph: { indent: { left: 720, hanging: 360 } } },
+            },
+          ],
         },
         ...numaraliTanimlar,
       ],
     },
     sections: [
       {
-        headers: model.ustBilgi ? { default: new Header({ children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: model.ustBilgi, size: 18, language: DIL })] })] }) } : undefined,
+        headers: model.ustBilgi
+          ? {
+              default: new Header({
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.RIGHT,
+                    children: [new TextRun({ text: model.ustBilgi, size: 18, language: DIL })],
+                  }),
+                ],
+              }),
+            }
+          : undefined,
         footers: {
           default: new Footer({
             children: [

@@ -99,7 +99,14 @@ describe("metinCikar", () => {
     const b = await metinCikar(
       pptx([
         { baslik: "Kalite güvencesi", govde: ["Birinci madde", TR], not: "Burada süreyi hatırlat" },
-        { baslik: "Sonuç", govde: ["Öneriler"], tablo: [["Ölçüt", "Düzey"], ["A.1", "3"]] },
+        {
+          baslik: "Sonuç",
+          govde: ["Öneriler"],
+          tablo: [
+            ["Ölçüt", "Düzey"],
+            ["A.1", "3"],
+          ],
+        },
       ]),
     );
     expect(b.tur).toBe("pptx");
@@ -109,7 +116,14 @@ describe("metinCikar", () => {
       { capa: { slayt: 1, bolum: "Konuşmacı notları" }, baslik: "Konuşmacı notları", metin: "Burada süreyi hatırlat" },
       { capa: { slayt: 2 }, baslik: "Sonuç", metin: "Öneriler" },
     ]);
-    expect(b.tablolar[0]).toEqual({ capa: { slayt: 2 }, ad: "Slayt 2 tablosu", satirlar: [["Ölçüt", "Düzey"], ["A.1", "3"]] });
+    expect(b.tablolar[0]).toEqual({
+      capa: { slayt: 2 },
+      ad: "Slayt 2 tablosu",
+      satirlar: [
+        ["Ölçüt", "Düzey"],
+        ["A.1", "3"],
+      ],
+    });
   });
 
   it("ODT: başlıklar, paragraflar, liste ve tablo", async () => {
@@ -170,7 +184,9 @@ describe("metinCikar", () => {
   });
 
   it("Markdown başlıkları bölüm olur; düz metin ve JSON tek bölüm", async () => {
-    const md = await metinCikar(enc(`önsöz\n# Başlık Bir\nmetin ${TR}\n\`\`\`\n# kod içi\n\`\`\`\n## İki\nson`), { ad: "not.md" });
+    const md = await metinCikar(enc(`önsöz\n# Başlık Bir\nmetin ${TR}\n\`\`\`\n# kod içi\n\`\`\`\n## İki\nson`), {
+      ad: "not.md",
+    });
     expect(md.bolumler.map((x) => [x.baslik, x.duzey, x.capa.satir])).toEqual([
       [undefined, undefined, 1],
       ["Başlık Bir", 1, 2],

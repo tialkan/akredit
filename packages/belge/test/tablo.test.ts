@@ -8,13 +8,27 @@ const TR = "ı İ ğ Ğ ş Ş ç Ç ö Ö ü Ü";
 
 /** Windows-1254 kodlayıcı (yalnız test için): ASCII + Türkçe harfler. */
 function cp1254(s: string): Uint8Array {
-  const ozel: Record<string, number> = { ı: 0xfd, İ: 0xdd, ğ: 0xf0, Ğ: 0xd0, ş: 0xfe, Ş: 0xde, ç: 0xe7, Ç: 0xc7, ö: 0xf6, Ö: 0xd6, ü: 0xfc, Ü: 0xdc };
+  const ozel: Record<string, number> = {
+    ı: 0xfd,
+    İ: 0xdd,
+    ğ: 0xf0,
+    Ğ: 0xd0,
+    ş: 0xfe,
+    Ş: 0xde,
+    ç: 0xe7,
+    Ç: 0xc7,
+    ö: 0xf6,
+    Ö: 0xd6,
+    ü: 0xfc,
+    Ü: 0xdc,
+  };
   return new Uint8Array([...s].map((c) => ozel[c] ?? (c.charCodeAt(0) < 128 ? c.charCodeAt(0) : 0x3f)));
 }
 
 describe("CSV", () => {
   it("noktalı virgül + ondalık virgül + Windows-1254 doğru okunur", async () => {
-    const metin = 'Öğrenci No;Ad Soyad;Vize;Final\r\n0210001;Çağla Işık;72,5;"81,25"\r\n0210002;"Şükrü; Öztürk";1.234,5;\r\n';
+    const metin =
+      'Öğrenci No;Ad Soyad;Vize;Final\r\n0210001;Çağla Işık;72,5;"81,25"\r\n0210002;"Şükrü; Öztürk";1.234,5;\r\n';
     const v = cp1254(metin);
     expect(metneCevir(v).kodlama).toBe("windows-1254");
     const t = await tabloOku(v, { ad: "notlar.csv" });
@@ -32,7 +46,12 @@ describe("CSV", () => {
   });
 
   it("UTF-8 BOM ve virgül ayraçlı (ondalık nokta) dosya", async () => {
-    const v = new Uint8Array([0xef, 0xbb, 0xbf, ...new TextEncoder().encode(`ad,puan\n${TR},3.5\n"çok ""tırnaklı""",4\n`)]);
+    const v = new Uint8Array([
+      0xef,
+      0xbb,
+      0xbf,
+      ...new TextEncoder().encode(`ad,puan\n${TR},3.5\n"çok ""tırnaklı""",4\n`),
+    ]);
     const t = await tabloOku(v, { ad: "a.csv" });
     expect(t.sayfalar[0]?.satirlar).toEqual([
       ["ad", "puan"],
@@ -62,7 +81,16 @@ describe("CSV", () => {
   it("metinCikar CSV'yi tablo ve okunabilir metin olarak verir", async () => {
     const b = await metinCikar(cp1254("ders;kredi\nİş Hukuku;3,5\n"), { ad: "d.csv" });
     expect(b.tur).toBe("csv");
-    expect(b.tablolar).toEqual([{ capa: { hucre: "A1:B2" }, ad: "CSV", satirlar: [["ders", "kredi"], ["İş Hukuku", 3.5]] }]);
+    expect(b.tablolar).toEqual([
+      {
+        capa: { hucre: "A1:B2" },
+        ad: "CSV",
+        satirlar: [
+          ["ders", "kredi"],
+          ["İş Hukuku", 3.5],
+        ],
+      },
+    ]);
     expect(b.bolumler[0]?.metin).toBe("ders | kredi\nİş Hukuku | 3.5");
   });
 });
@@ -80,13 +108,18 @@ describe("XLSX", () => {
     ]);
     const t = await tabloOku(v, { ad: "m.xlsx" });
     expect(t.sayfalar).toEqual([
-      { ad: "PÇ Matrisi", satirlar: [["Kod", "Değer", "Not"], ...satirlar.map((s) => (s[2] === null ? s.slice(0, 2) : s))] },
+      {
+        ad: "PÇ Matrisi",
+        satirlar: [["Kod", "Değer", "Not"], ...satirlar.map((s) => (s[2] === null ? s.slice(0, 2) : s))],
+      },
       { ad: "İkinci", satirlar: [["a"], [1]] },
     ]);
   });
 
   it("başlık kalın ve dondurulmuş, sütun genişliği içerikten", async () => {
-    const v = await xlsxUret([{ ad: "S", basliklar: ["k", "uzun başlık metni"], satirlar: [["çok çok uzun bir hücre değeri burada", 1]] }]);
+    const v = await xlsxUret([
+      { ad: "S", basliklar: ["k", "uzun başlık metni"], satirlar: [["çok çok uzun bir hücre değeri burada", 1]] },
+    ]);
     const kitap = new ExcelJS.Workbook();
     await kitap.xlsx.load(Buffer.from(v) as never);
     const ws = kitap.getWorksheet("S");

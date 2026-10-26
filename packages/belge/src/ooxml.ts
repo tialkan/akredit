@@ -40,18 +40,14 @@ function wParagrafMetni(p: XmlDugum): string {
 
 function wTablo(tbl: XmlDugum): string[][] {
   return cocuklar(tbl, "w:tr").map((tr) =>
-    cocuklar(tr, "w:tc").map((tc) =>
-      altlar(tc, "w:p")
-        .map(wParagrafMetni)
-        .join("\n")
-        .trim(),
-    ),
+    cocuklar(tr, "w:tc").map((tc) => altlar(tc, "w:p").map(wParagrafMetni).join("\n").trim()),
   );
 }
 
 export function docxOku(zip: ZipIcerik): OkumaSonucu {
   const belge = xmlOku(zip, "word/document.xml");
-  if (!belge) return { bolumler: [], tablolar: [], uyarilar: ["Word dosyasının içeriği bulunamadı. Dosya bozuk olabilir."] };
+  if (!belge)
+    return { bolumler: [], tablolar: [], uyarilar: ["Word dosyasının içeriği bulunamadı. Dosya bozuk olabilir."] };
   const stiller = new Map<string, number>();
   const stilXml = xmlOku(zip, "word/styles.xml");
   if (stilXml) {
@@ -195,7 +191,8 @@ export function pptxOku(zip: ZipIcerik): OkumaSonucu {
           .filter((sp) => altlar(sp, "p:ph")[0]?.oz.type === "body")
           .flatMap(aParagraflari)
           .join("\n");
-        if (metin) bolumler.push({ capa: { slayt: no, bolum: "Konuşmacı notları" }, baslik: "Konuşmacı notları", metin });
+        if (metin)
+          bolumler.push({ capa: { slayt: no, bolum: "Konuşmacı notları" }, baslik: "Konuşmacı notları", metin });
       }
     }
   });
