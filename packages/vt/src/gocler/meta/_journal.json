@@ -36,6 +36,13 @@
       "when": 1793056305685,
       "tag": "0004_kimlik",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793100000000,
+      "tag": "0005_servis",
+      "breakpoints": true
     }
   ]
 }
