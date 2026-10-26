@@ -1,6 +1,6 @@
 # İP-28: KVKK ve hukuk paketi
 
-- **Durum:** bekliyor
+- **Durum:** inceleme
 - **Faz:** 5
 - **Bağımlılık:** araştırma
 - **Sahip olduğu yollar:** `docs/hukuk/**`, `apps/web/src/app/(site)/{kvkk,gizlilik,kosullar}/**`, `docs/raporlar/IP-28.md`
@@ -31,3 +31,4 @@ Hukuki metinlerin son hali avukat onayı gerektirir; Akredit taslak üretir.
 ## Günlük
 
 - 2026-10-23: İP tanımlandı. Başlamadan önce kapsamı güncel mimariye göre ayrıntılandır.
+- 2026-10-27: `docs/hukuk/` altında taslak hukuk paketi yazıldı (kaynaklar, uyum analizi, veri işleme sözleşmesi şablonu, aydınlatma metinleri, gizlilik, çerez, kullanım koşulları, saklama-imha, envanter, VERBİS, yurt dışı aktarım). Mevzuat bilgileri web kaynaklarından erişim tarihiyle alındı; resmî metni okunamayanlar `DOĞRULANMADI`. Site: `/kvkk` güncellendi, `/gizlilik` ve `/kosullar` eklendi (taslak uyarılı). Karar: silme talebi = takma ad eşlemesi ve anahtarın silinmesi + günlüğe yeni kayıt. Kalan: avukat incelemesi; silme akışı kodu ve testi (`packages/vt`), kurum YZ ayarı ve kaydı, dışa aktarma, erişim günlüğü ekranı (İP yolları dışında, sonraki İP).
