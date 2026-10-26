@@ -87,6 +87,9 @@ importers:
       '@akredit/cekirdek':
         specifier: workspace:*
         version: link:../cekirdek
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
 
   packages/belge:
     dependencies:
@@ -106,7 +109,11 @@ importers:
         specifier: ^1.9.1
         version: 1.9.1
 
-  packages/cekirdek: {}
+  packages/cekirdek:
+    devDependencies:
+      '@vitest/coverage-v8':
+        specifier: 4.1.12
+        version: 4.1.12(vitest@4.1.12)
 
   packages/cerceveler:
     dependencies:
@@ -122,6 +129,10 @@ importers:
       '@akredit/cekirdek':
         specifier: workspace:*
         version: link:../cekirdek
+    devDependencies:
+      '@vitest/coverage-v8':
+        specifier: 4.1.12
+        version: 4.1.12(vitest@4.1.12)
 
   packages/vt:
     dependencies:
