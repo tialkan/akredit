@@ -57,3 +57,85 @@ jobs:
         run: pnpm --filter @akredit/web e2e
         env:
           NEXT_TELEMETRY_DISABLED: "1"
+
+  postgres:
+    name: Gerçek PostgreSQL (göçler, eşzamanlı günlük)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      vt:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_USER: akredit
+          POSTGRES_PASSWORD: ci-yalniz
+          POSTGRES_DB: akredit
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U akredit -d akredit"
+          --health-interval 3s
+          --health-timeout 3s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgres://akredit:ci-yalniz@localhost:5432/akredit
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: pnpm
+        run: corepack enable && corepack prepare --activate
+      - run: pnpm install --frozen-lockfile
+      - name: Göçleri uygula
+        run: node infra/gelistirme/goc.ts
+      - name: Eşzamanlı göç ve günlük sınaması
+        run: node infra/gelistirme/vt-sinama.ts
+
+  imajlar:
+    name: Docker imajları
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        uygulama: [web, isci]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: docker/setup-buildx-action@v3
+      - name: İmajı derle
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infra/gelistirme/${{ matrix.uygulama }}.Dockerfile
+          tags: akredit-${{ matrix.uygulama }}:ci
+          load: true
+          push: false
+      - name: İmajda gizli bilgi taraması
+        run: |
+          # İmaj dosya sistemi açılıp taranır; .env, anahtar ya da parola bulunursa iş kalır.
+          mkdir imaj && docker export "$(docker create akredit-${{ matrix.uygulama }}:ci)" | tar -x -C imaj
+          if find imaj -name '.env' -o -name '.env.*' -not -name '.env.ornek' | grep -q .; then echo "İmajda .env dosyası var"; exit 1; fi
+          docker run --rm -v "$PWD/imaj/uygulama:/tara:ro" ghcr.io/gitleaks/gitleaks:v8.28.0 dir /tara --no-banner --redact
+      - name: Kök olmayan kullanıcı denetimi
+        run: test "$(docker inspect -f '{{.Config.User}}' akredit-${{ matrix.uygulama }}:ci)" = "node"
+
+  gizli-bilgi:
+    name: Gizli bilgi taraması
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Gitleaks
+        run: docker run --rm -v "$PWD:/depo" ghcr.io/gitleaks/gitleaks:v8.28.0 git /depo --no-banner --redact
+
+  bagimlilik-incelemesi:
+    name: Bağımlılık incelemesi
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+          deny-licenses: GPL-2.0-only, GPL-3.0-only, AGPL-3.0-only, AGPL-3.0-or-later, GPL-3.0-or-later

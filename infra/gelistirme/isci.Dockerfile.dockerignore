@@ -1,0 +1,16 @@
+# Yapı bağlamından çıkarılanlar: gizli bilgi, yerel veri, derleme çıktıları.
+**/node_modules
+**/.next
+**/dist
+**/coverage
+**/.env
+**/.env.*
+!.env.ornek
+**/*.pem
+**/*.key
+.git
+.claude
+veri
+yedek
+playwright-report
+test-results
