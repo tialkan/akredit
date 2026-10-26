@@ -201,7 +201,13 @@ export const EpostaSemasi = z.object({
     dkim: z.enum(["pass", "fail", "neutral", "none", "temperror", "permerror"]),
     dmarc: z.enum(["pass", "fail", "none", "temperror", "permerror"]),
   }),
-  ekler: z.array(z.object({ ad: z.string().min(1), mime: z.string().optional(), veri: z.instanceof(Uint8Array) })),
+  ekler: z.array(
+    z.object({
+      ad: z.string().min(1),
+      mime: z.string().optional(),
+      veri: z.custom<Uint8Array>((v) => v instanceof Uint8Array),
+    }),
+  ),
 });
 
 export type EpostaIletisi = z.input<typeof EpostaSemasi>;
