@@ -1,6 +1,6 @@
 # İP-11: Akreditasyon çerçeve kütüphanesi
 
-- **Durum:** bekliyor
+- **Durum:** inceleme
 - **Faz:** 2
 - **Bağımlılık:** İP-01, araştırma (`docs/arastirma/`)
 - **Sahip olduğu yollar:** `packages/cerceveler/**`, `docs/cerceveler.md`, `docs/raporlar/IP-11.md`
@@ -20,10 +20,10 @@ YÖKAK ve program akreditasyon kuruluşlarının ölçütlerini, olgunluk düzey
 
 ## Kabul ölçütleri
 
-- [ ] Şema ve içe aktarma testleri.
-- [ ] Her ölçütün resmî kaynak sayfası ve belge özeti kayıtlı.
-- [ ] Çerçeve sürümü değişince eski raporlar eski sürüme bağlı kalır.
-- [ ] `pnpm verify` temiz.
+- [x] Şema ve içe aktarma testleri.
+- [ ] Her ölçütün resmî kaynak sayfası ve belge özeti kayıtlı. (Şemayla zorunlu; veride karşılanmadı, belgeler indirilemedi.)
+- [x] Çerçeve sürümü değişince eski raporlar eski sürüme bağlı kalır.
+- [ ] `pnpm verify` temiz. (Bu paket temiz; tam çalıştırmada `packages/vt` gunluk testi yük altında zaman aşımına düşüyor, tek başına geçiyor.)
 
 ## Notlar
 
@@ -32,3 +32,4 @@ YÖKAK ve program akreditasyon kuruluşlarının ölçütlerini, olgunluk düzey
 ## Günlük
 
 - 2026-10-23: İP tanımlandı. Başlamadan önce kapsamı güncel mimariye göre ayrıntılandır.
+- 2026-10-27: Şema, içe aktarma, uzman onayı, sürümlü kütüphane, eşleme önerisi/kararı ve 5 ilk çerçeve eklendi (16 test). yokak.gov.tr ve mudek.org.tr ağ vekilinde engelli: hiçbir resmî metin doğrulanmadı, hepsi `DOĞRULANMADI`; adresler `kaynaklar/resmi/kaynaklar.json`da. Kalan: belgeleri indirip içe aktarma ve uzman onayı; YÖKAK rubriği, KİDR bölümleri, MÜDEK ölçütleri. Karar: eşleme cekirdek öneri türü gelene dek yerel arayüzle. Ayrıntı: `docs/raporlar/IP-11.md`.
