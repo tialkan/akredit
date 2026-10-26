@@ -1,6 +1,6 @@
 # İP-09: Kimlik doğrulama, kiracı ve yetki
 
-- **Durum:** bekliyor
+- **Durum:** inceleme
 - **Faz:** 2
 - **Bağımlılık:** İP-02, İP-07
 - **Sahip olduğu yollar:** `packages/yetki/**`, `apps/web/src/kimlik/**`, `packages/vt/src/sema/kimlik*.ts` ve ilgili göç, `docs/raporlar/IP-09.md`
@@ -20,11 +20,11 @@ Kurum kullanıcılarının güvenle girmesi, rollerin kapsamlı yetkiye dönüş
 
 ## Kabul ölçütleri
 
-- [ ] Her rol × eylem için yetki tablosu testi.
-- [ ] Uçtan uca: A kurumunun kullanıcısı B kurumunun hiçbir verisine erişemez.
-- [ ] Sahte OIDC/SAML sağlayıcıyla giriş testi.
-- [ ] Parola saklanmaz (sihirli bağlantı/SSO).
-- [ ] `pnpm verify` temiz.
+- [x] Her rol × eylem için yetki tablosu testi.
+- [x] Uçtan uca: A kurumunun kullanıcısı B kurumunun hiçbir verisine erişemez.
+- [x] Sahte OIDC/SAML sağlayıcıyla giriş testi.
+- [x] Parola saklanmaz (sihirli bağlantı/SSO).
+- [x] `pnpm verify` temiz.
 
 ## Notlar
 
@@ -33,3 +33,4 @@ YETKİM (ULAKBİM kimlik federasyonu) katılımı kurumun ve ULAKBİM'in işlemi
 ## Günlük
 
 - 2026-10-23: İP tanımlandı. Başlamadan önce kapsamı güncel mimariye göre ayrıntılandır.
+- 2026-10-27: Uygulandı, incelemeye alındı. `packages/yetki` (saf matris: 8 rol × 4 kapsam × 17 eylem, atama kuralları, API anahtarı ve davet belirteci, CSV doğrulama, CSRF/çerez/şüpheli giriş, giriş bilgisi ayıklama); `packages/vt` kimlik tabloları ve `0003_kimlik` göçü (uygulama rolü erişemez, parola sütunu CHECK ile hep NULL); `apps/web/src/kimlik` (Better Auth: sihirli bağlantı + SSO eklentisiyle OIDC ve SAML 2.0; istek bağlamı, kiracı işleminde yetki, davet, rol atama, toplu içe aktarma, API anahtarları, kimlik olayları günlüğü). Kararlar: kurum = organization, ancak üyelik Better Auth organization eklentisi yerine `kimlik_uyelik` + `rol_atamasi` ile (kapsamlı roller için); hesap yalnız üyelik ya da açık davetle açılır; SSO sağlayıcıları kurum ayarından (`defaultSSO`), kullanıcı sağlayıcı kaydedemez. Kalan: Next.js rota bağlantısı (`/api/kimlik/[...]`), `/giris` ve davet sayfaları, gerçek e-posta göndericisi (İP-12/14; bu İP'nin yolları dışında). Ayrıntı: `docs/raporlar/IP-09.md`.
