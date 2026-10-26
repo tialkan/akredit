@@ -11,7 +11,15 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
+    "@akredit/belge": "workspace:*",
+    "@akredit/cekirdek": "workspace:*",
+    "@akredit/depo": "workspace:*",
+    "@akredit/vt": "workspace:*",
+    "@akredit/yz": "workspace:*",
+    "drizzle-orm": "^0.45.4",
+    "fflate": "^0.8.3",
     "pg-boss": "^12.38.0",
-    "pino": "^10.4.0"
+    "pino": "^10.4.0",
+    "zod": "^4.6.7"
   }
 }
