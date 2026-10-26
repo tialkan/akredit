@@ -1,6 +1,6 @@
 # İP-01: Çekirdek alan mantığı
 
-- **Durum:** hazır
+- **Durum:** inceleme
 - **Faz:** 1 (Temeller)
 - **Bağımlılık:** yok
 - **Sahip olduğu yollar:** `packages/cekirdek/**`, `docs/raporlar/IP-01.md`
@@ -47,13 +47,13 @@ import { bolognaDenetle, taslakDenetle, raporDenetle, matrisOlustur, politikaUyg
 
 ## Kabul ölçütleri
 
-- [ ] `apps/cli/test/bologna.test.mjs` ve `apps/cli/test/bologna-taslak.test.mjs` içindeki denetim senaryoları Vitest'e taşınmış ve aynı sonucu veriyor (eşdeğerlik). CLI testleri de hâlâ geçiyor.
-- [ ] `apps/cli/bilgi/bologna-taslak-ornek.json` taslak denetiminden hatasız geçiyor (CLI'de olduğu gibi).
-- [ ] Rapor denetimi: geçerli, geçersiz, belirsiz (çok eşleşen) atıf; alıntı doğrulama; eksik işareti; sayı uyarısı; başlık/tablo atlama testleri.
-- [ ] Politika kuralları: yüksek risk hiçbir koşulda uygulanmaz; sınır değerleri (güven eşiği eşit, bitiş zamanı) testli.
-- [ ] `src/` altında `node:fs`, `node:net`, `fetch`, `Date.now()`, `Math.random()` kullanımı yok (bir test bunu dosyaları tarayarak doğrular).
-- [ ] Satır kapsamı ≥ %90 (`vitest run --coverage`; gerekirse `@vitest/coverage-v8` bu pakete geliştirme bağımlılığı olarak eklenir).
-- [ ] `pnpm verify` temiz.
+- [x] `apps/cli/test/bologna.test.mjs` ve `apps/cli/test/bologna-taslak.test.mjs` içindeki denetim senaryoları Vitest'e taşınmış ve aynı sonucu veriyor (eşdeğerlik). CLI testleri de hâlâ geçiyor.
+- [x] `apps/cli/bilgi/bologna-taslak-ornek.json` taslak denetiminden hatasız geçiyor (CLI'de olduğu gibi).
+- [x] Rapor denetimi: geçerli, geçersiz, belirsiz (çok eşleşen) atıf; alıntı doğrulama; eksik işareti; sayı uyarısı; başlık/tablo atlama testleri.
+- [x] Politika kuralları: yüksek risk hiçbir koşulda uygulanmaz; sınır değerleri (güven eşiği eşit, bitiş zamanı) testli.
+- [x] `src/` altında `node:fs`, `node:net`, `fetch`, `Date.now()`, `Math.random()` kullanımı yok (bir test bunu dosyaları tarayarak doğrular).
+- [x] Satır kapsamı ≥ %90 (`vitest run --coverage`; gerekirse `@vitest/coverage-v8` bu pakete geliştirme bağımlılığı olarak eklenir).
+- [x] `pnpm verify` temiz.
 
 ## Kapsam dışı
 
@@ -62,3 +62,4 @@ HTML ayrıştırma (İP-05), veritabanı (İP-02), YZ çağrısı (İP-03).
 ## Günlük
 
 - 2026-10-23: Tür sözleşmesi, atıf ayrıştırıcı ve Türkçe yardımcılar iskelette yazıldı.
+- 2026-10-27: Kapsam 1-6 uygulandı: `bologna/denetim.ts` (`bolognaDenetle`), `bologna/taslak.ts` (`taslakDenetle`), `rapor/denetim.ts` (`raporDenetle`), `matris.ts` (`matrisOlustur`, `matrisHedefi`), `oneri.ts` (`oneriRiski`, `etkinRisk`, `kararDogrula`, `politikaUygulanirMi`, `gecerliKarar`, `kararIcerigi`, `matrisOnerisiIncelemesi`), `olcum.ts` (`oturumlariHesapla`, `kararOranlari`, `insanDakikasi`, `ortanca`). 78 Vitest testi; CLI modülleriyle doğrudan eşdeğerlik karşılaştırması (`test/cli.ts`). Satır kapsamı %99,5 (`pnpm --filter @akredit/cekirdek test:kapsam`, eşik %90). Kararlar: Bologna denetiminde `simdi` verilmezse güncellik kuralı atlanır ve tarih UTC yorumlanır; politika zaman aralığı [başlangıç, bitiş); güven eşiğe eşitse uygulanır; etkin risk = öneri riski ile tür riskinin yükseği; alıntı doğrulanamazsa (parça yok ya da erişim verilmemiş) hata. Durum: inceleme.
