@@ -63,7 +63,8 @@ export async function istek(
   };
   if (s.govde !== undefined) init.body = s.govde;
   const y = await baglam.fetch(adres, init);
-  if (y.status === 429) throw new BaglayiciHatasi("Kaynak çok fazla istek aldığını bildirdi; bir süre sonra yeniden deneyin.");
+  if (y.status === 429)
+    throw new BaglayiciHatasi("Kaynak çok fazla istek aldığını bildirdi; bir süre sonra yeniden deneyin.");
   if (!y.ok) throw new BaglayiciHatasi(`Sayfa okunamadı (HTTP ${y.status}). Adresi denetleyip yeniden deneyin.`);
   return y;
 }

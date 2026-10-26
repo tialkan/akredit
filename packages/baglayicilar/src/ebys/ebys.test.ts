@@ -31,7 +31,12 @@ describe("e-Yazışma paketi", () => {
     expect(r.girdiler[0]).toMatchObject({
       kaynakTuru: "baglayici",
       belgeTarihi: "2025-03-14",
-      kaynakAyrinti: { baglayici: "ebys", paket: "yazi.eyp", yol: "UstYazi/ustyazi.pdf", sayi: "E-99999999-100-123456" },
+      kaynakAyrinti: {
+        baglayici: "ebys",
+        paket: "yazi.eyp",
+        yol: "UstYazi/ustyazi.pdf",
+        sayi: "E-99999999-100-123456",
+      },
     });
     expect(new TextDecoder().decode(r.girdiler[0]?.veri)).toBe("%PDF-1.4 kurgu üst yazı");
     expect(r.uyarilar).toEqual([]);
@@ -54,9 +59,9 @@ describe("e-Yazışma paketi", () => {
   it("ZIP güvenliği: yol geçişi, ZIP olmayan veri", () => {
     expect(() => zipOku(zipYaz({ "../kaçak.txt": "x" }))).toThrow(/güvensiz/);
     expect(() => zipOku(new Uint8Array([1, 2, 3]))).toThrow(/ZIP/);
-    expect(() => zipOku(zipYaz({ "a.txt": "x".repeat(100_000) }), { enCokGirdi: 10, enBuyukToplam: 1e9, enBuyukOran: 10 })).toThrow(
-      /çok büyük/,
-    );
+    expect(() =>
+      zipOku(zipYaz({ "a.txt": "x".repeat(100_000) }), { enCokGirdi: 10, enBuyukToplam: 1e9, enBuyukOran: 10 }),
+    ).toThrow(/çok büyük/);
     const z = zipOku(zipYaz({ "k/ç.txt": "çalışır" }));
     expect(new TextDecoder().decode(z.get("k/ç.txt"))).toBe("çalışır");
   });
@@ -74,8 +79,20 @@ describe("EBYS evrak listesi", () => {
     const csv = new Uint8Array(readFileSync(new URL("./test/fixtures/evrak-listesi.csv", import.meta.url)));
     const r = evrakListesiOku(await tabloOku(csv, { ad: "liste.csv" }));
     expect(r.kayitlar).toEqual([
-      { sayi: "E-99999999-100-1", tarih: "2025-03-14", konu: "Danışma kurulu toplantısı", birim: "Kurgu Bölümü", satir: 3 },
-      { sayi: "E-99999999-100-2", tarih: "2025-04-02", konu: "Program çıktıları güncellemesi", birim: "Kurgu Bölümü", satir: 4 },
+      {
+        sayi: "E-99999999-100-1",
+        tarih: "2025-03-14",
+        konu: "Danışma kurulu toplantısı",
+        birim: "Kurgu Bölümü",
+        satir: 3,
+      },
+      {
+        sayi: "E-99999999-100-2",
+        tarih: "2025-04-02",
+        konu: "Program çıktıları güncellemesi",
+        birim: "Kurgu Bölümü",
+        satir: 4,
+      },
       { sayi: "E-99999999-100-3", tarih: null, konu: "Ders dosyaları hatırlatma", birim: null, satir: 6 },
     ]);
     const json = JSON.stringify(r);

@@ -23,7 +23,9 @@ export const AyrisanIletiSemasi = z.object({
   mesajKimligi: z.string().nullable(),
   tarih: z.string().nullable(),
   dogrulama: z.object({ spf: z.enum(SPF), dkim: z.enum(DKIM), dmarc: z.enum(DMARC) }),
-  ekler: z.array(z.object({ ad: z.string(), mime: z.string(), veri: z.custom<Uint8Array>((v) => v instanceof Uint8Array) })),
+  ekler: z.array(
+    z.object({ ad: z.string(), mime: z.string(), veri: z.custom<Uint8Array>((v) => v instanceof Uint8Array) }),
+  ),
   uyarilar: z.array(z.string()),
 });
 /** epostaAl'a `{ kurumId, ...ileti }` olarak verilir (uyarilar, mesajKimligi, tarih fazladan alanlardır). */
@@ -96,8 +98,11 @@ export function parametreler(deger: string): { deger: string; param: Record<stri
     const ad = (m[1] ?? "").toLowerCase();
     let v = (m[5] ?? "").trim();
     if (v.startsWith('"') && v.endsWith('"')) v = v.slice(1, -1).replace(/\\(.)/g, "$1");
-    if (m[2] || m[4]) (devam[ad] ??= []).push({ sira: Number(m[3] ?? 0), v, kodlu: !!m[4] });
-    else param[ad] = v;
+    if (m[2] || m[4]) {
+      const liste = devam[ad] ?? [];
+      liste.push({ sira: Number(m[3] ?? 0), v, kodlu: !!m[4] });
+      devam[ad] = liste;
+    } else param[ad] = v;
   }
   for (const [ad, liste] of Object.entries(devam)) {
     liste.sort((a, b) => a.sira - b.sira);
@@ -135,7 +140,9 @@ export function adresAl(deger: string): string {
 export function dogrulamaOku(basliklar: Baslik[], guvenilirSunucu: string): AyrisanIleti["dogrulama"] {
   const sonuc: AyrisanIleti["dogrulama"] = { spf: "none", dkim: "none", dmarc: "none" };
   const ar = basliklar.find(
-    (b) => b.ad === "authentication-results" && (b.deger.split(";")[0] ?? "").trim().split(/\s+/)[0]?.toLowerCase() === guvenilirSunucu.toLowerCase(),
+    (b) =>
+      b.ad === "authentication-results" &&
+      (b.deger.split(";")[0] ?? "").trim().split(/\s+/)[0]?.toLowerCase() === guvenilirSunucu.toLowerCase(),
   );
   if (!ar) return sonuc;
   const dkimler: string[] = [];
@@ -172,12 +179,16 @@ function bolumle(ham: string): { bas: string; govde: string } {
 
 const dosyaAdi = (s: string) =>
   s
-    .replace(/[\\/:*?"<>|\u0000-\u001f]/g, "_")
+    .replace(/[\\/:*?"<>|\p{Cc}]/gu, "_")
     .replace(/^\.+/, "")
     .slice(0, 200);
 
 /** Ham iletiyi ayrıştırır. `guvenilirSunucu`: kurumun posta sunucusunun authserv-id'si (ör. "mx.ornek.edu.tr"). */
-export function mimeAyristir(veri: Uint8Array, guvenilirSunucu: string, sinir: MimeSiniri = VARSAYILAN_MIME_SINIRI): AyrisanIleti {
+export function mimeAyristir(
+  veri: Uint8Array,
+  guvenilirSunucu: string,
+  sinir: MimeSiniri = VARSAYILAN_MIME_SINIRI,
+): AyrisanIleti {
   if (veri.byteLength > sinir.enBuyukBoyut) throw new MimeHatasi("E-posta çok büyük; ekleri bölerek gönderin.");
   const { bas, govde } = bolumle(ikili(veri));
   const basliklar = basliklariAyir(basUtf8(bas));
@@ -198,7 +209,9 @@ export function mimeAyristir(veri: Uint8Array, guvenilirSunucu: string, sinir: M
         return;
       }
       const ayrac = `--${sinirDizesi}`;
-      const parcalar = g.split(new RegExp(`\\r?\\n?${ayrac.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:--)?[ \\t]*\\r?\\n?`));
+      const parcalar = g.split(
+        new RegExp(`\\r?\\n?${ayrac.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:--)?[ \\t]*\\r?\\n?`),
+      );
       // İlk parça önsöz, son parça sonsöz.
       for (const p of parcalar.slice(1, -1)) {
         const alt = bolumle(p);
