@@ -1,6 +1,6 @@
 # İP-07: Web iskeleti, tasarım sistemi ve onay kutusu arayüzü
 
-- **Durum:** hazır
+- **Durum:** inceleme
 - **Faz:** 1 (Temeller)
 - **Bağımlılık:** yok (veri sahte kaynaktan; gerçek bağlantı İP-12'de)
 - **Sahip olduğu yollar:** `apps/web/**`, `docs/raporlar/IP-07.md`
@@ -41,11 +41,11 @@ akredit.org'un yüzü: kurumlara ürünü dürüstçe anlatan tanıtım sitesi v
 
 ## Kabul ölçütleri
 
-- [ ] `pnpm --filter @akredit/web build` ağ olmadan başarılı.
-- [ ] Onay kutusunda toplu onay, düzeltme, ret ve politika taslağı akışları sahte veride çalışıyor; yüksek risk toplu onaylanamıyor ve politikaya bağlanamıyor (arayüz + `VeriKaynagi` düzeyinde).
-- [ ] Playwright duman testleri ve axe denetimi geçiyor.
-- [ ] Bütün metinler Türkçe; tanıtım sayfalarında doğrulanmamış iddia yok.
-- [ ] `pnpm verify` temiz.
+- [x] `pnpm --filter @akredit/web build` ağ olmadan başarılı.
+- [x] Onay kutusunda toplu onay, düzeltme, ret ve politika taslağı akışları sahte veride çalışıyor; yüksek risk toplu onaylanamıyor ve politikaya bağlanamıyor (arayüz + `VeriKaynagi` düzeyinde).
+- [x] Playwright duman testleri ve axe denetimi geçiyor.
+- [x] Bütün metinler Türkçe; tanıtım sayfalarında doğrulanmamış iddia yok.
+- [x] `pnpm verify` temiz.
 
 ## Kapsam dışı
 
@@ -54,3 +54,4 @@ Gerçek kimlik doğrulama (İP-09), gerçek API (İP-12), dosya yüklemenin sunu
 ## Günlük
 
 - 2026-10-23: İP tanımlandı; Next.js 16 iskeleti derleniyor.
+- 2026-10-27: Uygulandı (dal `ip/07-web-iskeleti`). Veri katmanı (`VeriKaynagi`, `BellekVeriKaynagi`, belirlenimci örnek veri: 6 ders, 20 kanıt, 54 öneri = 20 düşük / 18 orta / 16 yüksek, 2 rapor, takvim), tasarım sistemi (14 bileşen), tanıtım sitesi (7 sayfa), panel (11 ekran). Onay kutusu: risk grupları, düşük/orta toplu onay, satır içi düzeltme, gerekçeli ret, kanıt alıntısı ve görüntüleyici, politika taslağı + imza, j/k/a/d/r/x/? kısayolları. Yüksek risk kuralı hem arayüzde hem `VeriKaynagi`'nda. Testler: Vitest 30, Playwright 51 (axe 18 sayfa × 2 tema, 360 px telefon). Ortak dosya: `biome.json`'da Tailwind CSS yönergeleri açıldı. Kalanlar ve sınırlar: `docs/raporlar/IP-07.md`.
