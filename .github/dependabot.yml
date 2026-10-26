@@ -1,3 +1,4 @@
+# Haftalık, gruplanmış bağımlılık güncellemeleri.
 version: 2
 updates:
   - package-ecosystem: npm
@@ -9,9 +10,21 @@ updates:
     groups:
       gelistirme:
         dependency-type: development
+        update-types: [minor, patch]
       uretim:
         dependency-type: production
+        update-types: [minor, patch]
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    groups:
+      eylemler:
+        patterns: ["*"]
+  - package-ecosystem: docker
+    directories: [/infra/gelistirme]
+    schedule:
+      interval: weekly
+    groups:
+      imajlar:
+        patterns: ["*"]
