@@ -20,7 +20,10 @@ export function metneCevir(veri: Uint8Array): { metin: string; kodlama: "utf-8" 
 /** İlk satırlardaki tırnak dışı ayraç sayılarına bakarak ayracı seçer. */
 export function ayracBul(metin: string): string {
   const adaylar = [";", ",", "\t"];
-  const satirlar = metin.split(/\r?\n/).filter((s) => s.trim() !== "").slice(0, 20);
+  const satirlar = metin
+    .split(/\r?\n/)
+    .filter((s) => s.trim() !== "")
+    .slice(0, 20);
   let enIyi = ",";
   let enIyiPuan = -1;
   for (const a of adaylar) {
