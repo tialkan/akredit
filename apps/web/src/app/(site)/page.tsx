@@ -3,7 +3,11 @@ import Link from "next/link";
 import { dugmeSinifi } from "../../bilesenler/dugme.tsx";
 
 const SISTEM = [
-  { simge: FolderInput, ad: "Kanıt toplar", metin: "Belgeleri, tutanakları ve ders dosyalarını tek yerde, değiştirilemez biçimde saklar." },
+  {
+    simge: FolderInput,
+    ad: "Kanıt toplar",
+    metin: "Belgeleri, tutanakları ve ders dosyalarını tek yerde, değiştirilemez biçimde saklar.",
+  },
   { simge: Ruler, ad: "Ölçer", metin: "Ders ve program çıktılarının sağlanma düzeyini not verisinden hesaplar." },
   { simge: PenLine, ad: "Yazar", metin: "Rapor bölümlerini kanıta atıf vererek taslak olarak hazırlar." },
   { simge: FileSearch, ad: "Denetler", metin: "Eksik kanıtı, tutarsız sayıyı ve kaynaksız cümleyi işaretler." },
@@ -13,7 +17,10 @@ const SISTEM = [
 const ADIMLAR = [
   { ad: "Bağlayın", metin: "Ders bilgi paketi, not listeleri ve belgeler sisteme alınır." },
   { ad: "Sistem hazırlasın", metin: "Kanıtlar eşlenir, ölçümler hesaplanır, taslaklar kanıta bağlanarak yazılır." },
-  { ad: "Siz karar verin", metin: "Onay kutusunda her öneriyi kanıtıyla görür; onaylar, düzeltir ya da reddedersiniz." },
+  {
+    ad: "Siz karar verin",
+    metin: "Onay kutusunda her öneriyi kanıtıyla görür; onaylar, düzeltir ya da reddedersiniz.",
+  },
   { ad: "Kayıt kalsın", metin: "Her karar adınız, zamanı ve dayanağıyla değiştirilemez günlüğe yazılır." },
 ];
 

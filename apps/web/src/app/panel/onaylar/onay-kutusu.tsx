@@ -27,12 +27,19 @@ import {
 type Atif = OneriGorunumu["atiflar"][number];
 
 const GRUP_ACIKLAMASI: Record<RiskDuzeyi, string> = {
-  yuksek: "Kurum adına beyan ya da dış gönderim. Her biri tek tek ve kanıtıyla incelenir; toplu onay ve otomatik onay yoktur.",
+  yuksek:
+    "Kurum adına beyan ya da dış gönderim. Her biri tek tek ve kanıtıyla incelenir; toplu onay ve otomatik onay yoktur.",
   orta: "İçeriği etkileyen öneriler. Kanıtına bakıp toplu onaylayabilirsiniz.",
   dusuk: "Etiketleme gibi düşük etkili işler. Toplu onaylayabilirsiniz.",
 };
 
-export function OnayKutusu({ ilkOneriler, kanitAdlari }: { ilkOneriler: OneriGorunumu[]; kanitAdlari: Record<string, string> }) {
+export function OnayKutusu({
+  ilkOneriler,
+  kanitAdlari,
+}: {
+  ilkOneriler: OneriGorunumu[];
+  kanitAdlari: Record<string, string>;
+}) {
   const kaynak = veriKaynagi();
   const bildir = useBildirim();
   const [oneriler, setOneriler] = useState(ilkOneriler);
@@ -69,7 +76,11 @@ export function OnayKutusu({ ilkOneriler, kanitAdlari }: { ilkOneriler: OneriGor
     [sirali],
   );
 
-  const karar = async (o: OneriGorunumu, sonuc: "onaylandi" | "duzeltildi" | "reddedildi", ek: { duzeltme?: string; gerekce?: string } = {}) => {
+  const karar = async (
+    o: OneriGorunumu,
+    sonuc: "onaylandi" | "duzeltildi" | "reddedildi",
+    ek: { duzeltme?: string; gerekce?: string } = {},
+  ) => {
     const s = await kaynak.kararVer({ oneriId: o.id, sonuc, ...ek });
     if (!s.tamam) {
       bildir(s.hata, "hata");
@@ -142,7 +153,13 @@ export function OnayKutusu({ ilkOneriler, kanitAdlari }: { ilkOneriler: OneriGor
         <p className="text-soluk" aria-live="polite">
           {oneriler.length} öneri bekliyor · bu oturumda {sonKararSayisi} karar verdiniz
         </p>
-        <Dugme boy="kucuk" tur="sessiz" className="ml-auto" onClick={() => setYardim(true)} simge={<Keyboard aria-hidden className="size-4" />}>
+        <Dugme
+          boy="kucuk"
+          tur="sessiz"
+          className="ml-auto"
+          onClick={() => setYardim(true)}
+          simge={<Keyboard aria-hidden className="size-4" />}
+        >
           Klavye kısayolları
         </Dugme>
       </div>
@@ -217,7 +234,11 @@ export function OnayKutusu({ ilkOneriler, kanitAdlari }: { ilkOneriler: OneriGor
                       aria-labelledby={`${o.id}-baslik`}
                       onFocus={() => setOdak(sira)}
                       className={`rounded-lg border bg-yuzey p-4 ${
-                        odakta ? "border-vurgu ring-2 ring-vurgu" : risk === "yuksek" ? "border-risk-yuksek" : "border-cizgi"
+                        odakta
+                          ? "border-vurgu ring-2 ring-vurgu"
+                          : risk === "yuksek"
+                            ? "border-risk-yuksek"
+                            : "border-cizgi"
                       }`}
                     >
                       <div className="flex items-start gap-3">
@@ -244,14 +265,15 @@ export function OnayKutusu({ ilkOneriler, kanitAdlari }: { ilkOneriler: OneriGor
                               className="mt-2 space-y-2"
                               onSubmit={(e) => {
                                 e.preventDefault();
-                                void karar(o, "duzeltildi", { duzeltme: duzenlenen.metin }).then(() => setDuzenlenen(null));
+                                void karar(o, "duzeltildi", { duzeltme: duzenlenen.metin }).then(() =>
+                                  setDuzenlenen(null),
+                                );
                               }}
                             >
                               <UzunMetinAlani
                                 etiket="Düzeltilmiş metin"
                                 value={duzenlenen.metin}
                                 onChange={(e) => setDuzenlenen({ id: o.id, metin: e.target.value })}
-                                // biome-ignore lint/a11y/noAutofocus: düzenleme kullanıcının isteğiyle açılır
                                 autoFocus
                               />
                               <div className="flex gap-2">
@@ -278,17 +300,36 @@ export function OnayKutusu({ ilkOneriler, kanitAdlari }: { ilkOneriler: OneriGor
                           />
                           {duzenleniyor ? null : (
                             <div className="mt-3 flex flex-wrap gap-2">
-                              <Dugme tur="birincil" boy="kucuk" onClick={() => void karar(o, "onaylandi")} simge={<Check aria-hidden className="size-4" />}>
+                              <Dugme
+                                tur="birincil"
+                                boy="kucuk"
+                                onClick={() => void karar(o, "onaylandi")}
+                                simge={<Check aria-hidden className="size-4" />}
+                              >
                                 Onayla
                               </Dugme>
-                              <Dugme boy="kucuk" onClick={() => setDuzenlenen({ id: o.id, metin: o.icerik.metin })} simge={<Pencil aria-hidden className="size-4" />}>
+                              <Dugme
+                                boy="kucuk"
+                                onClick={() => setDuzenlenen({ id: o.id, metin: o.icerik.metin })}
+                                simge={<Pencil aria-hidden className="size-4" />}
+                              >
                                 Düzelt
                               </Dugme>
-                              <Dugme tur="tehlike" boy="kucuk" onClick={() => setRet({ id: o.id, gerekce: "" })} simge={<X aria-hidden className="size-4" />}>
+                              <Dugme
+                                tur="tehlike"
+                                boy="kucuk"
+                                onClick={() => setRet({ id: o.id, gerekce: "" })}
+                                simge={<X aria-hidden className="size-4" />}
+                              >
                                 Reddet
                               </Dugme>
                               {toplu && ONERI_RISKI[o.tur] !== "yuksek" ? (
-                                <Dugme tur="sessiz" boy="kucuk" onClick={() => setPolitika(o)} simge={<Wand2 aria-hidden className="size-4" />}>
+                                <Dugme
+                                  tur="sessiz"
+                                  boy="kucuk"
+                                  onClick={() => setPolitika(o)}
+                                  simge={<Wand2 aria-hidden className="size-4" />}
+                                >
                                   Bu türü bundan sonra otomatik onayla
                                 </Dugme>
                               ) : null}
@@ -312,7 +353,12 @@ export function OnayKutusu({ ilkOneriler, kanitAdlari }: { ilkOneriler: OneriGor
             <Dugme boy="kucuk" onClick={() => setSecili(new Set())}>
               Seçimi temizle
             </Dugme>
-            <Dugme tur="birincil" boy="kucuk" onClick={() => void topluOnayla()} simge={<Check aria-hidden className="size-4" />}>
+            <Dugme
+              tur="birincil"
+              boy="kucuk"
+              onClick={() => void topluOnayla()}
+              simge={<Check aria-hidden className="size-4" />}
+            >
               Seçilenlerin hepsini onayla
             </Dugme>
           </div>

@@ -145,7 +145,9 @@ dialog::backdrop {
   *,
   *::before,
   *::after {
+    /* biome-ignore lint/complexity/noImportantStyles: hareket azaltma tercihi her sınıfın önüne geçmeli */
     animation-duration: 0.01ms !important;
+    /* biome-ignore lint/complexity/noImportantStyles: aynı gerekçe */
     transition-duration: 0.01ms !important;
   }
 }
