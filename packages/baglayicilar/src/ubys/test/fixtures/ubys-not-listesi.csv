@@ -1,0 +1,10 @@
+UBYS Ders Not Listesi;;;;;;;
+Ders Kodu: KRG101 Kurgu Bilgisine Giriş;;;;;;;
+2025-2026 Güz;;;;;;;
+Öğrenci No;Adı Soyadı;T.C. Kimlik No;Vize (%40);Final (%60);Bütünleme;Başarı Notu;Harf Notu
+900000001;Deneme Örnek;00000000000;55;70;;64;CC
+900000002;Kurgu Hayali;00000000000;GR;40;;16;FF
+900000003;Uydurma Kişi;00000000000;80,5;abc;;48,2;DD
+;;;;;;;
+900000001;Deneme Örnek;00000000000;10;10;;10;FF
+;Satırsız Kişi;;30;30;;30;FF
