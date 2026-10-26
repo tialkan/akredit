@@ -1,0 +1,19 @@
+{
+  "name": "@akredit/yetki",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Saf yetki matrisi (rol × kapsam × eylem), API anahtarları, davet ve toplu içe aktarma kuralları, oturum güvenliği yardımcıları.",
+  "license": "Apache-2.0",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@akredit/cekirdek": "workspace:*",
+    "zod": "^4.6.7"
+  }
+}
