@@ -1,0 +1,26 @@
+{
+  "name": "@akredit/servis",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Servis katmanı: arayüz, API, CLI ve MCP'nin ortak iş kuralları; yetki denetimi, zod doğrulaması ve günlük kaydıyla.",
+  "license": "Apache-2.0",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p .",
+    "test": "vitest run",
+    "openapi": "node betik/openapi-uret.ts"
+  },
+  "dependencies": {
+    "@akredit/cekirdek": "workspace:*",
+    "@akredit/vt": "workspace:*",
+    "@akredit/yetki": "workspace:*",
+    "drizzle-orm": "^0.45.4",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@seriousme/openapi-schema-validator": "^2.11.0"
+  }
+}
