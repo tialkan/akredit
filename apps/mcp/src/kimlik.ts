@@ -40,10 +40,7 @@ export async function anahtarAktoru(db: Vt, metin: string | null | undefined, si
     : null;
   const d = apiAnahtariDogrula(ham, kayit, simdi);
   if (!d.gecerli) throw kimlikYok(d.neden);
-  await db
-    .update(sema.kimlikApiAnahtari)
-    .set({ sonKullanim: simdi })
-    .where(eq(sema.kimlikApiAnahtari.id, d.kayit.id));
+  await db.update(sema.kimlikApiAnahtari).set({ sonKullanim: simdi }).where(eq(sema.kimlikApiAnahtari.id, d.kayit.id));
   const kapsam = d.kayit.kapsam.filter((e) => !MCP_YASAK_EYLEMLER.has(e));
   return aktorYukle(db, d.kayit.kurumId, d.kayit.kisiId, "anahtar", kapsam);
 }
