@@ -25,6 +25,8 @@ const PORT = Number(process.env.E2E_PORT ?? 3107);
 // Önce `pnpm build`; testler derlenmiş uygulamaya karşı çalışır.
 export default defineConfig({
   testDir: "./e2e",
+  // Görünüm bileşenleri testte Node ESM ile yüklenir; "next/link" gibi uzantısız yollar buradan çözülür.
+  tsconfig: "./e2e/tsconfig.json",
   fullyParallel: true,
   reporter: [["list"]],
   use: { baseURL: `http://127.0.0.1:${PORT}`, locale: "tr-TR", trace: "off", launchOptions: { executablePath } },
@@ -35,11 +37,19 @@ export default defineConfig({
     timeout: 60_000,
   },
   projects: [
-    { name: "masaustu", use: { ...devices["Desktop Chrome"] }, testIgnore: /telefon\.spec\.ts/ },
+    { name: "masaustu", use: { ...devices["Desktop Chrome"] }, testIgnore: /(telefon|performans)\.spec\.ts/ },
     {
       name: "telefon",
       use: { ...devices["Desktop Chrome"], viewport: { width: 360, height: 740 }, hasTouch: true, isMobile: true },
       testMatch: /telefon\.spec\.ts/,
+    },
+    // Performans ölçümleri işlemciyi yavaşlattığı için öteki testlerle aynı anda koşarsa TBT gürültülenir.
+    // Bu yüzden diğer projeler bitince, tek çalışanda sırayla koşar (dosya içinde mode: "default").
+    {
+      name: "performans",
+      use: { ...devices["Desktop Chrome"] },
+      testMatch: /performans\.spec\.ts/,
+      dependencies: ["masaustu", "telefon"],
     },
   ],
 });

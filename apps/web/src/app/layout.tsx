@@ -1,4 +1,4 @@
-import "@fontsource-variable/source-sans-3";
+import "./yazi-tipi.css";
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
