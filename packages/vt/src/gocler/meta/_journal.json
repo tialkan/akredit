@@ -12,43 +12,50 @@
     {
       "idx": 1,
       "version": "7",
-      "when": 1793048426868,
+      "when": 1793048426894,
       "tag": "0001_sema",
       "breakpoints": true
     },
     {
       "idx": 2,
       "version": "7",
-      "when": 1793048427880,
+      "when": 1793048427894,
       "tag": "0002_guvenlik",
       "breakpoints": true
     },
     {
       "idx": 3,
       "version": "7",
-      "when": 1793048428880,
+      "when": 1793048428894,
       "tag": "0003_tur_riski",
       "breakpoints": true
     },
     {
       "idx": 4,
       "version": "7",
-      "when": 1793056305685,
+      "when": 1793048429894,
       "tag": "0004_kimlik",
       "breakpoints": true
     },
     {
       "idx": 5,
       "version": "7",
-      "when": 1793100000000,
+      "when": 1793048430894,
       "tag": "0005_servis",
       "breakpoints": true
     },
     {
       "idx": 6,
       "version": "7",
-      "when": 1793200000000,
+      "when": 1793048431894,
       "tag": "0006_onay",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793048432894,
+      "tag": "0007_anket",
       "breakpoints": true
     }
   ]
