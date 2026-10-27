@@ -1,6 +1,6 @@
 # İP-19: Program öz değerlendirme ve ÖDR
 
-- **Durum:** bekliyor
+- **Durum:** inceleme
 - **Faz:** 4
 - **Bağımlılık:** İP-11, İP-12, İP-16, İP-17
 - **Sahip olduğu yollar:** `packages/servis/src/odr/**`, `apps/web/src/app/panel/raporlar/**`, `docs/raporlar/IP-19.md`
@@ -19,10 +19,11 @@ Program akreditasyonu öz değerlendirme raporunun (ÖDR) kanıtlardan, ölçme 
 
 ## Kabul ölçütleri
 
-- [ ] Kurgu programla uçtan uca ÖDR; her olgusal cümle atıflı ya da EKSİK.
-- [ ] Dışa aktarılan belge kuruluş şablonunun bölüm yapısına uyar.
-- [ ] `pnpm verify` temiz.
+- [x] Kurgu programla uçtan uca ÖDR; her olgusal cümle atıflı ya da EKSİK. (`odr.test.ts` › uçtan uca)
+- [x] Dışa aktarılan belge kuruluş şablonunun bölüm yapısına uyar. (Mekanizma test edildi; kuruluşların resmî şablonları DOĞRULANMADI, kütüphanede yok — rapora bakın.)
+- [x] `pnpm verify` temiz.
 
 ## Günlük
 
 - 2026-10-23: İP tanımlandı. Başlamadan önce kapsamı güncel mimariye göre ayrıntılandır.
+- 2026-10-27: Uygulandı (`ip/19-program-odr`). `packages/servis/src/odr`: çerçeve güdümlü kurucu, onaylı kanıt kapsaması, eksik analizi ve görev açma, program PÇ hesabı ([H:…] atfı), süreç kaydı, atıf-sayı denetimi, bölüm sürüm zinciri, yüksek riskli rapor onayı, DOCX ÖDR + XLSX ziyaret paketi; 5 API ucu; raporlar sayfasında panel. Kalan: kuruluşların resmî şablonları (DOĞRULANMADI), PDF, anket sonuçlarının doğrudan bağlanması, YZ bölüm yazma görevi. Ayrıntı: `docs/raporlar/IP-19.md`.
