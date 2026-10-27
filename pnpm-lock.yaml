@@ -65,6 +65,9 @@ importers:
       '@akredit/cekirdek':
         specifier: workspace:*
         version: link:../../packages/cekirdek
+      '@akredit/gosterge':
+        specifier: workspace:*
+        version: link:../../packages/gosterge
       '@akredit/servis':
         specifier: workspace:*
         version: link:../../packages/servis
