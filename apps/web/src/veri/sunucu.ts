@@ -16,8 +16,9 @@ export async function panelVeriKaynagi(): Promise<VeriKaynagi> {
     import("../app/api/_ortak/sunucu.ts"),
     import("./gercek.ts"),
   ]);
-  const { kimlik, db } = await tekiller();
+  // Önce istek başlıkları: sayfa böylece istek anında üretilir (derlemede veritabanına bağlanılmaz).
   const basliklar = new Headers(await headers());
+  const { kimlik, db } = await tekiller();
   try {
     const b = await istekBaglami(kimlik, new Request(kimlik.ayar.temelAdres, { headers: basliklar }));
     return new ServisVeriKaynagi({ db, aktor: aktorOlustur(b), simdi: () => new Date() });

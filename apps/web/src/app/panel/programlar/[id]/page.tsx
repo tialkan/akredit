@@ -21,7 +21,7 @@ function hucreStili(seviye: number): { background: string; color: string } {
 }
 
 export default async function ProgramSayfasi({ params }: { params: Promise<{ id: string }> }) {
-  const kaynak = (await panelVeriKaynagi());
+  const kaynak = await panelVeriKaynagi();
   const program = await kaynak.program((await params).id);
   if (!program) notFound();
   const dersler = (await kaynak.dersler()).filter((d) => program.dersIdleri.includes(d.id));

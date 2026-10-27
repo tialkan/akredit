@@ -33,7 +33,10 @@ export function GirisFormu() {
       setDurum(
         y.ok
           ? { tur: "gonderildi" }
-          : { tur: "hata", ileti: "Bağlantı gönderilemedi. Adresi denetleyin ya da kurum yöneticinizden davet isteyin." },
+          : {
+              tur: "hata",
+              ileti: "Bağlantı gönderilemedi. Adresi denetleyin ya da kurum yöneticinizden davet isteyin.",
+            },
       );
     } catch {
       setDurum({ tur: "hata", ileti: "Sunucuya ulaşılamadı. Bağlantınızı denetleyip yeniden deneyin." });

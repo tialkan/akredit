@@ -6,7 +6,7 @@ import { OnayKutusu } from "./onay-kutusu.tsx";
 export const metadata: Metadata = { title: "Onay kutusu" };
 
 export default async function OnaylarSayfasi() {
-  const kaynak = (await panelVeriKaynagi());
+  const kaynak = await panelVeriKaynagi();
   const [oneriler, kanitlar] = await Promise.all([kaynak.bekleyenOneriler(), kaynak.kanitlar()]);
   const kanitAdlari = Object.fromEntries(kanitlar.map((k) => [k.id, k.baslik]));
   return (

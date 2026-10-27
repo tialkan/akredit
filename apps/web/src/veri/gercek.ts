@@ -9,9 +9,9 @@ import {
   panel,
   politika,
   rapor,
+  type Sayfa,
   type ServisBaglami,
   ServisHatasi,
-  type Sayfa,
 } from "@akredit/servis";
 import type {
   Ayarlar,
@@ -124,13 +124,15 @@ export class ServisVeriKaynagi implements VeriKaynagi {
   async ayarlar() {
     // Ayarları görme yetkisi olmayan kişi için kurum adı yine gösterilir, politikalar boş kalır.
     const a = await yoksaBos(() => politika.ayarlar(this.#b));
-    return tur<Ayarlar>(a ?? { kurumAdi: "", kurumKisaAdi: "", yzSaglayici: "kurum_sunucusu", yurtDisiIzni: false, politikalar: [] });
+    return tur<Ayarlar>(
+      a ?? { kurumAdi: "", kurumKisaAdi: "", yzSaglayici: "kurum_sunucusu", yurtDisiIzni: false, politikalar: [] },
+    );
   }
 
   kararVer(girdi: Parameters<VeriKaynagi["kararVer"]>[0]) {
-    return sonuc(async () => tur<Awaited<ReturnType<typeof oneri.kararVer>>>(await oneri.kararVer(this.#b, girdi))) as ReturnType<
-      VeriKaynagi["kararVer"]
-    >;
+    return sonuc(async () =>
+      tur<Awaited<ReturnType<typeof oneri.kararVer>>>(await oneri.kararVer(this.#b, girdi)),
+    ) as ReturnType<VeriKaynagi["kararVer"]>;
   }
   topluKararVer(oneriIdleri: Parameters<VeriKaynagi["topluKararVer"]>[0]) {
     return sonuc(() => oneri.topluKararVer(this.#b, { oneriIdleri })) as ReturnType<VeriKaynagi["topluKararVer"]>;
