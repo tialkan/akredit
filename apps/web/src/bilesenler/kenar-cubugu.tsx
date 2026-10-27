@@ -8,6 +8,7 @@ import {
   CheckSquare,
   FileText,
   FolderArchive,
+  Gauge,
   GraduationCap,
   LayoutDashboard,
   Menu,
@@ -24,6 +25,7 @@ export const PANEL_MENUSU = [
   { href: "/panel/programlar/prog-bp", ad: "Program", simge: GraduationCap },
   { href: "/panel/dersler", ad: "Dersler", simge: BookOpen },
   { href: "/panel/raporlar", ad: "Raporlar", simge: FileText },
+  { href: "/panel/gostergeler", ad: "Göstergeler", simge: Gauge },
   { href: "/panel/surecler", ad: "Takvim ve görevler", simge: CalendarDays },
   { href: "/panel/ayarlar", ad: "Ayarlar", simge: Settings },
 ] as const;
