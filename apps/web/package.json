@@ -16,6 +16,7 @@
   "dependencies": {
     "@akredit/cekirdek": "workspace:*",
     "@akredit/servis": "workspace:*",
+    "@akredit/surec": "workspace:*",
     "@akredit/vt": "workspace:*",
     "@akredit/yetki": "workspace:*",
     "@better-auth/sso": "1.7.14",
