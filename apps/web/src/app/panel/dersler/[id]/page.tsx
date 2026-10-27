@@ -1,5 +1,6 @@
 import { CheckCircle2, CircleDashed } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { OlcmeCubuklari } from "../../../../bilesenler/olcme-cubuklari.tsx";
 import { Kart, KirintiYolu, SayfaBasligi } from "../../../../bilesenler/temel.tsx";
@@ -29,6 +30,11 @@ export default async function DersSayfasi({ params }: { params: Promise<{ id: st
       <div className="grid gap-6 lg:grid-cols-2">
         <Kart baslik="Ders bilgi paketi" eylem={<BolognaRozeti durum={ders.bolognaDurumu} />}>
           <p>{ders.bolognaNotu}</p>
+          <p className="mt-2">
+            <Link className="text-vurgu underline underline-offset-2" href={`/panel/dersler/${ders.id}/bologna`}>
+              Bologna asistanıyla taslak hazırla
+            </Link>
+          </p>
           <h3 className="mt-4 font-semibold">Ders çıktıları</h3>
           <dl className="mt-1 divide-y divide-cizgi">
             {ders.ciktilar.map((c) => (
