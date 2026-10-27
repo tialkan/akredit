@@ -7,6 +7,7 @@ import {
   type BolognaTaslagi,
   type BolognaVerisi,
   type Bulgu,
+  kanonikJson,
   okunamadiMi,
   taslakDenetle,
 } from "@akredit/cekirdek";
@@ -109,14 +110,14 @@ export interface KarsiDers {
 export function karsiDersler(v: BolognaVerisi, haric: string): KarsiDers[] {
   return v.dersler.flatMap((d) => {
     if (okunamadiMi(d) || d.kod === haric) return [];
-    const bul = (re: RegExp) => Object.entries(d.bilgiler).find(([k]) => re.test(k))?.[1] ?? "";
+    const bul = (re: RegExp) => Object.entries(d.bilgiler).find(([k]) => re.test(bolumAdi(k)))?.[1] ?? "";
     return [
       {
         kod: d.kod,
         ad: d.ad ?? d.kod,
-        metin: `${bul(/amac/iu)} ${bul(/içerik|icerik/iu)}`.trim(),
-        yontem: bul(/yöntem|yontem/iu),
-        notlar: bul(/not/iu),
+        metin: `${bul(/amac/u)} ${bul(/icerik/u)}`.trim(),
+        yontem: bul(/yontem/u),
+        notlar: bul(/not/u),
       },
     ];
   });
@@ -133,12 +134,14 @@ export function tutarlilikDenetle(t: BolognaTaslagi, digerleri: KarsiDers[]): Bu
   const ad = new Set(kokler(t.ad));
   const govde = [t.amac.tr, t.icerik.tr, ...t.ciktilar.map((c) => c.tr)].join(" ");
   const govdeKokleri = new Set(kokler(govde));
-  if (ad.size && ![...ad].some((k) => govdeKokleri.has(k)))
+  // Ad kavramlarının en az dörtte üçü gövdede geçmeli ("Veri Tabanı"nda yalnız "veri" geçmesi yetmez).
+  const gecen = [...ad].filter((k) => govdeKokleri.has(k)).length;
+  if (ad.size && gecen / ad.size < 0.75)
     bulgular.push({
       duzey: "uyari",
       kural: "K1",
       konu: t.kod,
-      aciklama: `Amaç, içerik ve çıktılarda ders adındaki ("${t.ad}") kavramlar geçmiyor. İçerik başka bir dersten kopya olabilir; baştan yazın.`,
+      aciklama: `Amaç, içerik ve çıktılarda ders adındaki ("${t.ad}") kavramlar yeterince geçmiyor. İçerik başka bir dersten kopya olabilir; baştan yazın.`,
     });
   const metin = `${t.amac.tr} ${t.icerik.tr}`;
   for (const d of digerleri) {
@@ -241,8 +244,8 @@ export interface AlanDegisikligi {
 export function taslakFarki(eski: BolognaTaslagi | null, yeni: BolognaTaslagi): AlanDegisikligi[] {
   const eskiBulgular = eski ? taslakDenetle(eski).bulgular : [];
   return Object.keys(ALAN_KURALLARI).flatMap((alan) => {
-    const a = eski ? JSON.stringify((eski as unknown as Record<string, unknown>)[alan]) : undefined;
-    const b = JSON.stringify((yeni as unknown as Record<string, unknown>)[alan]);
+    const a = eski ? kanonikJson((eski as unknown as Record<string, unknown>)[alan] ?? null) : undefined;
+    const b = kanonikJson((yeni as unknown as Record<string, unknown>)[alan] ?? null);
     if (a === b) return [];
     const kurallar = ALAN_KURALLARI[alan] ?? [];
     const neden = eskiBulgular.filter((x) => kurallar.includes(x.kural)).map((x) => `${x.kural}: ${x.aciklama}`);
