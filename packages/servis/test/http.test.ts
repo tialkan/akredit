@@ -59,6 +59,16 @@ function ornekIstek(ad: string, a: Ornek): { yol: string; govde?: unknown } {
     politikaImzala: { yol: `/politikalar/${a.kanitDers}/imza`, govde: { imzalayanAd: "Deneme Rolsüz A" } },
     politikaIptal: { yol: `/politikalar/${a.kanitDers}/iptal`, govde: {} },
     gunluk: { yol: "/gunluk" },
+    bolognaOku: { yol: `/bologna/programlar/${a.programId}/okumalar`, govde: { adres: "https://obs.ornek.edu.tr/" } },
+    bolognaDenetimi: { yol: `/bologna/programlar/${a.programId}/denetim` },
+    bolognaTaslagiUret: { yol: "/bologna/taslaklar", govde: { dersId: a.dersId, beyan: "Proje var." } },
+    bolognaGecmisi: { yol: `/bologna/dersler/${a.dersId}/gecmis` },
+    bolognaYazmaPlani: {
+      yol: `/bologna/taslaklar/${a.oneriYuksek}/yazma-plani`,
+      govde: { adres: "https://obs.ornek.edu.tr/ders" },
+    },
+    bolognaYazmaBaslat: { yol: `/bologna/yazma-planlari/${a.oneriYuksek}/baslat`, govde: {} },
+    bolognaYazmaBitir: { yol: `/bologna/yazma-planlari/${a.oneriYuksek}/bitir`, govde: { sonuc: "tamamlandi" } },
   };
   const s = g[ad];
   if (!s) throw new Error(`örnek istek yok: ${ad}`);
@@ -113,7 +123,12 @@ describe("her uç için yetkisiz erişim", () => {
     const s = ornekIstek(u.ad, o.a);
     const y = await isle()(istek(u.yontem, s.yol, s.govde), await aktor(o.b, o.b.yonetici));
     const govde = await y.text();
-    if (s.yol.match(/[0-9a-f]{8}-/u) || u.ad === "kararVer" || u.ad === "topluKararVer") {
+    if (
+      s.yol.match(/[0-9a-f]{8}-/u) ||
+      u.ad === "kararVer" ||
+      u.ad === "topluKararVer" ||
+      u.ad === "bolognaTaslagiUret"
+    ) {
       expect(y.status, govde).toBe(404);
     } else expect(y.status, govde).toBeLessThan(300);
     for (const id of [o.a.kurumId, o.a.kanitDers, o.a.oneriOrta, o.a.programId, o.a.dersId, o.a.raporId])
