@@ -7,6 +7,7 @@
 #   5. docker compose config (sahte değerlerle; her model profiliyle)
 #   6. Helm: ağ ilkesi açık; helm varsa lint + template
 #   7. Demet: oluştur -> doğrula -> yükle; değiştirilmiş demet reddedilir (sahte docker ile)
+#   8. Yerel model ayarı: yz-ayari.test.ts (yalnız iç adres, yurt dışı izni kapalı)
 # Kullanım (depo kökünden): infra/kurum-ici/denetle.sh
 set -euo pipefail
 
@@ -154,6 +155,13 @@ if DOCKER="$D" "$gecici/demet/kurum-ici/demet-yukle.sh" "$gecici/demet" --model-
 [[ ! -e "$gecici/hedef2" ]] && gec "reddedilen demetten hiçbir şey yüklenmedi" || kal "reddedilen demetten yükleme yapıldı"
 if DOCKER="$D" WEB_IMAJ_ADI=yok-boyle-imaj "$dizin/demet-olustur.sh" v0.0.1 "$gecici/demet2" >/dev/null 2>&1; then
   kal "bulunamayan imajla demet oluştu"; else gec "bulunamayan imaj demeti durdurdu"; fi
+
+echo "8. Yerel model ayarı (node --test)"
+if (cd "$kok" && node --test infra/kurum-ici/yz-ayari.test.ts >"$gecici/yz.log" 2>&1); then
+  gec "yz-ayari.test.ts ($(grep -E '^# pass' "$gecici/yz.log" | awk '{print $3}') test)"
+else
+  kal "yz-ayari.test.ts"; cat "$gecici/yz.log"
+fi
 
 if ((hata)); then echo "SONUÇ: BAŞARISIZ"; exit 1; fi
 echo "SONUÇ: BAŞARILI"
