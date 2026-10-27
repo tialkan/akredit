@@ -32,7 +32,11 @@ export const ISYUKU_ETKINLIKLERI: readonly { kod: string; etkinlik: string; meti
   { kod: "odev", etkinlik: "Ödevler", metin: "Ödevlere toplam kaç saat ayırdınız?" },
   { kod: "proje", etkinlik: "Proje", metin: "Projeye toplam kaç saat ayırdınız?" },
   { kod: "ara_sinav", etkinlik: "Ara sınavlar", metin: "Ara sınavlara hazırlık ve sınava toplam kaç saat ayırdınız?" },
-  { kod: "final", etkinlik: "Yarıyıl sonu sınavı", metin: "Dönem sonu sınavına hazırlık ve sınava toplam kaç saat ayırdınız?" },
+  {
+    kod: "final",
+    etkinlik: "Yarıyıl sonu sınavı",
+    metin: "Dönem sonu sınavına hazırlık ve sınava toplam kaç saat ayırdınız?",
+  },
 ];
 
 const ham: Record<string, AnketTanimiGirdisi> = {
@@ -79,7 +83,13 @@ const ham: Record<string, AnketTanimiGirdisi> = {
         secenekler: ["Alanımda çalışıyorum", "Alan dışında çalışıyorum", "Lisansüstü eğitim", "İş arıyorum", "Diğer"],
         zorunlu: true,
       },
-      { kod: "ilk_is_ay", metin: "Mezuniyetten sonra ilk işinizi kaç ayda buldunuz?", tur: "sayi", enAz: 0, enCok: 120 },
+      {
+        kod: "ilk_is_ay",
+        metin: "Mezuniyetten sonra ilk işinizi kaç ayda buldunuz?",
+        tur: "sayi",
+        enAz: 0,
+        enCok: 120,
+      },
       likert("hazirlik", "Program beni mesleğe iyi hazırladı.", true),
       likert("ciktilar", "Program çıktıları işimde gereken yetkinliklerle örtüşüyor."),
       acik("eksik", "Programda eksik bulduğunuz konu nedir?"),
