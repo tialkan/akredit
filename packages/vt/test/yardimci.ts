@@ -179,6 +179,14 @@ export async function kurumVerisiEkle(db: Vt, kurumId: string, ad: string): Prom
     await tx
       .insert(s.kanitOlcutBaglantisi)
       .values({ kurumId, kanitId: kanit.id, parcaId: parca.id, olcutId: olcut.id, kararId: kararKatki.id });
+    // İP-13: e-posta onay bağlantısı ve kullanımı (göç 0006).
+    const baglantiId = crypto.randomUUID();
+    const t0 = new Date("2026-01-02T00:00:00Z");
+    const t1 = new Date("2026-01-03T00:00:00Z");
+    await tx.execute(sql`insert into onay_baglantisi (id, kurum_id, oneri_id, kisi_id, sonuc, son, olusturma)
+      values (${baglantiId}, ${kurumId}, ${oneriKatki.id}, ${kisi.id}, 'onaylandi', ${t1.toISOString()}, ${t0.toISOString()})`);
+    await tx.execute(sql`insert into onay_baglantisi_kullanimi (id, kurum_id, karar_id, zaman)
+      values (${baglantiId}, ${kurumId}, ${kararKatki.id}, ${t0.toISOString()})`);
 
     const arac = ilk(
       await tx
