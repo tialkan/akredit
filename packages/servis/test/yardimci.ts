@@ -30,6 +30,8 @@ export interface Ornek {
   raporId: string;
   dersCiktiId: string;
   programCiktiId: string;
+  donemId: string;
+  dersAcilisiId: string;
 }
 
 const ilk = <T>(x: T[]): T => {
@@ -174,7 +176,21 @@ export async function kurumEkle(db: Vt, kurumId: string, harf: string, taban: nu
     await tx
       .insert(sema.sonTarih)
       .values({ kurumId, gorevId: gorev.id, ad: "Teslim", tarih: new Date("2026-11-15T00:00:00Z") });
+    const donem = ilk(
+      await tx
+        .insert(sema.donem)
+        .values({ kurumId, ad: "2025-2026 Bahar", baslangic: "2026-02-01", bitis: "2026-06-30" })
+        .returning(),
+    );
+    const acilis = ilk(
+      await tx
+        .insert(sema.dersAcilisi)
+        .values({ kurumId, dersId: ders.id, donemId: donem.id, sorumluKisiIdleri: [ogretim] })
+        .returning(),
+    );
     return {
+      donemId: donem.id,
+      dersAcilisiId: acilis.id,
       kurumId,
       birimId: birim.id,
       programId: program.id,
