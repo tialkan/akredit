@@ -2,6 +2,7 @@
 
 export * as akademik from "./akademik.ts";
 export * from "./baglam.ts";
+export * as dersDosyasi from "./ders-dosyasi/index.ts";
 export * from "./hata.ts";
 export * from "./http/hiz.ts";
 export * from "./http/isleyici.ts";

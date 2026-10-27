@@ -10,6 +10,8 @@ import { UCLAR } from "../src/http/uclar.ts";
 import { type Ornek, ortam, SIMDI } from "./yardimci.ts";
 
 let o: Awaited<ReturnType<typeof ortam>>;
+// Test için uydurma takma ad anahtarı (32 bayttan uzun).
+process.env.AKREDIT_TAKMA_AD_ANAHTARI ??= "deneme-anahtari-yalniz-test-icin-0123456789";
 beforeAll(async () => {
   o = await ortam();
 });
@@ -59,6 +61,25 @@ function ornekIstek(ad: string, a: Ornek): { yol: string; govde?: unknown } {
     politikaImzala: { yol: `/politikalar/${a.kanitDers}/imza`, govde: { imzalayanAd: "Deneme Rolsüz A" } },
     politikaIptal: { yol: `/politikalar/${a.kanitDers}/iptal`, govde: {} },
     gunluk: { yol: "/gunluk" },
+    dersinDosyalari: { yol: `/dersler/${a.dersId}/ders-dosyasi` },
+    dokumAktar: {
+      yol: "/ders-dosyasi/dokum",
+      govde: {
+        dersAcilisiId: a.dersAcilisiId,
+        araclar: [
+          {
+            ad: "Vize",
+            tur: "ara_sinav",
+            agirlik: 40,
+            dosyaAdi: "vize.csv",
+            icerikBase64: Buffer.from("Öğrenci No;S1 (10)\n1001;7\n").toString("base64"),
+          },
+        ],
+      },
+    },
+    dersDosyasiDurumu: { yol: `/ders-dosyasi/${a.dersAcilisiId}` },
+    dersDosyasiOlustur: { yol: `/ders-dosyasi/${a.dersAcilisiId}/olustur`, govde: {} },
+    dersDosyasiBelgesi: { yol: `/ders-dosyasi/${a.dersAcilisiId}/belge?bicim=docx` },
   };
   const s = g[ad];
   if (!s) throw new Error(`örnek istek yok: ${ad}`);
@@ -113,7 +134,7 @@ describe("her uç için yetkisiz erişim", () => {
     const s = ornekIstek(u.ad, o.a);
     const y = await isle()(istek(u.yontem, s.yol, s.govde), await aktor(o.b, o.b.yonetici));
     const govde = await y.text();
-    if (s.yol.match(/[0-9a-f]{8}-/u) || u.ad === "kararVer" || u.ad === "topluKararVer") {
+    if (s.yol.match(/[0-9a-f]{8}-/u) || u.ad === "kararVer" || u.ad === "topluKararVer" || u.ad === "dokumAktar") {
       expect(y.status, govde).toBe(404);
     } else expect(y.status, govde).toBeLessThan(300);
     for (const id of [o.a.kurumId, o.a.kanitDers, o.a.oneriOrta, o.a.programId, o.a.dersId, o.a.raporId])
