@@ -1,5 +1,6 @@
 import "./yazi-tipi.css";
 import type { Metadata, Viewport } from "next";
+import { connection } from "next/server";
 import type { ReactNode } from "react";
 import "./globals.css";
 
@@ -16,7 +17,10 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function KokYerlesim({ children }: { children: ReactNode }) {
+// G-27-1: CSP nonce'u istek başınadır (src/proxy.ts); Next yalnız dinamik işlenen sayfaya nonce
+// ekleyebilir. Önceden işlenmiş (durağan) sayfanın betikleri nonce'suz kalır ve engellenir.
+export default async function KokYerlesim({ children }: { children: ReactNode }) {
+  await connection();
   return (
     <html lang="tr">
       <body className="min-h-screen">
