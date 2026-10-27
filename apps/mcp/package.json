@@ -1,0 +1,28 @@
+{
+  "name": "@akredit/mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "description": "Model Context Protocol sunucusu: YZ istemcileri akredit.org verisiyle servis katmanının yetki ve güvenceleriyle çalışır; karar aracı yoktur.",
+  "bin": {
+    "akredit-mcp": "./src/cli.ts"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "start": "node src/cli.ts",
+    "typecheck": "tsc --noEmit -p .",
+    "test": "vitest run",
+    "araclar": "node betik/araclar-belgesi.ts"
+  },
+  "dependencies": {
+    "@akredit/cekirdek": "workspace:*",
+    "@akredit/servis": "workspace:*",
+    "@akredit/vt": "workspace:*",
+    "@akredit/yetki": "workspace:*",
+    "drizzle-orm": "^0.45.4",
+    "zod": "^4.6.7"
+  }
+}
