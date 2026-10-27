@@ -5,6 +5,8 @@ export const PAKET = "@akredit/yz";
 
 export * from "./ajan.ts";
 export * from "./degerlendirme/duzenek.ts";
+export * from "./gorevler/bologna-taslagi/index.ts";
+export * as bolognaOrnek from "./gorevler/bologna-taslagi/ornek.ts";
 export * from "./gorevler/gorev.ts";
 export * from "./gorevler/kanit-siniflama.ts";
 export * from "./gorevler/toplanti-bilgisi.ts";
