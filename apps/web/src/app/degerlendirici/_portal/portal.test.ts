@@ -300,6 +300,18 @@ describe("atıflı soru-cevap", () => {
     expect(giden).toContain("akredit-veri");
   });
 
+  it("geçerli atıflı cümledeki uydurma sayı yanıta girmez (inceleme dalga 3)", async () => {
+    const p = await portalBaglami(await baglam(ids.degerlendirici));
+    // Kanıtta "2026" var, "14" ve "%87" yok: atıf geçerli olsa da sayılar uydurmadır.
+    const yz = sahteSaglayici([
+      `Danışma kurulu 2026 yılında 14 kez toplandı ve katılım %87 oldu [K:aa11bb22 s.3 "iki kez toplandı"].`,
+    ]);
+    const y = await soruSor(p, yz, { soru: "Danışma kurulu kaç kez toplandı?" });
+    expect(y.gecerli).toBe(false);
+    expect(y.yanit).not.toContain("14");
+    expect(y.yanit).not.toContain("87");
+  });
+
   it("atıfsız ya da uydurma atıflı cümle EKSİK olarak işaretlenir", async () => {
     const p = await portalBaglami(await baglam(ids.degerlendirici));
     const yz = sahteSaglayici([

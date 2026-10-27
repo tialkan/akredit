@@ -22,6 +22,26 @@ const KATILIMCILAR = [
   { kisiId: "k3", ad: "Veli Deneme" },
 ];
 
+describe("uydurma sayı ve tarih (inceleme dalga 3)", () => {
+  it("model adayına kayıtta olmayan tarih eklenemez; eylemin hedef tarihi uydurulamaz", () => {
+    // Kayıttaki Karar 2'de tarih yok. Aday, kelimelerin %70'ini taşıdığı hâlde uydurma bir tarih ekliyor.
+    const t = tutanakTaslagiKur({
+      kayit: KAYIT,
+      katilimcilar: KATILIMCILAR,
+      adaylar: [
+        { metin: "Danışma kurulunun dönem başında 01.03.2027 tarihinde toplanmasına.", atif: "[K:ab12cd34 s.2]" },
+      ],
+    });
+    expect(t.kararlar).toHaveLength(0);
+    expect(t.reddedilenler[0]?.neden).toMatch(/sayı/u);
+  });
+
+  it("kayıtta geçen tarih korunur", () => {
+    const t = tutanakTaslagiKur({ kayit: KAYIT, katilimcilar: KATILIMCILAR });
+    expect(t.kararlar[0]?.eylem.hedefTarih).toBe("2026-12-15");
+  });
+});
+
 describe("kayıttan karar", () => {
   it("'Karar n:' satırlarını atıflı aday yapar", () => {
     const a = kayittanKararlar(KAYIT);

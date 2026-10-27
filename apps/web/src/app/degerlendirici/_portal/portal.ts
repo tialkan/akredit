@@ -28,6 +28,7 @@ import {
   guvenilmeyenSar,
   KALKAN_KURALI,
   type Saglayici,
+  sayilariDenetle,
 } from "@akredit/yz";
 import { and, desc, eq, inArray, like, sql } from "drizzle-orm";
 import { z } from "zod";
@@ -342,6 +343,13 @@ export async function soruSor(b: PortalBaglami, saglayici: Saglayici, girdi: unk
       const i = atifsizlariIsaretle(cevap.icerik, kaynaklar);
       yanit = i.metin;
       isaretlenen = i.degisen;
+    }
+    // Atıf geçerli olsa da cümledeki sayı atıf verilen kanıtta yoksa uydurmadır (ilke 2): yanıt verilmez.
+    const sayi = sayilariDenetle(yanit, { kaynaklar });
+    if (sayi.dayanaksiz.length) {
+      gecerli = false;
+      isaretlenen += sayi.dayanaksiz.length;
+      yanit = "[EKSİK: Yanıttaki sayılar kanıtla doğrulanamadı. Sorunuzu kalite birimine iletin.]";
     }
   }
   // Yalnız yanıtta gerçekten atıf yapılan kanıtlar kaynak sayılır.
