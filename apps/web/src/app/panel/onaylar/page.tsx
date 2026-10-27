@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
 import { SayfaBasligi } from "../../../bilesenler/temel.tsx";
 import { panelVeriKaynagi } from "../../../veri/sunucu.ts";
+import { MobilKurulum } from "./mobil-kurulum.tsx";
 import { OnayKutusu } from "./onay-kutusu.tsx";
 
-export const metadata: Metadata = { title: "Onay kutusu" };
+export const metadata: Metadata = {
+  title: "Onay kutusu",
+  manifest: "/panel/onaylar/manifest.webmanifest",
+  appleWebApp: { capable: true, title: "Onaylar", statusBarStyle: "default" },
+};
 
 export default async function OnaylarSayfasi() {
   const kaynak = await panelVeriKaynagi();
@@ -15,6 +20,7 @@ export default async function OnaylarSayfasi() {
         baslik="Onay kutusu"
         aciklama="Sistemin hazırladığı öneriler. Her birini kanıtıyla görün; onaylayın, düzeltin ya da reddedin."
       />
+      <MobilKurulum />
       <OnayKutusu ilkOneriler={oneriler} kanitAdlari={kanitAdlari} />
     </>
   );
