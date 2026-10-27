@@ -1,0 +1,25 @@
+# Kurum içi ters vekil. Sertifika kurumun kendi sertifikasıdır (kurum CA'sı ya da iç CA):
+#   <AKREDIT_SERTIFIKA_DIZINI>/akredit.crt (zincir dahil) ve akredit.key
+# İnternete kapalı kurulumda ACME (Let's Encrypt) kullanılamaz; Caddy dışarıya istek yapmaz.
+# Sertifika henüz yoksa geçici olarak `tls internal` satırını açıp üstündekini kapatın.
+
+{
+	auto_https disable_certs
+	ocsp_stapling off
+	admin off
+}
+
+{$AKREDIT_UYGULAMA_ALAN} {
+	tls /sertifika/akredit.crt /sertifika/akredit.key
+	# tls internal
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		X-Frame-Options "DENY"
+		-Server
+	}
+	encode zstd gzip
+	reverse_proxy web:3000
+}

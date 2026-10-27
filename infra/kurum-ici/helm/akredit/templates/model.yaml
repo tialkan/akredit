@@ -1,0 +1,75 @@
+{{- $vllm := eq .Values.yz.sunucu "vllm" -}}
+{{- if not (or $vllm (eq .Values.yz.sunucu "ollama")) }}{{ fail "yz.sunucu ollama ya da vllm olmalı" }}{{ end -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-modeller
+  labels: {{- include "akredit.etiketler" . | nindent 4 }}
+spec:
+  accessModes: [ReadWriteOnce]
+  {{- with .Values.yz.depolamaSinifi }}
+  storageClassName: {{ . }}
+  {{- end }}
+  resources: { requests: { storage: {{ .Values.yz.modelDepolama }} } }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-model
+  labels: {{- include "akredit.etiketler" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy: { type: Recreate }
+  selector:
+    matchLabels: { app.kubernetes.io/name: akredit-model, app.kubernetes.io/instance: {{ .Release.Name }} }
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: akredit-model
+        {{- include "akredit.etiketler" . | nindent 8 }}
+    spec:
+      containers:
+        - name: model
+          {{- if $vllm }}
+          image: {{ include "akredit.imaj" (dict "kok" . "ad" .Values.imajlar.vllm) }}
+          args:
+            - --model=/modeller/{{ .Values.yz.model }}
+            - --served-model-name={{ .Values.yz.model }}
+            - --host=0.0.0.0
+            - --port=8000
+            - --max-model-len={{ .Values.yz.vllmBaglam }}
+          env:
+            - { name: HF_HUB_OFFLINE, value: "1" }
+            - { name: TRANSFORMERS_OFFLINE, value: "1" }
+            - { name: VLLM_NO_USAGE_STATS, value: "1" }
+            - { name: DO_NOT_TRACK, value: "1" }
+          ports: [{ containerPort: 8000, name: api }]
+          {{- else }}
+          image: {{ include "akredit.imaj" (dict "kok" . "ad" .Values.imajlar.ollama) }}
+          env:
+            - { name: OLLAMA_HOST, value: "0.0.0.0:11434" }
+            - { name: OLLAMA_MODELS, value: /modeller }
+            - { name: OLLAMA_KEEP_ALIVE, value: 24h }
+          ports: [{ containerPort: 11434, name: api }]
+          {{- end }}
+          imagePullPolicy: {{ .Values.imajlar.cekmePolitikasi }}
+          {{- if gt (int .Values.yz.gpu) 0 }}
+          resources: { limits: { nvidia.com/gpu: {{ .Values.yz.gpu }} } }
+          {{- end }}
+          volumeMounts:
+            - { name: modeller, mountPath: /modeller }
+      volumes:
+        - name: modeller
+          persistentVolumeClaim: { claimName: {{ .Release.Name }}-modeller }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-model
+  labels: {{- include "akredit.etiketler" . | nindent 4 }}
+spec:
+  selector: { app.kubernetes.io/name: akredit-model, app.kubernetes.io/instance: {{ .Release.Name }} }
+  ports:
+    - name: api
+      port: {{ if $vllm }}8000{{ else }}11434{{ end }}
+      targetPort: api
