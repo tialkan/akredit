@@ -2,8 +2,8 @@ import { CalendarDays, Clock } from "lucide-react";
 import Link from "next/link";
 import { dugmeSinifi } from "../../bilesenler/dugme.tsx";
 import { Kart, RiskSimgesi, SayfaBasligi } from "../../bilesenler/temel.tsx";
-import { panelVeriKaynagi } from "../../veri/sunucu.ts";
 import { ORNEK_SIMDI } from "../../veri/ornek.ts";
+import { panelVeriKaynagi } from "../../veri/sunucu.ts";
 import { gunFarki, RISK_ETIKETI, RISK_SIRASI, sureYaz, tarihYaz } from "../../veri/yardimci.ts";
 
 const RENK = {

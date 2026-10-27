@@ -11,7 +11,8 @@
   "scripts": {
     "typecheck": "tsc --noEmit -p .",
     "test": "vitest run",
-    "openapi": "node betik/openapi-uret.ts"
+    "openapi": "node betik/openapi-uret.ts",
+    "vt:hazirla": "node betik/vt-hazirla.ts"
   },
   "dependencies": {
     "@akredit/cekirdek": "workspace:*",
