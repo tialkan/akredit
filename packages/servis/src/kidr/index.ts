@@ -16,6 +16,7 @@ import { gunluge, islem, type ServisBaglami } from "../baglam.ts";
 import { bulunamadi, ServisHatasi } from "../hata.ts";
 import {
   aktarimPlani,
+  altOlcutler,
   type BidrOzeti,
   type BolumTaslagi,
   bidrBolumleri,
@@ -467,6 +468,8 @@ export async function raporuDisaAktar(b: ServisBaglami, raporId: string): Promis
         eksik: atifIdleri(x).length === 0,
       };
     });
+    const sira = new Map(altOlcutler(KIDR_CERCEVESI).map((x, i) => [x.olcut.kod, i]));
+    bolumler.sort((x, y) => (sira.get(x.kod) ?? 1e6) - (sira.get(y.kod) ?? 1e6));
     const durumlar = await olgunlukDurumlari(tx, r.id);
     const eylemler = r.tur === "kidr" ? await eylemListesi(tx, b.simdi()) : [];
     await gunluge(tx, b, "rapor.disa_aktarildi", { tur: "rapor", id: r.id }, { bicim: "docx" });
