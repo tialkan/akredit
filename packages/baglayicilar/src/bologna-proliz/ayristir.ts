@@ -75,6 +75,22 @@ export function programCiktilari(html: string): BolognaProgramCiktisi[] {
     .map((r) => ({ kod: `P${sayi(r[0])}`, metin: r[1] ?? "" }));
 }
 
+/** Ders kodu: harf önekli ("HUK101", "HUK 101") ya da sayısal ("1000.020105", EBYÜ canlı yapısı). */
+const DERS_KODU = /^(?:[A-ZÇĞİÖŞÜ]{2,}\s*\d|\d{3,}\.\d{3,})/;
+const DERS_KODU_ARA = /\b([A-ZÇĞİÖŞÜ]{2,}\s?\d{3}[A-Z]?|\d{3,}\.\d{3,})\b/;
+const YUZDE = /^%\s*\d/;
+const EPOSTA = /[\p{L}\d._%+-]+@[\p{L}\d-]+(?:\.[\p{L}\d-]+)+/gu;
+export const EPOSTA_YERINE = "[e-posta ayıklandı]";
+
+/** Nesnedeki bütün metinlerden e-posta adreslerini ayıklar. */
+export function epostaAyikla<T>(x: T): T {
+  if (typeof x === "string") return x.replace(EPOSTA, EPOSTA_YERINE) as T;
+  if (Array.isArray(x)) return x.map(epostaAyikla) as T;
+  if (x && typeof x === "object")
+    return Object.fromEntries(Object.entries(x).map(([k, v]) => [k, epostaAyikla(v)])) as T;
+  return x;
+}
+
 export function programMatrisi(html: string): BolognaProgramMatrisi {
   const satirlar = tablolar(html).flat();
   const baslik = satirlar.find((r) => r.includes("Ders Kodu") && r.some((h) => /^P\d+$/.test(h)));
@@ -91,7 +107,7 @@ export function programMatrisi(html: string): BolognaProgramMatrisi {
     }
     if (r.length < pBas + 1 || r === baslik || ilk === "Ders Kodu") continue;
     const kod = ilk.replace(/^\[G\]\s*/, "");
-    if (!/^[A-ZÇĞİÖŞÜ]{2,}\s*\d/.test(kod)) continue;
+    if (!DERS_KODU.test(kod)) continue;
     dersler.push({
       kod,
       ad: r[1] ?? "",
@@ -110,14 +126,14 @@ export function dersKimlikleri(html: string): Record<string, string> {
   const kimlik: Record<string, string> = {};
   for (const tr of html.split(/<tr\b/i).slice(1)) {
     const id = tr.match(/prolizOpenCourseDetails\('?(\d+)/);
-    const kod = metin(tr).match(/\b([A-ZÇĞİÖŞÜ]{2,}\s?\d{3}[A-Z]?)\b/);
+    const kod = metin(tr).match(DERS_KODU_ARA);
     if (id?.[1] && kod?.[1] && !kimlik[kod[1]]) kimlik[kod[1]] = id[1];
   }
   return kimlik;
 }
 
-/** Bir ders bilgi sayfasını ayrıştırır. */
-export function dersSayfasiCoz(html: string): BolognaDersSayfasi {
+/** Ders sayfasının ham ayrıştırması (e-posta ayıklanmadan). */
+function dersSayfasiCozHam(html: string): BolognaDersSayfasi {
   const t = tablolar(html);
   const bul = (re: RegExp) => t.find((x) => re.test((x[0] ?? []).join(" ")));
   const ust = bul(/Yarıyıl.*Kodu|Semester.*Code/i);
@@ -134,7 +150,10 @@ export function dersSayfasiCoz(html: string): BolognaDersSayfasi {
     .slice(1)
     .filter((r) => r.length >= 4 && sayi(r[3]) !== null && !/Toplam|Total|AKTS|ECTS/i.test(r[0] ?? ""))
     .map((r) => ({ ad: r[0] ?? "", sayi: sayi(r[1]), sure: sayi(r[2]), toplam: sayi(r[3]) }));
-  const dersYapisi = (t.find((x) => x.some((r) => /Alan Bilgisi|Field/i.test(r[0] ?? ""))) ?? [])
+  // Canlı Proliz sayfasında (EBYÜ, 2026-10-27) alan yüzdesi tablosu başlıksızdır: ["Sosyal Bilimler", "%100", ""].
+  const dersYapisi = (t.find((x) => x.some((r) => /Alan Bilgisi|Field/i.test(r[0] ?? ""))) ??
+    t.find((x) => x.length > 0 && x.every((r) => r.length >= 2 && YUZDE.test(r[1] ?? ""))) ??
+    [])
     .filter((r) => r.length >= 2 && /%/.test(r[1] ?? ""))
     .map((r) => ({ alan: r[0] ?? "", yuzde: sayi(r[1]) }));
   const ciktiTablosu = bul(/Sıra No|No.*A[cç]ıklama|Description/i) ?? [];
@@ -176,17 +195,32 @@ export function dersSayfasiCoz(html: string): BolognaDersSayfasi {
   };
 }
 
+/** Bir ders bilgi sayfasını ayrıştırır. E-posta adresleri çıktıdan ayıklanır (KVKK: en az kişisel veri). */
+export function dersSayfasiCoz(html: string): BolognaDersSayfasi {
+  return epostaAyikla(dersSayfasiCozHam(html));
+}
+
 /**
  * TYYÇ matrisinde program çıktısı sütunlarındaki dolu hücreleri sayar.
  * Satırlar "etiket, alt no, P1..Pn, alt no, etiket" ya da etiketsiz "alt no, P1..Pn, alt no" biçimindedir.
  */
 export function tyycIsaretSayisi(html: string, pSayisi: number): number | null {
   if (!pSayisi) return null;
+  // Canlı yapı (EBYÜ, 2026-10-27): 14 hücreli satır "alan, alt no, P1..Pn, alt no, alan"; rowspan yüzünden
+  // sonraki satırlar 12 hücreli "alt no, P1..Pn, alt no". Ayırıcı boş satırlar (alt no yok) sayılmaz.
+  // Hiç P hücresi okunamadıysa null (veri yok), okunup hepsi boşsa 0 döner.
   let dolu = 0;
+  let okunan = 0;
   for (const r of tablolar(html).flat()) {
     const ic =
-      r.length === pSayisi + 4 ? r.slice(2, 2 + pSayisi) : r.length === pSayisi + 2 ? r.slice(1, 1 + pSayisi) : null;
-    if (ic) dolu += ic.filter((h) => h && h !== "-").length;
+      r.length === pSayisi + 4 && /^\d+$/.test(r[1] ?? "")
+        ? r.slice(2, 2 + pSayisi)
+        : r.length === pSayisi + 2 && /^\d+$/.test(r[0] ?? "")
+          ? r.slice(1, 1 + pSayisi)
+          : null;
+    if (!ic) continue;
+    okunan += ic.length;
+    dolu += ic.filter((h) => h && h !== "-").length;
   }
-  return dolu;
+  return okunan ? dolu : null;
 }
