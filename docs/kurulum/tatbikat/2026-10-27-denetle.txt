@@ -1,0 +1,54 @@
+1. Betik sözdizimi
+  GEÇTİ  infra/kurum-ici/demet-olustur.sh
+  GEÇTİ  infra/kurum-ici/demet-yukle.sh
+  GEÇTİ  infra/kurum-ici/denetle.sh
+  GEÇTİ  infra/kurum-ici/geri-don.sh
+  GEÇTİ  infra/kurum-ici/kur.sh
+  GEÇTİ  infra/kurum-ici/ortak.sh
+  GEÇTİ  infra/kurum-ici/tatbikat/tatbikat.sh
+  GEÇTİ  infra/kurum-ici/vt-yedek.sh
+  GEÇTİ  infra/kurum-ici/yukselt.sh
+2. Sabit imaj sürümleri
+  GEÇTİ  latest yok
+  GEÇTİ  surumler.env biçimi
+  GEÇTİ  CADDY_IMAJI üretimle aynı (caddy:2.8.4-alpine)
+  GEÇTİ  VT_IMAJI üretimle aynı (pgvector/pgvector:0.8.0-pg17)
+3. YAML ayrıştırma
+  GEÇTİ  infra/kurum-ici/docker-compose.yml
+  GEÇTİ  infra/kurum-ici/helm/akredit/Chart.yaml
+  GEÇTİ  infra/kurum-ici/helm/akredit/values.yaml
+4. Veri yerleşimi
+  GEÇTİ  caddy: dış ağ ['giris'] (tek açık hizmet)
+  GEÇTİ  web: yalnız iç ağlar ['kopru', 'arka', 'model']
+  GEÇTİ  isci: yalnız iç ağlar ['arka', 'model']
+  GEÇTİ  goc: yalnız iç ağlar ['arka']
+  GEÇTİ  vt: yalnız iç ağlar ['arka']
+  GEÇTİ  depo: yalnız iç ağlar ['arka']
+  GEÇTİ  ollama: yalnız iç ağlar ['model']
+  GEÇTİ  vllm: yalnız iç ağlar ['model']
+  GEÇTİ  yurt dışı izni sabit 'hayir'
+  GEÇTİ  örnek YZ adresi iç model
+  GEÇTİ  örnek YZ hazırı yerel
+  GEÇTİ  vLLM çevrimdışı, kullanım istatistiği kapalı
+  GEÇTİ  @akredit/yz: vllm/ollama/sglang yurt içi sayılıyor
+  GEÇTİ  Caddy: ACME kapalı
+5. Compose yapılandırması
+  GEÇTİ  docker compose config (profil: ollama depo)
+  GEÇTİ  docker compose config (profil: vllm)
+6. Helm şeması
+  GEÇTİ  values: disariCikisYasak true
+  GEÇTİ  ağ ilkesi şablonu var
+  GEÇTİ  Helm YZ ortamı yurt dışı izni kapalı
+  ATLANDI helm yok (şablonlar işlenmedi)
+7. Kurulum demeti (sahte docker ile)
+  GEÇTİ  demet oluşturuldu
+  GEÇTİ  imajlar.txt: uygulama + surumler.env imajları, özetli
+  GEÇTİ  içerik özetleri yazıldı
+  GEÇTİ  demet doğrulandı ve yüklendi
+  GEÇTİ  model ağırlıkları açıldı
+  GEÇTİ  değiştirilmiş demet reddedildi
+  GEÇTİ  reddedilen demetten hiçbir şey yüklenmedi
+  GEÇTİ  bulunamayan imaj demeti durdurdu
+8. Yerel model ayarı (node --test)
+  GEÇTİ  yz-ayari.test.ts (5 test)
+SONUÇ: BAŞARILI
