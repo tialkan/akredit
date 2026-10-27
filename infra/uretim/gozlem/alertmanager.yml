@@ -1,0 +1,26 @@
+# ${...} yer tutucuları kapsayıcı açılırken ortamdan doldurulur (docker-compose.yml: alertmanager).
+# SMTP parolası dosyaya yazılmaz; /tmp/smtp-parola (kapsayıcı içi) dosyasından okunur.
+
+global:
+  smtp_smarthost: "${UYARI_SMTP_SUNUCU}"
+  smtp_from: "${UYARI_EPOSTA}"
+  smtp_auth_username: "${UYARI_SMTP_KULLANICI}"
+  smtp_auth_password_file: /tmp/smtp-parola
+  smtp_require_tls: true
+
+route:
+  receiver: eposta
+  group_by: [alertname]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  routes:
+    - matchers: ['onem="kritik"']
+      receiver: eposta
+      repeat_interval: 1h
+
+receivers:
+  - name: eposta
+    email_configs:
+      - to: "${UYARI_EPOSTA}"
+        send_resolved: true

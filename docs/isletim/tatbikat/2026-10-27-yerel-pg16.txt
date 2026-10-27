@@ -1,0 +1,20 @@
+Akredit yedekten geri dönüş tatbikatı
+Başlangıç (UTC): 2026-10-27T09:35:18Z
+PostgreSQL: postgres (PostgreSQL) 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)
+Çalışma dizini: /tmp/akredit-tatbikat.UI298a
+Uygulanan göçler: 0000_eklentiler, 0001_sema, 0002_guvenlik, 0003_tur_riski, 0004_kimlik, 0005_servis, 0006_onay, 0007_anket
+Özgün kümedeki tablo sayısı: 55
+taban-yedek: /tmp/akredit-tatbikat.UI298a/arsiv/taban/20261027T093521Z alınıyor
+backup successfully verified
+taban-yedek: doğrulandı
+taban-yedek: tamam (20261027T093521Z)
+Hedef an: 2026-10-27 09:35:24.000526+00
+geri-yukle: /tmp/akredit-tatbikat.UI298a/geri hazır (hedef: 2026-10-27 09:35:24.000526+00); sunucuyu bu dizinle başlatın
+Doğrulama:
+  GEÇTİ  yedekten-once: 1 (beklenen 1)
+  GEÇTİ  yedekten-sonra-hedeften-once: 1 (beklenen 1)
+  GEÇTİ  hedeften-sonra: 0 (beklenen 0)
+  GEÇTİ  tablo sayısı: 56
+Bitiş (UTC): 2026-10-27T09:35:29Z
+SONUÇ: BAŞARILI
+Rapor: /tmp/claude-0/-home-claude/0999be3e-7750-5ca7-9d4f-7bbad31f9f27/scratchpad/tatbikat.txt
