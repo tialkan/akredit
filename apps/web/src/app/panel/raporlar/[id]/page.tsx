@@ -12,7 +12,10 @@ export async function generateStaticParams() {
   return (await (await panelVeriKaynagi()).raporlar()).map((r) => ({ id: r.id }));
 }
 
-export const metadata: Metadata = { title: "Rapor" };
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const x = await (await panelVeriKaynagi()).rapor((await params).id);
+  return { title: x ? `${x.ad} · Rapor` : "Rapor" };
+}
 
 export default async function RaporSayfasi({ params }: { params: Promise<{ id: string }> }) {
   const kaynak = await panelVeriKaynagi();
