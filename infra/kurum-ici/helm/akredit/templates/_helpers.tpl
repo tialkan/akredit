@@ -23,10 +23,11 @@ http://{{ .Release.Name }}-model:11434/v1
 {{- define "akredit.uygulamaOrtami" -}}
 - name: NODE_ENV
   value: production
-- name: POSTGRES_PASSWORD
-  valueFrom: { secretKeyRef: { name: {{ .Values.gizliNesne }}, key: POSTGRES_PASSWORD } }
+# Süper kullanıcı değil: akredit_oturum üyesi uygulama kullanıcısı (G-27-2).
+- name: UYGULAMA_VT_PAROLA
+  valueFrom: { secretKeyRef: { name: {{ .Values.gizliNesne }}, key: UYGULAMA_VT_PAROLA } }
 - name: AKREDIT_VT_ADRES
-  value: postgres://{{ .Values.vt.kullanici }}:$(POSTGRES_PASSWORD)@{{ .Release.Name }}-vt:5432/{{ .Values.vt.ad }}
+  value: postgres://{{ include "akredit.uygulamaKullanicisi" . }}:$(UYGULAMA_VT_PAROLA)@{{ .Release.Name }}-vt:5432/{{ .Values.vt.ad }}
 - name: AKREDIT_TAKMA_AD_ANAHTARI
   valueFrom: { secretKeyRef: { name: {{ .Values.gizliNesne }}, key: AKREDIT_TAKMA_AD_ANAHTARI } }
 - name: S3_UC_NOKTASI
@@ -49,4 +50,13 @@ http://{{ .Release.Name }}-model:11434/v1
   value: {{ .Values.yz.model | quote }}
 - name: AKREDIT_YZ_YURT_DISI_IZIN
   value: "hayir"
+{{- end -}}
+
+
+{{- define "akredit.uygulamaKullanicisi" -}}
+{{- $u := required "vt.uygulamaKullanici zorunlu" .Values.vt.uygulamaKullanici -}}
+{{- if eq $u .Values.vt.kullanici -}}
+{{- fail "vt.uygulamaKullanici, vt.kullanici (süper kullanıcı) ile aynı olamaz" -}}
+{{- end -}}
+{{- $u -}}
 {{- end -}}

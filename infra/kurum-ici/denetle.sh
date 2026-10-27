@@ -8,6 +8,7 @@
 #   6. Helm: ağ ilkesi açık; helm varsa lint + template
 #   7. Demet: oluştur -> doğrula -> yükle; değiştirilmiş demet reddedilir (sahte docker ile)
 #   8. Yerel model ayarı: yz-ayari.test.ts (yalnız iç adres, yurt dışı izni kapalı)
+#   9. Uygulama veritabanı kullanıcısı: vt-kullanici.test.ts (süper kullanıcı yok, G-27-2)
 # Kullanım (depo kökünden): infra/kurum-ici/denetle.sh
 set -euo pipefail
 
@@ -162,6 +163,15 @@ if (cd "$kok" && node --test infra/kurum-ici/yz-ayari.test.ts >"$gecici/yz.log" 
 else
   kal "yz-ayari.test.ts"; cat "$gecici/yz.log"
 fi
+
+echo "9. Uygulama veritabanı kullanıcısı (G-27-2, node --test)"
+if (cd "$kok" && node --test infra/kurum-ici/vt-kullanici.test.ts >"$gecici/vtk.log" 2>&1); then
+  gec "vt-kullanici.test.ts ($(grep -E '^# pass' "$gecici/vtk.log" | awk '{print $3}') test)"
+else
+  kal "vt-kullanici.test.ts"; cat "$gecici/vtk.log"
+fi
+[[ -x "$gecici/demet/kurum-ici/postgres/02-uygulama-kullanicisi.sh" ]] \
+  && gec "demet uygulama kullanıcısı betiğini içeriyor" || kal "demette 02-uygulama-kullanicisi.sh yok"
 
 if ((hata)); then echo "SONUÇ: BAŞARISIZ"; exit 1; fi
 echo "SONUÇ: BAŞARILI"

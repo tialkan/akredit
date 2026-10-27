@@ -62,7 +62,7 @@ sudo mkdir -p /etc/akredit/sertifika /var/lib/akredit/yedekler
 sudo cp /opt/akredit/kurum-ici/ornek.env /etc/akredit/akredit.env
 sudo chmod 600 /etc/akredit/akredit.env
 sudo cp akredit.crt akredit.key /etc/akredit/sertifika/ && sudo chmod 600 /etc/akredit/sertifika/akredit.key
-for d in AKREDIT_ONAY_GIZLI AKREDIT_ANKET_GIZLI AKREDIT_TAKMA_AD_ANAHTARI POSTGRES_PASSWORD S3_GIZLI_ANAHTAR; do
+for d in AKREDIT_ONAY_GIZLI AKREDIT_ANKET_GIZLI AKREDIT_TAKMA_AD_ANAHTARI POSTGRES_PASSWORD UYGULAMA_VT_PAROLA S3_GIZLI_ANAHTAR; do
   sudo sed -i "s|^$d=.*|$d=$(openssl rand -hex 32)|" /etc/akredit/akredit.env
 done
 sudoedit /etc/akredit/akredit.env

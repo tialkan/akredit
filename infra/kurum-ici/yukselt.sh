@@ -12,6 +12,11 @@ eski="$(son_surum)"
 [[ -n "$eski" ]] || hata "kurulu sürüm kaydı yok; ilk kurulum için kur.sh"
 [[ "$eski" != "$yeni" ]] || hata "$yeni zaten kurulu"
 imajlar_yerelde "$yeni"
+# G-27-2 öncesi kurulumların ayarında uygulama kullanıcısı yok: varsayılan ad ve üretilmiş parola yazılır.
+source "$dizin/parola.sh"
+[[ -n "$(ayar UYGULAMA_VT_KULLANICI)" ]] || ayar_yaz UYGULAMA_VT_KULLANICI akredit_uyg
+parola_uret "$ortam_dosyasi" UYGULAMA_VT_PAROLA
+uygulama_kullanicisi_denetle
 
 yedek="yukseltme-$eski-$yeni-$(date -u +%Y%m%dT%H%M%SZ).dump"
 bilgi "yükseltme öncesi yedek: $yedek"
@@ -28,6 +33,8 @@ geri_al() {
 ayar_yaz AKREDIT_SURUM "$yeni"
 bilgi "göçler ($eski -> $yeni)"
 dc "$yeni" --profile goc run --rm goc || geri_al "göç başarısız"
+# Eski kurulumlar web/işçiyi süper kullanıcıyla bağlıyordu (G-27-2); kullanıcı burada açılır ya da eşitlenir.
+uygulama_kullanicisi_esitle "$yeni" || geri_al "uygulama veritabanı kullanıcısı açılamadı"
 dc "$yeni" up -d --pull never
 saglik_bekle "$yeni" || geri_al "web sağlıklı duruma gelmedi"
 kayit_ekle "$yeni" "yukseltme yedek=$yedek"
