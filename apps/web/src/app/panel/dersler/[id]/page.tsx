@@ -12,7 +12,10 @@ export async function generateStaticParams() {
   return (await (await panelVeriKaynagi()).dersler()).map((d) => ({ id: d.id }));
 }
 
-export const metadata: Metadata = { title: "Ders" };
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const x = await (await panelVeriKaynagi()).ders((await params).id);
+  return { title: x ? `${x.ad} · Ders` : "Ders" };
+}
 
 export default async function DersSayfasi({ params }: { params: Promise<{ id: string }> }) {
   const ders = await (await panelVeriKaynagi()).ders((await params).id);
