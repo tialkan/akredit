@@ -29,7 +29,11 @@ export function anketIsyukuKalemleri(tanim: AnketTanimi, sonuc: AnketSonucu): Bo
 }
 
 /** Bologna verisinde dersin iş yükü tablosunu anket kalemleriyle değiştirir (kopya döner). */
-export function bolognaVerisineIsle(veri: BolognaVerisi, dersKodu: string, kalemler: BolognaIsYukuKalemi[]): BolognaVerisi {
+export function bolognaVerisineIsle(
+  veri: BolognaVerisi,
+  dersKodu: string,
+  kalemler: BolognaIsYukuKalemi[],
+): BolognaVerisi {
   let bulundu = false;
   const dersler = veri.dersler.map((d) => {
     if (d.kod !== dersKodu || okunamadiMi(d)) return d;

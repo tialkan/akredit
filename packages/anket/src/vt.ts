@@ -7,7 +7,7 @@
 // - Alıcı e-postaları yalnız gönderim süresince `anket.kapsam.gonderim.alicilar`da durur, kapanışta silinir.
 // - Yanıt kaydı günlüğe yazılmaz (günlük kaydının saati yanıtla eşleştirilebilirdi).
 
-import { type Saat, type EpostaTasiyici, surecAyariOku } from "@akredit/surec";
+import { type EpostaTasiyici, type Saat, surecAyariOku } from "@akredit/surec";
 import { gunlugeYaz, type Islem, kiraciIslemi, sema, type Vt } from "@akredit/vt";
 import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
@@ -164,7 +164,12 @@ export function anketBaglantisi(adres: string, kurumId: string, anketId: string,
   return u.toString();
 }
 
-function davetMetni(baslik: string, baglanti: string, bitis: Date, hatirlatma: boolean): { konu: string; metin: string } {
+function davetMetni(
+  baslik: string,
+  baglanti: string,
+  bitis: Date,
+  hatirlatma: boolean,
+): { konu: string; metin: string } {
   const tarih = bitis.toLocaleDateString("tr-TR", { timeZone: "Europe/Istanbul" });
   return {
     konu: `${hatirlatma ? "Hatırlatma: " : ""}${baslik}`,
@@ -267,8 +272,7 @@ export async function anketFormu(b: AnketBaglami, kurumId: string, anketId: stri
   return kiraciIslemi(b.db, kurumId, async (tx) => {
     const { k } = await oku(tx, anketId);
     const simdi = b.saat.simdi();
-    const acik =
-      k.durum === "yayinda" && simdi >= new Date(k.ayar.baslangic) && simdi < new Date(k.ayar.bitis);
+    const acik = k.durum === "yayinda" && simdi >= new Date(k.ayar.baslangic) && simdi < new Date(k.ayar.bitis);
     return { tanim: k.tanim, erisim: k.ayar.erisim, acik, bitis: k.ayar.bitis };
   });
 }

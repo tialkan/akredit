@@ -39,8 +39,8 @@ export const AcikOzetSemasi = z.object({
 });
 export type AcikOzetCiktisi = z.infer<typeof AcikOzetSemasi>;
 
-/** Atıflarda kullanılan kısa kimlik (ilk 8 karakter). */
-export const kisaKimlik = (id: string) => id.replace(/-/gu, "").slice(0, 8).toLowerCase();
+/** Atıflarda kullanılan kısa kimlik: son 12 onaltılık karakter (UUID v7 başı zamandır, çakışır). */
+export const kisaKimlik = (id: string) => id.replace(/-/gu, "").slice(-12).toLowerCase();
 
 function eslesen(girdi: AcikOzetGirdisi, atif: string): AcikYanit | undefined {
   const a = atif.replace(/^Y:/u, "").toLowerCase();
@@ -58,7 +58,7 @@ export const acikOzetGorevi: Gorev<AcikOzetGirdisi, typeof AcikOzetSemasi> = {
         rol: "sistem",
         icerik: [
           "Anket açık uçlu yanıtlarını temalara göre özetle.",
-          "Her madde için dayandığı yanıtların kimliklerini `yanitlar` alanına yaz (ör. Y:1a2b3c4d).",
+          "Her madde için dayandığı yanıtların kimliklerini `yanitlar` alanına yaz (ör. Y:1a2b3c4d5e6f).",
           "Yanıtlarda olmayan bir görüş ekleme. Sayı, oran ya da yüzde yazma; sayıları sistem hesaplar.",
           KALKAN_KURALI,
         ].join("\n"),
