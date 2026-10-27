@@ -18,6 +18,7 @@
     "@akredit/baglayicilar": "workspace:*",
     "@akredit/belge": "workspace:*",
     "@akredit/cekirdek": "workspace:*",
+    "@akredit/cerceveler": "workspace:*",
     "@akredit/olcme": "workspace:*",
     "@akredit/surec": "workspace:*",
     "@akredit/vt": "workspace:*",
