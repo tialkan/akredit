@@ -143,19 +143,19 @@ Durumlar: **hazır** (başlanabilir), **devam**, **inceleme**, **tamam**, **bekl
 | [09](plan/ip/IP-09-kimlik-ve-yetki.md) | Kimlik doğrulama, kiracı ve yetki | 2 | tamam | 02, 07 |
 | [10](plan/ip/IP-10-kanit-hatti.md) | Kanıt hattı ve nesne deposu | 2 | tamam | 02, 03, 04 |
 | [11](plan/ip/IP-11-cerceveler.md) | Akreditasyon çerçeve kütüphanesi | 2 | inceleme | 01, araştırma |
-| [12](plan/ip/IP-12-servis-ve-api.md) | Servis katmanı ve API | 2 | devam | 01, 02, 09 |
+| [12](plan/ip/IP-12-servis-ve-api.md) | Servis katmanı ve API | 2 | tamam | 01, 02, 09 |
 | [13](plan/ip/IP-13-onay-ve-yetki-devri.md) | Onay kutusu arka ucu ve yetki devri | 2 | bekliyor | 12, 14 |
-| [14](plan/ip/IP-14-surec-motoru.md) | Süreç motoru, takvim, bildirim | 2 | bekliyor | 02, 12 |
+| [14](plan/ip/IP-14-surec-motoru.md) | Süreç motoru, takvim, bildirim | 2 | devam | 02, 12 |
 | [15](plan/ip/IP-15-bologna-otomasyonu.md) | Bologna ders paketi otomasyonu | 3 | bekliyor | 01, 03, 05, 12, 13 |
 | [16](plan/ip/IP-16-ders-dosyasi.md) | Ders dosyası ve ölçme raporu | 3 | bekliyor | 04, 05, 06, 12, 13 |
 | [17](plan/ip/IP-17-anketler.md) | Anket modülü | 3 | bekliyor | 02, 03, 09, 14 |
 | [18](plan/ip/IP-18-toplanti-asistani.md) | Toplantı ve karar asistanı | 3 | bekliyor | 03, 14 |
 | [19](plan/ip/IP-19-program-odr.md) | Program öz değerlendirme ve ÖDR | 4 | bekliyor | 11, 12, 16, 17 |
 | [20](plan/ip/IP-20-kidr-bidr.md) | BİDR, KİDR, olgunluk değerlendirmesi | 4 | bekliyor | 11, 12, 14 |
-| [21](plan/ip/IP-21-gostergeler.md) | Göstergeler ve stratejik plan | 4 | bekliyor | 05, 12 |
-| [22](plan/ip/IP-22-degerlendirici-portali.md) | Değerlendirici portalı, sanal kanıt odası | 4 | bekliyor | 09, 10, 12 |
+| [21](plan/ip/IP-21-gostergeler.md) | Göstergeler ve stratejik plan | 4 | devam | 05, 12 |
+| [22](plan/ip/IP-22-degerlendirici-portali.md) | Değerlendirici portalı, sanal kanıt odası | 4 | devam | 09, 10, 12 |
 | [23](plan/ip/IP-23-baglayicilar-2.md) | Bağlayıcılar II (AVESİS, YÖK Atlas, UBYS, EBYS, e-posta, bulut) | 4 | inceleme | 05, 10 |
-| [24](plan/ip/IP-24-cli-birlesmesi.md) | CLI ve Claude Code eklentisinin birleşmesi | 4 | bekliyor | 01, 12 |
+| [24](plan/ip/IP-24-cli-birlesmesi.md) | CLI ve Claude Code eklentisinin birleşmesi | 4 | devam | 01, 12 |
 | [25](plan/ip/IP-25-mcp-sunucusu.md) | MCP sunucusu | 4 | bekliyor | 12, 13 |
 | [26](plan/ip/IP-26-uretim-altyapisi.md) | Üretim altyapısı ve akredit.org | 5 | bekliyor | 08 |
 | [27](plan/ip/IP-27-guvenlik-denetimi.md) | Güvenlik sertleştirme ve bağımsız denetim | 5 | bekliyor | 09-26 |
