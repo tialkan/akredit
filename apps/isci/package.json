@@ -14,6 +14,7 @@
     "@akredit/belge": "workspace:*",
     "@akredit/cekirdek": "workspace:*",
     "@akredit/depo": "workspace:*",
+    "@akredit/surec": "workspace:*",
     "@akredit/vt": "workspace:*",
     "@akredit/yz": "workspace:*",
     "drizzle-orm": "^0.45.4",
