@@ -1,6 +1,6 @@
 // Rapor, süreç, eylem, toplantı, anket, gösterge (docs/mimari.md §3.6). `rapor_bolumu_surumu` yalnız eklenir.
 
-import { integer, jsonb, numeric, pgTable, text, uuid } from "drizzle-orm/pg-core";
+import { boolean, integer, jsonb, numeric, pgTable, text, uuid } from "drizzle-orm/pg-core";
 import { cerceve, olcut } from "./cerceve.ts";
 import { donem, kisi, kurumIdSutunu } from "./kurum.ts";
 import { kimlik, olusturma, pukoAsamasi, raporTuru, zaman } from "./ortak.ts";
@@ -143,6 +143,18 @@ export const anketYaniti = pgTable("anket_yaniti", {
     .references(() => anket.id),
   yanitlar: jsonb("yanitlar").notNull(),
   olusturma: olusturma(),
+});
+
+/** Tekrar yanıt engeli (İP-17, 0007): yalnız belirteç özeti ve bayrak; kişi ve yanıtla bağı yoktur. */
+export const anketBelirteci = pgTable("anket_belirteci", {
+  id: kimlik(),
+  kurumId: kurumIdSutunu(),
+  anketId: uuid("anket_id")
+    .notNull()
+    .references(() => anket.id),
+  ozet: text("ozet").notNull(),
+  kaynak: text("kaynak").notNull(),
+  kullanildi: boolean("kullanildi").notNull().default(false),
 });
 
 export const gosterge = pgTable("gosterge", {
