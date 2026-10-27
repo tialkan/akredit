@@ -118,6 +118,33 @@ export async function davetKabulEt(k: KimlikSunucusu, istek: Request, belirtec: 
   if (davet.eposta !== oturum.user.email.toLowerCase())
     throw new ErisimHatasi(403, "Bu davet başka bir e-posta adresine gönderilmiş.");
 
+  // Daveti önce atomik olarak sahiplen: eşzamanlı ikinci kabul burada boş döner ve hiçbir şey yazmaz.
+  // Tekillik kısıtına dayanmak yetmez; var olan üyenin ikinci kabulü yeni bir rol ataması daha yazardı.
+  const [sahiplenilen] = await k.db
+    .update(sema.kimlikDavet)
+    .set({ kabulZamani: simdi, kabulEdenKullaniciId: oturum.user.id })
+    .where(and(eq(sema.kimlikDavet.id, davet.id), isNull(sema.kimlikDavet.kabulZamani)))
+    .returning({ id: sema.kimlikDavet.id });
+  if (!sahiplenilen) throw new ErisimHatasi(404, "Davet bulunamadı ya da süresi doldu. Yeni bir davet isteyin.");
+  try {
+    return await davetiUygula(k, davet, oturum.user.id, simdi);
+  } catch (e) {
+    // Uygulama başarısızsa sahiplenmeyi geri bırak ki davet yeniden denenebilsin.
+    await k.db
+      .update(sema.kimlikDavet)
+      .set({ kabulZamani: null, kabulEdenKullaniciId: null })
+      .where(and(eq(sema.kimlikDavet.id, davet.id), eq(sema.kimlikDavet.kabulZamani, simdi)));
+    throw e;
+  }
+}
+
+async function davetiUygula(
+  k: KimlikSunucusu,
+  davet: typeof sema.kimlikDavet.$inferSelect,
+  kullaniciId: string,
+  simdi: Date,
+) {
+  const oturum = { user: { id: kullaniciId } };
   const kurumId = davet.bagliKurumId;
   const mevcut = await k.db
     .select()
@@ -169,10 +196,6 @@ export async function davetKabulEt(k: KimlikSunucusu, istek: Request, belirtec: 
     await k.db
       .insert(sema.kimlikUyelik)
       .values({ kullaniciId: oturum.user.id, eposta: davet.eposta, bagliKurumId: kurumId, kisiId });
-  await k.db
-    .update(sema.kimlikDavet)
-    .set({ kabulZamani: simdi, kabulEdenKullaniciId: oturum.user.id })
-    .where(eq(sema.kimlikDavet.id, davet.id));
   return { kurumId, kisiId };
 }
 
