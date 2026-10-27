@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Tam (taban) yedek alır, bütünlüğünü doğrular, eski yedekleri saklama süresine göre budar
-# ve isteğe bağlı olarak site dışı nesne deposuna eşler.
+# Tam (taban) yedek alır, bütünlüğünü doğrular, eski yedekleri saklama süresine göre budar.
+# GNU araçları (find -printf, date -d) gerekir; pgvector/pgvector (Debian) imajında vardır.
+# Site dışı kopya ayrı `yedek-esle` hizmetinin (rclone) işidir.
 #
 # Ortam değişkenleri:
 #   PGHOST PGPORT PGUSER (PGPASSWORD ya da .pgpass)  : çoğaltma yetkili bağlantı
 #   YEDEK_DIZINI        (varsayılan /arsiv)            : taban/ ve wal/ burada
 #   YEDEK_SAKLA_GUN     (varsayılan 35)                : bu günden eski taban yedekler silinir
 #   YEDEK_EN_AZ         (varsayılan 2)                 : en az bu kadar taban yedek her zaman kalır
-#   YEDEK_S3_HEDEF      (isteğe bağlı, örn. yedek/akredit-yedek) : `mc` takma adı/kova; boşsa eşleme yapılmaz
 #   PG_BIN              (isteğe bağlı)                 : PostgreSQL araçlarının dizini
 set -euo pipefail
 
@@ -46,9 +46,4 @@ if [[ -n "$en_eski" ]]; then
   fi
 fi
 
-if [[ -n "${YEDEK_S3_HEDEF:-}" ]]; then
-  echo "taban-yedek: site dışı kopyaya eşleniyor ($YEDEK_S3_HEDEF)"
-  mc mirror --overwrite --remove "$kok/taban" "$YEDEK_S3_HEDEF/taban"
-  mc mirror --overwrite "$kok/wal" "$YEDEK_S3_HEDEF/wal"
-fi
 echo "taban-yedek: tamam ($damga)"
