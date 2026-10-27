@@ -15,3 +15,4 @@ export * as politika from "./politika.ts";
 export * as rapor from "./rapor.ts";
 export type { Sayfa, SayfaGirdisi } from "./semalar.ts";
 export * as semalar from "./semalar.ts";
+export * as toplanti from "./toplanti/index.ts";
