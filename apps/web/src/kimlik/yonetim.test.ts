@@ -76,6 +76,23 @@ describe("davet akışı", () => {
     expect(sonuc.filter((x) => x.status === "fulfilled")).toHaveLength(1);
     const b = await istekBaglami(o.k, istek("/", { kavanoz: ek }));
     expect(b.kisi.atamalar).toHaveLength(1);
+    // Kaybeden istek veritabanı hatası değil, anlaşılır "bulunamadı" alır.
+    const red = sonuc.find((x) => x.status === "rejected") as PromiseRejectedResult;
+    expect(red.reason).toMatchObject({ durum: 404 });
+
+    // Var olan üyeye ikinci davet: tekillik kısıtı korumaz, sahiplenme korur (İP-27, dalga 2 #7).
+    const d2 = await davetOlustur(o.k, yonetici, {
+      adSoyad: "Deneme Eşzamanlı",
+      eposta: "eszamanli@a.ornek.edu.tr",
+      rol: "ogretim_elemani",
+      kapsam: { tur: "program", id: o.a.programId },
+    });
+    const ikinci = await Promise.allSettled([
+      davetKabulEt(o.k, istek("/", { kavanoz: ek }), d2.belirtec),
+      davetKabulEt(o.k, istek("/", { kavanoz: ek }), d2.belirtec),
+    ]);
+    expect(ikinci.filter((x) => x.status === "fulfilled")).toHaveLength(1);
+    expect((await istekBaglami(o.k, istek("/", { kavanoz: ek }))).kisi.atamalar).toHaveLength(2);
   });
 
   it("değerlendirici süresiz davet edilemez; süreli davetle salt okunur ve süre sonunda erişemez", async () => {
