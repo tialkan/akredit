@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@akredit/cekirdek": "workspace:*",
+    "@akredit/surec": "workspace:*",
     "@akredit/vt": "workspace:*",
     "@akredit/yetki": "workspace:*",
     "drizzle-orm": "^0.45.4",
