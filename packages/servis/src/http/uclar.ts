@@ -6,6 +6,7 @@ import { z } from "zod";
 import * as akademik from "../akademik.ts";
 import type { ServisBaglami } from "../baglam.ts";
 import * as kanit from "../kanit.ts";
+import * as onay from "../onay/index.ts";
 import * as oneri from "../oneri.ts";
 import * as panel from "../panel.ts";
 import * as politika from "../politika.ts";
@@ -88,6 +89,28 @@ export const UCLAR: Uc[] = [
     sorgu: s.SayfaGirdisi,
     cikti: s.sayfaSemasi(s.OneriGorunumu),
     isle: (b, g) => oneri.bekleyenOneriler(b, g.sorgu as s.SayfaGirdisi),
+  },
+  {
+    ad: "bekleyenSayisi",
+    yontem: "GET",
+    yol: "/oneriler/sayac",
+    ozet: "Karar bekleyen öneri sayısı (etkin riske göre)",
+    eylem: "oneri.oku",
+    cikti: z.object({
+      toplam: z.number(),
+      risk: z.object({ dusuk: z.number(), orta: z.number(), yuksek: z.number() }),
+    }),
+    isle: (b) => onay.bekleyenSayisi(b),
+  },
+  {
+    ad: "insanDakikasi",
+    yontem: "GET",
+    yol: "/olcum/insan-dakikasi",
+    ozet: "İnsan dakikası ve karar oranları (kişi ve süreç bazında; pilot raporu için)",
+    eylem: "gunluk.oku",
+    sorgu: onay.OlcumGirdisi,
+    cikti: onay.OlcumRaporu,
+    isle: (b, g) => onay.insanDakikasiRaporu(b, g.sorgu),
   },
   {
     ad: "kararlar",
