@@ -151,9 +151,11 @@ function dersSayfasiCozHam(html: string): BolognaDersSayfasi {
     .filter((r) => r.length >= 4 && sayi(r[3]) !== null && !/Toplam|Total|AKTS|ECTS/i.test(r[0] ?? ""))
     .map((r) => ({ ad: r[0] ?? "", sayi: sayi(r[1]), sure: sayi(r[2]), toplam: sayi(r[3]) }));
   // Canlı Proliz sayfasında (EBYÜ, 2026-10-27) alan yüzdesi tablosu başlıksızdır: ["Sosyal Bilimler", "%100", ""].
-  const dersYapisi = (t.find((x) => x.some((r) => /Alan Bilgisi|Field/i.test(r[0] ?? ""))) ??
+  const dersYapisi = (
+    t.find((x) => x.some((r) => /Alan Bilgisi|Field/i.test(r[0] ?? ""))) ??
     t.find((x) => x.length > 0 && x.every((r) => r.length >= 2 && YUZDE.test(r[1] ?? ""))) ??
-    [])
+    []
+  )
     .filter((r) => r.length >= 2 && /%/.test(r[1] ?? ""))
     .map((r) => ({ alan: r[0] ?? "", yuzde: sayi(r[1]) }));
   const ciktiTablosu = bul(/Sıra No|No.*A[cç]ıklama|Description/i) ?? [];

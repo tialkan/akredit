@@ -1,13 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { sahteBaglam } from "../avesis/test/sahte.ts";
-import {
-  ARAMA_ADRESI,
-  aramaGovdesi,
-  aramaYanitiCoz,
-  programIstatistikleriniOku,
-  YOKATLAS_KOSULU,
-} from "./yokatlas.ts";
+import { ARAMA_ADRESI, aramaGovdesi, aramaYanitiCoz, programIstatistikleriniOku, YOKATLAS_KOSULU } from "./yokatlas.ts";
 
 // 2026-10-27 canlı yanıttan tek kayıt (kosulList çıkarılmış). Kurum ve program bilgisi herkese açıktır.
 const kayitli = readFileSync(new URL("./test/fixtures/yokatlas-arama-ebyu-hukuk.json", import.meta.url), "utf8");
@@ -41,7 +35,9 @@ describe("YÖK Atlas JSON ayrıştırma", () => {
 
   it("beklenmeyen yanıtta anlaşılır hata verir", () => {
     expect(() => aramaYanitiCoz({ hata: 1 })).toThrow(/beklenen biçimde değil/);
-    expect(() => aramaYanitiCoz({ content: [{ kilavuzKodu: 1, yil: 2026, minPuan: "abc" }], totalElements: 1 })).toThrow();
+    expect(() =>
+      aramaYanitiCoz({ content: [{ kilavuzKodu: 1, yil: 2026, minPuan: "abc" }], totalElements: 1 }),
+    ).toThrow();
   });
 
   it("istek gövdesi", () => {

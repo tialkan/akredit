@@ -140,7 +140,9 @@ export function kayittanIstatistik(ham: unknown): ProgramIstatistigi {
 export function aramaYanitiCoz(ham: unknown): { programlar: ProgramIstatistigi[]; toplam: number } {
   const r = AramaYanitiSemasi.safeParse(ham);
   if (!r.success)
-    throw new BaglayiciHatasi("YÖK Atlas yanıtı beklenen biçimde değil; kaynak değişmiş olabilir. Daha sonra yeniden deneyin.");
+    throw new BaglayiciHatasi(
+      "YÖK Atlas yanıtı beklenen biçimde değil; kaynak değişmiş olabilir. Daha sonra yeniden deneyin.",
+    );
   return { programlar: r.data.content.map(kayittanIstatistik), toplam: r.data.totalElements };
 }
 

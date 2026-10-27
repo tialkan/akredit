@@ -85,7 +85,9 @@ describe("Bologna canlı yapı (EBYÜ, 2026-10-27)", () => {
     // biome-ignore lint/suspicious/noExplicitAny: CLI modülünün tipi yok
     const c: any = await import(new URL("../../../apps/cli/lib/bologna.mjs", import.meta.url).href);
     const html = fixture("ders-1106285.html");
-    expect(JSON.parse(JSON.stringify(c.dersSayfasiCoz(html)))).toEqual(JSON.parse(JSON.stringify(dersSayfasiCoz(html))));
+    expect(JSON.parse(JSON.stringify(c.dersSayfasiCoz(html)))).toEqual(
+      JSON.parse(JSON.stringify(dersSayfasiCoz(html))),
+    );
     expect(c.epostaAyikla("a@b.co")).toBe(EPOSTA_YERINE);
   });
 
