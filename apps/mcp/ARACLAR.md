@@ -136,8 +136,6 @@ Kanıta dayalı bir öneri yazar. Öneri onaylanmış sayılmaz: yetkili kişini
         "eylem",
         "bologna_taslagi",
         "matris_katkisi",
-        "soru_cikti_eslemesi",
-        "rapor_bolumu",
         "olgunluk_duzeyi",
         "yazma_plani"
       ],
