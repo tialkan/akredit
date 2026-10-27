@@ -2,7 +2,13 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   ARASTIRMA_ALANLARI_NOTU,
-  AVESIS_KOSULU, avesisPaneliOku, avesisProfiliOku, avesisSayfaCoz, turBul, yilBul } from "./avesis.ts";
+  AVESIS_KOSULU,
+  avesisPaneliOku,
+  avesisProfiliOku,
+  avesisSayfaCoz,
+  turBul,
+  yilBul,
+} from "./avesis.ts";
 import { adresDenetle, BaglayiciHatasi, sinirlayici } from "./istek.ts";
 import { sahteBaglam } from "./test/sahte.ts";
 
@@ -37,7 +43,11 @@ describe("AVESİS ayrıştırma (canlı yapı, 2026-10-27)", () => {
       dizinler: ["sci_ssci_ahci", "sci_ssci_ahci_esci", "scopus"],
       yol: "/yayin/00000000-0000-4000-8000-000000000001/kurgu-makale-basligi",
     });
-    expect(p.etkinlikler[1]).toMatchObject({ baslik: "İkinci Kurgu Makale & Deneme", yil: 2022, dizinler: ["trdizin"] });
+    expect(p.etkinlikler[1]).toMatchObject({
+      baslik: "İkinci Kurgu Makale & Deneme",
+      yil: 2022,
+      dizinler: ["trdizin"],
+    });
     expect(p.etkinlikler[2]).toMatchObject({
       tur: "bildiri",
       bolum: "Hakemli Bilimsel Toplantılarda Yayımlanmış Bildiriler",
@@ -109,9 +119,7 @@ describe("AVESİS okuma", () => {
       },
       sayfaHtml: async (a: string) => {
         olaylar.push(`sayfa ${a}`);
-        return a.endsWith("/panel")
-          ? profilHtml
-          : yayinlarHtml;
+        return a.endsWith("/panel") ? profilHtml : yayinlarHtml;
       },
     };
     const r = await avesisPaneliOku(oturum, "https://avesis.ornek.edu.tr/panel", ["/panel/tez"], s.baglam);

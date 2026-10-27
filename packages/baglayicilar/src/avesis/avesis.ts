@@ -78,8 +78,7 @@ const betiksiz = (html: string) => html.replace(/<(script|style)\b[\s\S]*?<\/\1\
 const sinif = (ad: string) => String.raw`class="(?:[^"]*\s)?${ad}(?:\s[^"]*)?"`;
 const ic = (etiket: string, ad: string, bayrak = "i") =>
   new RegExp(String.raw`<${etiket}\b[^>]*${sinif(ad)}[^>]*>([\s\S]*?)<\/${etiket}>`, bayrak);
-const bol = (html: string, ad: string) =>
-  html.split(new RegExp(String.raw`(?=<div\b[^>]*${sinif(ad)})`, "i")).slice(1);
+const bol = (html: string, ad: string) => html.split(new RegExp(String.raw`(?=<div\b[^>]*${sinif(ad)})`, "i")).slice(1);
 
 /** "1.234" → 1234; sayı değilse null. */
 function metrikSayisi(s: string): number | null {
@@ -107,7 +106,17 @@ function yayinlariCoz(temiz: string): AvesisEtkinligi[] {
         .filter((x) => x && x !== "other");
       const yol = o.match(/<h3\b[^>]*>[\s\S]*?<a\b[^>]*href="(\/yayin\/[^"]+)"/i)?.[1] ?? null;
       sonuc.push(
-        AvesisEtkinlikSemasi.parse({ tur, baslik: baslik.slice(0, 1000), yil: yilBul(atif), bolum, yazarlar, dergi, atif, dizinler, yol }),
+        AvesisEtkinlikSemasi.parse({
+          tur,
+          baslik: baslik.slice(0, 1000),
+          yil: yilBul(atif),
+          bolum,
+          yazarlar,
+          dergi,
+          atif,
+          dizinler,
+          yol,
+        }),
       );
     }
   }
