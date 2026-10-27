@@ -25,6 +25,8 @@ const PORT = Number(process.env.E2E_PORT ?? 3107);
 // Önce `pnpm build`; testler derlenmiş uygulamaya karşı çalışır.
 export default defineConfig({
   testDir: "./e2e",
+  // Görünüm bileşenleri testte Node ESM ile yüklenir; "next/link" gibi uzantısız yollar buradan çözülür.
+  tsconfig: "./e2e/tsconfig.json",
   fullyParallel: true,
   reporter: [["list"]],
   use: { baseURL: `http://127.0.0.1:${PORT}`, locale: "tr-TR", trace: "off", launchOptions: { executablePath } },

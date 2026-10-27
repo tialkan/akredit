@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { BosDurum } from "../../../bilesenler/temel.tsx";
+import { BosDurum, SayfaBasligi } from "../../../bilesenler/temel.tsx";
 import { hataBilgisi, type PortalBaglami, portalBaglami } from "./portal.ts";
 import { servisBaglami } from "./sunucu.ts";
 
@@ -9,10 +9,13 @@ export async function portalAc(): Promise<{ p: PortalBaglami } | { durum: ReactN
   if (!b)
     return {
       durum: (
-        <BosDurum
-          baslik="Değerlendirici portalı bu sürümde kapalı"
-          aciklama="Portal yalnız kurumun gerçek kayıtlarıyla çalışır. Örnek veriyle gösterilmez."
-        />
+        <>
+          <SayfaBasligi baslik="Değerlendirici portalı" />
+          <BosDurum
+            baslik="Değerlendirici portalı bu sürümde kapalı"
+            aciklama="Portal yalnız kurumun gerçek kayıtlarıyla çalışır. Örnek veriyle gösterilmez."
+          />
+        </>
       ),
     };
   try {
@@ -20,10 +23,15 @@ export async function portalAc(): Promise<{ p: PortalBaglami } | { durum: ReactN
   } catch (e) {
     const h = hataBilgisi(e);
     if (!h) throw e;
-    return { durum: <BosDurum baslik="Erişim yok" aciklama={h.ileti} /> };
+    return {
+      durum: (
+        <>
+          <SayfaBasligi baslik="Değerlendirici portalı" />
+          <BosDurum baslik="Erişim yok" aciklama={h.ileti} />
+        </>
+      ),
+    };
   }
 }
 
-export function tarihYaz(d: Date | string): string {
-  return new Intl.DateTimeFormat("tr-TR", { dateStyle: "long", timeZone: "Europe/Istanbul" }).format(new Date(d));
-}
+export { tarihYaz } from "./gorunum.tsx";
