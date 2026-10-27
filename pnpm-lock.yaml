@@ -265,6 +265,9 @@ importers:
       '@akredit/cekirdek':
         specifier: workspace:*
         version: link:../cekirdek
+      '@akredit/surec':
+        specifier: workspace:*
+        version: link:../surec
       '@akredit/vt':
         specifier: workspace:*
         version: link:../vt
