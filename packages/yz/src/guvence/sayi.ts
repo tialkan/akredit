@@ -62,10 +62,7 @@ const BIRLER: Record<string, number> = {
 };
 const CARPANLAR: Record<string, number> = { yüz: 100, bin: 1000, milyon: 1e6, milyar: 1e9 };
 const SOZCUK = [...Object.keys(BIRLER), ...Object.keys(CARPANLAR)].join("|");
-const YAZIYLA = new RegExp(
-  `(?<![\\p{L}])(yüzde\\s+)?((?:(?:${SOZCUK})\\s+)*(?:${SOZCUK}))(?![\\p{L}])`,
-  "giu",
-);
+const YAZIYLA = new RegExp(`(?<![\\p{L}])(yüzde\\s+)?((?:(?:${SOZCUK})\\s+)*(?:${SOZCUK}))(?![\\p{L}])`, "giu");
 
 /** "iki yüz elli" → 250; "bin dokuz yüz" → 1900. Çözülemezse null. */
 export function yaziylaSayiCoz(ham: string): number | null {

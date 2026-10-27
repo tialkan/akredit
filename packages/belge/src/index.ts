@@ -28,6 +28,7 @@ import { XmlHatasi } from "./xml.ts";
 import { GuvenlikHatasi, VARSAYILAN_ZIP, type ZipSinirlari, zipAc } from "./zip.ts";
 
 export type * from "./turler.ts";
+export { crc32, zipCrcUyusmayanlar } from "./zip.ts";
 
 const VARSAYILAN_BOYUT = 100 * 1024 * 1024;
 const VARSAYILAN_ZAMAN = 30_000;
