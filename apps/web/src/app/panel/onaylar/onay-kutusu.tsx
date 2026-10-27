@@ -7,6 +7,7 @@
 import { etkinRisk, ONERI_RISKI, type OneriId, type RiskDuzeyi } from "@akredit/cekirdek";
 import { Check, FileText, Keyboard, Pencil, Wand2, X } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Dugme } from "../../../bilesenler/dugme.tsx";
 import { IletisimKutusu, useBildirim } from "../../../bilesenler/etkilesimli.tsx";
@@ -53,16 +54,26 @@ export function OnayKutusu({
   const [sonKararSayisi, setSonKararSayisi] = useState(0);
   const [hazir, setHazir] = useState(false);
   const satirlar = useRef<Map<OneriId, HTMLElement>>(new Map());
+  const router = useRouter();
+  // İnsan dakikası (İP-13): son karardan (ya da sayfa açılışından) bu yana ekranda geçen süre. Bir saatten
+  // uzun ara ölçüme alınmaz (kişi ekran başında değildi).
+  const sonEylem = useRef(Date.now());
+  const sureAl = () => {
+    const ms = Date.now() - sonEylem.current;
+    sonEylem.current = Date.now();
+    return ms >= 0 && ms <= 3_600_000 ? Math.round(ms) : undefined;
+  };
 
+  // Kenar çubuğundaki bekleyen sayacı sunucuda hesaplanır: karardan sonra yerleşim yeniden çizilir.
   const yenile = useCallback(async () => {
     setOneriler(await kaynak.bekleyenOneriler());
-    setSonKararSayisi((await kaynak.kararlar()).length);
-  }, [kaynak]);
+    router.refresh();
+  }, [kaynak, router]);
 
   useEffect(() => {
     setHazir(true);
-    void yenile();
-  }, [yenile]);
+    void kaynak.bekleyenOneriler().then(setOneriler);
+  }, [kaynak]);
 
   const gruplar = useMemo(() => riskeGoreGrupla(oneriler, etkinRisk), [oneriler]);
   const sirali = useMemo(() => gruplar.flatMap((g) => g.ogeler), [gruplar]);
@@ -83,13 +94,15 @@ export function OnayKutusu({
     sonuc: "onaylandi" | "duzeltildi" | "reddedildi",
     ek: { duzeltme?: string; gerekce?: string } = {},
   ) => {
-    const s = await kaynak.kararVer({ oneriId: o.id, sonuc, ...ek });
+    const sureMs = sureAl();
+    const s = await kaynak.kararVer({ oneriId: o.id, sonuc, ...ek, ...(sureMs !== undefined ? { sureMs } : {}) });
     if (!s.tamam) {
       bildir(s.hata, "hata");
       return;
     }
     const metin = { onaylandi: "Onaylandı", duzeltildi: "Düzeltilerek onaylandı", reddedildi: "Reddedildi" }[sonuc];
     bildir(`${metin}: ${o.icerik.baslik}`, "basari");
+    setSonKararSayisi((n) => n + 1);
     setSecili((s) => {
       const y = new Set(s);
       y.delete(o.id);
@@ -100,12 +113,13 @@ export function OnayKutusu({
 
   const topluOnayla = async () => {
     const idler = [...secili];
-    const s = await kaynak.topluKararVer(idler);
+    const s = await kaynak.topluKararVer(idler, sureAl());
     if (!s.tamam) {
       bildir(s.hata, "hata");
       return;
     }
     bildir(`${s.deger.length} öneri onaylandı.`, "basari");
+    setSonKararSayisi((n) => n + s.deger.length);
     setSecili(new Set());
     await yenile();
   };
@@ -205,9 +219,13 @@ export function OnayKutusu({
                     onClick={() => {
                       setSecili(new Set(grupSecili.map((o) => o.id)));
                       void (async () => {
-                        const s = await kaynak.topluKararVer(grupSecili.map((o) => o.id));
+                        const s = await kaynak.topluKararVer(
+                          grupSecili.map((o) => o.id),
+                          sureAl(),
+                        );
                         if (!s.tamam) return bildir(s.hata, "hata");
                         bildir(`${s.deger.length} öneri onaylandı.`, "basari");
+                        setSonKararSayisi((n) => n + s.deger.length);
                         setSecili(new Set());
                         await yenile();
                       })();

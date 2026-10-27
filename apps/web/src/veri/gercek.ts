@@ -134,8 +134,10 @@ export class ServisVeriKaynagi implements VeriKaynagi {
       tur<Awaited<ReturnType<typeof oneri.kararVer>>>(await oneri.kararVer(this.#b, girdi)),
     ) as ReturnType<VeriKaynagi["kararVer"]>;
   }
-  topluKararVer(oneriIdleri: Parameters<VeriKaynagi["topluKararVer"]>[0]) {
-    return sonuc(() => oneri.topluKararVer(this.#b, { oneriIdleri })) as ReturnType<VeriKaynagi["topluKararVer"]>;
+  topluKararVer(oneriIdleri: Parameters<VeriKaynagi["topluKararVer"]>[0], sureMs?: number) {
+    return sonuc(() =>
+      oneri.topluKararVer(this.#b, { oneriIdleri, ...(sureMs !== undefined ? { sureMs } : {}) }),
+    ) as ReturnType<VeriKaynagi["topluKararVer"]>;
   }
   politikaTaslagiOlustur(girdi: Parameters<VeriKaynagi["politikaTaslagiOlustur"]>[0]) {
     return sonuc(() => politika.politikaTaslagiOlustur(this.#b, girdi)) as Promise<IslemSonucu<PolitikaKaydi>>;
