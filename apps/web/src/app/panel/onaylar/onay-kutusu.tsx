@@ -12,7 +12,7 @@ import { Dugme } from "../../../bilesenler/dugme.tsx";
 import { IletisimKutusu, useBildirim } from "../../../bilesenler/etkilesimli.tsx";
 import { IsaretKutusu, MetinAlani, UzunMetinAlani } from "../../../bilesenler/form.tsx";
 import { BosDurum, RiskRozeti, Rozet } from "../../../bilesenler/temel.tsx";
-import { veriKaynagi } from "../../../veri/bellek.ts";
+import { istemciVeriKaynagi } from "../../../veri/istemci.ts";
 import type { OneriGorunumu, PolitikaKaydi } from "../../../veri/kaynak.ts";
 import {
   KISAYOLLAR,
@@ -40,7 +40,7 @@ export function OnayKutusu({
   ilkOneriler: OneriGorunumu[];
   kanitAdlari: Record<string, string>;
 }) {
-  const kaynak = veriKaynagi();
+  const kaynak = istemciVeriKaynagi();
   const bildir = useBildirim();
   const [oneriler, setOneriler] = useState(ilkOneriler);
   const [secili, setSecili] = useState<Set<OneriId>>(new Set());
@@ -477,7 +477,7 @@ function AtifListesi({
 }
 
 function PolitikaKutusu({ oneri, kapat }: { oneri: OneriGorunumu | null; kapat: () => void }) {
-  const kaynak = veriKaynagi();
+  const kaynak = istemciVeriKaynagi();
   const bildir = useBildirim();
   const [ad, setAd] = useState("");
   const [guven, setGuven] = useState("90");

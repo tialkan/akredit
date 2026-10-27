@@ -113,6 +113,11 @@ export class BellekVeriKaynagi implements VeriKaynagi {
     return { kanit, parcalar: PARCALAR.filter((p) => p.kanitId === id) };
   }
 
+  async kanitHattiOzeti() {
+    // Örnek veride kanıt hattı çalışmaz; örnek kanıtlar işlenmiş sayılır.
+    return { sayac: { isleniyor: 0, tamam: KANITLAR.length, hata: 0, ocr_bekliyor: 0, kisisel_veri: 0 } };
+  }
+
   async programlar() {
     return PROGRAMLAR;
   }

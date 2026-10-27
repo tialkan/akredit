@@ -1,20 +1,22 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { KirintiYolu, Rozet, SayfaBasligi } from "../../../../bilesenler/temel.tsx";
-import { veriKaynagi } from "../../../../veri/bellek.ts";
-import { boyutYaz, tarihYaz } from "../../../../veri/yardimci.ts";
+import { GERCEK_VERI, panelVeriKaynagi } from "../../../../veri/sunucu.ts";
+import { boyutYaz, islemeMetni, tarihYaz } from "../../../../veri/yardimci.ts";
 
 export async function generateStaticParams() {
-  return (await veriKaynagi().kanitlar()).map((k) => ({ id: k.id }));
+  // Gerçek veride sayfalar istek anında, oturumdaki kişinin yetkisiyle üretilir.
+  if (GERCEK_VERI) return [];
+  return (await (await panelVeriKaynagi()).kanitlar()).map((k) => ({ id: k.id }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
-  const a = await veriKaynagi().kanit((await params).id);
+  const a = await (await panelVeriKaynagi()).kanit((await params).id);
   return { title: a?.kanit.baslik ?? "Kanıt" };
 }
 
 export default async function KanitSayfasi({ params }: { params: Promise<{ id: string }> }) {
-  const ayrinti = await veriKaynagi().kanit((await params).id);
+  const ayrinti = await (await panelVeriKaynagi()).kanit((await params).id);
   if (!ayrinti) notFound();
   const { kanit, parcalar } = ayrinti;
   return (
@@ -60,6 +62,12 @@ export default async function KanitSayfasi({ params }: { params: Promise<{ id: s
               <dt className="font-semibold">Eklenme</dt>
               <dd>{tarihYaz(kanit.eklenme)}</dd>
             </div>
+            {kanit.isleme ? (
+              <div>
+                <dt className="font-semibold">İşleme durumu</dt>
+                <dd>{islemeMetni(kanit.isleme)}</dd>
+              </div>
+            ) : null}
             <div>
               <dt className="font-semibold">Boyut</dt>
               <dd>{boyutYaz(kanit.boyut)}</dd>
