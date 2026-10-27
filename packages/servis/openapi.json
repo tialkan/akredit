@@ -4837,6 +4837,1500 @@
         }
       }
     },
+    "/api/v1/bologna/programlar/{id}/okumalar": {
+      "post": {
+        "operationId": "bolognaOku",
+        "summary": "Programın Bologna sayfalarını oku (ya da okunmuş veriyi yükle) ve kanıt olarak kaydet",
+        "x-akredit-yetki": "kanit.yukle",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Aynı anahtarla tekrarlanan istek yeniden işlenmez, ilk yanıt döner.",
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 200
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "adres": {
+                    "type": "string",
+                    "maxLength": 2000,
+                    "format": "uri"
+                  },
+                  "veri": {
+                    "type": "object",
+                    "properties": {
+                      "adres": {
+                        "type": "string",
+                        "maxLength": 2000
+                      },
+                      "okundu": {
+                        "type": "string",
+                        "maxLength": 40
+                      },
+                      "programCiktilari": {
+                        "maxItems": 60,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "kod": {
+                              "type": "string",
+                              "maxLength": 20
+                            },
+                            "metin": {
+                              "type": "string",
+                              "maxLength": 20000
+                            }
+                          },
+                          "required": ["kod", "metin"]
+                        }
+                      },
+                      "matris": {
+                        "type": "object",
+                        "properties": {
+                          "pkodlar": {
+                            "maxItems": 60,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "maxLength": 20
+                            }
+                          },
+                          "dersler": {
+                            "maxItems": 500,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "kod": {
+                                  "type": "string",
+                                  "maxLength": 40
+                                },
+                                "ad": {
+                                  "type": "string",
+                                  "maxLength": 300
+                                },
+                                "zorunlu": {
+                                  "type": "boolean"
+                                },
+                                "grup": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "maxLength": 200
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "yariyil": {
+                                  "type": ["number", "null"]
+                                },
+                                "grupBasligi": {
+                                  "type": "boolean"
+                                },
+                                "degerler": {
+                                  "type": "object",
+                                  "propertyNames": {
+                                    "type": "string"
+                                  },
+                                  "additionalProperties": {
+                                    "type": "string",
+                                    "maxLength": 5
+                                  }
+                                }
+                              },
+                              "required": ["kod", "ad", "zorunlu", "grup", "yariyil", "grupBasligi", "degerler"]
+                            }
+                          }
+                        },
+                        "required": ["pkodlar", "dersler"]
+                      },
+                      "tyycIsaret": {
+                        "type": ["number", "null"]
+                      },
+                      "dersler": {
+                        "maxItems": 500,
+                        "type": "array",
+                        "items": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "kod": {
+                                  "type": "string",
+                                  "maxLength": 40
+                                },
+                                "zorunlu": {
+                                  "type": "boolean"
+                                },
+                                "bos": {
+                                  "type": "boolean"
+                                },
+                                "kaynak": {
+                                  "type": "string",
+                                  "maxLength": 2000
+                                },
+                                "yariyil": {
+                                  "type": ["number", "null"]
+                                },
+                                "ad": {
+                                  "type": "string",
+                                  "maxLength": 300
+                                },
+                                "tul": {
+                                  "type": "string",
+                                  "maxLength": 20
+                                },
+                                "kredi": {
+                                  "type": ["number", "null"]
+                                },
+                                "akts": {
+                                  "type": ["number", "null"]
+                                },
+                                "guncelleme": {
+                                  "type": "string",
+                                  "maxLength": 40
+                                },
+                                "bilgiler": {
+                                  "type": "object",
+                                  "propertyNames": {
+                                    "type": "string",
+                                    "maxLength": 200
+                                  },
+                                  "additionalProperties": {
+                                    "type": "string",
+                                    "maxLength": 20000
+                                  }
+                                },
+                                "degerlendirme": {
+                                  "maxItems": 50,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "ad": {
+                                        "type": "string",
+                                        "maxLength": 200
+                                      },
+                                      "sayi": {
+                                        "type": ["number", "null"]
+                                      },
+                                      "katki": {
+                                        "type": ["number", "null"]
+                                      }
+                                    },
+                                    "required": ["ad", "sayi", "katki"]
+                                  }
+                                },
+                                "isyuku": {
+                                  "maxItems": 50,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "ad": {
+                                        "type": "string",
+                                        "maxLength": 200
+                                      },
+                                      "sayi": {
+                                        "type": ["number", "null"]
+                                      },
+                                      "sure": {
+                                        "type": ["number", "null"]
+                                      },
+                                      "toplam": {
+                                        "type": ["number", "null"]
+                                      }
+                                    },
+                                    "required": ["ad", "sayi", "sure", "toplam"]
+                                  }
+                                },
+                                "dersYapisi": {
+                                  "maxItems": 30,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "alan": {
+                                        "type": "string",
+                                        "maxLength": 200
+                                      },
+                                      "yuzde": {
+                                        "type": ["number", "null"]
+                                      }
+                                    },
+                                    "required": ["alan", "yuzde"]
+                                  }
+                                },
+                                "ciktilar": {
+                                  "maxItems": 40,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "kod": {
+                                        "type": "string",
+                                        "maxLength": 20
+                                      },
+                                      "metin": {
+                                        "type": "string",
+                                        "maxLength": 20000
+                                      }
+                                    },
+                                    "required": ["kod", "metin"]
+                                  }
+                                },
+                                "haftalar": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 30
+                                },
+                                "katki": {
+                                  "type": "object",
+                                  "propertyNames": {
+                                    "type": "string"
+                                  },
+                                  "additionalProperties": {
+                                    "type": "object",
+                                    "propertyNames": {
+                                      "type": "string"
+                                    },
+                                    "additionalProperties": {
+                                      "type": "string",
+                                      "maxLength": 5
+                                    }
+                                  }
+                                }
+                              },
+                              "required": [
+                                "kod",
+                                "zorunlu",
+                                "bos",
+                                "kaynak",
+                                "yariyil",
+                                "kredi",
+                                "akts",
+                                "bilgiler",
+                                "degerlendirme",
+                                "isyuku",
+                                "dersYapisi",
+                                "ciktilar",
+                                "haftalar",
+                                "katki"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "kod": {
+                                  "type": "string",
+                                  "maxLength": 40
+                                },
+                                "hata": {
+                                  "type": "string",
+                                  "maxLength": 2000
+                                }
+                              },
+                              "required": ["kod", "hata"]
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    "required": ["adres", "okundu", "programCiktilari", "matris", "tyycIsaret", "dersler"]
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Başarılı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "kanitId": {
+                      "type": "string"
+                    },
+                    "ozet": {
+                      "type": "string"
+                    },
+                    "yeni": {
+                      "type": "boolean"
+                    },
+                    "dersSayisi": {
+                      "type": "number"
+                    },
+                    "okunamayan": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": ["kanitId", "ozet", "yeni", "dersSayisi", "okunamayan"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Girdi geçersiz",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Oturum ya da API anahtarı yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Yetki yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Kayıt yok ya da başka kuruma ait",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Çakışma (ör. öneriye zaten karar verilmiş)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Kural ihlali (ör. yüksek riskli öneri toplu onaylanamaz)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Çok fazla istek",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bologna/programlar/{id}/denetim": {
+      "get": {
+        "operationId": "bolognaDenetimi",
+        "summary": "Programdaki derslerin toplu Bologna denetimi ve önceki okumayla karşılaştırma",
+        "x-akredit-yetki": "olcme.oku",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Başarılı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "programId": {
+                      "type": "string"
+                    },
+                    "okuma": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kanitId": {
+                              "type": "string"
+                            },
+                            "okundu": {
+                              "type": "string"
+                            }
+                          },
+                          "required": ["kanitId", "okundu"],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "oncekiOkuma": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kanitId": {
+                              "type": "string"
+                            },
+                            "okundu": {
+                              "type": "string"
+                            }
+                          },
+                          "required": ["kanitId", "okundu"],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "bulgular": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "duzey": {
+                            "type": "string",
+                            "enum": ["hata", "uyari", "bilgi"]
+                          },
+                          "kural": {
+                            "type": "string"
+                          },
+                          "konu": {
+                            "type": "string"
+                          },
+                          "aciklama": {
+                            "type": "string"
+                          }
+                        },
+                        "required": ["duzey", "kural", "aciklama"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "dersler": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "kod": {
+                            "type": "string"
+                          },
+                          "once": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "hata": {
+                                    "type": "number"
+                                  },
+                                  "uyari": {
+                                    "type": "number"
+                                  }
+                                },
+                                "required": ["hata", "uyari"],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "sonra": {
+                            "type": "object",
+                            "properties": {
+                              "hata": {
+                                "type": "number"
+                              },
+                              "uyari": {
+                                "type": "number"
+                              }
+                            },
+                            "required": ["hata", "uyari"],
+                            "additionalProperties": false
+                          },
+                          "degisim": {
+                            "type": "string",
+                            "enum": ["iyilesti", "kotulesti", "ayni", "yeni"]
+                          }
+                        },
+                        "required": ["kod", "once", "sonra", "degisim"],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": ["programId", "okuma", "oncekiOkuma", "bulgular", "dersler"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Girdi geçersiz",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Oturum ya da API anahtarı yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Yetki yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Kayıt yok ya da başka kuruma ait",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Çakışma (ör. öneriye zaten karar verilmiş)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Kural ihlali (ör. yüksek riskli öneri toplu onaylanamaz)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Çok fazla istek",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bologna/taslaklar": {
+      "post": {
+        "operationId": "bolognaTaslagiUret",
+        "summary": "Hocanın beyanı ve Bologna okumasından atıflı ders paketi taslağı üret (onay kutusuna öneri düşer)",
+        "x-akredit-yetki": "olcme.veri_gir",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Aynı anahtarla tekrarlanan istek yeniden işlenmez, ilk yanıt döner.",
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 200
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "dersId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "beyan": {
+                    "type": "string",
+                    "maxLength": 4000
+                  }
+                },
+                "required": ["dersId"],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Başarılı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "oneriId": {
+                      "type": "string"
+                    },
+                    "taslak": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {}
+                    },
+                    "denetim": {
+                      "type": "object",
+                      "properties": {
+                        "bulgular": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "duzey": {
+                                "type": "string",
+                                "enum": ["hata", "uyari", "bilgi"]
+                              },
+                              "kural": {
+                                "type": "string"
+                              },
+                              "konu": {
+                                "type": "string"
+                              },
+                              "aciklama": {
+                                "type": "string"
+                              }
+                            },
+                            "required": ["duzey", "kural", "aciklama"],
+                            "additionalProperties": false
+                          }
+                        },
+                        "hata": {
+                          "type": "number"
+                        },
+                        "uyari": {
+                          "type": "number"
+                        },
+                        "isToplam": {
+                          "type": "number"
+                        },
+                        "hedef": {
+                          "type": "number"
+                        }
+                      },
+                      "required": ["bulgular", "hata", "uyari", "isToplam", "hedef"],
+                      "additionalProperties": false
+                    },
+                    "fark": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "alan": {
+                            "type": "string"
+                          },
+                          "neden": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "required": ["alan", "neden"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "tur": {
+                      "type": "number"
+                    },
+                    "atifSorunlari": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "alan": {
+                            "type": "string"
+                          },
+                          "aciklama": {
+                            "type": "string"
+                          }
+                        },
+                        "required": ["alan", "aciklama"],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": ["oneriId", "taslak", "denetim", "fark", "tur", "atifSorunlari"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Girdi geçersiz",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Oturum ya da API anahtarı yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Yetki yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Kayıt yok ya da başka kuruma ait",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Çakışma (ör. öneriye zaten karar verilmiş)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Kural ihlali (ör. yüksek riskli öneri toplu onaylanamaz)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Çok fazla istek",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bologna/dersler/{id}/gecmis": {
+      "get": {
+        "operationId": "bolognaGecmisi",
+        "summary": "Dersin taslak geçmişi: kararlar, değişen alanlar ve nedenleri",
+        "x-akredit-yetki": "oneri.oku",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Başarılı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "oneriId": {
+                        "type": "string"
+                      },
+                      "zaman": {
+                        "type": "string"
+                      },
+                      "karar": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": ["onaylandi", "duzeltildi", "reddedildi"]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "kararZamani": {
+                        "type": ["string", "null"]
+                      },
+                      "hata": {
+                        "type": "number"
+                      },
+                      "uyari": {
+                        "type": "number"
+                      },
+                      "fark": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "alan": {
+                              "type": "string"
+                            },
+                            "neden": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": ["alan", "neden"],
+                          "additionalProperties": false
+                        }
+                      },
+                      "yazmaPlaniId": {
+                        "type": ["string", "null"]
+                      }
+                    },
+                    "required": ["oneriId", "zaman", "karar", "kararZamani", "hata", "uyari", "fark", "yazmaPlaniId"],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Girdi geçersiz",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Oturum ya da API anahtarı yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Yetki yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Kayıt yok ya da başka kuruma ait",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Çakışma (ör. öneriye zaten karar verilmiş)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Kural ihlali (ör. yüksek riskli öneri toplu onaylanamaz)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Çok fazla istek",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bologna/taslaklar/{id}/yazma-plani": {
+      "post": {
+        "operationId": "bolognaYazmaPlani",
+        "summary": "Onaylı ve hatasız taslaktan OBS yazma planı önerisi aç (ayrıca insan onayı ister)",
+        "x-akredit-yetki": "olcme.veri_gir",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Aynı anahtarla tekrarlanan istek yeniden işlenmez, ilk yanıt döner.",
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 200
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "adres": {
+                    "type": "string",
+                    "maxLength": 2000,
+                    "format": "uri"
+                  }
+                },
+                "required": ["adres"],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Başarılı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "oneriId": {
+                      "type": "string"
+                    },
+                    "alanSayisi": {
+                      "type": "number"
+                    }
+                  },
+                  "required": ["oneriId", "alanSayisi"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Girdi geçersiz",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Oturum ya da API anahtarı yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Yetki yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Kayıt yok ya da başka kuruma ait",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Çakışma (ör. öneriye zaten karar verilmiş)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Kural ihlali (ör. yüksek riskli öneri toplu onaylanamaz)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Çok fazla istek",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bologna/yazma-planlari/{id}/baslat": {
+      "post": {
+        "operationId": "bolognaYazmaBaslat",
+        "summary": "Onaylı yazma planını al (alan alan ve kopyalanabilir). Onaysız ya da süresi dolmuş planla çalışmaz.",
+        "x-akredit-yetki": "olcme.veri_gir",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Aynı anahtarla tekrarlanan istek yeniden işlenmez, ilk yanıt döner.",
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 200
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Başarılı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "oneriId": {
+                      "type": "string"
+                    },
+                    "dersKodu": {
+                      "type": "string"
+                    },
+                    "adres": {
+                      "type": "string"
+                    },
+                    "alanlar": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "sekme": {
+                            "type": "string"
+                          },
+                          "alan": {
+                            "type": "string"
+                          },
+                          "deger": {
+                            "type": "string"
+                          },
+                          "kaynak": {
+                            "type": "string"
+                          }
+                        },
+                        "required": ["sekme", "alan", "deger", "kaynak"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "kopyalanabilir": {
+                      "type": "string"
+                    },
+                    "onaylayan": {
+                      "type": "string"
+                    },
+                    "onayZamani": {
+                      "type": "string"
+                    },
+                    "gecerlilikSonu": {
+                      "type": "string"
+                    },
+                    "sonAdim": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "oneriId",
+                    "dersKodu",
+                    "adres",
+                    "alanlar",
+                    "kopyalanabilir",
+                    "onaylayan",
+                    "onayZamani",
+                    "gecerlilikSonu",
+                    "sonAdim"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Girdi geçersiz",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Oturum ya da API anahtarı yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Yetki yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Kayıt yok ya da başka kuruma ait",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Çakışma (ör. öneriye zaten karar verilmiş)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Kural ihlali (ör. yüksek riskli öneri toplu onaylanamaz)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Çok fazla istek",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bologna/yazma-planlari/{id}/bitir": {
+      "post": {
+        "operationId": "bolognaYazmaBitir",
+        "summary": "Yazmanın sonucunu günlüğe yaz",
+        "x-akredit-yetki": "olcme.veri_gir",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Aynı anahtarla tekrarlanan istek yeniden işlenmez, ilk yanıt döner.",
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 200
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sonuc": {
+                    "type": "string",
+                    "enum": ["tamamlandi", "yarim_kaldi", "vazgecildi"]
+                  },
+                  "not": {
+                    "type": "string",
+                    "maxLength": 1000
+                  }
+                },
+                "required": ["sonuc"],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Başarılı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "tamam": {
+                      "type": "boolean",
+                      "const": true
+                    }
+                  },
+                  "required": ["tamam"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Girdi geçersiz",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Oturum ya da API anahtarı yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Yetki yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Kayıt yok ya da başka kuruma ait",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Çakışma (ör. öneriye zaten karar verilmiş)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Kural ihlali (ör. yüksek riskli öneri toplu onaylanamaz)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Çok fazla istek",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/gunluk": {
       "get": {
         "operationId": "gunluk",
