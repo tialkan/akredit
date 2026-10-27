@@ -13,7 +13,10 @@ export async function generateStaticParams() {
   return (await (await panelVeriKaynagi()).programlar()).map((p) => ({ id: p.id }));
 }
 
-export const metadata: Metadata = { title: "Program" };
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const x = await (await panelVeriKaynagi()).program((await params).id);
+  return { title: x ? `${x.ad} · Program` : "Program" };
+}
 
 function hucreStili(seviye: number): { background: string; color: string } {
   if (seviye <= 0) return { background: "var(--isi-0)", color: "var(--metin)" };
