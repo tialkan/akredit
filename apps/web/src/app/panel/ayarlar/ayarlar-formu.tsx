@@ -9,9 +9,15 @@ import { Kart, Rozet } from "../../../bilesenler/temel.tsx";
 import { istemciVeriKaynagi } from "../../../veri/istemci.ts";
 import type { Ayarlar, YzSaglayici } from "../../../veri/kaynak.ts";
 import { ONERI_TURU_ETIKETI, RISK_ETIKETI, tarihYaz } from "../../../veri/yardimci.ts";
+import { YzAnahtari } from "./yz-anahtari.tsx";
 
 const SAGLAYICILAR: { deger: YzSaglayici; ad: string; aciklama: string }[] = [
   { deger: "evren", ad: "EVREN", aciklama: "Yurt içinde barındırılan hizmet." },
+  {
+    deger: "openrouter",
+    ad: "OpenRouter (kurumun kendi anahtarıyla)",
+    aciklama: "Yurt dışındadır. Yalnız aşağıdaki izin açıksa ve veriler maskelenerek kullanılır.",
+  },
   { deger: "kurum_sunucusu", ad: "Kurumun kendi sunucusu", aciklama: "Veri kurumdan çıkmaz." },
   { deger: "ollama", ad: "Ollama (yerel model)", aciklama: "Model kurumun bilgisayarında çalışır." },
   { deger: "diger", ad: "Diğer", aciklama: "Yurt dışında olabilir; aşağıdaki izin ayarına uyulur." },
@@ -136,6 +142,7 @@ export function AyarlarFormu({ ilk }: { ilk: Ayarlar }) {
             </div>
           </div>
         </div>
+        <YzAnahtari ayarlar={ayarlar} degisti={setAyarlar} />
       </Kart>
 
       <Kart baslik="Yetki politikaları" className="xl:col-span-2">

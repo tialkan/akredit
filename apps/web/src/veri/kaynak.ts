@@ -131,7 +131,22 @@ export interface SurecGorevi {
   ilgili: string;
 }
 
-export type YzSaglayici = "evren" | "kurum_sunucusu" | "ollama" | "diger";
+export type YzSaglayici = "evren" | "openrouter" | "kurum_sunucusu" | "ollama" | "diger";
+
+/** Kayıtlı anahtarın özeti; anahtarın kendisi istemciye hiç gelmez. */
+export interface YzAnahtarOzeti {
+  saglayici: "openrouter";
+  son4: string;
+  model: string;
+  kayitZamani: IsoZaman;
+  kaydeden: string;
+}
+
+export interface BaglantiSonucu {
+  tamam: boolean;
+  ileti: string;
+  model: string;
+}
 
 export interface PolitikaKaydi {
   id: string;
@@ -149,6 +164,7 @@ export interface Ayarlar {
   kurumKisaAdi: string;
   yzSaglayici: YzSaglayici;
   yurtDisiIzni: boolean;
+  yzAnahtar: YzAnahtarOzeti | null;
   politikalar: PolitikaKaydi[];
 }
 
@@ -206,4 +222,8 @@ export interface VeriKaynagi {
   ayarlariGuncelle(
     degisiklik: Partial<Pick<Ayarlar, "yzSaglayici" | "yurtDisiIzni" | "kurumAdi" | "kurumKisaAdi">>,
   ): Promise<Ayarlar>;
+  /** Anahtar sunucuda şifrelenir; dönen ayarlarda yalnız son dört karakteri vardır. */
+  yzAnahtariKaydet(anahtar: string, model?: string): Promise<IslemSonucu<Ayarlar>>;
+  yzAnahtariKaldir(): Promise<IslemSonucu<Ayarlar>>;
+  yzBaglantiDene(): Promise<IslemSonucu<BaglantiSonucu>>;
 }

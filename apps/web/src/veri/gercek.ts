@@ -15,6 +15,7 @@ import {
 } from "@akredit/servis";
 import type {
   Ayarlar,
+  BaglantiSonucu,
   Ders,
   IslemSonucu,
   KanitAyrintisi,
@@ -125,7 +126,14 @@ export class ServisVeriKaynagi implements VeriKaynagi {
     // Ayarları görme yetkisi olmayan kişi için kurum adı yine gösterilir, politikalar boş kalır.
     const a = await yoksaBos(() => politika.ayarlar(this.#b));
     return tur<Ayarlar>(
-      a ?? { kurumAdi: "", kurumKisaAdi: "", yzSaglayici: "kurum_sunucusu", yurtDisiIzni: false, politikalar: [] },
+      a ?? {
+        kurumAdi: "",
+        kurumKisaAdi: "",
+        yzSaglayici: "kurum_sunucusu",
+        yurtDisiIzni: false,
+        yzAnahtar: null,
+        politikalar: [],
+      },
     );
   }
 
@@ -147,5 +155,16 @@ export class ServisVeriKaynagi implements VeriKaynagi {
   }
   async ayarlariGuncelle(degisiklik: Parameters<VeriKaynagi["ayarlariGuncelle"]>[0]) {
     return tur<Ayarlar>(await politika.ayarlariGuncelle(this.#b, degisiklik));
+  }
+  yzAnahtariKaydet(anahtar: string, model?: string) {
+    return sonuc(() => politika.yzAnahtariKaydet(this.#b, { anahtar, ...(model ? { model } : {}) })) as Promise<
+      IslemSonucu<Ayarlar>
+    >;
+  }
+  yzAnahtariKaldir() {
+    return sonuc(() => politika.yzAnahtariKaldir(this.#b)) as Promise<IslemSonucu<Ayarlar>>;
+  }
+  yzBaglantiDene() {
+    return sonuc(() => politika.yzBaglantiDene(this.#b)) as Promise<IslemSonucu<BaglantiSonucu>>;
   }
 }
