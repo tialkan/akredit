@@ -1,0 +1,32 @@
+# Bağımsız inceleme: 3. dalga (İP-12…22, 24…26, 29, 31, 33)
+
+Tarih: 2026-10-27. Dal: `inceleme/dalga-3`. Yöntem: kod doğrudan okundu (servis, panel, işçi, MCP, CLI, altyapı), testler çalıştırıldı, yazar raporlarına dayanılmadı. Öncelik değişmez ilkelerdeydi.
+
+## Düzeltilenler (testle kanıtlı; testler düzeltmeden önce başarısızdı)
+
+1. **Yüksek — Tutanak taslağına kayıtta olmayan tarih/sayı girebiliyordu (servis/toplantı, ilke 2).** `kayitKarariTasiyorMu` yalnız ≥4 harfli kelimelerin %70'ine bakıyor; modelin karar adayına eklediği tarih ("01.03.2027") ve kısa sayılar sayılmadığından aday kabul ediliyor, `tarihBul` uydurma tarihi eylemin `hedefTarih`ine yazıyordu. Düzeltme: `sayilarKaynaktaMi` — karardaki her sayı atıf yerinde de geçmeli. Test: `tutanak.test.ts` "uydurma sayı ve tarih".
+2. **Yüksek — Değerlendirici portalında geçerli atıflı cümledeki uydurma sayı yanıta giriyordu (web/portal, ilke 2).** `soruSor` yalnız atıf denetliyordu; "2026 yılında 14 kez toplandı, katılım %87 [K:… geçerli]" yanıtı `gecerli: true` dönüyordu. Düzeltme: yanıt `sayilariDenetle`den geçer; dayanaksız sayı varsa yanıt EKSİK olur. Test: `portal.test.ts` "geçerli atıflı cümledeki uydurma sayı yanıta girmez".
+3. **Orta — Oturum kapanınca onay listesi önbelleği temizlenmiyordu (İP-33 açık kalemi, kiracı/kişi sızıntısı).** Servis çalışanı çevrim dışıyken önceki kişinin önbelleğe alınmış listesini (öneri başlıkları, metinler) aynı cihazdaki sonraki kişiye gösterebiliyordu. Düzeltme: (a) `sign-out` yanıtına `Clear-Site-Data: "cache"` (`cikisYanitiniSertlestir`, kimlik rotası); (b) servis çalışanı liste ucu 401/403/yönlendirme dönünce önbelleği siler; (c) `{tur:"oturum-kapandi"}` iletisiyle silme. Test: `oturum-kapanis.test.ts` (servis çalışanı kaynağı sahte `caches`/`fetch` ile çalıştırılır).
+4. **Orta — CLI aktarım paketinde sütun adı yoluyla SQL sokulabiliyordu (İP-24, HTTP/dosya girdisi doğrulaması).** `paketAc` satır anahtarlarını SQL'e ad olarak ekliyordu; paket özeti imza değil, herkes geçerli paket üretebilir. `"kod) SELECT ? UNION SELECT name FROM sqlite_master --"` anahtarı yerel veritabanına keyfî satır yazdırıyordu. Düzeltme: anahtarlar `PRAGMA table_info` ile tablonun gerçek sütunlarına karşı sınanır, tablo dizi değilse ret. Test: `apps/cli/test/aktarim-enjeksiyon.test.mjs`.
+
+## Açık bulgular (önem sırasıyla)
+
+1. **Yüksek — Üretimde web, işçi ve postgres-exporter veritabanına süper kullanıcıyla bağlanıyor (infra/uretim, ilke 4 ve kiracı yalıtımı).** `docker-compose.yml` üç hizmete de `POSTGRES_USER` (kapsayıcının süper kullanıcısı) adresini veriyor. `kiraciIslemi` içinde `set local role akredit_uygulama` RLS'yi uygular, ama işlem dışındaki her sorgu (API anahtarı arama, Better Auth tabloları, işçi kurum listesi) RLS'siz çalışır; süper kullanıcı yalnız-ekleme tetikleyicilerini `ALTER TABLE … DISABLE TRIGGER` ile kapatabilir, `GRANT SELECT, INSERT` koruması da hiç işlemez. `baglanti.ts` yorumu bunun tersini varsayıyor. Öneri: init betiğinde `NOSUPERUSER NOBYPASSRLS` ayrı oturum rolleri (web/işçi: `akredit_uygulama` üyesi + kimlik tablolarına dar yetki; göç: `akredit_sahip`; exporter: `pg_monitor`), göç sonrasında `GRANT`. Docker olmadan doğrulanamadığı için düzeltilmedi; İP-27'de öncelikli.
+2. **Orta — MCP öneri aracı ders dosyası ve eşleme akışını bozabilir.** `oneri_olustur` `soru_cikti_eslemesi` ve `rapor_bolumu` türünü `{baslik, metin}` içerikle ders hedefine yazabiliyor. `ders-dosyasi` en yeni eşleme önerisini alıp `EslemeIcerigi` ile ayrıştırıyor; MCP önerisi en yeni olunca onaylı eşleme görünmez, rapor üretimi "eşleme onaylanmadı" der. Uydurma sayı rapora girmiyor (ayrıştırma başarısız), ama hizmet engellenebiliyor. Öneri: bu iki türü MCP'den çıkarmak ya da servis tarafında yalnız `ureticiTuru: kural` kayıtlarını seçmek.
+3. **Orta — MCP `oneri_olustur` kurum düzeyi kanıta hedeflenen öneriyi "bulunamadı" diye reddeder.** `hedefVeKonum` kapsamsız kanıt için `kurum` hedefi döndürüyor, araç bunu "çözülemedi" sayıyor. İşlevsel hata.
+4. **Orta — Gösterge panosu yalnız örnek veriyle çalışıyor (İP-21).** `apps/web/src/app/panel/gostergeler/ornek.ts` uydurma veri; `elle` kaynak türü `kanitId` istiyor (iyi), ama gerçek veri yolu (vt `gosterge_olcumu`) yok. Bağlanınca elle girilen değerin kanıtı onaylı kanıt mı diye denetlenmeli.
+5. **Düşük — KİDR, BİDR bölüm metnini denetimsiz aktarıyor.** `kidrBolumleri` birim metnini "olduğu gibi" alıyor; BİDR bölümü insan düzeltmesiyle değiştirildiyse içindeki sayı `cumleDenetle`den geçmeden KİDR'ye girer. İnsan metni olduğundan ilke 2 ihlali değil, ama ÖDR'deki denetimle tutarlı değil.
+6. **Düşük — Portal soru/yanıtı günlüğe tam metin yazılıyor.** Soru ve model yanıtı `gunluk.ayrinti`de; kişisel veri içerebilir (ilke 7). Maskeleme ya da özet önerilir.
+7. **Düşük — Bologna taslağında değerlendirme yüzdeleri ve iş yükü saatleri modelden gelebilir.** Öneri orta riskli, politikayla onaylanabilir. Plan içeriği olduğu için olgu sayılmaz, ama politikada `bologna_taslagi` için güven/insan şartı önerilir.
+8. **Düşük — ÖDR sayı denetimi atıflı kanıtın dosya adı ve onay tarihindeki rakamları izinli sayar.** Adı "2023-anket-120-kisi.pdf" olan kanıta atıf yapan cümle "120" yazabilir.
+
+### Önceki dalgalardan durum
+
+- Dalga 1: #1 kişi kiracı denetimi (0005 `kisi_kurumu_denetle`), #2 politika kapsamı (0006), #3 iptal (politika servisi), #6 günlük aktörü (servis bağlamı), #7 gerçek API kuralları — **kapandı**. #4 yazıyla sayı ("beş toplantı") ve #5 sabit hat telefon maskesi — **açık**.
+- Dalga 2: #3 gitleaks (`.gitleaks.toml` var) — **kapandı**. #1 SSO hesap bağlama (`trustedProviders` hâlâ), #2 çerçeve başlık doğrulama durumu, #4 ZIP CRC, #5 S3 409, #6 SigV4 boşluk, #7 davet atomikliği (okuma `isNull(kabulZamani)` ile ama sahiplenme `UPDATE … RETURNING` değil), #9 SAML XSW/nonce testleri — **açık**. #8 imaj sabitleme İP-26'da `imaj-sabitle.sh` ile kısmen ele alınmış; CI eylemleri doğrulanmadı.
+
+Denetlenip sorun bulunmayanlar: karar yalnız oturumla (`insanKarari`), toplu onayda yüksek risk reddi, e-posta bağlantısı (HMAC, tek kullanım, yüksek risk üç katmanda reddi, GET karar vermez), politika motoru (yüksek risk atlanır, imzalayan yetkisi karar anında), MCP yasak eylemler ve araç listesinde karar/imza/gönderim yok, MCP köken denetimi, HTTP gövde/sorgu doğrulaması (işleyici + servis içinde yeniden `parse`), ÖDR onay önerisi `yuksek` riskli, olgunluk düzeyi önerisi rubrik ve kanıt şartlı ve yüksek riskli.
+
+## Durum
+
+`pnpm verify` temiz. Yeni testler: servis +2, web +4, cli +2. Göç gerekmedi.
