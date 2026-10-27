@@ -51,7 +51,8 @@ services:
     environment:
       NODE_ENV: production
       AKREDIT_ADRES: ${AKREDIT_ADRES:?}
-      AKREDIT_VT_ADRES: postgres://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@vt:5432/${POSTGRES_DB:?}
+      # Süper kullanıcı değil: akredit_oturum üyesi (İP-27, postgres/02-uygulama-kullanicilari.sh).
+      AKREDIT_VT_ADRES: postgres://${UYGULAMA_VT_KULLANICI:?}:${UYGULAMA_VT_PAROLA:?}@vt:5432/${POSTGRES_DB:?}
       AKREDIT_ONAY_GIZLI: ${AKREDIT_ONAY_GIZLI:?}
       AKREDIT_ANKET_GIZLI: ${AKREDIT_ANKET_GIZLI:?}
       S3_UC_NOKTASI: ${S3_UC_NOKTASI:-}
@@ -75,7 +76,8 @@ services:
     tmpfs: [/tmp]
     environment:
       NODE_ENV: production
-      AKREDIT_VT_ADRES: postgres://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@vt:5432/${POSTGRES_DB:?}
+      # Süper kullanıcı değil: akredit_oturum üyesi (İP-27, postgres/02-uygulama-kullanicilari.sh).
+      AKREDIT_VT_ADRES: postgres://${UYGULAMA_VT_KULLANICI:?}:${UYGULAMA_VT_PAROLA:?}@vt:5432/${POSTGRES_DB:?}
       S3_UC_NOKTASI: ${S3_UC_NOKTASI:-}
       S3_BOLGE: ${S3_BOLGE:-}
       S3_KOVA: ${S3_KOVA:-}
@@ -116,11 +118,16 @@ services:
       POSTGRES_INITDB_ARGS: --data-checksums
       YEDEK_KULLANICI: ${YEDEK_KULLANICI:?}
       YEDEK_PAROLA: ${YEDEK_PAROLA:?}
+      UYGULAMA_VT_KULLANICI: ${UYGULAMA_VT_KULLANICI:?}
+      UYGULAMA_VT_PAROLA: ${UYGULAMA_VT_PAROLA:?}
+      IZLEME_VT_KULLANICI: ${IZLEME_VT_KULLANICI:?}
+      IZLEME_VT_PAROLA: ${IZLEME_VT_PAROLA:?}
     volumes:
       - vt-veri:/var/lib/postgresql/data
       - arsiv:/arsiv
       - ./postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro
       - ./postgres/01-yedek-kullanici.sh:/docker-entrypoint-initdb.d/01-yedek-kullanici.sh:ro
+      - ./postgres/02-uygulama-kullanicilari.sh:/docker-entrypoint-initdb.d/02-uygulama-kullanicilari.sh:ro
       - ./yedek:/yedek:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
@@ -235,7 +242,7 @@ services:
     <<: [*gunluk, *guvenli]
     image: ${PG_EXPORTER_IMAJI:?}
     environment:
-      DATA_SOURCE_NAME: postgresql://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@vt:5432/${POSTGRES_DB:?}?sslmode=disable
+      DATA_SOURCE_NAME: postgresql://${IZLEME_VT_KULLANICI:?}:${IZLEME_VT_PAROLA:?}@vt:5432/${POSTGRES_DB:?}?sslmode=disable
     networks: [gozlem, arka]
 
   # Durum sayfası (durum.akredit.org) ve dışarıdan erişim denetimi.
