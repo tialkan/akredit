@@ -11,6 +11,7 @@
   },
   "type": "module",
   "bin": {
+    "akredit": "bin/akreddit",
     "akreddit": "bin/akreddit"
   },
   "engines": {
