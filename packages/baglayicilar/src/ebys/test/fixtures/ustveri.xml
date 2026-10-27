@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Kurgu örnek: sayı, konu ve tarih uydurmadır. Öğe adları resmî rehberden DOĞRULANMADI. -->
+<tipler:CT_Ustveri xmlns:tipler="urn:ornek:eyazisma:kurgu">
+  <tipler:Tarih>2025-03-14T10:15:00+03:00</tipler:Tarih>
+  <tipler:BelgeNo>E-99999999-100-123456</tipler:BelgeNo>
+  <tipler:GuvenlikKodu>TSD</tipler:GuvenlikKodu>
+  <tipler:Konu><![CDATA[Kurgu Bölümü Danışma Kurulu & Toplantı Tutanağı]]></tipler:Konu>
+</tipler:CT_Ustveri>

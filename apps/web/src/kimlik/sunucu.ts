@@ -66,6 +66,18 @@ async function hesapAcilabilirMi(db: Vt, eposta: string, simdi: Date): Promise<b
   return davetler.some((d) => d.son.getTime() > simdi.getTime());
 }
 
+/** E-postanın alan adı sağlayıcının alan adlarından biri ya da onun alt alan adı mı? */
+export function epostaAlanAdiUyarMi(eposta: string, alanAdlari: string): boolean {
+  const e = eposta.toLowerCase().split("@");
+  const alan = e.length === 2 ? e[1] : undefined;
+  if (!alan) return false;
+  return alanAdlari
+    .split(",")
+    .map((x) => x.trim().toLowerCase())
+    .filter(Boolean)
+    .some((d) => alan === d || alan.endsWith(`.${d}`));
+}
+
 function istemciIp(basliklar: Headers | undefined): string | null {
   const x = basliklar?.get("x-forwarded-for");
   return x?.split(",")[0]?.trim() || basliklar?.get("x-real-ip") || null;
@@ -75,6 +87,22 @@ export function kimlikSunucusuOlustur(s: KimlikSecenekleri) {
   const { db, ayar } = s;
   const simdi = s.simdi ?? (() => new Date());
   const kayitci: Kayitci = s.kayitci ?? (() => {});
+  const ssoAlanlari = new Map(ayar.ssoSaglayicilari.map((x) => [x.providerId, x.domain]));
+
+  /**
+   * Kurumsal sağlayıcı yalnız kendi alan adındaki e-postalar için kimlik bildirebilir. Aksi hâlde bir kurumun
+   * kimlik sağlayıcısı başka kurumun üyesinin e-postasını bildirip onun üyeliğine bağlanabilirdi.
+   */
+  async function ssoAlanAdiGecerliMi(kullaniciId: string, eposta: string): Promise<boolean> {
+    const hesaplar = await db
+      .select({ saglayici: sema.kimlikHesap.providerId })
+      .from(sema.kimlikHesap)
+      .where(eq(sema.kimlikHesap.userId, kullaniciId));
+    return hesaplar.every((h) => {
+      const alan = ssoAlanlari.get(h.saglayici);
+      return alan === undefined || epostaAlanAdiUyarMi(eposta, alan);
+    });
+  }
 
   const auth = betterAuth({
     appName: "Akredit",
@@ -125,7 +153,12 @@ export function kimlikSunucusuOlustur(s: KimlikSecenekleri) {
     databaseHooks: {
       user: {
         create: {
-          before: async (kullanici) => {
+          before: async (kullanici, baglam) => {
+            const saglayici = (baglam?.params as { providerId?: string } | undefined)?.providerId;
+            if (saglayici !== undefined) {
+              const alan = ssoAlanlari.get(saglayici);
+              if (alan === undefined || !epostaAlanAdiUyarMi(kullanici.email, alan)) return false;
+            }
             // Davet ya da içe aktarma olmadan hesap açılmaz (kayıt herkese açık değildir).
             if (!(await hesapAcilabilirMi(db, kullanici.email, simdi()))) return false;
             return { data: { ...kullanici, email: kullanici.email.toLowerCase() } };
@@ -134,6 +167,13 @@ export function kimlikSunucusuOlustur(s: KimlikSecenekleri) {
       },
       session: {
         create: {
+          before: async (oturum) => {
+            const [kullanici] = await db
+              .select({ eposta: sema.kimlikKullanici.email })
+              .from(sema.kimlikKullanici)
+              .where(eq(sema.kimlikKullanici.id, oturum.userId));
+            if (!kullanici || !(await ssoAlanAdiGecerliMi(oturum.userId, kullanici.eposta))) return false;
+          },
           after: async (oturum, baglam) => {
             const [kullanici] = await db
               .select()
