@@ -12,6 +12,7 @@ import {
 } from "@akredit/cekirdek";
 import type {
   Ayarlar,
+  BaglantiSonucu,
   IslemSonucu,
   KanitAyrintisi,
   KanitFiltresi,
@@ -230,6 +231,37 @@ export class BellekVeriKaynagi implements VeriKaynagi {
   ) {
     this.#ayarlar = { ...this.#ayarlar, ...degisiklik };
     return this.ayarlar();
+  }
+
+  /** Önizleme: anahtar saklanmaz, yalnız son dört karakteri tutulur. */
+  async yzAnahtariKaydet(anahtar: string, model?: string): Promise<IslemSonucu<Ayarlar>> {
+    const a = anahtar.trim();
+    if (!/^sk-or-[A-Za-z0-9_-]{16,200}$/.test(a))
+      return { tamam: false, hata: "Bu bir OpenRouter anahtarına benzemiyor. Anahtar sk-or- ile başlar." };
+    this.#ayarlar = {
+      ...this.#ayarlar,
+      yzSaglayici: "openrouter",
+      yzAnahtar: {
+        saglayici: "openrouter",
+        son4: a.slice(-4),
+        model: model || "openrouter/auto",
+        kayitZamani: new Date().toISOString() as Ayarlar["politikalar"][number]["olusturma"],
+        kaydeden: ORNEK_KULLANICI.ad,
+      },
+    };
+    return { tamam: true, deger: await this.ayarlar() };
+  }
+  async yzAnahtariKaldir(): Promise<IslemSonucu<Ayarlar>> {
+    this.#ayarlar = { ...this.#ayarlar, yzAnahtar: null };
+    return { tamam: true, deger: await this.ayarlar() };
+  }
+  async yzBaglantiDene(): Promise<IslemSonucu<BaglantiSonucu>> {
+    const k = this.#ayarlar.yzAnahtar;
+    if (!k) return { tamam: false, hata: "Kayıtlı anahtar yok. Önce anahtarı girin." };
+    return {
+      tamam: true,
+      deger: { tamam: false, ileti: "Bu bir önizlemedir; gerçek bağlantı denenmedi.", model: k.model },
+    };
   }
 }
 

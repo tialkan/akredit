@@ -212,7 +212,28 @@ export const SurecGorevi = z.object({
   durum: z.enum(["bekliyor", "devam", "tamam"]),
   ilgili: z.string(),
 });
-export const YzSaglayici = z.enum(["evren", "kurum_sunucusu", "ollama", "diger"]);
+export const YzSaglayici = z.enum(["evren", "openrouter", "kurum_sunucusu", "ollama", "diger"]);
+/** Kayıtlı anahtarın ekranda gösterilen özeti. Anahtarın kendisi hiçbir yanıtta yer almaz. */
+export const YzAnahtarOzeti = z.object({
+  saglayici: z.literal("openrouter"),
+  son4: z.string(),
+  model: z.string(),
+  kayitZamani: IsoZaman,
+  kaydeden: z.string(),
+});
+export const YzAnahtarGirdisi = z
+  .object({
+    anahtar: z.string().trim().min(1, "Anahtarı yapıştırın.").max(300),
+    model: z
+      .string()
+      .trim()
+      .min(1)
+      .max(120)
+      .regex(/^[A-Za-z0-9._:/-]+$/u, "Model adı geçersiz.")
+      .optional(),
+  })
+  .strict();
+export const BaglantiSonucu = z.object({ tamam: z.boolean(), ileti: z.string(), model: z.string() });
 export const PolitikaKaydi = z.object({
   id: z.string(),
   ad: z.string(),
@@ -234,6 +255,7 @@ export const Ayarlar = z.object({
   kurumKisaAdi: z.string(),
   yzSaglayici: YzSaglayici,
   yurtDisiIzni: z.boolean(),
+  yzAnahtar: YzAnahtarOzeti.nullable(),
   politikalar: z.array(PolitikaKaydi),
 });
 export const PanelOzeti = z.object({

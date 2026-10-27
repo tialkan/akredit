@@ -248,6 +248,40 @@ describe("politika ve ayarlar", () => {
     expect(await hataKodu(politika.ayarlariGuncelle(y, { bilinmeyen: 1 }))).toBe("zod");
   });
 
+  it("yz anahtarı: şifreli saklanır, yanıtta ve günlükte görünmez; bağlantı denemesi sahte ağla", async () => {
+    const { saglayiciAnahtarKasasi } = await import("@akredit/yz");
+    const kasa = saglayiciAnahtarKasasi(new Uint8Array(32).fill(3));
+    // Uydurma anahtar; gerçek değildir.
+    const ANAHTAR = "sk-or-v1-uydurmauydurmauydurma9876";
+    const y = await o.baglam(o.a, o.a.yonetici);
+    expect(await hataKodu(politika.yzAnahtariKaydet(y, { anahtar: ANAHTAR }, null))).toBe("kural_ihlali");
+    expect(await hataKodu(politika.yzAnahtariKaydet(y, { anahtar: "sk-proj-1" }, kasa))).toBe("gecersiz_istek");
+    const a = await politika.yzAnahtariKaydet(y, { anahtar: ANAHTAR }, kasa);
+    expect(a.yzSaglayici).toBe("openrouter");
+    expect(a.yzAnahtar).toMatchObject({ son4: "9876", model: "openrouter/auto" });
+    expect(JSON.stringify(a)).not.toContain("uydurma");
+    const g = await sonGunluk(o.a.kurumId);
+    expect(g).toMatchObject({ eylem: "kurum.yz_anahtari_kaydedildi" });
+    expect(JSON.stringify(g)).not.toContain("uydurma");
+    expect(JSON.stringify(g)).not.toContain("9876");
+    const [k] = await o.db.select().from(sema.kurum).where(eq(sema.kurum.id, o.a.kurumId));
+    expect(JSON.stringify(k?.ayarlar)).not.toContain("uydurma");
+
+    let giden = "";
+    const sahte = async (_u: string | URL | Request, i?: RequestInit) => {
+      giden = String((i?.headers as Record<string, string>)?.authorization ?? "");
+      return new Response(JSON.stringify({ choices: [{ message: { content: "t" } }] }), { status: 200 });
+    };
+    expect(await politika.yzBaglantiDene(y, { kasa, fetch: sahte as never })).toMatchObject({ tamam: true });
+    expect(giden).toBe(`Bearer ${ANAHTAR}`);
+    const red = async () => new Response("{}", { status: 401 });
+    expect(await politika.yzBaglantiDene(y, { kasa, fetch: red as never })).toMatchObject({ tamam: false });
+
+    const gz = await o.baglam(o.a, o.a.gozlemci);
+    expect(await hataKodu(politika.yzAnahtariKaydet(gz, { anahtar: ANAHTAR }, kasa))).toBe("yetki_yok");
+    expect((await politika.yzAnahtariKaldir(y)).yzAnahtar).toBeNull();
+  });
+
   it("günlük yalnız gunluk.oku yetkisiyle; zincir sağlam", async () => {
     const l = await panel.gunluk(await o.baglam(o.a, o.a.yonetici), { sinir: 5 });
     expect(l.ogeler.length).toBe(5);
