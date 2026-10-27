@@ -1,6 +1,90 @@
 [
   {
     "kurum": "YÖKAK",
+    "belge": "Değerlendirme Programları Kılavuzu Sürüm 3.3 (2026)",
+    "adres": "https://www.yokak.gov.tr/documents/national-doc/1_Gündem_Değerlendirme Programları Kılavuzu 3.3 (1) (1).pdf",
+    "erisimTarihi": "2026-10-27",
+    "indirildi": true,
+    "dosya": "yokak/yokak-degerlendirme-programlari-kilavuzu-3.3-2026-10-27.pdf",
+    "sha256": "cfa3de9bf3c2ed456502ef6a17378df7ecf8a4ddf78ceafb0773a4aefd8f0dfa",
+    "boyut": 1728851,
+    "durum": "İNDİRİLDİ",
+    "not": "Kullanıcı tarayıcıyla yokak.gov.tr 'Ulusal Değerlendirme Programlarına Ait Dokümanlar' sayfasından indirdi; özet tarayıcıda ve yerelde aynı. Güncel kılavuz. Ek-1 YÖKAK Dereceli Değerlendirme Anahtarı (alt ölçütler, olgunluk düzeyleri, örnek kanıtlar) yokak-kurumsal@3.3 çerçevesine işlendi."
+  },
+  {
+    "kurum": "YÖKAK",
+    "belge": "YÖKAK Değerlendirme Ölçütleri (Sürüm 3.1)",
+    "adres": "https://www.yokak.gov.tr/documents/national-doc/YOKAK_Degerlendirme_Olcutleri_3.1.pdf",
+    "erisimTarihi": "2026-10-27",
+    "indirildi": true,
+    "dosya": "yokak/yokak-degerlendirme-olcutleri-3.1-2026-10-27.pdf",
+    "sha256": "cecefe54ded832d3739e8728bd06b0dc396ea9a6564b9b2cd9a150cf72bb303f",
+    "boyut": 161277,
+    "durum": "İNDİRİLDİ",
+    "not": "Kullanıcı tarayıcıyla yokak.gov.tr 'Ulusal Değerlendirme Programlarına Ait Dokümanlar' sayfasından indirdi; özet tarayıcıda ve yerelde aynı. Ana başlıklar ve 14 ölçüt metni yokak-kurumsal@3.3 çerçevesine işlendi."
+  },
+  {
+    "kurum": "YÖKAK",
+    "belge": "Kurum İç Değerlendirme Raporu Hazırlama Kılavuzu (Sürüm 3.2.1 - 24/01/2025)",
+    "adres": "https://www.yokak.gov.tr/documents/national-doc/KIDR_Hazırlama_Kılavuzu_3.2.1_yeni.pdf",
+    "erisimTarihi": "2026-10-27",
+    "indirildi": true,
+    "dosya": "yokak/yokak-kidr-hazirlama-kilavuzu-3.2.1-2026-10-27.pdf",
+    "sha256": "e6acbc1c4c7563c143f2f341b257793e0274247b523d7bc9ff7d24d3db9c410d",
+    "boyut": 1615301,
+    "durum": "İNDİRİLDİ",
+    "not": "Kullanıcı tarayıcıyla yokak.gov.tr 'Ulusal Değerlendirme Programlarına Ait Dokümanlar' sayfasından indirdi; özet tarayıcıda ve yerelde aynı. Ek-1 şablon bölümleri yokak-kidr@3.2.1 çerçevesine işlendi."
+  },
+  {
+    "kurum": "YÖKAK",
+    "belge": "YÖKAK Değerlendirme Kılavuzu 3.1.1",
+    "adres": "https://www.yokak.gov.tr/documents/national-doc/YOKAK_Degerlendirme_Kilavuzu_3.1.1.pdf",
+    "erisimTarihi": "2026-10-27",
+    "indirildi": true,
+    "dosya": "yokak/yokak-degerlendirme-kilavuzu-3.1.1-2026-10-27.pdf",
+    "sha256": "c51dd842f385d361b0c75cae4b81f2205372a42798016f9b18f71d132ce925bf",
+    "boyut": 1853589,
+    "durum": "İNDİRİLDİ",
+    "not": "Kullanıcı tarayıcıyla yokak.gov.tr 'Ulusal Değerlendirme Programlarına Ait Dokümanlar' sayfasından indirdi; özet tarayıcıda ve yerelde aynı. Önceki kılavuz; yerini 3.3 aldı. Çerçeveye işlenmedi."
+  },
+  {
+    "kurum": "YÖKAK",
+    "belge": "EK-2 Rubrik Değerlendirme Formu (Dereceli Değerlendirme Anahtarı)",
+    "adres": "https://www.yokak.gov.tr/documents/national-doc/EK_2_Rubrik_Degerlendirme_Formu.pdf",
+    "erisimTarihi": "2026-10-27",
+    "indirildi": true,
+    "dosya": "yokak/yokak-ek2-rubrik-degerlendirme-formu-2026-10-27.pdf",
+    "sha256": "28d6d14d35c432015eacc6b9a888843e07e102ed22870be8d9e82b2b0dfa45a1",
+    "boyut": 7370262,
+    "durum": "İNDİRİLDİ",
+    "not": "Kullanıcı tarayıcıyla yokak.gov.tr 'Ulusal Değerlendirme Programlarına Ait Dokümanlar' sayfasından indirdi; özet tarayıcıda ve yerelde aynı. 2020 tabanlı ölçüt yapısına (A.1 Misyon ve Stratejik Amaçlar...) ait rubrik. Çerçeveye işlenmedi; yokak-kurumsal@2020 başlıklarını doğrulamakta kullanılabilir."
+  },
+  {
+    "kurum": "YÖKAK",
+    "belge": "Enstitü Dış Değerlendirme Kılavuzu (29.08.2025)",
+    "adres": "https://www.yokak.gov.tr/documents/national-doc/Enstitu Dis_Degerlendirme_Kılavuzu-29.08.2025.pdf",
+    "erisimTarihi": "2026-10-27",
+    "indirildi": true,
+    "dosya": "yokak/yokak-enstitu-dis-degerlendirme-kilavuzu-2025-08-29.pdf",
+    "sha256": "6e1b2399b966c8cee9e8ebe940884bcb26ffe1b8b0ea17f3c3a843d015ba205a",
+    "boyut": 1027857,
+    "durum": "İNDİRİLDİ",
+    "not": "Kullanıcı tarayıcıyla yokak.gov.tr 'Ulusal Değerlendirme Programlarına Ait Dokümanlar' sayfasından indirdi; özet tarayıcıda ve yerelde aynı. Çerçeveye işlenmedi."
+  },
+  {
+    "kurum": "YÖKAK",
+    "belge": "Uzaktan Eğitimde Kalite Güvencesi Ölçütleri ve Değerlendirme Rehberi (2020)",
+    "adres": "https://www.yokak.gov.tr/documents/national-doc/Uzaktan_Egitimde_Kalite_Guvencesi_Olcutleri_ve_Degerlendirme_Rehberi_2020_web.pdf",
+    "erisimTarihi": "2026-10-27",
+    "indirildi": true,
+    "dosya": "yokak/yokak-uzaktan-egitim-kalite-guvencesi-rehberi-2020.pdf",
+    "sha256": "2eca0ee989af46f7219cf2c035c43084ead35b61ebde274df57cb3e02529195d",
+    "boyut": 1409743,
+    "durum": "İNDİRİLDİ",
+    "not": "Kullanıcı tarayıcıyla yokak.gov.tr 'Ulusal Değerlendirme Programlarına Ait Dokümanlar' sayfasından indirdi; özet tarayıcıda ve yerelde aynı. Çerçeveye işlenmedi."
+  },
+  {
+    "kurum": "YÖKAK",
     "belge": "Alt Ölçütler Rehberi (kapakta 2020)",
     "adres": "https://www.yokak.gov.tr/documents/national-doc/Ek7AltOlcutlerRehberi.pdf",
     "erisimTarihi": "2026-10-27",
@@ -9,28 +93,6 @@
     "sha256": null,
     "durum": "DOĞRULANMADI",
     "not": "Ağ vekili yokak.gov.tr'yi engelledi (403). Kod ve başlıklar web okumasından alındı; kullanıcı dosyayı indirip özetini yazmalı. Güncel sürüm olup olmadığı denetlenmeli."
-  },
-  {
-    "kurum": "YÖKAK",
-    "belge": "Değerlendirme Programları Kılavuzu 3.3",
-    "adres": "https://www.yokak.gov.tr/documents/national-doc/1_Gündem_Değerlendirme Programları Kılavuzu 3.3 (1).pdf",
-    "erisimTarihi": "2026-10-27",
-    "indirildi": false,
-    "dosya": null,
-    "sha256": null,
-    "durum": "DOĞRULANMADI",
-    "not": "Arama sonucunda bulundu, açılamadı. Rubrik (olgunluk düzeyleri) bu ya da güncel kılavuzdan alınmalı."
-  },
-  {
-    "kurum": "YÖKAK",
-    "belge": "Kurum İç Değerlendirme Raporu (KİDR) hazırlama kılavuzu, güncel sürüm",
-    "adres": "https://www.yokak.gov.tr",
-    "erisimTarihi": "2026-10-27",
-    "indirildi": false,
-    "dosya": null,
-    "sha256": null,
-    "durum": "DOĞRULANMADI",
-    "not": "Resmî dosya adresi bulunamadı; kullanıcı YÖKAK sitesinden indirmeli."
   },
   {
     "kurum": "MÜDEK",

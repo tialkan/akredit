@@ -34,13 +34,17 @@ const SAYFALAR = [
 describe("şema", () => {
   it("ilk çerçevelerin hepsi şemaya uyar", () => {
     for (const c of ILK_CERCEVELER) expect(cerceveSemasi.safeParse(c).success).toBe(true);
-    expect(ILK_CERCEVELER).toHaveLength(5);
+    // 2020 tabanlı 2 YÖKAK taslağı + resmî belgeden 2 YÖKAK sürümü + MÜDEK + 2 iç çerçeve.
+    expect(ILK_CERCEVELER).toHaveLength(7);
   });
 
-  it("resmî metinsiz hiçbir resmî ölçüt metin taşımaz", () => {
-    for (const c of ILK_CERCEVELER.filter((x) => x.resmi)) {
+  it("kaynak özeti olmayan resmî çerçevede hiçbir ölçüt metin ya da resmî başlık taşımaz", () => {
+    for (const c of ILK_CERCEVELER.filter((x) => x.resmi && !x.kaynak?.sha256)) {
       expect(c.dogrulandi).toBe(false);
-      for (const o of tumOlcutler(c.olcutler)) expect(o.metin).toBe(DOGRULANMADI);
+      for (const o of tumOlcutler(c.olcutler)) {
+        expect(o.metin).toBe(DOGRULANMADI);
+        expect(o.baslikDurumu).toBe("dogrulanmadi");
+      }
     }
     expect(MUDEK_TASLAK.olcutler).toHaveLength(0);
   });
@@ -55,7 +59,14 @@ describe("şema", () => {
   });
 
   it("doğrulanmamış ölçüt metin taşıyamaz, resmî metin sayfasız olamaz", () => {
-    const temel = { kod: "X", baslik: "x", kaynakSayfa: null, kanitGereksinimleri: [], altOlcutler: [] };
+    const temel = {
+      kod: "X",
+      baslik: "x",
+      baslikDurumu: "dogrulanmadi",
+      kaynakSayfa: null,
+      kanitGereksinimleri: [],
+      altOlcutler: [],
+    };
     expect(olcutSemasi.safeParse({ ...temel, metin: "uydurma", metinDurumu: "dogrulanmadi" }).success).toBe(false);
     expect(olcutSemasi.safeParse({ ...temel, metin: "m", metinDurumu: "resmi" }).success).toBe(false);
   });
@@ -64,6 +75,7 @@ describe("şema", () => {
     const o = {
       kod: "X",
       baslik: "x",
+      baslikDurumu: "resmi",
       metin: "m",
       metinDurumu: "resmi",
       kaynakSayfa: 1,
@@ -75,6 +87,62 @@ describe("şema", () => {
     expect(
       cerceveSemasi.safeParse({ ...YOKAK_KURUMSAL_2020, dogrulandi: true, dogrulayan: "A", dogrulamaZamani: "z" })
         .success,
+    ).toBe(false);
+  });
+
+  it("başlık da kaynak/özet kuralına bağlı (D2-2)", () => {
+    const o = {
+      kod: "X",
+      baslik: "x",
+      baslikDurumu: "resmi",
+      metin: DOGRULANMADI,
+      metinDurumu: "dogrulanmadi",
+      kaynakSayfa: null,
+      kanitGereksinimleri: [],
+      altOlcutler: [],
+    };
+    // Sayfasız resmî başlık reddedilir.
+    expect(olcutSemasi.safeParse(o).success).toBe(false);
+    const sayfali = { ...o, kaynakSayfa: 1 };
+    expect(olcutSemasi.safeParse(sayfali).success).toBe(true);
+    // Özetsiz kaynakta resmî başlık reddedilir.
+    expect(cerceveSemasi.safeParse({ ...MUDEK_TASLAK, olcutler: [sayfali] }).success).toBe(false);
+    // Özetli kaynakta kabul edilir; iç çerçevede resmî başlık olamaz.
+    const ozetli = { ...MUDEK_TASLAK, kaynak: KAYNAK, olcutler: [sayfali] };
+    expect(cerceveSemasi.safeParse(ozetli).success).toBe(true);
+    expect(cerceveSemasi.safeParse({ ...ozetli, resmi: false }).success).toBe(false);
+    // Çerçevede olmayan belgeye bağlı ölçüt reddedilir.
+    expect(cerceveSemasi.safeParse({ ...ozetli, olcutler: [{ ...sayfali, kaynakDosya: "baska.pdf" }] }).success).toBe(
+      false,
+    );
+    // Doğrulanmamış başlıkla resmî metin olmaz; rapor bölümünde sayfasız resmî başlık olmaz.
+    expect(
+      olcutSemasi.safeParse({ ...sayfali, baslikDurumu: "dogrulanmadi", metin: "m", metinDurumu: "resmi" }).success,
+    ).toBe(false);
+    expect(
+      cerceveSemasi.safeParse({
+        ...ozetli,
+        raporSablonu: [{ kod: "1", baslik: "b", baslikDurumu: "resmi", olcutKodlari: [] }],
+      }).success,
+    ).toBe(false);
+  });
+
+  it("olgunluk düzeyleri 1–5 sırayla ve yalnız resmî ölçütte", () => {
+    const o = {
+      kod: "X",
+      baslik: "x",
+      baslikDurumu: "resmi",
+      metin: "m",
+      metinDurumu: "resmi",
+      kaynakSayfa: 1,
+      kanitGereksinimleri: [],
+      altOlcutler: [],
+    };
+    const bes = [1, 2, 3, 4, 5].map((duzey) => ({ duzey, metin: `d${duzey}` }));
+    expect(olcutSemasi.safeParse({ ...o, olgunlukTanimlari: bes }).success).toBe(true);
+    expect(olcutSemasi.safeParse({ ...o, olgunlukTanimlari: bes.slice(1) }).success).toBe(false);
+    expect(
+      olcutSemasi.safeParse({ ...o, metin: DOGRULANMADI, metinDurumu: "dogrulanmadi", olgunlukTanimlari: bes }).success,
     ).toBe(false);
   });
 

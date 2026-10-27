@@ -15,5 +15,8 @@
   "dependencies": {
     "@akredit/cekirdek": "workspace:*",
     "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@akredit/belge": "workspace:*"
   }
 }
