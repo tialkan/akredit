@@ -38,6 +38,9 @@ importers:
       '@akredit/depo':
         specifier: workspace:*
         version: link:../../packages/depo
+      '@akredit/surec':
+        specifier: workspace:*
+        version: link:../../packages/surec
       '@akredit/vt':
         specifier: workspace:*
         version: link:../../packages/vt
