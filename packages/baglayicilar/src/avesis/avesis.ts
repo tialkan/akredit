@@ -1,8 +1,11 @@
 // AVESİS (Akademik Veri Yönetim Sistemi) bağlayıcısı.
-// 1) Herkese açık profil ve etkinlik sayfaları: giriş gerekmez, hız sınırlı okunur.
+// 1) Herkese açık profil ve yayın sayfaları: giriş gerekmez, hız sınırlı okunur.
 // 2) Kimlik doğrulamalı panel: kullanıcı kendi tarayıcısında giriş yapar; bu modül parola, kod ya da çerez almaz,
 //    yalnız tarayıcı ajanının döndürdüğü sayfa HTML'ini aynı ayrıştırıcıdan geçirir.
-// Sayfa yapısı canlı sayfadan doğrulanamadı (ağ erişimi yok); seçiciler esnek tutuldu. DOĞRULANMADI.
+// Yapı 2026-10-27'de canlı sayfadan doğrulandı (kurum: EBYÜ; docs/baglayicilar/canli-dogrulama-2026-10-27/avesis-yapi.md).
+// Profil `/<kullanici>` (h1.title, .metrics-title/.metrics-count), yayınlar `/<kullanici>/yayinlar`
+// (akordeon bölümleri .item-head > span, .pub-item). Araştırma alanları sunucu HTML'inde boş gelir
+// (istemci tarafında POST ile yüklenir); okunmaz, DOĞRULANMADI olarak bildirilir. Kullanım koşulları DOĞRULANMADI.
 
 import { z } from "zod";
 import type { DisBaglam, Kaynak } from "../baglayici.ts";
@@ -12,24 +15,35 @@ import { adresDenetle, BaglayiciHatasi, istek, type KullanimKosulu, sinirlayici 
 export const AVESIS_KOSULU: KullanimKosulu = {
   kaynak: "AVESİS (kurumların akademik veri yönetim sistemi)",
   durum: "DOĞRULANMADI",
-  not: "Herkese açık profil sayfaları okunur. Her kurumun AVESİS kullanım koşulları ve robots.txt kuralları kurum yöneticisince okunup onaylanmadan bağlayıcı açılmamalıdır. DOĞRULANMADI.",
+  not: "Yapı 2026-10-27'de canlı sayfadan doğrulandı (kurum: EBYÜ). Herkese açık profil ve yayın sayfaları okunur. Her kurumun AVESİS kullanım koşulları ve robots.txt kuralları kurum yöneticisince okunup onaylanmadan bağlayıcı açılmamalıdır. Kullanım koşulları DOĞRULANMADI.",
   enAzAralikMs: 1000,
 };
+
+export const ARASTIRMA_ALANLARI_NOTU = "DOĞRULANMADI: istemci tarafında yükleniyor";
 
 export const AvesisEtkinlikSemasi = z.object({
   tur: z.enum(["makale", "bildiri", "kitap", "proje", "odul", "tez", "diger"]),
   baslik: z.string().min(1).max(1000),
   yil: z.number().int().min(1900).max(2100).nullable(),
-  /** Kaynaktaki ham tür başlığı (ör. "Makaleler"). */
+  /** Kaynaktaki akordeon bölüm adı (ör. "Makaleler"). */
   bolum: z.string(),
+  yazarlar: z.array(z.string()),
+  dergi: z.string().nullable(),
+  /** Dergi adından sonra kalan atıf metni (cilt, sayı, sayfa, yıl, dizin). */
+  atif: z.string(),
+  /** `data-filters` değerleri ("other" dışında): sci_ssci_ahci, sci_ssci_ahci_esci, scopus, trdizin. */
+  dizinler: z.array(z.string()),
+  /** Yayın ayrıntı yolu (/yayin/<uuid>/<slug>). */
+  yol: z.string().nullable(),
 });
 export type AvesisEtkinligi = z.infer<typeof AvesisEtkinlikSemasi>;
 
 export const AvesisProfilSemasi = z.object({
   ad: z.string().min(1),
   unvan: z.string().nullable(),
-  birim: z.string().nullable(),
-  arastirmaAlanlari: z.array(z.string()),
+  /** Metrik başlığı → sayı ("Yayın (WoS)" → 1). Sayı değilse ("-") null. */
+  metrikler: z.record(z.string(), z.number().nullable()),
+  arastirmaAlanlari: z.object({ durum: z.literal("DOĞRULANMADI"), not: z.string() }),
   etkinlikler: z.array(AvesisEtkinlikSemasi),
 });
 export type AvesisProfili = z.infer<typeof AvesisProfilSemasi>;
@@ -55,48 +69,78 @@ export function yilBul(s: string): number | null {
   return son ? Number(son[1]) : null;
 }
 
-function ilk(html: string, re: RegExp): string | null {
-  const m = html.match(re);
-  const t = m ? metin(m[1] ?? "") : "";
-  return t || null;
+const UNVAN = /^(?:(?:Prof\.|Doç\.|Dr\.|Öğr\.|Üyesi|Gör\.|Arş\.|Uzm\.|Okt\.)\s+)+/u;
+
+/** Script ve style içeriğini atar (içlerindeki HTML benzeri dizeler ayrıştırılmaz). */
+const betiksiz = (html: string) => html.replace(/<(script|style)\b[\s\S]*?<\/\1\s*>/gi, "");
+
+/** `class` özniteliğinde verilen sınıfı içeren açılış etiketi deseni. */
+const sinif = (ad: string) => String.raw`class="(?:[^"]*\s)?${ad}(?:\s[^"]*)?"`;
+const ic = (etiket: string, ad: string, bayrak = "i") =>
+  new RegExp(String.raw`<${etiket}\b[^>]*${sinif(ad)}[^>]*>([\s\S]*?)<\/${etiket}>`, bayrak);
+const bol = (html: string, ad: string) =>
+  html.split(new RegExp(String.raw`(?=<div\b[^>]*${sinif(ad)})`, "i")).slice(1);
+
+/** "1.234" → 1234; sayı değilse null. */
+function metrikSayisi(s: string): number | null {
+  const t = s.replace(/\s/g, "");
+  return /^\d{1,3}(\.\d{3})*$|^\d+$/.test(t) ? Number(t.replace(/\./g, "")) : null;
 }
 
-/**
- * Profil ya da etkinlik sayfasını ayrıştırır. Bölüm başlıkları (h2/h3) etkinlik türünü belirler;
- * başlığın altındaki liste öğeleri ya da tablo satırları etkinliktir.
- */
-export function avesisSayfaCoz(html: string): AvesisProfili {
-  const temiz = html.replace(/<(script|style)\b[\s\S]*?<\/\1>/gi, "");
-  const ad =
-    ilk(temiz, /<h1\b[^>]*>([\s\S]*?)<\/h1>/i) ??
-    ilk(temiz, /<meta\s+property="og:title"\s+content="([^"]*)"/i) ??
-    ilk(temiz, /<title>([\s\S]*?)<\/title>/i);
-  if (!ad)
-    throw new BaglayiciHatasi("Sayfada akademisyen adı bulunamadı; adresin bir profil sayfası olduğunu denetleyin.");
-  const unvan = ilk(temiz, /class="[^"]*\b(?:unvan|title-name|academic-title)\b[^"]*"[^>]*>([\s\S]*?)</i);
-  const birim = ilk(temiz, /class="[^"]*\b(?:birim|unit|department)\b[^"]*"[^>]*>([\s\S]*?)</i);
-  const alanBlok = temiz.match(
-    /class="[^"]*\b(?:arastirma-alanlari|research-areas)\b[^"]*"[^>]*>([\s\S]*?)<\/(?:ul|div)>/i,
-  );
-  const arastirmaAlanlari = alanBlok
-    ? [...(alanBlok[1] ?? "").matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/gi)].map((m) => metin(m[1] ?? "")).filter(Boolean)
-    : [];
-
-  const etkinlikler: AvesisEtkinligi[] = [];
-  const parcalar = temiz.split(/(?=<h[23]\b)/i);
-  for (const p of parcalar) {
-    const bas = p.match(/^<h[23]\b[^>]*>([\s\S]*?)<\/h[23]>/i);
-    if (!bas) continue;
-    const bolum = metin(bas[1] ?? "");
+function yayinlariCoz(temiz: string): AvesisEtkinligi[] {
+  const sonuc: AvesisEtkinligi[] = [];
+  for (const b of bol(temiz, "item-head")) {
+    const bolum = metin(b.match(/<span\b[^>]*>([\s\S]*?)<\/span>/i)?.[1] ?? "");
     const tur = turBul(bolum);
-    if (tur === "diger" && !/yayın|yayin|etkinlik|faaliyet/i.test(bolum)) continue;
-    const ogeler = [...p.matchAll(/<(li|tr)\b[^>]*>([\s\S]*?)<\/\1>/gi)].map((m) => metin(m[2] ?? ""));
-    for (const o of ogeler) {
-      if (!o || o.length < 3) continue;
-      etkinlikler.push(AvesisEtkinlikSemasi.parse({ tur, baslik: o.slice(0, 1000), yil: yilBul(o), bolum }));
+    for (const o of bol(b, "pub-item")) {
+      const baslik = metin(o.match(/<h3\b[^>]*>[\s\S]*?<strong\b[^>]*>([\s\S]*?)<\/strong>/i)?.[1] ?? "");
+      if (!baslik) continue;
+      const yazarlar = [...o.matchAll(ic("a", "authorsRichText", "gi"))].map((m) => metin(m[1] ?? "")).filter(Boolean);
+      const dergiM = o.match(ic("a", "journalDetailModalLink"));
+      const dergi = dergiM ? metin(dergiM[1] ?? "") || null : null;
+      // İkinci .citation bloğu: dergi bağlantısı + kalan atıf metni (bildiride yalnız metin).
+      const atifBlok = [...o.matchAll(ic("div", "citation", "gi"))][1]?.[1] ?? "";
+      const atif = metin(dergiM ? atifBlok.replace(dergiM[0], "") : atifBlok).replace(/^[\s,]+/, "");
+      const dizinler = (o.match(/data-filters="([^"]*)"/i)?.[1] ?? "")
+        .split(",")
+        .map((x) => x.trim())
+        .filter((x) => x && x !== "other");
+      const yol = o.match(/<h3\b[^>]*>[\s\S]*?<a\b[^>]*href="(\/yayin\/[^"]+)"/i)?.[1] ?? null;
+      sonuc.push(
+        AvesisEtkinlikSemasi.parse({ tur, baslik: baslik.slice(0, 1000), yil: yilBul(atif), bolum, yazarlar, dergi, atif, dizinler, yol }),
+      );
     }
   }
-  return AvesisProfilSemasi.parse({ ad, unvan, birim, arastirmaAlanlari, etkinlikler });
+  return sonuc;
+}
+
+/** Profil ya da yayınlar sayfasını ayrıştırır. Araştırma alanları okunmaz (bkz. ARASTIRMA_ALANLARI_NOTU). */
+export function avesisSayfaCoz(html: string): AvesisProfili {
+  const temiz = betiksiz(html);
+  const tamAd =
+    metin(temiz.match(ic("h1", "title"))?.[1] ?? "") ||
+    metin(temiz.match(/<title>([\s\S]*?)<\/title>/i)?.[1] ?? "").replace(/\s*\|\s*AVES[İI]S\s*$/i, "");
+  if (!tamAd)
+    throw new BaglayiciHatasi("Sayfada akademisyen adı bulunamadı; adresin bir profil sayfası olduğunu denetleyin.");
+  const unvan = tamAd.match(UNVAN)?.[0]?.trim() ?? "";
+  const ad = tamAd.slice(unvan.length).trim() || tamAd;
+  const metrikler: Record<string, number | null> = {};
+  // İlk kutuda strong doğrudan h4'ün kardeşi, sonrakilerde bir div içinde; ikisi de aynı desenle yakalanır.
+  const metrikRe = new RegExp(
+    String.raw`<h4\b[^>]*${sinif("metrics-title")}[^>]*>([\s\S]*?)<\/h4>[\s\S]*?<strong\b[^>]*${sinif("metrics-count")}[^>]*>([\s\S]*?)<\/strong>`,
+    "gi",
+  );
+  for (const m of temiz.matchAll(metrikRe)) {
+    const baslik = metin(m[1] ?? "");
+    if (baslik && !(baslik in metrikler)) metrikler[baslik] = metrikSayisi(metin(m[2] ?? ""));
+  }
+  return AvesisProfilSemasi.parse({
+    ad,
+    unvan: unvan || null,
+    metrikler,
+    arastirmaAlanlari: { durum: "DOĞRULANMADI", not: ARASTIRMA_ALANLARI_NOTU },
+    etkinlikler: yayinlariCoz(temiz),
+  });
 }
 
 /** AVESİS ana makinesi: avesis.<kurum>.edu.tr */
@@ -125,10 +169,11 @@ export async function avesisProfiliOku(
     return avesisSayfaCoz(await y.text());
   };
   const profil = await oku(u.toString());
-  for (const alt of secenek.altSayfalar ?? []) {
+  // Varsayılan alt sayfa: /<kullanici>/yayinlar
+  for (const alt of secenek.altSayfalar ?? [`${u.pathname.replace(/\/+$/, "")}/yayinlar`]) {
     const a = new URL(alt, u).toString();
     adresDenetle(a, (m) => m === u.hostname);
-    baglam.ilerleme?.("Etkinlik sayfası okunuyor");
+    baglam.ilerleme?.("Yayın sayfası okunuyor");
     profil.etkinlikler.push(...(await oku(a)).etkinlikler);
   }
   return { profil, kaynaklar };
