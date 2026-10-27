@@ -19,7 +19,7 @@ export function SoruFormu() {
     setYukleniyor(true);
     setHata(null);
     try {
-      const r = await fetch("/degerlendirici/soru", {
+      const r = await fetch("/degerlendirici/soru/yanit", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ soru }),

@@ -1,16 +1,16 @@
 // Atıflı soru-cevap ucu: POST {soru}. CSRF ve oturum `korumali` ile; yanıt atıf güvencesinden geçer ve
 // günlüğe yazılır.
 
-import { aktorOlustur } from "../../api/_ortak/v1.ts";
-import { hataBilgisi, portalBaglami, soruSor } from "../_portal/portal.ts";
-import { portalSaglayicisi } from "../_portal/sunucu.ts";
+import { aktorOlustur } from "../../../api/_ortak/v1.ts";
+import { hataBilgisi, portalBaglami, soruSor } from "../../_portal/portal.ts";
+import { portalSaglayicisi } from "../../_portal/sunucu.ts";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(istek: Request): Promise<Response> {
   const [{ tekiller }, { korumali }] = await Promise.all([
-    import("../../api/_ortak/sunucu.ts"),
-    import("../../../kimlik/erisim.ts"),
+    import("../../../api/_ortak/sunucu.ts"),
+    import("../../../../kimlik/erisim.ts"),
   ]);
   const { kimlik, db } = await tekiller();
   return korumali(kimlik, async (r, baglam) => {
