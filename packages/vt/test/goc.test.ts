@@ -44,12 +44,14 @@ describe("göçler", () => {
     await expect(gocleriUygula(b.db, goceler)).rejects.toThrow(/değiştirilmiş/u);
   });
 
-  it("vector eklentisi ve iki rol kurulur; uygulama rolü satır güvenliğini atlayamaz", async () => {
+  it("vector eklentisi ve üç rol kurulur; hiçbiri satır güvenliğini atlayamaz", async () => {
     const r = await sorgu<{ rolname: string; rolbypassrls: boolean; rolsuper: boolean }>(
       b.db,
       sql`select rolname, rolbypassrls, rolsuper from pg_roles where rolname like 'akredit_%' order by rolname`,
     );
     expect(r).toEqual([
+      // İP-27: web ve işçinin giriş kullanıcıları bu role üye olur (0008_oturum_rolu).
+      { rolname: "akredit_oturum", rolbypassrls: false, rolsuper: false },
       { rolname: "akredit_sahip", rolbypassrls: false, rolsuper: false },
       { rolname: "akredit_uygulama", rolbypassrls: false, rolsuper: false },
     ]);
