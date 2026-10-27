@@ -1,0 +1,23 @@
+{{- if not .Values.disariCikisYasak }}{{ fail "disariCikisYasak kapatılamaz: veri kurum dışına çıkabilir" }}{{ end -}}
+# Veri yerleşimi: Akredit podları yalnız aynı ad alanındaki podlara ve küme DNS'ine bağlanabilir.
+# Yapay zekâ istekleri yalnız iç model hizmetine gider; internete (yurt dışına) çıkış yoktur.
+# Not: NetworkPolicy'yi uygulayan bir CNI (Calico, Cilium ...) gerekir; kubernetes.md 1. adım.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Release.Name }}-disari-cikis-yok
+  labels: {{- include "akredit.etiketler" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels: { app.kubernetes.io/part-of: akredit }
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - podSelector: {}
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels: { k8s-app: kube-dns }
+      ports:
+        - { port: 53, protocol: UDP }
+        - { port: 53, protocol: TCP }
