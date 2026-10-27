@@ -315,16 +315,14 @@ describe("uçtan uca KİDR taslağı (kurgu kurum)", () => {
       );
       await expect(
         kiraciIslemi(o.db, a.kurumId, (tx) =>
-          tx
-            .insert(sema.karar)
-            .values({
-              kurumId: a.kurumId,
-              oneriId: oneriler[0] as string,
-              sonuc: "onaylandi",
-              kararVerenKisiId: a.yonetici,
-              dayanak: "politika",
-              politikaId: p?.id as string,
-            }),
+          tx.insert(sema.karar).values({
+            kurumId: a.kurumId,
+            oneriId: oneriler[0] as string,
+            sonuc: "onaylandi",
+            kararVerenKisiId: a.yonetici,
+            dayanak: "politika",
+            politikaId: p?.id as string,
+          }),
         ),
       ).rejects.toThrow();
       const m = await politikalariUygula(o.db, a.kurumId, SIMDI, oneriler);
