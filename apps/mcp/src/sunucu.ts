@@ -2,7 +2,7 @@
 // stdio ve HTTP aynı işleyiciyi kullanır. Aktör her araç çağrısında anahtardan yeniden kurulur (iptal edilen
 // anahtar hemen etkisini yitirir). Anahtar hiçbir yanıta ya da hata iletisine girmez.
 
-import { type Aktor, dogrulamaHatasi, ServisHatasi, type ServisBaglami } from "@akredit/servis";
+import { type Aktor, dogrulamaHatasi, type ServisBaglami, ServisHatasi } from "@akredit/servis";
 import type { Vt } from "@akredit/vt";
 import { z } from "zod";
 import { ARACLAR, type Arac, aracTanimi } from "./araclar.ts";
@@ -93,13 +93,17 @@ export function mcpSunucusu(s: SunucuSecenekleri) {
     }
     const m = r.data as JsonRpcIstek;
     const bildirim = m.id === undefined;
-    const tamam = (result: unknown): JsonRpcYanit | null => (bildirim ? null : { jsonrpc: "2.0", id: m.id ?? null, result });
+    const tamam = (result: unknown): JsonRpcYanit | null =>
+      bildirim ? null : { jsonrpc: "2.0", id: m.id ?? null, result };
     switch (m.method) {
       case "initialize": {
         const p = z
           .object({
             protocolVersion: z.string().optional(),
-            clientInfo: z.object({ name: z.string().max(100) }).partial().optional(),
+            clientInfo: z
+              .object({ name: z.string().max(100) })
+              .partial()
+              .optional(),
           })
           .safeParse(m.params ?? {});
         const istenen = p.success ? p.data.protocolVersion : undefined;
@@ -127,5 +131,10 @@ export function mcpSunucusu(s: SunucuSecenekleri) {
     }
   }
 
-  return { isle, get istemci() { return istemci; } };
+  return {
+    isle,
+    get istemci() {
+      return istemci;
+    },
+  };
 }
