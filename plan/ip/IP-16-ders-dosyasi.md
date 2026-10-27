@@ -1,6 +1,6 @@
 # İP-16: Ders dosyası ve ölçme raporu otomasyonu
 
-- **Durum:** bekliyor
+- **Durum:** inceleme
 - **Faz:** 3
 - **Bağımlılık:** İP-04, İP-05, İP-06, İP-12, İP-13
 - **Sahip olduğu yollar:** `packages/servis/src/ders-dosyasi/**`, `apps/isci/src/ders-dosyasi/**`, `packages/belge/src/pdf/**`, `docs/raporlar/IP-16.md`
@@ -20,11 +20,12 @@ Dönem sonunda ders dosyasının hocadan ek iş istemeden üretilmesi.
 
 ## Kabul ölçütleri
 
-- [ ] Kurgu bir dönemle uçtan uca: döküm → onay → dosya.
-- [ ] Raporlardaki her sayı ölçme sonucuna izlenebilir (girdi özeti).
-- [ ] Hocanın toplam etkileşimi ölçülür ve raporlanır.
-- [ ] `pnpm verify` temiz.
+- [x] Kurgu bir dönemle uçtan uca: döküm → onay → dosya.
+- [x] Raporlardaki her sayı ölçme sonucuna izlenebilir (girdi özeti).
+- [x] Hocanın toplam etkileşimi ölçülür ve raporlanır.
+- [x] `pnpm verify` temiz.
 
 ## Günlük
 
 - 2026-10-23: İP tanımlandı. Başlamadan önce kapsamı güncel mimariye göre ayrıntılandır.
+- 2026-10-27: Uygulandı (dal `ip/16-ders-dosyasi`). Servis `packages/servis/src/ders-dosyasi`: döküm aktarımı (HMAC takma ad), soru-ÇK eşleme önerisi (önceki dönem → model adayı → EKSİK; orta risk, düzeltmeli onay), `@akredit/olcme` ile ölçme, DOCX ders dosyası + XLSX ölçme raporu (her tablo girdi özetli), yüksek riskli dosya onayı, günlükten hoca etkileşimi. REST: `/ders-dosyasi/dokum`, `/ders-dosyasi/{id}`, `/ders-dosyasi/{id}/olustur`, `/ders-dosyasi/{id}/belge`, `/dersler/{id}/ders-dosyasi`. İşçi `apps/isci/src/ders-dosyasi`. Panel: ders sayfasında ders dosyası kartı. Göç gerekmedi. Kalan: PDF çıktısı ve görsel grafik, kâğıt taraması yükleme, YZ eşleme görevi, program PÇ raporu/ÖDR kanıtı (İP-19). Ayrıntı: `docs/raporlar/IP-16.md`.
