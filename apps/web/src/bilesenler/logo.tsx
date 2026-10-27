@@ -1,20 +1,34 @@
 import type React from "react";
+import { ISARET_KUTUSU, ISARET_YOLLARI } from "../marka/isaret.ts";
 
-export function Logo() {
+const KUTU = `${ISARET_KUTUSU.x} ${ISARET_KUTUSU.y} ${ISARET_KUTUSU.g} ${ISARET_KUTUSU.h}`;
+
+/**
+ * Akredit işareti (A + onay imi). Renkler tema belirteçlerinden gelir; koyu temada kendiliğinden açık sürüme
+ * döner. Süs öğesidir; erişilebilir ad, onu saran bağlantıda ya da yanındaki "Akredit" kelimesindedir.
+ */
+export function Isaret({ className = "h-7 w-auto" }: { className?: string }) {
   return (
-    <span className="flex items-center gap-2 text-xl font-bold tracking-tight">
-      <svg
-        aria-hidden
-        viewBox="0 0 24 24"
-        className="size-7 text-vurgu"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2.2"
-      >
-        <rect x="3" y="3" width="18" height="18" rx="4" />
-        <path d="m7.5 12.5 3 3 6-7" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-      Akredit
+    <svg aria-hidden focusable="false" viewBox={KUTU} className={className}>
+      <path d={ISARET_YOLLARI.solKol} fill="var(--isaret-a)" />
+      <path d={ISARET_YOLLARI.sagKol} fill="var(--isaret-a)" />
+      <path d={ISARET_YOLLARI.onay} fill="var(--isaret-onay)" />
+    </svg>
+  );
+}
+
+/** Yatay logo: işaret + "Akredit" kelimesi, sitenin yazı tipiyle (Source Sans 3, 700). */
+export function Logo({ boy = "orta" }: { boy?: "orta" | "buyuk" }) {
+  const buyuk = boy === "buyuk";
+  return (
+    <span
+      className={`inline-flex items-center font-bold tracking-tight text-[var(--isaret-a)] ${
+        buyuk ? "gap-3 text-4xl" : "gap-2 text-xl"
+      }`}
+    >
+      {/* İşaret yüksekliği büyük harf yüksekliğinin yaklaşık 1,1 katı; taban çizgisiyle hizalı durur. */}
+      <Isaret className={buyuk ? "h-9 w-auto" : "h-[1.15rem] w-auto"} />
+      <span className="leading-none">Akredit</span>
     </span>
   );
 }
