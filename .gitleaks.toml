@@ -1,0 +1,13 @@
+# Gitleaks yapılandırması: varsayılan kurallar + yol bazlı dar izin listesi.
+# Yalnız testlerde kullanılan, hiçbir gerçek sisteme bağlı olmayan sahte anahtarlar burada listelenir.
+# Yeni yol eklemek gerekçe ister; gerçek anahtar hiçbir zaman eklenmez.
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Sahte test anahtarları (gerçek sisteme bağlı değil)"
+paths = [
+  '''^apps/web/src/kimlik/test/fixtures/idp-anahtar\.pem$''',
+  '''^apps/web/src/kimlik/test/fixtures/idp-sertifika\.pem$''',
+]
