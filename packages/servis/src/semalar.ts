@@ -266,6 +266,8 @@ export const KararGirdisi = z
     sonuc: KararSonucu,
     duzeltme: z.string().max(20_000).optional(),
     gerekce: z.string().max(2_000).optional(),
+    /** İP-13 insan dakikası: karar ekranında geçen süre (ms). Bir saatten uzunu ölçüme alınmaz. */
+    sureMs: z.number().int().min(0).max(3_600_000).optional(),
   })
   .strict()
   .superRefine((g, c) => {
@@ -282,6 +284,8 @@ export const TopluKararGirdisi = z
       .array(Kimlik)
       .min(1, "Önce en az bir öneri seçin.")
       .max(100, "Bir seferde en çok 100 öneri onaylanır."),
+    /** İP-13 insan dakikası: toplu karar ekranında geçen süre (ms); kararlara eşit bölünür. */
+    sureMs: z.number().int().min(0).max(3_600_000).optional(),
   })
   .strict();
 

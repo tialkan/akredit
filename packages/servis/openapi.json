@@ -1251,6 +1251,343 @@
         }
       }
     },
+    "/api/v1/oneriler/sayac": {
+      "get": {
+        "operationId": "bekleyenSayisi",
+        "summary": "Karar bekleyen öneri sayısı (etkin riske göre)",
+        "x-akredit-yetki": "oneri.oku",
+        "responses": {
+          "200": {
+            "description": "Başarılı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "toplam": {
+                      "type": "number"
+                    },
+                    "risk": {
+                      "type": "object",
+                      "properties": {
+                        "dusuk": {
+                          "type": "number"
+                        },
+                        "orta": {
+                          "type": "number"
+                        },
+                        "yuksek": {
+                          "type": "number"
+                        }
+                      },
+                      "required": ["dusuk", "orta", "yuksek"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["toplam", "risk"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Girdi geçersiz",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Oturum ya da API anahtarı yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Yetki yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Kayıt yok ya da başka kuruma ait",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Çakışma (ör. öneriye zaten karar verilmiş)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Kural ihlali (ör. yüksek riskli öneri toplu onaylanamaz)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Çok fazla istek",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/olcum/insan-dakikasi": {
+      "get": {
+        "operationId": "insanDakikasi",
+        "summary": "İnsan dakikası ve karar oranları (kişi ve süreç bazında; pilot raporu için)",
+        "x-akredit-yetki": "gunluk.oku",
+        "parameters": [
+          {
+            "name": "baslangic",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+            }
+          },
+          {
+            "name": "bitis",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Başarılı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "aralik": {
+                      "type": "object",
+                      "properties": {
+                        "baslangic": {
+                          "type": ["string", "null"]
+                        },
+                        "bitis": {
+                          "type": ["string", "null"]
+                        }
+                      },
+                      "required": ["baslangic", "bitis"],
+                      "additionalProperties": false
+                    },
+                    "kisiler": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "kararSayisi": {
+                            "type": "number"
+                          },
+                          "olculen": {
+                            "type": "number"
+                          },
+                          "toplam": {
+                            "type": "number"
+                          },
+                          "ortanca": {
+                            "type": "number"
+                          },
+                          "kisiId": {
+                            "type": "string"
+                          },
+                          "ad": {
+                            "type": "string"
+                          }
+                        },
+                        "required": ["kararSayisi", "olculen", "toplam", "ortanca", "kisiId", "ad"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "surecler": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "kararSayisi": {
+                            "type": "number"
+                          },
+                          "olculen": {
+                            "type": "number"
+                          },
+                          "toplam": {
+                            "type": "number"
+                          },
+                          "ortanca": {
+                            "type": "number"
+                          },
+                          "oneriTuru": {
+                            "type": "string"
+                          }
+                        },
+                        "required": ["kararSayisi", "olculen", "toplam", "ortanca", "oneriTuru"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "yollar": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "type": "number"
+                      }
+                    },
+                    "oranlar": {
+                      "type": "object",
+                      "properties": {
+                        "toplam": {
+                          "type": "number"
+                        },
+                        "onaylandi": {
+                          "type": "number"
+                        },
+                        "duzeltildi": {
+                          "type": "number"
+                        },
+                        "reddedildi": {
+                          "type": "number"
+                        },
+                        "yuzde": {
+                          "type": "object",
+                          "properties": {
+                            "onaylandi": {
+                              "type": ["number", "null"]
+                            },
+                            "duzeltildi": {
+                              "type": ["number", "null"]
+                            },
+                            "reddedildi": {
+                              "type": ["number", "null"]
+                            }
+                          },
+                          "required": ["onaylandi", "duzeltildi", "reddedildi"],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": ["toplam", "onaylandi", "duzeltildi", "reddedildi", "yuzde"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["aralik", "kisiler", "surecler", "yollar", "oranlar"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Girdi geçersiz",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Oturum ya da API anahtarı yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Yetki yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Kayıt yok ya da başka kuruma ait",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Çakışma (ör. öneriye zaten karar verilmiş)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Kural ihlali (ör. yüksek riskli öneri toplu onaylanamaz)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Çok fazla istek",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/kararlar": {
       "get": {
         "operationId": "kararlar",
@@ -1492,6 +1829,11 @@
                   "gerekce": {
                     "type": "string",
                     "maxLength": 2000
+                  },
+                  "sureMs": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3600000
                   }
                 },
                 "required": ["oneriId", "sonuc"],
@@ -1691,6 +2033,11 @@
                       "format": "uuid",
                       "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                     }
+                  },
+                  "sureMs": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3600000
                   }
                 },
                 "required": ["oneriIdleri"],
