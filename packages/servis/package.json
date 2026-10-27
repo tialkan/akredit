@@ -19,6 +19,7 @@
     "@akredit/surec": "workspace:*",
     "@akredit/vt": "workspace:*",
     "@akredit/yetki": "workspace:*",
+    "@akredit/yz": "workspace:*",
     "drizzle-orm": "^0.45.4",
     "zod": "^4.6.7"
   },
