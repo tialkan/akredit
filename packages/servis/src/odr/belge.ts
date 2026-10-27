@@ -93,7 +93,11 @@ export function odrDocxModeli(g: OdrBelgeGirdisi): DocxModeli {
           vurgu: "not" as const,
           metin: o.metinDurumu === "dogrulanmadi" ? `Ölçüt metni: ${DOGRULANMADI}` : `Ölçüt: ${o.metin}`,
         },
-        ...o.paragraflar.map((p) => ({ tur: "paragraf" as const, metin: p.metin, ...(p.eksik ? { vurgu: "eksik" as const } : {}) })),
+        ...o.paragraflar.map((p) => ({
+          tur: "paragraf" as const,
+          metin: p.metin,
+          ...(p.eksik ? { vurgu: "eksik" as const } : {}),
+        })),
       ],
     })),
   ]);
@@ -101,7 +105,13 @@ export function odrDocxModeli(g: OdrBelgeGirdisi): DocxModeli {
     {
       baslik: EK_BASLIKLARI[0],
       duzey: 1,
-      icerik: [{ tur: "tablo", basliklar: ["Bölüm", "Ölçüt", "Başlık", "Onaylı kanıt", "Durum"], satirlar: kapsamaSatirlari(t) }],
+      icerik: [
+        {
+          tur: "tablo",
+          basliklar: ["Bölüm", "Ölçüt", "Başlık", "Onaylı kanıt", "Durum"],
+          satirlar: kapsamaSatirlari(t),
+        },
+      ],
     },
     {
       baslik: EK_BASLIKLARI[1],

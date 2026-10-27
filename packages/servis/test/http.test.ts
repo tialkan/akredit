@@ -5,9 +5,9 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { Aktor } from "../src/baglam.ts";
 import { HizSiniri } from "../src/http/hiz.ts";
 import { apiIsleyici } from "../src/http/isleyici.ts";
-import * as odr from "../src/odr/index.ts";
 import { vtTekrarDeposu } from "../src/http/tekrar.ts";
 import { UCLAR } from "../src/http/uclar.ts";
+import * as odr from "../src/odr/index.ts";
 import { type Ornek, ortam, SIMDI } from "./yardimci.ts";
 
 let o: Awaited<ReturnType<typeof ortam>>;

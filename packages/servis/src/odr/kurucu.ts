@@ -129,7 +129,12 @@ export function odrKur(g: OdrGirdisi): OdrTaslagi {
     const d = cumleDenetle(metin, k);
     if (!d.gecerli) {
       cikarilanCumle++;
-      return { metin: "[EKSİK: Doğrulanamayan bir kayıt rapora alınmadı.]", eksik: true, kanitOzetleri: [], hesapKimlikleri: [] };
+      return {
+        metin: "[EKSİK: Doğrulanamayan bir kayıt rapora alınmadı.]",
+        eksik: true,
+        kanitOzetleri: [],
+        hesapKimlikleri: [],
+      };
     }
     return { metin, eksik: d.eksik, kanitOzetleri: d.kanitOzetleri, hesapKimlikleri: d.hesapKimlikleri };
   };
@@ -144,7 +149,8 @@ export function odrKur(g: OdrGirdisi): OdrTaslagi {
         ),
       );
     for (const h of g.hesaplar.filter((x) => x.olcutKodlari.includes(o.kod)))
-      for (const s of h.satirlar) p.push(paragraf(`${s.etiket}: ${s.deger} (${s.aciklama}) [H:${h.kimlik.slice(0, 8)}].`));
+      for (const s of h.satirlar)
+        p.push(paragraf(`${s.etiket}: ${s.deger} (${s.aciklama}) [H:${h.kimlik.slice(0, 8)}].`));
     for (const s of g.surecKayitlari.filter((x) => x.olcutKodlari.includes(o.kod))) {
       const onayli = s.kanitOzetleri.filter((oz) => k.kanitlar.has(oz));
       p.push(
@@ -170,7 +176,12 @@ export function odrKur(g: OdrGirdisi): OdrTaslagi {
       p.push(paragraf(`[EKSİK: Bu ölçüt için onaylı kanıt yok.${ek}]`));
       eksikler.push({ olcutKod: o.kod, baslik: o.baslik, neden: "Onaylı kanıt yok", gereksinimler });
     } else if (!kapsandi && !altlarda) {
-      eksikler.push({ olcutKod: o.kod, baslik: o.baslik, neden: "Alt ölçütlerin hiçbirinde onaylı kanıt yok", gereksinimler: [] });
+      eksikler.push({
+        olcutKod: o.kod,
+        baslik: o.baslik,
+        neden: "Alt ölçütlerin hiçbirinde onaylı kanıt yok",
+        gereksinimler: [],
+      });
     }
     return {
       kod: o.kod,
@@ -199,7 +210,9 @@ export function odrKur(g: OdrGirdisi): OdrTaslagi {
       gereksinimler: [],
     });
 
-  const kullanilan = new Set(bolumler.flatMap((b) => b.olcutler.flatMap((o) => o.paragraflar.flatMap((p) => p.kanitOzetleri))));
+  const kullanilan = new Set(
+    bolumler.flatMap((b) => b.olcutler.flatMap((o) => o.paragraflar.flatMap((p) => p.kanitOzetleri))),
+  );
   return {
     cerceve: {
       kod: c.kod,

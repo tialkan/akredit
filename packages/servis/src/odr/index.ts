@@ -17,8 +17,14 @@ import { and, asc, desc, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { gunluge, islem, type ServisBaglami } from "../baglam.ts";
 import { bulunamadi, ServisHatasi } from "../hata.ts";
-import { type DersDosyasiSatiri, type OdrOnayi, type OdrSurumu, odrDocxModeli, ziyaretPaketiSayfalari } from "./belge.ts";
-import { type HesapKaynagi, type OdrTaslagi, type OnayliKanit, odrKur, type SurecKaydi, bolumMetni } from "./kurucu.ts";
+import {
+  type DersDosyasiSatiri,
+  type OdrOnayi,
+  type OdrSurumu,
+  odrDocxModeli,
+  ziyaretPaketiSayfalari,
+} from "./belge.ts";
+import { bolumMetni, type HesapKaynagi, type OdrTaslagi, type OnayliKanit, odrKur, type SurecKaydi } from "./kurucu.ts";
 
 export * from "./belge.ts";
 export * from "./denetim.ts";
@@ -35,7 +41,11 @@ export const OdrGirdisi = z
     ekMetinler: z
       .array(
         z
-          .object({ olcutKod: z.string().min(1).max(50), metin: z.string().min(1).max(5000), kaynak: z.enum(["yz", "kisi"]) })
+          .object({
+            olcutKod: z.string().min(1).max(50),
+            metin: z.string().min(1).max(5000),
+            kaynak: z.enum(["yz", "kisi"]),
+          })
           .strict(),
       )
       .max(200)
@@ -68,7 +78,12 @@ export type OdrDurumu = z.infer<typeof OdrDurumu>;
 
 export const EksikGorevleri = z.object({ acilan: z.array(z.string()), zatenVar: z.array(z.string()) });
 
-export const OdrDosyasi = z.object({ dosyaAdi: z.string(), mime: z.string(), ozet: z.string(), icerikBase64: z.string() });
+export const OdrDosyasi = z.object({
+  dosyaAdi: z.string(),
+  mime: z.string(),
+  ozet: z.string(),
+  icerikBase64: z.string(),
+});
 
 const MIME = {
   docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -159,7 +174,11 @@ const sayiYaz = (n: number, basamak = 1) =>
   n.toLocaleString("tr-TR", { minimumFractionDigits: basamak, maximumFractionDigits: basamak, useGrouping: false });
 
 /** Program düzeyi PÇ hesabı (eşit ağırlık); derslerin her açılışından son ölçme sonucu. */
-async function pcHesabi(tx: Islem, cerceve: Cerceve, dersIdleri: string[]): Promise<{ hesap: HesapKaynagi | null; dizin: DersDosyasiSatiri[] }> {
+async function pcHesabi(
+  tx: Islem,
+  cerceve: Cerceve,
+  dersIdleri: string[],
+): Promise<{ hesap: HesapKaynagi | null; dizin: DersDosyasiSatiri[] }> {
   if (!dersIdleri.length) return { hesap: null, dizin: [] };
   const acilislar = await tx
     .select({ a: sema.dersAcilisi, d: sema.ders, donem: sema.donem })
@@ -172,7 +191,12 @@ async function pcHesabi(tx: Islem, cerceve: Cerceve, dersIdleri: string[]): Prom
     ? await tx
         .select()
         .from(sema.olcmeSonucu)
-        .where(inArray(sema.olcmeSonucu.dersAcilisiId, acilislar.map((x) => x.a.id)))
+        .where(
+          inArray(
+            sema.olcmeSonucu.dersAcilisiId,
+            acilislar.map((x) => x.a.id),
+          ),
+        )
         .orderBy(desc(sema.olcmeSonucu.olusturma), desc(sema.olcmeSonucu.id))
     : [];
   const raporlar = await tx.select().from(sema.rapor).where(eq(sema.rapor.tur, "ders_dosyasi"));
@@ -304,16 +328,27 @@ async function gorunum(tx: Islem, r: typeof sema.rapor.$inferSelect): Promise<Go
   const tam = s.find((x) => x.d.surum === son && x.d.taslak);
   if (!tam) throw bulunamadi();
   const taslak = tam.d.taslak as OdrTaslagi;
-  const gecmis = [...new Set(s.map((x) => x.d.surum))].sort((a, b) => a - b).map((n) => {
-    const t = s.find((x) => x.d.surum === n && x.d.taslak);
-    return {
-      surum: n,
-      zaman: t?.satir.olusturma.toISOString() ?? "",
-      eksikSayisi: (t?.d.taslak as OdrTaslagi | undefined)?.eksikler.length ?? 0,
-    };
-  });
+  const gecmis = [...new Set(s.map((x) => x.d.surum))]
+    .sort((a, b) => a - b)
+    .map((n) => {
+      const t = s.find((x) => x.d.surum === n && x.d.taslak);
+      return {
+        surum: n,
+        zaman: t?.satir.olusturma.toISOString() ?? "",
+        eksikSayisi: (t?.d.taslak as OdrTaslagi | undefined)?.eksikler.length ?? 0,
+      };
+    });
   const { onayOneriId, onay } = await onayDurumu(tx, r.id, son);
-  return { raporId: r.id, programId: k.id, cerceveKod: k.cerceve, taslak, surum: son, surumler: gecmis, onayOneriId, onay };
+  return {
+    raporId: r.id,
+    programId: k.id,
+    cerceveKod: k.cerceve,
+    taslak,
+    surum: son,
+    surumler: gecmis,
+    onayOneriId,
+    onay,
+  };
 }
 
 function durumYaz(g: Gorunum): OdrDurumu {
@@ -337,7 +372,10 @@ function durumYaz(g: Gorunum): OdrDurumu {
 }
 
 async function raporYukle(tx: Islem, id: string) {
-  const [r] = await tx.select().from(sema.rapor).where(and(eq(sema.rapor.id, id), eq(sema.rapor.tur, "odr")));
+  const [r] = await tx
+    .select()
+    .from(sema.rapor)
+    .where(and(eq(sema.rapor.id, id), eq(sema.rapor.tur, "odr")));
   if (!r) throw bulunamadi();
   return r;
 }
@@ -384,9 +422,9 @@ export async function olustur(b: ServisBaglami, girdi: unknown): Promise<OdrDuru
     for (const x of onceki) if (x.satir.bolumKodu) sonBolum.set(x.satir.bolumKodu, x.satir.id);
     for (const bolum of taslak.bolumler) {
       const kanitIdleri = new Set(
-        bolum.olcutler.flatMap((o) => o.paragraflar.flatMap((pp) => pp.kanitOzetleri)).map(
-          (oz) => kanitlar.find((k) => k.ozet === oz)?.kanitId,
-        ),
+        bolum.olcutler
+          .flatMap((o) => o.paragraflar.flatMap((pp) => pp.kanitOzetleri))
+          .map((oz) => kanitlar.find((k) => k.ozet === oz)?.kanitId),
       );
       await tx.insert(sema.raporBolumuSurumu).values({
         kurumId: b.aktor.kurumId,
@@ -507,7 +545,11 @@ export async function belge(b: ServisBaglami, raporId: string, bicim: unknown): 
     const g = await gorunum(tx, r);
     const [kurum] = await tx.select({ ad: sema.kurum.ad }).from(sema.kurum).where(eq(sema.kurum.id, b.aktor.kurumId));
     const dersler = await tx.select({ id: sema.ders.id }).from(sema.ders).where(eq(sema.ders.programId, programId));
-    const { dizin } = await pcHesabi(tx, cerceveBul(g.cerceveKod), dersler.map((d) => d.id));
+    const { dizin } = await pcHesabi(
+      tx,
+      cerceveBul(g.cerceveKod),
+      dersler.map((d) => d.id),
+    );
     await gunluge(tx, b, "odr.indirildi", { tur: "rapor", id: r.id }, { bicim: tur, surum: g.surum });
     return {
       taslak: g.taslak,
