@@ -9,6 +9,7 @@ export * from "./http/openapi.ts";
 export * from "./http/tekrar.ts";
 export * from "./http/uclar.ts";
 export * as kanit from "./kanit.ts";
+export * as onay from "./onay/index.ts";
 export * as oneri from "./oneri.ts";
 export * as panel from "./panel.ts";
 export * as politika from "./politika.ts";

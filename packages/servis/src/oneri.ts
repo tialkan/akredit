@@ -47,7 +47,11 @@ const insanKarari = (b: ServisBaglami) => {
 };
 
 /** Önerinin yetki hedefi ve arayüzde gösterilen konumu (veritabanından, istemciden değil). */
-async function hedefVeKonum(tx: Islem, kurumId: string, o: OneriSatiri): Promise<{ hedef: Hedef; konum: string }> {
+export async function hedefVeKonum(
+  tx: Islem,
+  kurumId: string,
+  o: OneriSatiri,
+): Promise<{ hedef: Hedef; konum: string }> {
   const uuid = /^[0-9a-f-]{36}$/iu.test(o.hedefId);
   if (uuid && o.hedefTuru === "ders") {
     const [d] = await tx.select().from(sema.ders).where(eq(sema.ders.id, o.hedefId));
@@ -161,7 +165,12 @@ async function kararEkle(
   tx: Islem,
   b: ServisBaglami,
   o: OneriSatiri,
-  g: { sonuc: KararGirdisi["sonuc"]; duzeltme?: string | undefined; gerekce?: string | undefined },
+  g: {
+    sonuc: KararGirdisi["sonuc"];
+    duzeltme?: string | undefined;
+    gerekce?: string | undefined;
+    sureMs?: number | undefined;
+  },
   toplu: boolean,
 ): Promise<KararCiktisi> {
   const duzeltme = g.sonuc === "duzeltildi" ? { ...icerikOku(o), metin: (g.duzeltme ?? "").trim() } : null;
@@ -191,6 +200,7 @@ async function kararEkle(
       sonuc: g.sonuc,
       dayanak: "dogrudan",
       toplu,
+      ...(g.sureMs !== undefined ? { sureMs: g.sureMs } : {}),
     },
   );
   return kararCiktisi(k);
@@ -217,7 +227,9 @@ export async function kararVer(b: ServisBaglami, girdi: unknown): Promise<KararC
  */
 export async function topluKararVer(b: ServisBaglami, girdi: unknown): Promise<KararCiktisi[]> {
   insanKarari(b);
-  const idler = [...new Set(TopluKararGirdisi.parse(girdi).oneriIdleri)];
+  const tg = TopluKararGirdisi.parse(girdi);
+  const idler = [...new Set(tg.oneriIdleri)];
+  const pay = tg.sureMs !== undefined ? Math.round(tg.sureMs / idler.length) : undefined;
   return islem(b, async (tx, gerekli) => {
     const oneriler = await oneriYukle(tx, idler);
     if (oneriler.size !== idler.length) throw bulunamadi();
@@ -233,7 +245,7 @@ export async function topluKararVer(b: ServisBaglami, girdi: unknown): Promise<K
       const o = oneriler.get(id) as OneriSatiri;
       const { hedef } = await hedefVeKonum(tx, b.aktor.kurumId, o);
       await gerekli("karar.ver", hedef);
-      sonuc.push(await kararEkle(tx, b, o, { sonuc: "onaylandi" }, true));
+      sonuc.push(await kararEkle(tx, b, o, { sonuc: "onaylandi", sureMs: pay }, true));
     }
     return sonuc;
   });
