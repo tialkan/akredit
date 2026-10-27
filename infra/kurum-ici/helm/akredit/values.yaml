@@ -21,12 +21,15 @@ ingress:
   tlsGizli: akredit-tls
 
 # Gizli değerleri içeren, kurulumdan önce elle oluşturulan Secret (kubernetes.md 2. adım). Anahtarlar:
-#   POSTGRES_PASSWORD, AKREDIT_ONAY_GIZLI, AKREDIT_ANKET_GIZLI, AKREDIT_TAKMA_AD_ANAHTARI,
+#   POSTGRES_PASSWORD, UYGULAMA_VT_PAROLA, AKREDIT_ONAY_GIZLI, AKREDIT_ANKET_GIZLI, AKREDIT_TAKMA_AD_ANAHTARI,
 #   S3_ERISIM_ANAHTARI, S3_GIZLI_ANAHTAR
 gizliNesne: akredit-gizli
 
 vt:
+  # Süper kullanıcı: yalnız göç işi bununla bağlanır.
   kullanici: akredit
+  # Web ve işçinin bağlandığı ayrıcalıksız kullanıcı (G-27-2); kullanici ile aynı olamaz.
+  uygulamaKullanici: akredit_uyg
   ad: akredit
   depolama: 50Gi
   depolamaSinifi: ""

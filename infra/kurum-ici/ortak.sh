@@ -67,3 +67,19 @@ yedek_al() {
 
 kayit_ekle() { mkdir -p "$kayit_dizini"; echo "$(zaman) $1 $2" >>"$kayit"; }
 son_surum() { tail -n1 "$kayit" 2>/dev/null | awk '{print $2}'; }
+
+# G-27-2: web ve işçi süper kullanıcıyla bağlanmaz.
+uygulama_kullanicisi_denetle() {
+  local u
+  u="$(ayar UYGULAMA_VT_KULLANICI)"
+  [[ -n "$u" ]] || hata "ayar boş: UYGULAMA_VT_KULLANICI (örnek: akredit_uyg)"
+  [[ -n "$(ayar UYGULAMA_VT_PAROLA)" ]] || hata "ayar boş: UYGULAMA_VT_PAROLA (kur.sh üretir ya da: openssl rand -hex 32)"
+  [[ "$u" != "$(ayar POSTGRES_USER)" ]] || hata "UYGULAMA_VT_KULLANICI, POSTGRES_USER ile aynı olamaz"
+}
+
+# Kullanıcıyı açar ya da parola/yetkilerini eşitler (betik yinelenebilir). Göçlerden SONRA çalışır.
+# vt kapsayıcısı ortam ya da betik bağlantısı değiştiyse önce yeniden oluşturulur (veri biriminde kalır).
+uygulama_kullanicisi_esitle() {
+  dc "$1" up -d --no-deps --wait vt
+  dc "$1" exec -T vt /docker-entrypoint-initdb.d/02-uygulama-kullanicisi.sh
+}

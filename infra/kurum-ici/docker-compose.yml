@@ -24,7 +24,8 @@ x-guvenli: &guvenli
 
 x-uygulama-ortami: &uygulama-ortami
   NODE_ENV: production
-  AKREDIT_VT_ADRES: postgres://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@vt:5432/${POSTGRES_DB:?}
+  # Süper kullanıcı değil: akredit_oturum üyesi uygulama kullanıcısı (G-27-2, postgres/02-uygulama-kullanicisi.sh).
+  AKREDIT_VT_ADRES: postgres://${UYGULAMA_VT_KULLANICI:?}:${UYGULAMA_VT_PAROLA:?}@vt:5432/${POSTGRES_DB:?}
   AKREDIT_TAKMA_AD_ANAHTARI: ${AKREDIT_TAKMA_AD_ANAHTARI:?}
   S3_UC_NOKTASI: ${S3_UC_NOKTASI:-}
   S3_BOLGE: ${S3_BOLGE:-}
@@ -107,8 +108,11 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
       POSTGRES_DB: ${POSTGRES_DB:?}
       POSTGRES_INITDB_ARGS: --data-checksums
+      UYGULAMA_VT_KULLANICI: ${UYGULAMA_VT_KULLANICI:?}
+      UYGULAMA_VT_PAROLA: ${UYGULAMA_VT_PAROLA:?}
     volumes:
       - vt-veri:/var/lib/postgresql/data
+      - ./postgres/02-uygulama-kullanicisi.sh:/docker-entrypoint-initdb.d/02-uygulama-kullanicisi.sh:ro
       - ${AKREDIT_YEDEK_DIZINI:-./yedekler}:/yedekler
       - ./vt-yedek.sh:/kurum-ici/vt-yedek.sh:ro
     healthcheck:
