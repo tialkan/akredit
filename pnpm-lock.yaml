@@ -23,6 +23,9 @@ importers:
 
   apps/cli:
     dependencies:
+      '@akredit/cekirdek':
+        specifier: workspace:*
+        version: link:../../packages/cekirdek
       unpdf:
         specifier: ^1.8.1
         version: 1.9.1
