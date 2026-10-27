@@ -114,4 +114,44 @@ describe("sahte OIDC sağlayıcısıyla giriş", () => {
     const k = await o.db.select().from(sema.kimlikKullanici);
     expect(k.map((x) => x.email)).not.toContain(o.b.yoneticiEposta);
   });
+
+  // İP-27, inceleme dalga 2 #9: kod enjeksiyonu ve yeniden oynatma. @better-auth/sso 1.7 yetkilendirme
+  // isteğine nonce koymuyor (yetki kodu akışında OIDC isteğe bağlı sayar); koruma PKCE + state + tek
+  // kullanımlık koddur. Aşağıdaki testler bu korumanın nonce'un işini gördüğünü sınar.
+  describe("kod enjeksiyonu ve yeniden oynatma", () => {
+    async function baslat() {
+      idp.kullanici = { sub: "oidc-1", email: "kisi@a.ornek.edu.tr", name: "Deneme OIDC" };
+      const kavanoz = new CerezKavanozu();
+      const y = await kimlikIstegi(o.k, "/api/kimlik/sign-in/sso", {
+        govde: { providerId: "a-oidc", callbackURL: "/panel" },
+        kavanoz,
+      });
+      const { url } = (await y.json()) as { url: string };
+      return { kavanoz, url };
+    }
+
+    it("başka oturum için verilmiş kod kurbanın oturumuna sokulamaz (PKCE)", async () => {
+      const saldirgan = await baslat();
+      const kurban = await baslat();
+      const saldirganGeri = new URL(idp.yetkilendir(saldirgan.url));
+      const kurbanState = new URL(kurban.url).searchParams.get("state") ?? "";
+      // Saldırganın kodu, kurbanın state'i ve çerezleriyle geri dönüşe gönderilir.
+      saldirganGeri.searchParams.set("state", kurbanState);
+      await kimlikIstegi(o.k, saldirganGeri.toString(), { kavanoz: kurban.kavanoz });
+      expect(kurban.kavanoz.cerezler.has("akredit.session_token")).toBe(false);
+      expect(idp.belirtecIstekleri.at(-1)?.get("code_verifier")).toBeTruthy();
+    });
+
+    it("kullanılmış geri dönüş adresi (kod + state) ikinci kez oturum açmaz", async () => {
+      const { kavanoz, url } = await baslat();
+      const geri = idp.yetkilendir(url);
+      const onceki = new CerezKavanozu();
+      for (const [a, d] of kavanoz.cerezler) onceki.cerezler.set(a, d);
+      await kimlikIstegi(o.k, geri, { kavanoz });
+      expect(kavanoz.cerezler.has("akredit.session_token")).toBe(true);
+      // Saldırgan aynı adresi ve oturum öncesi çerezleri yeniden oynatır.
+      await kimlikIstegi(o.k, geri, { kavanoz: onceki });
+      expect(onceki.cerezler.has("akredit.session_token")).toBe(false);
+    });
+  });
 });

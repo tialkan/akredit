@@ -58,7 +58,12 @@ beforeAll(async () => {
 }, 60_000);
 afterAll(() => o.kapat());
 
-async function samlGiris(eposta: string, imzaAnahtari = anahtar) {
+async function samlGiris(
+  eposta: string,
+  imzaAnahtari = anahtar,
+  donustur?: (xml: string) => string,
+  yanitSakla?: (govde: string) => void,
+) {
   const kavanoz = new CerezKavanozu();
   const y = await kimlikIstegi(o.k, "/api/kimlik/sign-in/sso", {
     govde: { providerId: "a-saml", callbackURL: "/panel" },
@@ -84,13 +89,17 @@ async function samlGiris(eposta: string, imzaAnahtari = anahtar) {
     false,
     u.searchParams.get("RelayState") ?? undefined,
   );
+  const ham = donustur
+    ? Buffer.from(donustur(Buffer.from(yanit.context, "base64").toString("utf8")), "utf8").toString("base64")
+    : yanit.context;
   const govde = new URLSearchParams({
-    SAMLResponse: yanit.context,
+    SAMLResponse: ham,
     RelayState: u.searchParams.get("RelayState") ?? "",
   });
   const basliklar = new Headers({ "content-type": "application/x-www-form-urlencoded", cookie: kavanoz.baslik() });
   const acs = await o.k.auth.handler(new Request(ACS, { method: "POST", headers: basliklar, body: govde.toString() }));
   kavanoz.al(acs);
+  yanitSakla?.(govde.toString());
   return { kavanoz, acs, istekXml };
 }
 
@@ -143,5 +152,63 @@ describe("sahte SAML sağlayıcısıyla giriş", () => {
     expect(kavanoz.cerezler.has("akredit.session_token")).toBe(false);
     const k = await o.db.select().from(sema.kimlikKullanici);
     expect(k.map((x) => x.email)).not.toContain("davetsiz-saml@a.ornek.edu.tr");
+  });
+
+  // İP-27, inceleme dalga 2 #9: imzasız yanıt, imza sarma (XSW) ve imzalı içeriğin değiştirilmesi.
+  const imzalariSil = (xml: string) => xml.replace(/<(ds:)?Signature[\s\S]*?<\/(ds:)?Signature>/gu, "");
+  const oturumYok = (kavanoz: CerezKavanozu, acs: Response) => {
+    expect(kavanoz.cerezler.has("akredit.session_token")).toBe(false);
+    expect(acs.headers.get("location") ?? "").toMatch(/error/u);
+  };
+
+  it("imzası çıkarılmış (imzasız) yanıt reddedilir", async () => {
+    const { kavanoz, acs } = await samlGiris("saml@a.ornek.edu.tr", anahtar, (x) => {
+      const y = imzalariSil(x);
+      expect(y).not.toMatch(/SignatureValue/u);
+      return y;
+    });
+    oturumYok(kavanoz, acs);
+  });
+
+  it("imzalı onaydaki e-posta değiştirilirse reddedilir", async () => {
+    const { kavanoz, acs } = await samlGiris("saml@a.ornek.edu.tr", anahtar, (x) => {
+      expect(x).toContain("saml@a.ornek.edu.tr");
+      return x.replaceAll("saml@a.ornek.edu.tr", "saldirgan@a.ornek.edu.tr");
+    });
+    oturumYok(kavanoz, acs);
+  });
+
+  it("imza sarma (XSW): imzalı onayın önüne konan imzasız sahte onay kabul edilmez", async () => {
+    const { kavanoz, acs } = await samlGiris("saml@a.ornek.edu.tr", anahtar, (x) => {
+      const m = /<(saml2?:)?Assertion[\s\S]*?<\/(saml2?:)?Assertion>/u.exec(x);
+      expect(m).not.toBeNull();
+      const asil = m?.[0] ?? "";
+      const sahte = imzalariSil(asil)
+        .replaceAll("saml@a.ornek.edu.tr", "saldirgan@a.ornek.edu.tr")
+        .replace(/ID="([^"]+)"/u, 'ID="_sahte$1"');
+      // XSW-1/2 benzeri: sahte onay önde, imzalı asıl onay arkada.
+      return x.replace(asil, sahte + asil);
+    });
+    oturumYok(kavanoz, acs);
+    const k = await o.db.select().from(sema.kimlikKullanici);
+    expect(k.map((x) => x.email)).not.toContain("saldirgan@a.ornek.edu.tr");
+  });
+
+  it("aynı imzalı yanıtın ikinci kez gönderilmesi (yeniden oynatma) oturum açmaz", async () => {
+    let kayit = "";
+    const ilk = await samlGiris("saml@a.ornek.edu.tr", anahtar, undefined, (g) => {
+      kayit = g;
+    });
+    expect(ilk.kavanoz.cerezler.has("akredit.session_token")).toBe(true);
+    const tekrar = await o.k.auth.handler(
+      new Request(ACS, {
+        method: "POST",
+        headers: new Headers({ "content-type": "application/x-www-form-urlencoded" }),
+        body: kayit,
+      }),
+    );
+    const k = new CerezKavanozu();
+    k.al(tekrar);
+    expect(k.cerezler.has("akredit.session_token")).toBe(false);
   });
 });
