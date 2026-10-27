@@ -18,6 +18,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { Isaret } from "./logo.tsx";
 
 export const PANEL_MENUSU = [
   { href: "/panel", ad: "Genel bakış", simge: LayoutDashboard },
@@ -66,7 +67,9 @@ export function KenarCubugu({ bekleyenSayisi }: { bekleyenSayisi: number }) {
                 aria-current={aktif ? "page" : undefined}
                 onClick={() => setAcik(false)}
                 className={`flex min-h-11 items-center gap-3 rounded-md px-3 ${
-                  aktif ? "bg-vurgu-zemin font-semibold text-vurgu" : "text-metin hover:bg-yuzey-2"
+                  aktif
+                    ? "bg-vurgu-zemin font-semibold text-vurgu shadow-[inset_3px_0_0_var(--petrol)]"
+                    : "text-metin hover:bg-yuzey-2"
                 }`}
               >
                 <Simge aria-hidden className="size-5" />
@@ -82,6 +85,10 @@ export function KenarCubugu({ bekleyenSayisi }: { bekleyenSayisi: number }) {
           );
         })}
       </ul>
+      <p className="hidden items-center gap-2 border-t border-cizgi px-6 py-4 text-sm text-soluk md:flex">
+        <Isaret className="h-4 w-auto" />
+        Kanıtla doğrulanmış kalite
+      </p>
     </nav>
   );
 }

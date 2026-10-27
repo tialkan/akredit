@@ -1,18 +1,25 @@
 @import "tailwindcss";
 
-/* Renkler CSS değişkenleri olarak tanımlanır. Metin/zemin çiftleri WCAG 2.2 AA (4.5:1) üstündedir. */
+/* Kurumsal palet: lacivert #10325B ve petrol #157C80 (docs/marka.md). Her metin/zemin çifti WCAG 2.2 AA
+   eşiğini geçer; src/marka/kontrast.test.ts bu dosyayı okuyup hesaplar. */
 :root {
   color-scheme: light;
-  --zemin: #f7f6f2;
+  --marka-lacivert: #10325b;
+  --marka-petrol: #157c80;
+  --isaret-a: #10325b;
+  --isaret-onay: #157c80;
+  --zemin: #f5f7fa;
   --yuzey: #ffffff;
-  --yuzey-2: #efede7;
-  --metin: #1a1d23;
-  --soluk: #4b5262;
-  --cizgi: #d4d1c8;
-  --cizgi-guclu: #8a8f9a;
-  --vurgu: #0b5960;
+  --yuzey-2: #e9eef4;
+  --metin: #0e1a2b;
+  --soluk: #4a5568;
+  --cizgi: #d3dae3;
+  --cizgi-guclu: #7d8899;
+  --vurgu: #10325b;
   --vurgu-metin: #ffffff;
-  --vurgu-zemin: #e3f0ef;
+  --vurgu-zemin: #e3ebf5;
+  --petrol: #12696d;
+  --petrol-zemin: #e1f1f1;
   --odak: #b5520a;
   --risk-dusuk: #1c6634;
   --risk-dusuk-zemin: #e4f1e8;
@@ -20,28 +27,32 @@
   --risk-orta-zemin: #fbefdc;
   --risk-yuksek: #a1221a;
   --risk-yuksek-zemin: #fbe6e3;
-  --isi-0: #f1f0ec;
-  --isi-1: #dcebea;
-  --isi-2: #b7d8d6;
-  --isi-3: #82bcb9;
-  --isi-4: #3f8f8c;
-  --isi-5: #0b5960;
+  --isi-0: #eef1f5;
+  --isi-1: #d9ecec;
+  --isi-2: #b3d9d9;
+  --isi-3: #7fbdbe;
+  --isi-4: #157c80;
+  --isi-5: #10325b;
   --isi-metin-koyu: #ffffff;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
-    --zemin: #111418;
-    --yuzey: #191d23;
-    --yuzey-2: #222731;
-    --metin: #ebe9e4;
-    --soluk: #aeb5c1;
-    --cizgi: #333a46;
-    --cizgi-guclu: #6c7483;
-    --vurgu: #79cfcf;
-    --vurgu-metin: #0d1a1b;
-    --vurgu-zemin: #17302f;
+    --isaret-a: #e8eef6;
+    --isaret-onay: #5cc6c6;
+    --zemin: #0b1320;
+    --yuzey: #111c2c;
+    --yuzey-2: #1a2738;
+    --metin: #e8edf3;
+    --soluk: #a9b5c4;
+    --cizgi: #2a3749;
+    --cizgi-guclu: #6b7a8f;
+    --vurgu: #9cc2ee;
+    --vurgu-metin: #0b1320;
+    --vurgu-zemin: #17304f;
+    --petrol: #5cc6c6;
+    --petrol-zemin: #123437;
     --odak: #ffb067;
     --risk-dusuk: #8bd8a2;
     --risk-dusuk-zemin: #142a1b;
@@ -49,13 +60,13 @@
     --risk-orta-zemin: #2f2210;
     --risk-yuksek: #ffa196;
     --risk-yuksek-zemin: #36161a;
-    --isi-0: #1c2027;
-    --isi-1: #1b3433;
-    --isi-2: #1f4d4b;
-    --isi-3: #2a6c69;
-    --isi-4: #3e9792;
-    --isi-5: #79cfcf;
-    --isi-metin-koyu: #0d1a1b;
+    --isi-0: #172233;
+    --isi-1: #163338;
+    --isi-2: #1c4b50;
+    --isi-3: #23676b;
+    --isi-4: #3a9a9b;
+    --isi-5: #9cc2ee;
+    --isi-metin-koyu: #0b1320;
   }
 }
 
@@ -71,6 +82,8 @@
   --color-vurgu: var(--vurgu);
   --color-vurgu-metin: var(--vurgu-metin);
   --color-vurgu-zemin: var(--vurgu-zemin);
+  --color-petrol: var(--petrol);
+  --color-petrol-zemin: var(--petrol-zemin);
   --color-odak: var(--odak);
   --color-risk-dusuk: var(--risk-dusuk);
   --color-risk-dusuk-zemin: var(--risk-dusuk-zemin);
