@@ -6,6 +6,7 @@ import { z } from "zod";
 import * as akademik from "../akademik.ts";
 import type { ServisBaglami } from "../baglam.ts";
 import * as bologna from "../bologna/index.ts";
+import * as dersDosyasi from "../ders-dosyasi/index.ts";
 import * as kanit from "../kanit.ts";
 import * as onay from "../onay/index.ts";
 import * as oneri from "../oneri.ts";
@@ -180,6 +181,55 @@ export const UCLAR: Uc[] = [
     eylem: "olcme.oku",
     cikti: s.Ders,
     isle: (b, g) => akademik.ders(b, g.yol.id as string),
+  },
+  {
+    ad: "dersinDosyalari",
+    yontem: "GET",
+    yol: "/dersler/{id}/ders-dosyasi",
+    ozet: "Dersin dönemlere göre ders dosyası durumu ve hocanın etkileşimi",
+    eylem: "olcme.oku",
+    cikti: z.array(dersDosyasi.DersDosyasiDurumu),
+    isle: (b, g) => dersDosyasi.dersinDosyalari(b, g.yol.id as string),
+  },
+  {
+    ad: "dokumAktar",
+    yontem: "POST",
+    yol: "/ders-dosyasi/dokum",
+    ozet: "OBS not dökümlerini (soru bazlı) aktar ve soru-çıktı eşleme önerisini aç",
+    eylem: "olcme.veri_gir",
+    govde: dersDosyasi.DokumGirdisi,
+    cikti: dersDosyasi.DokumSonucu,
+    basariDurumu: 201,
+    isle: (b, g) => dersDosyasi.dokumAktar(b, g.govde, process.env.AKREDIT_TAKMA_AD_ANAHTARI ?? ""),
+  },
+  {
+    ad: "dersDosyasiDurumu",
+    yontem: "GET",
+    yol: "/ders-dosyasi/{id}",
+    ozet: "Bir ders açılışının ders dosyası durumu",
+    eylem: "olcme.oku",
+    cikti: dersDosyasi.DersDosyasiDurumu,
+    isle: (b, g) => dersDosyasi.durum(b, g.yol.id as string),
+  },
+  {
+    ad: "dersDosyasiOlustur",
+    yontem: "POST",
+    yol: "/ders-dosyasi/{id}/olustur",
+    ozet: "Onaylı eşlemeyle ölçmeyi yap, ders dosyasını ve onay önerisini oluştur",
+    eylem: "olcme.veri_gir",
+    govde: Bos,
+    cikti: dersDosyasi.DersDosyasiDurumu,
+    isle: (b, g) => dersDosyasi.olustur(b, g.yol.id as string),
+  },
+  {
+    ad: "dersDosyasiBelgesi",
+    yontem: "GET",
+    yol: "/ders-dosyasi/{id}/belge",
+    ozet: "Ders dosyası (DOCX) ya da ölçme raporu (XLSX), base64",
+    eylem: "rapor.oku",
+    sorgu: z.object({ bicim: dersDosyasi.BelgeBicimi }).strict(),
+    cikti: dersDosyasi.DosyaCiktisi,
+    isle: (b, g) => dersDosyasi.belge(b, g.yol.id as string, (g.sorgu as { bicim: string }).bicim),
   },
   {
     ad: "raporlar",
