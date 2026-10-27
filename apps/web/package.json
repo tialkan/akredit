@@ -11,7 +11,8 @@
     "start": "next start",
     "typecheck": "tsc --noEmit -p .",
     "test": "vitest run --passWithNoTests",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "marka": "node scripts/marka-uret.ts"
   },
   "dependencies": {
     "@akredit/anket": "workspace:*",

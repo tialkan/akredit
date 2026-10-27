@@ -166,13 +166,14 @@ export function manifest() {
     scope: KAPSAM,
     display: "standalone",
     orientation: "portrait",
-    background_color: "#f7f6f2",
-    theme_color: "#f7f6f2",
+    background_color: "#f5f7fa",
+    theme_color: "#10325b",
     icons: [{ src: `${KAPSAM}/simge.svg`, sizes: "any", type: "image/svg+xml", purpose: "any maskable" }],
   };
 }
 
-export const SIMGE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#1f4e79"/><path d="M144 268l76 76 148-176" fill="none" stroke="#fff" stroke-width="48" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+// public/marka/uygulama-simgesi.svg ile aynı (scripts/marka-uret.ts üretir).
+export const SIMGE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><title>Akredit</title><rect width="512" height="512" fill="#10325B"/><g transform="translate(256 262) scale(4.1) translate(-39.964999999999996 -39.925)"><path d="m39.96 9.8-35.34 60.25h12.67c7.01-13.96 15.25-29.69 22.65-42.71l8.64 16.27 7.38-6.31-16-27.5z" fill="#FFFFFF"/><path d="m61.26 46.38-7.68 6.91 8.69 16.76h13.04l-14.05-23.67z" fill="#FFFFFF"/><path d="m56.69 38.84-18.31 15.59-8.36-5.79-2.93 5.71 11.39 10.8 21.98-20.06-3.77-6.25z" fill="#5CC6C6"/></g></svg>`;
 
 /**
  * Servis çalışanının kaynağı. Karar mantığı `onbellekKarari` ile aynıdır; aynı işlev JS olarak gömülür;
