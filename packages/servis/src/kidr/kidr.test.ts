@@ -334,7 +334,7 @@ describe("uçtan uca KİDR taslağı (kurgu kurum)", () => {
       await expect(topluKararVer(yon, { oneriIdleri: oneriler.slice(0, 2) })).rejects.toMatchObject({
         kod: "kural_ihlali",
       });
-      const api = await o.baglam(a, a.yonetici, "api_anahtari", null);
+      const api = await o.baglam(a, a.yonetici, "anahtar", null);
       await expect(kararVer(api, { oneriId: oneriler[0], sonuc: "onaylandi" })).rejects.toBeInstanceOf(ServisHatasi);
       const d = await olgunlukDurumu(yon, kidrId);
       expect(d.every((x) => x.karar === "bekliyor" && x.kesinDuzey === null)).toBe(true);
@@ -408,6 +408,6 @@ describe("uçtan uca KİDR taslağı (kurgu kurum)", () => {
     );
     expect(g).toMatchObject({ tur: "dis_gonderim", risk: "yuksek" });
     const gunluk = await o.db.execute(sql`select count(*)::int as n from gunluk where eylem like 'rapor.%'`);
-    expect((gunluk.rows[0] as { n: number }).n).toBeGreaterThan(0);
+    expect(((gunluk as unknown as { rows: { n: number }[] }).rows[0] as { n: number }).n).toBeGreaterThan(0);
   });
 });
