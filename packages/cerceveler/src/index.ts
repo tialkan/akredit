@@ -8,3 +8,6 @@ export * from "./ice-aktarma.ts";
 export * from "./kutuphane.ts";
 export * from "./sema.ts";
 export * from "./veri.ts";
+export * from "./veri-resmi.ts";
+export * from "./veri-yokak.ts";
+export * from "./yokak-anahtar.ts";

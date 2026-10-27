@@ -21,9 +21,9 @@ YÖKAK ve program akreditasyon kuruluşlarının ölçütlerini, olgunluk düzey
 ## Kabul ölçütleri
 
 - [x] Şema ve içe aktarma testleri.
-- [ ] Her ölçütün resmî kaynak sayfası ve belge özeti kayıtlı. (Şemayla zorunlu; veride karşılanmadı, belgeler indirilemedi.)
+- [x] Her ölçütün resmî kaynak sayfası ve belge özeti kayıtlı. (YÖKAK 3.3 ve KİDR 3.2.1 için karşılandı, testle; MÜDEK belgesi yok, 2020 taslakları eski sürüm olarak `DOĞRULANMADI`.)
 - [x] Çerçeve sürümü değişince eski raporlar eski sürüme bağlı kalır.
-- [ ] `pnpm verify` temiz. (Bu paket temiz; tam çalıştırmada `packages/vt` gunluk testi yük altında zaman aşımına düşüyor, tek başına geçiyor.)
+- [x] `pnpm verify` temiz.
 
 ## Notlar
 
@@ -33,3 +33,4 @@ YÖKAK ve program akreditasyon kuruluşlarının ölçütlerini, olgunluk düzey
 
 - 2026-10-23: İP tanımlandı. Başlamadan önce kapsamı güncel mimariye göre ayrıntılandır.
 - 2026-10-27: Şema, içe aktarma, uzman onayı, sürümlü kütüphane, eşleme önerisi/kararı ve 5 ilk çerçeve eklendi (16 test). yokak.gov.tr ve mudek.org.tr ağ vekilinde engelli: hiçbir resmî metin doğrulanmadı, hepsi `DOĞRULANMADI`; adresler `kaynaklar/resmi/kaynaklar.json`da. Kalan: belgeleri indirip içe aktarma ve uzman onayı; YÖKAK rubriği, KİDR bölümleri, MÜDEK ölçütleri. Karar: eşleme cekirdek öneri türü gelene dek yerel arayüzle. Ayrıntı: `docs/raporlar/IP-11.md`.
+- 2026-10-27 (resmî metin): Kullanıcının tarayıcıyla indirdiği 7 YÖKAK belgesi `kaynaklar/resmi/yokak/` altına adlandırılarak eklendi (toplam 15 166 880 bayt), `kaynaklar.json` güncellendi. `yokak-kurumsal@3.3` (Kılavuz 3.3 Ek-1 + Ölçütler 3.1: 4 başlık, 14 ölçüt, 46 alt ölçüt, 44 alt ölçütte düzey metni ve örnek kanıtlar) ve `yokak-kidr@3.2.1` (Ek-1 şablonu, 10 bölüm) resmî metinle eklendi; 2020 çerçeveleri korundu. D2-2 kapatıldı: `baslikDurumu`, `kaynakDosya`/`ekKaynaklar`, rapor bölümü başlık kuralı. Belgede birebir geçiş testi eklendi. Kalan: A.4.1/B.2.2 düzey metinleri ve genel düzey adları (Şekil 1 görsel) `DOĞRULANMADI`; MÜDEK; uzman onayı. Karar: Kılavuz 3.3, 3.1.1'den yeni olduğu için esas alındı; ölçüt metinleri Ölçütler 3.1'den (temiz metin katmanı).

@@ -1,8 +1,9 @@
-// İlk çerçeveler. Resmî çerçevelerin hiçbirinin metni bu ortamda resmî dosyadan alınamadı:
-// resmî siteler (yokak.gov.tr, mudek.org.tr) ağ vekili tarafından engellendi. Bu yüzden bütün
-// resmî ölçüt metinleri DOGRULANMADI, çerçeveler `dogrulandi: false`. Ayrıntı: docs/cerceveler.md.
+// İlk çerçeveler. 2020 tabanlı YÖKAK ve KİDR taslağı ile MÜDEK, resmî dosyaya erişilemeden
+// kuruldu (metinleri DOGRULANMADI); geçmiş raporlar için korunur. Resmî belgeden alınmış
+// güncel YÖKAK sürümleri veri-resmi.ts içindedir. Ayrıntı: docs/cerceveler.md.
 
 import { type Cerceve, cerceveSemasi, DOGRULANMADI, type KanitGereksinimi, type Olcut } from "./sema.ts";
+import { YOKAK_KIDR_3_2_1, YOKAK_KURUMSAL_3_3 } from "./veri-resmi.ts";
 
 const ERISIM = "2026-10-27";
 
@@ -131,6 +132,7 @@ export function agacKur(
 const dogrulanmamis = (kod: string, baslik: string): Omit<Olcut, "altOlcutler"> => ({
   kod,
   baslik,
+  baslikDurumu: "dogrulanmadi",
   metin: DOGRULANMADI,
   metinDurumu: "dogrulanmadi",
   kaynakSayfa: null,
@@ -210,6 +212,7 @@ const ic =
   (kanit: Record<string, KanitGereksinimi[]>, metin: Record<string, string>) => (kod: string, baslik: string) => ({
     kod,
     baslik,
+    baslikDurumu: "ic" as const,
     metin: metin[kod] ?? baslik,
     metinDurumu: "ic" as const,
     kaynakSayfa: null,
@@ -289,6 +292,8 @@ export const BOLOGNA_AKTS_IC: Cerceve = cerceveSemasi.parse({
 export const ILK_CERCEVELER: readonly Cerceve[] = [
   YOKAK_KURUMSAL_2020,
   YOKAK_KIDR_TASLAK,
+  YOKAK_KURUMSAL_3_3,
+  YOKAK_KIDR_3_2_1,
   MUDEK_TASLAK,
   AKREDIT_ONLISANS_IC,
   BOLOGNA_AKTS_IC,
