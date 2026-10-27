@@ -228,8 +228,9 @@ export function gonderenDogrula(
     return k.includes("@") ? k === adres : alan === k || alan.endsWith(`.${k}`);
   });
   if (!izinli) return { gecerli: false, ileti: "Gönderen bu kurum adına belge gönderemez." };
-  const { spf, dkim, dmarc } = ileti.dogrulama;
-  if (!(dmarc === "pass" || (dkim === "pass" && spf === "pass")))
+  // SPF ve DKIM, From alan adıyla hizalı olmadan da geçebilir (saldırganın kendi alan adı). Hizalamayı yalnız
+  // DMARC sonucu gösterir; bu yüzden yalnız DMARC "pass" kabul edilir.
+  if (ileti.dogrulama.dmarc !== "pass")
     return { gecerli: false, ileti: "Gönderenin kimliği doğrulanamadı; e-posta kabul edilmedi." };
   return { gecerli: true };
 }
