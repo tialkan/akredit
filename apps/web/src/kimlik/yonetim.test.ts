@@ -61,6 +61,23 @@ describe("davet akışı", () => {
     await expect(davetKabulEt(o.k, istek("/", { kavanoz: bk }), d2.belirtec)).rejects.toMatchObject({ durum: 403 });
   });
 
+  it("aynı davet eşzamanlı iki kabulle iki kez rol vermez", async () => {
+    const d = await davetOlustur(o.k, yonetici, {
+      adSoyad: "Deneme Eşzamanlı",
+      eposta: "eszamanli@a.ornek.edu.tr",
+      rol: "ogretim_elemani",
+      kapsam: { tur: "ders", id: o.a.dersId },
+    });
+    const { kavanoz: ek } = await sihirliGiris(o, "eszamanli@a.ornek.edu.tr");
+    const sonuc = await Promise.allSettled([
+      davetKabulEt(o.k, istek("/", { kavanoz: ek }), d.belirtec),
+      davetKabulEt(o.k, istek("/", { kavanoz: ek }), d.belirtec),
+    ]);
+    expect(sonuc.filter((x) => x.status === "fulfilled")).toHaveLength(1);
+    const b = await istekBaglami(o.k, istek("/", { kavanoz: ek }));
+    expect(b.kisi.atamalar).toHaveLength(1);
+  });
+
   it("değerlendirici süresiz davet edilemez; süreli davetle salt okunur ve süre sonunda erişemez", async () => {
     await expect(
       davetOlustur(o.k, yonetici, {
