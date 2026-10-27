@@ -9,6 +9,7 @@ import * as bologna from "../bologna/index.ts";
 import * as dersDosyasi from "../ders-dosyasi/index.ts";
 import * as kanit from "../kanit.ts";
 import * as onay from "../onay/index.ts";
+import * as odr from "../odr/index.ts";
 import * as oneri from "../oneri.ts";
 import * as panel from "../panel.ts";
 import * as politika from "../politika.ts";
@@ -230,6 +231,55 @@ export const UCLAR: Uc[] = [
     sorgu: z.object({ bicim: dersDosyasi.BelgeBicimi }).strict(),
     cikti: dersDosyasi.DosyaCiktisi,
     isle: (b, g) => dersDosyasi.belge(b, g.yol.id as string, (g.sorgu as { bicim: string }).bicim),
+  },
+  {
+    ad: "odrOlustur",
+    yontem: "POST",
+    yol: "/odr",
+    ozet: "Programın öz değerlendirme raporu taslağını çerçeveye göre kur (yeni sürüm)",
+    eylem: "rapor.duzenle",
+    govde: odr.OdrGirdisi,
+    cikti: odr.OdrDurumu,
+    basariDurumu: 201,
+    isle: (b, g) => odr.olustur(b, g.govde),
+  },
+  {
+    ad: "programinOdrleri",
+    yontem: "GET",
+    yol: "/programlar/{id}/odr",
+    ozet: "Programın öz değerlendirme raporları",
+    eylem: "rapor.oku",
+    cikti: z.array(odr.OdrDurumu),
+    isle: (b, g) => odr.programinRaporlari(b, g.yol.id as string),
+  },
+  {
+    ad: "odrDurumu",
+    yontem: "GET",
+    yol: "/odr/{id}",
+    ozet: "Öz değerlendirme raporunun durumu, kapsaması, eksikleri ve sürüm geçmişi",
+    eylem: "rapor.oku",
+    cikti: odr.OdrDurumu,
+    isle: (b, g) => odr.durum(b, g.yol.id as string),
+  },
+  {
+    ad: "odrEksikleri",
+    yontem: "POST",
+    yol: "/odr/{id}/eksikler",
+    ozet: "Raporun eksikleri için görev aç",
+    eylem: "rapor.duzenle",
+    govde: Bos,
+    cikti: odr.EksikGorevleri,
+    isle: (b, g) => odr.eksikleriBaslat(b, g.yol.id as string),
+  },
+  {
+    ad: "odrBelgesi",
+    yontem: "GET",
+    yol: "/odr/{id}/belge",
+    ozet: "Öz değerlendirme raporu (DOCX) ya da ziyaret hazırlık paketi (XLSX), base64",
+    eylem: "rapor.oku",
+    sorgu: z.object({ bicim: odr.OdrBicimi }).strict(),
+    cikti: odr.OdrDosyasi,
+    isle: (b, g) => odr.belge(b, g.yol.id as string, (g.sorgu as { bicim: string }).bicim),
   },
   {
     ad: "raporlar",
