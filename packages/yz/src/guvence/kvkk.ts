@@ -58,7 +58,8 @@ interface Bulgu {
 
 const IBAN = /\bTR\d{2}(?:\s?[0-9A-Z]{4}){5}\s?\d{2}\b/giu;
 const EPOSTA = /[\p{L}\p{N}._%+-]+@[\p{L}\p{N}.-]+\.\p{L}{2,}/gu;
-const TELEFON = /(?<![\d+])(?:\+90[\s-]?|0[\s-]?)\(?5\d{2}\)?[\s-]?\d{3}[\s-]?\d{2}[\s-]?\d{2}(?!\d)/gu;
+// Cep (5xx), sabit hat (2xx-4xx alan kodu) ve 850 numaraları.
+const TELEFON = /(?<![\d+])(?:\+90[\s-]?|0[\s-]?)\(?(?:[2-5]\d{2}|850)\)?[\s-]?\d{3}[\s-]?\d{2}[\s-]?\d{2}(?!\d)/gu;
 const TCKN = /(?<!\d)\d{11}(?!\d)/gu;
 
 function kacis(s: string): string {

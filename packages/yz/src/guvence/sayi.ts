@@ -37,6 +37,51 @@ const TARIH_YAZILI = new RegExp(`(?<![\\d])(\\d{1,2})\\s+(${AYLAR.join("|")})\\s
 // %45, % 45,5, 45%, 1.250,75, 3,5, 12
 const SAYI = /(%\s?)?(?<![\d.,])(\d{1,3}(?:\.\d{3})+(?:,\d+)?|\d+(?:,\d+)?|\d+\.\d+)(?![\d])(\s?%)?/gu;
 
+// Yazıyla sayılar: "beş toplantı", "yüzde kırk", "iki yüz elli". Tek başına "bir" belirteç
+// olarak çok sık geçtiğinden sayı sayılmaz ("bir toplantı"); "yüzde bir", "bir bin" gibi bileşikler sayılır.
+const BIRLER: Record<string, number> = {
+  sıfır: 0,
+  bir: 1,
+  iki: 2,
+  üç: 3,
+  dört: 4,
+  beş: 5,
+  altı: 6,
+  yedi: 7,
+  sekiz: 8,
+  dokuz: 9,
+  on: 10,
+  yirmi: 20,
+  otuz: 30,
+  kırk: 40,
+  elli: 50,
+  altmış: 60,
+  yetmiş: 70,
+  seksen: 80,
+  doksan: 90,
+};
+const CARPANLAR: Record<string, number> = { yüz: 100, bin: 1000, milyon: 1e6, milyar: 1e9 };
+const SOZCUK = [...Object.keys(BIRLER), ...Object.keys(CARPANLAR)].join("|");
+const YAZIYLA = new RegExp(
+  `(?<![\\p{L}])(yüzde\\s+)?((?:(?:${SOZCUK})\\s+)*(?:${SOZCUK}))(?![\\p{L}])`,
+  "giu",
+);
+
+/** "iki yüz elli" → 250; "bin dokuz yüz" → 1900. Çözülemezse null. */
+export function yaziylaSayiCoz(ham: string): number | null {
+  let toplam = 0;
+  let ara = 0;
+  for (const s of ham.toLocaleLowerCase("tr-TR").split(/\s+/u).filter(Boolean)) {
+    if (s in BIRLER) ara += BIRLER[s] as number;
+    else if (s === "yüz") ara = (ara || 1) * 100;
+    else if (s in CARPANLAR) {
+      toplam += (ara || 1) * (CARPANLAR[s] as number);
+      ara = 0;
+    } else return null;
+  }
+  return toplam + ara;
+}
+
 /** "1.250,75" → 1250.75; "3,5" → 3.5; "3.5" → 3.5. */
 export function turkceSayiCoz(ham: string): number {
   if (/^\d{1,3}(\.\d{3})+(,\d+)?$/u.test(ham)) return Number(ham.replace(/\./gu, "").replace(",", "."));
@@ -71,6 +116,22 @@ export function sayilariCikar(metin: string): BulunanSayi[] {
       ham: m[0].trim(),
       tur: yuzde ? "yuzde" : "sayi",
       deger: turkceSayiCoz(m[2] ?? ""),
+      baslangic: m.index ?? 0,
+      bitis: (m.index ?? 0) + m[0].length,
+    });
+  }
+  for (const m of metin.matchAll(YAZIYLA)) {
+    const yuzde = Boolean(m[1]);
+    const govde = (m[2] ?? "").toLocaleLowerCase("tr-TR");
+    if (!yuzde && govde === "bir") continue;
+    // "yüz yüze" deyimindeki "yüz" sayı değildir.
+    if (govde.endsWith("yüz") && /^\s+yüz/iu.test(metin.slice((m.index ?? 0) + m[0].length))) continue;
+    const deger = yaziylaSayiCoz(govde);
+    if (deger === null) continue;
+    ekle({
+      ham: m[0],
+      tur: yuzde ? "yuzde" : "sayi",
+      deger,
       baslangic: m.index ?? 0,
       bitis: (m.index ?? 0) + m[0].length,
     });
