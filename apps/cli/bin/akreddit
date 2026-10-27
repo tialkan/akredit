@@ -704,7 +704,7 @@ async function bolognaDenetle(s) {
   vt.close();
   if (!son) hata("Önce Bologna verisini al: akreddit bologna-al <adres>");
   const veri = JSON.parse(readFileSync(join(klasor, son.yol), "utf8"));
-  const { denetle } = await bolognaModulu();
+  const { denetle } = await import(new URL("../lib/cekirdek.mjs", import.meta.url).href);
   const [alt, ust] = String(s["akts-saat"] || "25-30").split("-").map(Number);
   const bulgular = denetle(veri, { aktsSaat: [alt, ust] });
   const kaynak = `[K:${son.ozet.slice(0, 8)}]`;
@@ -736,7 +736,7 @@ async function bolognaTaslakDenetle(s) {
   if (!dosya || !existsSync(dosya)) hata("Taslak dosyasını ver: akreddit bologna-taslak-denetle raporlar/bologna/TBP201.json");
   let taslak;
   try { taslak = JSON.parse(readFileSync(dosya, "utf8")); } catch (e) { hata(`Taslak geçerli JSON değil: ${e.message}`); }
-  const { taslakDenetle } = await import(new URL("../lib/bologna-taslak.mjs", import.meta.url).href);
+  const { taslakDenetle } = await import(new URL("../lib/cekirdek.mjs", import.meta.url).href);
   const sonuc = taslakDenetle(taslak, { bolen: Number(s.bolen) || 30 });
   yaz(`Taslak: ${taslak.kod || "?"} ${taslak.ad || ""}`);
   yaz(`İş yükü: ${sonuc.isToplam} / ${sonuc.hedef} saat`);
@@ -748,7 +748,80 @@ async function bolognaTaslakDenetle(s) {
   yaz("Taslak bütün kurallardan geçti.");
 }
 
-const YARDIM = `Akreddit
+// ---------- Platforma aktarım (İP-24) ----------
+
+async function aktarimModulu() {
+  return import(new URL("../lib/aktarim.mjs", import.meta.url).href);
+}
+
+async function paketiYaz(klasor, cikti) {
+  const { paketOlustur } = await aktarimModulu();
+  const vt = yerelVt(klasor);
+  const zaman = new Date().toISOString();
+  const p = paketOlustur(klasor, vt, zaman);
+  vt.close();
+  const dosya = resolve(cikti || join(klasor, "kayit", "aktarim", `${zaman.replace(/[:.]/g, "-")}.json`));
+  mkdirSync(dirname(dosya), { recursive: true });
+  writeFileSync(dosya, JSON.stringify(p));
+  adimKaydet(klasor, { eylem: "aktarim_paketi", ayrinti: JSON.stringify({ paket: p.paketOzeti.slice(0, 16), adim: p.tablolar.adimlar.length, kanit: p.tablolar.kanitlar.length }) });
+  return { p, dosya };
+}
+
+function paketOzetiYaz(p) {
+  const t = p.tablolar;
+  yaz(`Kanıt: ${t.kanitlar.length}, çıktı: ${t.ciktilar.length}, öneri: ${t.oneriler.length} (karar verilmiş ${t.oneriler.filter((o) => o.karar !== "bekliyor").length}), yazma planı: ${t.yazma_planlari.length}, adım: ${t.adimlar.length}, dosya: ${p.ekDosyalar.length}`);
+  yaz(`Günlük zinciri: ${p.gunlukZinciri.son.slice(0, 16)}`);
+}
+
+async function aktarPaketi(s) {
+  const { klasor, vt } = klasorVeVt();
+  vt.close();
+  const { p, dosya } = await paketiYaz(klasor, s.cikti);
+  yaz(`Aktarım paketi hazır: ${dosya}`);
+  paketOzetiYaz(p);
+}
+
+function paketOku(dosya) {
+  if (!dosya || !existsSync(dosya)) hata("Paket dosyasını ver: akredit paket-dogrula <paket.json>");
+  try { return JSON.parse(readFileSync(dosya, "utf8")); } catch { hata("Paket dosyası okunamadı. Dosya bozulmuş olabilir."); }
+}
+
+async function paketDogrulaKomutu(s) {
+  const p = paketOku(s._[0]);
+  const { paketDogrula } = await aktarimModulu();
+  const sorunlar = paketDogrula(p);
+  if (sorunlar.length) { sorunlar.forEach((x) => yaz(`HATA: ${x}`)); process.exit(CIKIS.hata); }
+  paketOzetiYaz(p);
+  yaz("Paket sağlam: bütün kanıt özetleri ve günlük zinciri doğrulandı.");
+}
+
+async function paketAcKomutu(s) {
+  const p = paketOku(s._[0]);
+  if (!s._[1]) hata("Paketin açılacağı yeni klasörü yaz: akredit paket-ac <paket.json> <klasor>");
+  const klasor = resolve(s._[1]);
+  for (const alt of ["kanitlar", "kayit", "gunluk", "raporlar", "tarayici"]) mkdirSync(join(klasor, alt), { recursive: true });
+  if (!existsSync(join(klasor, "AKREDDIT.md"))) writeFileSync(join(klasor, "AKREDDIT.md"), KLASOR_BENIOKU);
+  const { paketAc } = await aktarimModulu();
+  try { paketAc(p, klasor, yerelVt); } catch (e) { hata(`Paket açılamadı: ${e.message}`); }
+  yaz(`Paket açıldı: ${klasor}`);
+  paketOzetiYaz(p);
+}
+
+async function esitle(s) {
+  const { klasor, vt } = klasorVeVt();
+  vt.close();
+  const sunucu = s.sunucu || process.env.AKREDIT_SUNUCU || "https://akredit.org";
+  const anahtar = process.env.AKREDIT_ANAHTARI;
+  const { p, dosya } = await paketiYaz(klasor);
+  yaz(`Aktarım paketi hazır: ${dosya}`);
+  if (!anahtar) return yaz("Göndermek için panelden aldığın anahtarı AKREDIT_ANAHTARI ortam değişkenine yaz. Paket bu bilgisayarda saklandı.");
+  const { paketGonder } = await aktarimModulu();
+  const r = await paketGonder(p, { sunucu, anahtar });
+  adimKaydet(klasor, { eylem: r.tamam ? "esitleme_tamam" : "esitleme_bekliyor", adres: String(sunucu), ayrinti: JSON.stringify({ paket: p.paketOzeti.slice(0, 16) }) });
+  yaz(r.tamam ? "Klasör platforma gönderildi." : r.neden);
+}
+
+const YARDIM = `Akredit (eski adı Akreddit; iki komut adı da çalışır)
 
   kurulum                   Yapay zekâ modelini adım adım ayarlar (ilk iş bunu çalıştır)
   ajan [görev]              Yapay zekâ ajanını seçtiğin modelle başlatır
@@ -775,7 +848,11 @@ const YARDIM = `Akreddit
   pilot-raporu [--eski-saat N]  Süre, karar oranları ve kapsamı raporlar/pilot-raporu.md'ye yazar
   bologna-al <adres> [--dersler A,B]  Programın herkese açık Bologna verisini kanıt olarak alır
   bologna-denetle [--akts-saat 25-30]  AKTS, değerlendirme, matris tutarlılığı ve diğer kuralları denetler
-  bologna-taslak-denetle <taslak.json> [--bolen 30]  Yazılacak ders sayfası taslağını K1-K12 kurallarıyla denetler`;
+  bologna-taslak-denetle <taslak.json> [--bolen 30]  Yazılacak ders sayfası taslağını K1-K12 kurallarıyla denetler
+  aktar-paketi [--cikti dosya]   Klasörü kayıpsız bir aktarım paketine yazar (çevrim dışı)
+  paket-dogrula <paket.json>     Paketteki kanıt özetlerini ve günlük zincirini doğrular
+  paket-ac <paket.json> <klasor> Paketi yeni bir çalışma klasörüne açar
+  esitle [--sunucu URL]          Paketi hazırlar, AKREDIT_ANAHTARI varsa akredit.org'a ya da kurum sunucusuna gönderir`;
 
 const [komut, ...geri] = process.argv.slice(2);
 const s = secenekler(geri);
@@ -790,6 +867,7 @@ const KOMUTLAR = {
   "yazma-plani": yazmaPlani, "yazma-onay": yazmaOnay, "yazma-bitir": yazmaBitir, "yazma-planlari": yazmaPlanlari,
   "pilot-raporu": pilotRaporu,
   "bologna-al": bolognaAl, "bologna-denetle": bolognaDenetle, "bologna-taslak-denetle": bolognaTaslakDenetle,
+  "aktar-paketi": aktarPaketi, "paket-dogrula": paketDogrulaKomutu, "paket-ac": paketAcKomutu, esitle,
 };
 if (!KOMUTLAR[komut]) { yaz(YARDIM); process.exit(komut ? CIKIS.hata : 0); }
 await KOMUTLAR[komut](s);
