@@ -14,9 +14,9 @@ try {
   const { saglayici } = kurumIciSaglayici(process.env);
   console.log(`Model: ${saglayici.ad} / ${saglayici.model}  (${new Date().toISOString()})`);
   const a = await degerlendir(kanitSiniflama, KANIT_SINIFLAMA_ORNEKLERI, () => saglayici);
-  console.log("\nKanıt sınıflama\n" + sonucTablosu(a));
+  console.log(`\nKanıt sınıflama\n${sonucTablosu(a)}`);
   const b = await degerlendir(toplantiBilgisi, TOPLANTI_BILGISI_ORNEKLERI, () => saglayici);
-  console.log("\nToplantı bilgisi\n" + sonucTablosu(b));
+  console.log(`\nToplantı bilgisi\n${sonucTablosu(b)}`);
   process.exitCode = a.gecti && b.gecti ? 0 : 1;
 } catch (e) {
   console.error(e instanceof Error ? e.message : String(e));
