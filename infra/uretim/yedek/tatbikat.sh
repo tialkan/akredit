@@ -67,7 +67,7 @@ pgk "$PG_BIN/pg_ctl" -D "$calisma/ozgun" -l "$calisma/ozgun.log" -w start >/dev/
 "$PG_BIN/createdb" -h 127.0.0.1 -p "$port" -U postgres akredit
 
 # 2. Göçler (gerçek packages/vt göçleri)
-(cd "$depo_koku" && DATABASE_URL="postgres://postgres@127.0.0.1:$port/akredit" node infra/gelistirme/goc.ts) | tee -a "$rapor"
+(cd "$depo_koku" && DATABASE_URL="postgres://postgres@127.0.0.1:$port/akredit" node infra/uretim/goc.ts) | tee -a "$rapor"
 goc_sayisi="$(sorgu "select count(*) from pg_catalog.pg_tables where schemaname not in ('pg_catalog','information_schema')")"
 kayit "Özgün kümedeki tablo sayısı: $goc_sayisi"
 

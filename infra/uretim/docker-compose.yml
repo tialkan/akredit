@@ -1,0 +1,277 @@
+# Akredit üretim/hazırlık yığını (tek sunucu, Docker Compose).
+# Sunucuda /opt/akredit altında çalıştırılır; doğrudan değil, dagit.sh üzerinden:
+#   infra/uretim/dagit.sh <ortam> <sürüm>
+# Değişkenler: surumler.env (imajlar, depoda) + /run/akredit/<ortam>.env (sırlar, sirlar-ac.sh açar).
+# Dışarıya yalnız Caddy (80/443) açılır; diğer bütün hizmetler iç ağdadır.
+
+name: akredit-${AKREDIT_ORTAM:?AKREDIT_ORTAM tanımlı değil}
+
+x-gunluk: &gunluk
+  # Kapsayıcı günlükleri dönerek tutulur (hizmet başına en çok 5 x 20 MB).
+  # Saklama süresi gerekçesi: docs/isletim/gozlem.md "Günlük saklama".
+  logging:
+    driver: json-file
+    options:
+      max-size: "20m"
+      max-file: "5"
+
+x-guvenli: &guvenli
+  security_opt:
+    - no-new-privileges:true
+  restart: unless-stopped
+
+services:
+  caddy:
+    <<: [*gunluk, *guvenli]
+    image: ${CADDY_IMAJI:?}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      AKREDIT_ALAN: ${AKREDIT_ALAN:?}
+      AKREDIT_UYGULAMA_ALAN: ${AKREDIT_UYGULAMA_ALAN:?}
+      AKREDIT_BELGE_ALAN: ${AKREDIT_BELGE_ALAN:?}
+      AKREDIT_DURUM_ALAN: ${AKREDIT_DURUM_ALAN:?}
+      ACME_EPOSTA: ${ACME_EPOSTA:?}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-veri:/data
+      - caddy-ayar:/config
+    depends_on:
+      web:
+        condition: service_healthy
+    networks: [on, gozlem]
+
+  web:
+    <<: [*gunluk, *guvenli]
+    image: ${WEB_IMAJ_ADI:?}:${AKREDIT_SURUM:?AKREDIT_SURUM tanımlı değil}
+    read_only: true
+    tmpfs: [/tmp, /uygulama/apps/web/.next/cache]
+    environment:
+      NODE_ENV: production
+      AKREDIT_ADRES: ${AKREDIT_ADRES:?}
+      AKREDIT_VT_ADRES: postgres://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@vt:5432/${POSTGRES_DB:?}
+      AKREDIT_ONAY_GIZLI: ${AKREDIT_ONAY_GIZLI:?}
+      AKREDIT_ANKET_GIZLI: ${AKREDIT_ANKET_GIZLI:?}
+      S3_UC_NOKTASI: ${S3_UC_NOKTASI:-}
+      S3_BOLGE: ${S3_BOLGE:-}
+      S3_KOVA: ${S3_KOVA:-}
+      S3_ERISIM_ANAHTARI: ${S3_ERISIM_ANAHTARI:-}
+      S3_GIZLI_ANAHTAR: ${S3_GIZLI_ANAHTAR:-}
+      SMTP_ADRESI: ${SMTP_ADRESI:-}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel:4318
+      OTEL_SERVICE_NAME: akredit-web
+      OTEL_RESOURCE_ATTRIBUTES: deployment.environment=${AKREDIT_ORTAM},service.version=${AKREDIT_SURUM}
+    depends_on:
+      vt:
+        condition: service_healthy
+    networks: [on, arka, gozlem]
+
+  isci:
+    <<: [*gunluk, *guvenli]
+    image: ${ISCI_IMAJ_ADI:?}:${AKREDIT_SURUM:?}
+    read_only: true
+    tmpfs: [/tmp]
+    environment:
+      NODE_ENV: production
+      AKREDIT_VT_ADRES: postgres://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@vt:5432/${POSTGRES_DB:?}
+      S3_UC_NOKTASI: ${S3_UC_NOKTASI:-}
+      S3_BOLGE: ${S3_BOLGE:-}
+      S3_KOVA: ${S3_KOVA:-}
+      S3_ERISIM_ANAHTARI: ${S3_ERISIM_ANAHTARI:-}
+      S3_GIZLI_ANAHTAR: ${S3_GIZLI_ANAHTAR:-}
+      SMTP_ADRESI: ${SMTP_ADRESI:-}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel:4318
+      OTEL_SERVICE_NAME: akredit-isci
+      OTEL_RESOURCE_ATTRIBUTES: deployment.environment=${AKREDIT_ORTAM},service.version=${AKREDIT_SURUM}
+    depends_on:
+      vt:
+        condition: service_healthy
+    networks: [arka, gozlem, disari]
+
+  # Göçler: dagit.sh tarafından `run --rm goc` ile, web/işçi güncellenmeden ÖNCE çalıştırılır.
+  goc:
+    <<: *gunluk
+    image: ${ISCI_IMAJ_ADI:?}:${AKREDIT_SURUM:?}
+    profiles: [goc]
+    command: ["node", "infra/uretim/goc.ts"]
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@vt:5432/${POSTGRES_DB:?}
+    depends_on:
+      vt:
+        condition: service_healthy
+    networks: [arka]
+    restart: "no"
+
+  vt:
+    <<: [*gunluk, *guvenli]
+    image: ${VT_IMAJI:?}
+    command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
+    shm_size: 1g
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+      POSTGRES_DB: ${POSTGRES_DB:?}
+      POSTGRES_INITDB_ARGS: --data-checksums
+      YEDEK_KULLANICI: ${YEDEK_KULLANICI:?}
+      YEDEK_PAROLA: ${YEDEK_PAROLA:?}
+    volumes:
+      - vt-veri:/var/lib/postgresql/data
+      - arsiv:/arsiv
+      - ./postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - ./postgres/01-yedek-kullanici.sh:/docker-entrypoint-initdb.d/01-yedek-kullanici.sh:ro
+      - ./yedek:/yedek:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    networks: [arka]
+
+  yedek:
+    <<: [*gunluk, *guvenli]
+    image: ${VT_IMAJI:?}
+    user: postgres
+    entrypoint: ["/yedek/yedek-dongu.sh"]
+    environment:
+      PGHOST: vt
+      PGUSER: ${YEDEK_KULLANICI:?}
+      PGPASSWORD: ${YEDEK_PAROLA:?}
+      YEDEK_DIZINI: /arsiv
+      YEDEK_SAKLA_GUN: ${YEDEK_SAKLA_GUN:-35}
+      YEDEK_METRIK_DIZINI: /metrik
+    volumes:
+      - arsiv:/arsiv
+      - metrik:/metrik
+      - ./yedek:/yedek:ro
+    depends_on:
+      vt:
+        condition: service_healthy
+    networks: [arka]
+
+  # Yerel arşivi (taban + WAL) Türkiye'deki ikinci bir konumdaki sürümlü, kilitli kovaya eşler.
+  # `copy` kullanılır, `sync` değil: uzakta silme yapılmaz; eski sürümleri kova yaşam döngüsü temizler.
+  yedek-esle:
+    <<: [*gunluk, *guvenli]
+    image: ${RCLONE_IMAJI:?}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >-
+        while true; do
+        rclone copy /arsiv uzak:$${YEDEK_UZAK_KOVA}/$${AKREDIT_ORTAM} --exclude '*.gecici.*' --checksum &&
+        date -u +%s > /arsiv/son-site-disi-esleme;
+        sleep 600; done
+    environment:
+      AKREDIT_ORTAM: ${AKREDIT_ORTAM}
+      YEDEK_UZAK_KOVA: ${YEDEK_UZAK_KOVA:?}
+      RCLONE_CONFIG_UZAK_TYPE: ${RCLONE_CONFIG_UZAK_TYPE:-s3}
+      RCLONE_CONFIG_UZAK_PROVIDER: ${RCLONE_CONFIG_UZAK_PROVIDER:-Other}
+      RCLONE_CONFIG_UZAK_ENDPOINT: ${RCLONE_CONFIG_UZAK_ENDPOINT:?}
+      RCLONE_CONFIG_UZAK_ACCESS_KEY_ID: ${RCLONE_CONFIG_UZAK_ACCESS_KEY_ID:?}
+      RCLONE_CONFIG_UZAK_SECRET_ACCESS_KEY: ${RCLONE_CONFIG_UZAK_SECRET_ACCESS_KEY:?}
+    volumes:
+      - arsiv:/arsiv
+    networks: [disari]
+
+  # --- Gözlem ---
+  otel:
+    <<: [*gunluk, *guvenli]
+    image: ${OTEL_IMAJI:?}
+    command: ["--config=/etc/otel/otel-toplayici.yml"]
+    volumes:
+      - ./gozlem/otel-toplayici.yml:/etc/otel/otel-toplayici.yml:ro
+    networks: [gozlem]
+
+  prometheus:
+    <<: [*gunluk, *guvenli]
+    image: ${PROMETHEUS_IMAJI:?}
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=30d
+      - --storage.tsdb.path=/prometheus
+    volumes:
+      - ./gozlem/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./gozlem/uyarilar.yml:/etc/prometheus/uyarilar.yml:ro
+      - prometheus-veri:/prometheus
+    networks: [gozlem, arka]
+
+  alertmanager:
+    <<: [*gunluk, *guvenli]
+    image: ${ALERTMANAGER_IMAJI:?}
+    entrypoint: ["/bin/sh", "-c"]
+    # Yapılandırmadaki ${...} yer tutucuları kapsayıcı ortamından doldurulur; sırlar dosyaya yazılmaz.
+    command:
+      - >-
+        sed -e "s|\$${UYARI_EPOSTA}|$${UYARI_EPOSTA}|g"
+        -e "s|\$${UYARI_SMTP_SUNUCU}|$${UYARI_SMTP_SUNUCU}|g"
+        -e "s|\$${UYARI_SMTP_KULLANICI}|$${UYARI_SMTP_KULLANICI}|g"
+        /etc/alertmanager/alertmanager.yml > /tmp/am.yml &&
+        printf '%s' "$${UYARI_SMTP_PAROLA}" > /tmp/smtp-parola &&
+        exec /bin/alertmanager --config.file=/tmp/am.yml --storage.path=/alertmanager
+    environment:
+      UYARI_EPOSTA: ${UYARI_EPOSTA:?}
+      UYARI_SMTP_SUNUCU: ${UYARI_SMTP_SUNUCU:?}
+      UYARI_SMTP_KULLANICI: ${UYARI_SMTP_KULLANICI:?}
+      UYARI_SMTP_PAROLA: ${UYARI_SMTP_PAROLA:?}
+    volumes:
+      - ./gozlem/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager-veri:/alertmanager
+    networks: [gozlem, disari]
+
+  node-exporter:
+    <<: [*gunluk, *guvenli]
+    image: ${NODE_EXPORTER_IMAJI:?}
+    command:
+      - --path.rootfs=/host
+      - --collector.textfile.directory=/metrik
+    pid: host
+    volumes:
+      - /:/host:ro,rslave
+      - metrik:/metrik:ro
+    networks: [gozlem]
+
+  pg-exporter:
+    <<: [*gunluk, *guvenli]
+    image: ${PG_EXPORTER_IMAJI:?}
+    environment:
+      DATA_SOURCE_NAME: postgresql://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@vt:5432/${POSTGRES_DB:?}?sslmode=disable
+    networks: [gozlem, arka]
+
+  # Durum sayfası (durum.akredit.org) ve dışarıdan erişim denetimi.
+  # Not: Aynı sunucuda çalıştığı için sunucunun tamamen düşmesini göremez; bunun için
+  # docs/isletim/gozlem.md'deki dış denetim (ikinci konum) adımı uygulanmalıdır.
+  gatus:
+    <<: [*gunluk, *guvenli]
+    image: ${GATUS_IMAJI:?}
+    environment:
+      GATUS_CONFIG_PATH: /config/gatus.yml
+      AKREDIT_ALAN: ${AKREDIT_ALAN:?}
+      AKREDIT_UYGULAMA_ALAN: ${AKREDIT_UYGULAMA_ALAN:?}
+      AKREDIT_BELGE_ALAN: ${AKREDIT_BELGE_ALAN:?}
+      UYARI_EPOSTA: ${UYARI_EPOSTA:?}
+      UYARI_SMTP_SUNUCU: ${UYARI_SMTP_SUNUCU:?}
+      UYARI_SMTP_KULLANICI: ${UYARI_SMTP_KULLANICI:?}
+      UYARI_SMTP_PAROLA: ${UYARI_SMTP_PAROLA:?}
+    volumes:
+      - ./gozlem/gatus.yml:/config/gatus.yml:ro
+      - gatus-veri:/data
+    networks: [on, gozlem, disari]
+
+networks:
+  on: {}
+  arka:
+    internal: true
+  gozlem:
+    internal: true
+  disari: {}
+
+volumes:
+  caddy-veri:
+  caddy-ayar:
+  vt-veri:
+  arsiv:
+  metrik:
+  prometheus-veri:
+  alertmanager-veri:
+  gatus-veri:

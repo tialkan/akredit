@@ -1,0 +1,12 @@
+# SOPS kuralları: sirlar/*.sops.env dosyaları age ile şifrelenir.
+# YER TUTUCU: aşağıdaki alıcıları kendi age açık anahtarlarınızla değiştirin (docs/isletim/sirlar.md).
+# Her ortamın kendi sunucu anahtarı + yöneticinin kurtarma anahtarı alıcıdır.
+creation_rules:
+  - path_regex: sirlar/uretim\.sops\.env$
+    age: >-
+      AGE_URETIM_SUNUCU_ACIK_ANAHTARI,
+      AGE_YONETICI_KURTARMA_ACIK_ANAHTARI
+  - path_regex: sirlar/hazirlik\.sops\.env$
+    age: >-
+      AGE_HAZIRLIK_SUNUCU_ACIK_ANAHTARI,
+      AGE_YONETICI_KURTARMA_ACIK_ANAHTARI

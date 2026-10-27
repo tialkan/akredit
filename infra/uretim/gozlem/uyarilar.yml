@@ -1,0 +1,73 @@
+# Prometheus uyarı kuralları. Eşikler başlangıç değerleridir; ilk aylarda gözleme göre ayarlanır.
+# Her uyarının ne yapılacağı docs/isletim/gozlem.md "Uyarı el kitabı" bölümündedir.
+
+groups:
+  - name: akredit
+    rules:
+      - alert: HizmetKapali
+        expr: up == 0
+        for: 2m
+        labels: { onem: kritik }
+        annotations:
+          ozet: "{{ $labels.job }} hedefi 2 dakikadır ulaşılamıyor"
+
+      - alert: DurumDenetimiBasarisiz
+        expr: gatus_results_endpoint_success == 0
+        for: 3m
+        labels: { onem: kritik }
+        annotations:
+          ozet: "{{ $labels.name }} dışarıdan erişilemiyor"
+
+      - alert: VeritabaniKapali
+        expr: pg_up == 0
+        for: 1m
+        labels: { onem: kritik }
+        annotations:
+          ozet: "PostgreSQL'e bağlanılamıyor"
+
+      - alert: WalArsiviBasarisiz
+        expr: increase(pg_stat_archiver_failed_count[15m]) > 0
+        labels: { onem: kritik }
+        annotations:
+          ozet: "WAL arşivleme son 15 dakikada başarısız oldu; zaman noktasına dönüş riski"
+
+      - alert: WalArsiviGecikti
+        # archive_timeout = 300 sn; 15 dakikadır arşivlenen yoksa sorun var.
+        expr: pg_stat_archiver_last_archive_age > 900
+        labels: { onem: uyari }
+        annotations:
+          ozet: "Son WAL arşivi 15 dakikadan eski"
+
+      - alert: YedekEskidi
+        # Günlük yedek; 26 saat tolerans.
+        expr: time() - akredit_yedek_son_basari_zaman > 26 * 3600
+        labels: { onem: kritik }
+        annotations:
+          ozet: "Son başarılı taban yedek 26 saatten eski"
+
+      - alert: YedekOlcusuYok
+        expr: absent(akredit_yedek_son_basari_zaman)
+        for: 30m
+        labels: { onem: uyari }
+        annotations:
+          ozet: "Yedek ölçüsü hiç okunamıyor (yedek hizmeti çalışıyor mu?)"
+
+      - alert: DiskDoluyor
+        expr: node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"} < 0.15
+        for: 10m
+        labels: { onem: uyari }
+        annotations:
+          ozet: "{{ $labels.mountpoint }} üzerinde boş alan %15'in altında"
+
+      - alert: BellekAz
+        expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes < 0.10
+        for: 10m
+        labels: { onem: uyari }
+        annotations:
+          ozet: "Kullanılabilir bellek %10'un altında"
+
+      - alert: TlsSertifikasiBitiyor
+        expr: gatus_results_certificate_expiration_seconds < 14 * 24 * 3600
+        labels: { onem: uyari }
+        annotations:
+          ozet: "{{ $labels.name }} sertifikası 14 günden az sürede bitiyor (Caddy yenileyemiyor olabilir)"

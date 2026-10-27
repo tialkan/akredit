@@ -1,0 +1,51 @@
+# Caddy: TLS (Let's Encrypt, otomatik yenileme), HTTP->HTTPS yönlendirme, güvenlik başlıkları.
+# Alan adları ortam değişkenlerinden gelir (docker-compose.yml: caddy).
+
+{
+	email {$ACME_EPOSTA}
+	# Erişim günlükleri IP adresi içerdiğinden kişisel veridir; yalnız hata günlüğü tutulur.
+	# Gerekirse docs/isletim/gozlem.md "Günlük saklama" kuralıyla açın.
+	servers {
+		protocols h1 h2 h3
+	}
+}
+
+(guvenlik) {
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		X-Frame-Options "DENY"
+		-Server
+	}
+	encode zstd gzip
+}
+
+{$AKREDIT_ALAN} {
+	import guvenlik
+	reverse_proxy web:3000 {
+		health_uri /
+		health_interval 15s
+	}
+}
+
+www.{$AKREDIT_ALAN} {
+	redir https://{$AKREDIT_ALAN}{uri} permanent
+}
+
+{$AKREDIT_UYGULAMA_ALAN} {
+	import guvenlik
+	reverse_proxy web:3000
+}
+
+# Belgeler sitesi henüz ayrı bir uygulama değil: tanıtım sitesine yönlendirilir.
+{$AKREDIT_BELGE_ALAN} {
+	import guvenlik
+	redir https://{$AKREDIT_ALAN}{uri} temporary
+}
+
+{$AKREDIT_DURUM_ALAN} {
+	import guvenlik
+	reverse_proxy gatus:8080
+}

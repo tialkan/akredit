@@ -1,0 +1,72 @@
+# Durum sayfası (durum.akredit.org). ${...} değerleri Gatus tarafından ortamdan okunur.
+# Denetimler dış adresten yapılır: DNS + TLS + Caddy + uygulama zincirinin tamamı sınanır.
+
+web:
+  port: 8080
+
+metrics: true
+
+storage:
+  type: sqlite
+  path: /data/gatus.db
+
+ui:
+  title: Akredit durum
+  header: Akredit hizmet durumu
+  description: akredit.org hizmetlerinin anlık durumu
+
+alerting:
+  email:
+    from: "${UYARI_EPOSTA}"
+    username: "${UYARI_SMTP_KULLANICI}"
+    password: "${UYARI_SMTP_PAROLA}"
+    host: "${UYARI_SMTP_SUNUCU}"
+    port: 587
+    to: "${UYARI_EPOSTA}"
+    default-alert:
+      failure-threshold: 3
+      success-threshold: 2
+      send-on-resolved: true
+
+endpoints:
+  - name: Tanıtım sitesi
+    group: akredit.org
+    url: "https://${AKREDIT_ALAN}/"
+    interval: 60s
+    conditions:
+      - "[STATUS] == 200"
+      - "[RESPONSE_TIME] < 3000"
+      - "[CERTIFICATE_EXPIRATION] > 336h"
+    alerts:
+      - type: email
+
+  - name: Uygulama
+    group: akredit.org
+    url: "https://${AKREDIT_UYGULAMA_ALAN}/"
+    interval: 60s
+    conditions:
+      - "[STATUS] < 500"
+      - "[RESPONSE_TIME] < 3000"
+      - "[CERTIFICATE_EXPIRATION] > 336h"
+    alerts:
+      - type: email
+
+  - name: Belgeler
+    group: akredit.org
+    url: "https://${AKREDIT_BELGE_ALAN}/"
+    interval: 5m
+    client:
+      ignore-redirect: true
+    conditions:
+      - "[STATUS] < 400"
+      - "[CERTIFICATE_EXPIRATION] > 336h"
+
+  - name: Alan adı (DNS)
+    group: altyapı
+    url: "${AKREDIT_ALAN}"
+    interval: 5m
+    dns:
+      query-name: "${AKREDIT_ALAN}"
+      query-type: A
+    conditions:
+      - "[DNS_RCODE] == NOERROR"
