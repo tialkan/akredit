@@ -58,6 +58,22 @@ function programCiktilari(html) {
   return t.slice(1).filter((r) => r.length >= 2 && sayi(r[0]) !== null).map((r) => ({ kod: `P${sayi(r[0])}`, metin: r[1] }));
 }
 
+/** Ders kodu: harf önekli ("HUK101", "HUK 101") ya da sayısal ("1000.020105", EBYÜ canlı yapısı). */
+const DERS_KODU = /^(?:[A-ZÇĞİÖŞÜ]{2,}\s*\d|\d{3,}\.\d{3,})/;
+const DERS_KODU_ARA = /\b([A-ZÇĞİÖŞÜ]{2,}\s?\d{3}[A-Z]?|\d{3,}\.\d{3,})\b/;
+const YUZDE = /^%\s*\d/;
+const EPOSTA = /[\p{L}\d._%+-]+@[\p{L}\d-]+(?:\.[\p{L}\d-]+)+/gu;
+export const EPOSTA_YERINE = "[e-posta ayıklandı]";
+
+/** Nesnedeki bütün metinlerden e-posta adreslerini ayıklar. */
+export function epostaAyikla(x) {
+  if (typeof x === "string") return x.replace(EPOSTA, EPOSTA_YERINE);
+  if (Array.isArray(x)) return x.map(epostaAyikla);
+  if (x && typeof x === "object")
+    return Object.fromEntries(Object.entries(x).map(([k, v]) => [k, epostaAyikla(v)]));
+  return x;
+}
+
 function programMatrisi(html) {
   const satirlar = tablolar(html).flat();
   const baslik = satirlar.find((r) => r.includes("Ders Kodu") && r.some((h) => /^P\d+$/.test(h)));
@@ -70,7 +86,7 @@ function programMatrisi(html) {
     if (r.length === 1 && /Yarıyıl|Semester/i.test(r[0])) { yariyil = sayi(r[0]); continue; }
     if (r.length < pBas + 1 || r === baslik || r[0] === "Ders Kodu") continue;
     const kod = r[0].replace(/^\[G\]\s*/, "");
-    if (!/^[A-ZÇĞİÖŞÜ]{2,}\s*\d/.test(kod)) continue;
+    if (!DERS_KODU.test(kod)) continue;
     dersler.push({
       kod, ad: r[1], zorunlu: /Zorunlu|Compulsory/i.test(r[2]), grup: r[3] || null, yariyil, grupBasligi: r[0].startsWith("[G]"),
       degerler: Object.fromEntries(pkodlar.map((p, i) => [p, r[pBas + i] ?? ""])),
@@ -83,13 +99,13 @@ function dersKimlikleri(html) {
   const kimlik = {};
   for (const tr of html.split(/<tr\b/i).slice(1)) {
     const id = tr.match(/prolizOpenCourseDetails\('?(\d+)/);
-    const kod = metin(tr).match(/\b([A-ZÇĞİÖŞÜ]{2,}\s?\d{3}[A-Z]?)\b/);
+    const kod = metin(tr).match(DERS_KODU_ARA);
     if (id && kod && !kimlik[kod[1]]) kimlik[kod[1]] = id[1];
   }
   return kimlik;
 }
 
-export function dersSayfasiCoz(html) {
+function dersSayfasiCozHam(html) {
   const t = tablolar(html);
   const bul = (re) => t.find((x) => re.test((x[0] ?? []).join(" ")));
   const ust = bul(/Yarıyıl.*Kodu|Semester.*Code/i);
@@ -99,7 +115,10 @@ export function dersSayfasiCoz(html) {
     .filter((r) => r.length >= 3 && !/Toplam|Total/i.test(r[0])).map((r) => ({ ad: r[0], sayi: sayi(r[1]), katki: sayi(r[2]) }));
   const isyukuTablosu = bul(/İş Yükü|Workload/i) ?? [];
   const isyuku = isyukuTablosu.slice(1).filter((r) => r.length >= 4 && sayi(r[3]) !== null && !/Toplam|Total|AKTS|ECTS/i.test(r[0])).map((r) => ({ ad: r[0], sayi: sayi(r[1]), sure: sayi(r[2]), toplam: sayi(r[3]) }));
-  const dersYapisi = (t.find((x) => x.some((r) => /Alan Bilgisi|Field/i.test(r[0] ?? ""))) ?? []).filter((r) => r.length >= 2 && /%/.test(r[1])).map((r) => ({ alan: r[0], yuzde: sayi(r[1]) }));
+  // Canlı Proliz sayfasında (EBYÜ, 2026-10-27) alan yüzdesi tablosu başlıksızdır: ["Sosyal Bilimler", "%100", ""].
+  const dersYapisi = (t.find((x) => x.some((r) => /Alan Bilgisi|Field/i.test(r[0] ?? ""))) ??
+    t.find((x) => x.length > 0 && x.every((r) => r.length >= 2 && YUZDE.test(r[1] ?? ""))) ??
+    []).filter((r) => r.length >= 2 && /%/.test(r[1])).map((r) => ({ alan: r[0], yuzde: sayi(r[1]) }));
   const ciktiTablosu = bul(/Sıra No|No.*A[cç]ıklama|Description/i) ?? [];
   const ciktilar = ciktiTablosu.slice(1).filter((r) => r.length >= 2 && sayi(r[0]) !== null && r[1]).map((r) => ({ kod: `Ö${sayi(r[0])}`, metin: r[1] }));
   const haftalar = (bul(/Hafta|Week/i) ?? []).slice(1).filter((r) => sayi(r[0]) !== null && r[1]).length;
@@ -117,18 +136,34 @@ export function dersSayfasiCoz(html) {
   return { yariyil: sayi(yariyil), kod, ad, tul, kredi: sayi(kredi), akts: sayi(akts), guncelleme, bilgiler, degerlendirme, isyuku, dersYapisi, ciktilar, haftalar, katki };
 }
 
+/** Bir ders bilgi sayfasını ayrıştırır. E-posta adresleri çıktıdan ayıklanır (KVKK: en az kişisel veri). */
+export function dersSayfasiCoz(html) {
+  return epostaAyikla(dersSayfasiCozHam(html));
+}
+
 /**
  * TYYÇ matrisinde program çıktısı sütunlarındaki dolu hücreleri sayar.
  * Satırlar "etiket, alt no, P1..Pn, alt no, etiket" ya da etiketsiz "alt no, P1..Pn, alt no" biçimindedir.
  */
 function tyycIsaretSayisi(html, pSayisi) {
   if (!pSayisi) return null;
+  // Canlı yapı (EBYÜ, 2026-10-27): 14 hücreli satır "alan, alt no, P1..Pn, alt no, alan"; rowspan yüzünden
+  // sonraki satırlar 12 hücreli "alt no, P1..Pn, alt no". Ayırıcı boş satırlar (alt no yok) sayılmaz.
+  // Hiç P hücresi okunamadıysa null (veri yok), okunup hepsi boşsa 0 döner.
   let dolu = 0;
+  let okunan = 0;
   for (const r of tablolar(html).flat()) {
-    const ic = r.length === pSayisi + 4 ? r.slice(2, 2 + pSayisi) : r.length === pSayisi + 2 ? r.slice(1, 1 + pSayisi) : null;
-    if (ic) dolu += ic.filter((h) => h && h !== "-").length;
+    const ic =
+      r.length === pSayisi + 4 && /^\d+$/.test(r[1] ?? "")
+        ? r.slice(2, 2 + pSayisi)
+        : r.length === pSayisi + 2 && /^\d+$/.test(r[0] ?? "")
+          ? r.slice(1, 1 + pSayisi)
+          : null;
+    if (!ic) continue;
+    okunan += ic.length;
+    dolu += ic.filter((h) => h && h !== "-").length;
   }
-  return dolu;
+  return okunan ? dolu : null;
 }
 
 /** Programın bütün Bologna verisini okur. */
