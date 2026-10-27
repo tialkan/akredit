@@ -1,6 +1,6 @@
 // Gösterge panosu için uydurma örnek veri. Değerler burada yazılmaz; yalnız ham veri noktaları ve kaynakları
-// yazılır, gösterge değerleri @akredit/gosterge ile hesaplanır. Gerçek veri kaynağı bağlanınca (vt `gosterge`,
-// `gosterge_olcumu`) bu dosya yalnız örnek kipte kullanılır.
+// yazılır, gösterge değerleri @akredit/gosterge ile hesaplanır. Yalnız örnek veri kipinde kullanılır; gerçek
+// kipte veri `@akredit/servis gosterge.gostergePanosu` ile kayıtlardan gelir (veri/sunucu.ts, D3-4).
 
 import { type GostergeTanimi, gostergeTanimiOku, type VeriNoktasi } from "@akredit/gosterge";
 

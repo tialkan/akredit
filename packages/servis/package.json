@@ -19,6 +19,7 @@
     "@akredit/belge": "workspace:*",
     "@akredit/cekirdek": "workspace:*",
     "@akredit/cerceveler": "workspace:*",
+    "@akredit/gosterge": "workspace:*",
     "@akredit/olcme": "workspace:*",
     "@akredit/surec": "workspace:*",
     "@akredit/vt": "workspace:*",
