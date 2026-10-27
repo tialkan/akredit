@@ -11,7 +11,15 @@ export default async function DerslerSayfasi() {
   const dersler = await (await panelVeriKaynagi()).dersler();
   return (
     <>
-      <SayfaBasligi baslik="Dersler" aciklama="Ders bilgi paketi ve ders dosyası durumları." />
+      <SayfaBasligi
+        baslik="Dersler"
+        aciklama="Ders bilgi paketi ve ders dosyası durumları."
+        eylem={
+          <Link href="/panel/dersler/bologna" className="text-vurgu underline underline-offset-2">
+            Programın Bologna denetimi
+          </Link>
+        }
+      />
       <Tablo
         baslik="Programın dersleri"
         sutunlar={[

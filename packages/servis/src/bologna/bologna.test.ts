@@ -4,7 +4,7 @@
 import { type BolognaOkunanDers, type BolognaVerisi, ozetHesapla } from "@akredit/cekirdek";
 import { kiraciIslemi, sema } from "@akredit/vt";
 import { bolognaOrnek, sahteSaglayici } from "@akredit/yz";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { ortam, SIMDI } from "../../test/yardimci.ts";
 import type { ServisBaglami } from "../baglam.ts";
@@ -217,7 +217,7 @@ describe("Bologna otomasyonu uçtan uca", () => {
       tx.select().from(sema.oneri).where(eq(sema.oneri.id, s.oneriId)),
     );
     expect(r).toMatchObject({ tur: "bologna_taslagi", risk: "orta", ureticiTuru: "yz", hedefId: tbpId });
-    expect((r?.atiflar as unknown[]).length).toBeGreaterThanOrEqual(7);
+    expect(((r?.atiflar ?? []) as unknown[]).length).toBeGreaterThanOrEqual(7);
     // Beyan da kanıt oldu.
     const beyanlar = await kiraciIslemi(o.db, o.a.kurumId, (tx) =>
       tx.select().from(sema.kanit).where(eq(sema.kanit.dosyaAdi, "hoca-beyani.txt")),
@@ -338,11 +338,6 @@ describe("Bologna otomasyonu uçtan uca", () => {
 });
 
 async function taslakIcerigi(id: string) {
-  const [r] = await kiraciIslemi(o.db, o.a.kurumId, (tx) =>
-    tx
-      .select()
-      .from(sema.oneri)
-      .where(and(eq(sema.oneri.id, id))),
-  );
-  return (r?.icerik as { taslak: Parameters<typeof bologna.yazmaPlaniKur>[0] }).taslak;
+  const [r] = await kiraciIslemi(o.db, o.a.kurumId, (tx) => tx.select().from(sema.oneri).where(eq(sema.oneri.id, id)));
+  return ((r?.icerik ?? {}) as { taslak: Parameters<typeof bologna.yazmaPlaniKur>[0] }).taslak;
 }

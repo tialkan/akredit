@@ -288,9 +288,8 @@ export function yazmaPlaniKur(t: BolognaTaslagi, kaynak: string): YazmaAlani[] {
   ekle("Genel", "Ders Notları", t.notlar.tr);
   ekle("Genel", "Ders Notları (İngilizce)", t.notlar.en);
   ekle("Genel", "Ön Koşul", t.onKosul ?? "Yok");
-  t.kaynaklar.forEach((k, i) =>
-    ekle("Kaynaklar", `Kaynak ${i + 1}`, [k.yazar, k.eser, k.yayinevi, k.yil].filter(Boolean).join(", ")),
-  );
+  for (const [i, k] of t.kaynaklar.entries())
+    ekle("Kaynaklar", `Kaynak ${i + 1}`, [k.yazar, k.eser, k.yayinevi, k.yil].filter(Boolean).join(", "));
   for (const c of t.ciktilar) {
     ekle("Öğrenme Çıktıları", `${c.kod}`, c.tr);
     ekle("Öğrenme Çıktıları", `${c.kod} (İngilizce)`, c.en);
