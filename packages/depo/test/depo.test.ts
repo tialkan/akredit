@@ -13,6 +13,7 @@ import {
   s3OnImzaliAdres,
   yerelDepo,
 } from "../src/index.ts";
+import { sigv4 } from "../src/s3.ts";
 
 const KURUM = "01900000-0000-7000-8000-00000000000a";
 const GIZLI = "uydurma-test-gizlisi-en-az-otuz-iki-karakter";
@@ -188,5 +189,34 @@ describe("S3 sürücüsü", () => {
       },
     });
     await expect(kopuk.koy(KURUM, metin("x"))).rejects.toThrow(/ulaşılamadı/u);
+  });
+
+  it("409 çakışmasında nesne yoksa yazılmış saymaz, varsa saymaz değil (İP-27, dalga 2 #5)", async () => {
+    let var_ = false;
+    const f = async (_a: string, ayar: RequestInit) => {
+      if (ayar.method === "PUT") return new Response(null, { status: 409 });
+      return new Response(null, { status: var_ ? 200 : 404 });
+    };
+    const d = s3Depo({ ucNokta: "http://m", bolge: "r", kova: "k", erisimAnahtari: "AK", gizliAnahtar: "g", fetch: f });
+    await expect(d.koy(KURUM, metin("x"))).rejects.toThrow(/saklanamadı/u);
+    var_ = true;
+    expect((await d.koy(KURUM, metin("x"))).yeni).toBe(false);
+  });
+
+  it("SigV4 kanonik başlıkta iç boşlukları sıkıştırır (İP-27, dalga 2 #6)", () => {
+    const g = {
+      yontem: "PUT",
+      yol: "/k/a",
+      sorgu: [] as [string, string][],
+      yukOzeti: "UNSIGNED-PAYLOAD",
+      tarih: "20260101T000000Z",
+      gun: "20260101",
+      bolge: "r",
+      gizli: "g",
+    };
+    const a = sigv4({ ...g, basliklar: { host: "m", "content-type": "  text/plain;   charset=utf-8 " } });
+    const b = sigv4({ ...g, basliklar: { host: "m", "content-type": "text/plain; charset=utf-8" } });
+    expect(a.kanonik).toContain("content-type:text/plain; charset=utf-8\n");
+    expect(a.imza).toBe(b.imza);
   });
 });

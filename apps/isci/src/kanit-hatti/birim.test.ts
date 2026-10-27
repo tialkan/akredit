@@ -1,4 +1,5 @@
 import { createServer, type Server } from "node:net";
+import { zipSync } from "fflate";
 import { afterEach, describe, expect, it } from "vitest";
 import { kisiselVeriTara } from "./adimlar.ts";
 import { dosyaAdiTemizle, epostaAl, gonderenDogrula, kanitAl, zipAl } from "./alma.ts";
@@ -177,6 +178,23 @@ describe("alma yolları", { timeout: 60_000 }, () => {
     expect((await zipAl(h.b, { ...g, veri: zip }, { enCokDosya: 2 })).uyarilar[0]).toMatch(/çok fazla/u);
     expect((await zipAl(h.b, { ...g, veri: zip }, { enBuyukAcilmis: 5 })).uyarilar[0]).toMatch(/çok büyük/u);
     expect((await zipAl(h.b, { ...g, veri: metin("zip değil") })).uyarilar[0]).toMatch(/açılamadı/u);
+  });
+
+  it("ZIP: boyutu kurcalanmış (kesilen) dosyayı kanıt olarak kaydetmez (İP-27)", async () => {
+    const h = await hatKur();
+    kapat = h.kapat;
+    const g = { kurumId: KURUM, kaynakTuru: "yukleme" as const, paketAdi: "p.zip" };
+    const z = zipSync({ "kesik.txt": metin("a".repeat(100)), "saglam.txt": metin("Sağlam.") }, { level: 0 });
+    // Merkez dizindeki ilk girdinin (kesik.txt) açılmış boyutunu 10 bayta indir.
+    const v = new DataView(z.buffer, z.byteOffset, z.byteLength);
+    for (let i = 0; i + 4 <= z.length; i++)
+      if (v.getUint32(i, true) === 0x02014b50) {
+        v.setUint32(i + 24, 10, true);
+        break;
+      }
+    const s = await zipAl(h.b, { ...g, veri: z });
+    expect(s.dosyalar.find((d) => d.ad === "kesik.txt")).toMatchObject({ durum: "reddedildi" });
+    expect(s.dosyalar.find((d) => d.ad === "saglam.txt")?.durum).not.toBe("reddedildi");
   });
 
   it("e-posta: doğrulanmış gönderenin eklerini (ZIP içi dahil) alır, diğerlerini reddeder", async () => {

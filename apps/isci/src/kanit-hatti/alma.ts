@@ -1,6 +1,7 @@
 // Kanıt alma yolları: tekli yükleme, toplu ZIP, kuruma özel e-posta, bağlayıcılar ve sistemin ürettiği belgeler.
 // Hepsi `kanitAl`'a iner: dosya içerik özetiyle depolanır, aynı içerik ikinci kez kanıt olmaz.
 
+import { zipCrcUyusmayanlar } from "@akredit/belge";
 import { gunlugeYaz, kiraciIslemi, sema } from "@akredit/vt";
 import { and, eq } from "drizzle-orm";
 import { type Unzipped, unzipSync } from "fflate";
@@ -172,8 +173,18 @@ export async function zipAl(
     return { dosyalar: [], uyarilar: ["Paket açılamadı. Dosyanın bozuk olmadığından emin olun."] };
   }
   const sonuc: TopluSonuc = { dosyalar: [], uyarilar: [] };
+  // Merkez dizinde boyutu küçük bildirilmiş girdi sessizce kesilir; kesik dosya kanıt olarak kaydedilmez.
+  const bozuk = new Set(zipCrcUyusmayanlar(g.veri, acilan));
   for (const [yol, veri] of Object.entries(acilan).sort(([a], [c]) => a.localeCompare(c))) {
     const ad = dosyaAdiTemizle(yol);
+    if (bozuk.has(yol)) {
+      sonuc.dosyalar.push({
+        ad,
+        durum: "reddedildi",
+        ileti: `${ad}: dosya bozuk görünüyor, paketi yeniden oluşturun.`,
+      });
+      continue;
+    }
     try {
       const s = await kanitAl(b, {
         ...g,

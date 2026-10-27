@@ -74,7 +74,10 @@ export function sigv4(g: ImzaGirdisi): { imza: string; imzaliBasliklar: string; 
   const adlar = Object.keys(g.basliklar)
     .map((a) => a.toLowerCase())
     .sort();
-  const kucuk = Object.fromEntries(Object.entries(g.basliklar).map(([a, d]) => [a.toLowerCase(), d.trim()]));
+  // SigV4: değerin başı/sonu kırpılır, içteki ardışık boşluklar tek boşluğa indirilir.
+  const kucuk = Object.fromEntries(
+    Object.entries(g.basliklar).map(([a, d]) => [a.toLowerCase(), d.trim().replace(/ +/gu, " ")]),
+  );
   const kanonikBasliklar = adlar.map((a) => `${a}:${kucuk[a]}\n`).join("");
   const imzaliBasliklar = adlar.join(";");
   const kanonik = [g.yontem, g.yol, sorgu, kanonikBasliklar, imzaliBasliklar, g.yukOzeti].join("\n");
@@ -154,7 +157,13 @@ export function s3Depo(ayar: S3Ayari): NesneDeposu {
       }
       const y = await istek("PUT", anahtar, veri, ek);
       // 412: nesne zaten var (koşullu yazım). İçerik adresli olduğundan içerik aynıdır.
-      if (y.status === 412 || y.status === 409) return { ...sonuc, yeni: false };
+      if (y.status === 412) return { ...sonuc, yeni: false };
+      // 409: eşzamanlı koşullu yazım çakışması. Öteki yazım başarısız olmuş olabilir; nesne gerçekten
+      // yoksa "zaten var" sayılmaz, kanıt satırı olmayan bir nesneye bağlanmasın.
+      if (y.status === 409) {
+        if (await varMi(anahtar)) return { ...sonuc, yeni: false };
+        throw new DepoHatasi("Dosya saklanamadı. Biraz sonra yeniden deneyin.");
+      }
       if (!y.ok) throw new DepoHatasi("Dosya saklanamadı. Biraz sonra yeniden deneyin.");
       return { ...sonuc, yeni: true };
     },
