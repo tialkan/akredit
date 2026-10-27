@@ -6,6 +6,7 @@ import { Logo } from "../../bilesenler/logo.tsx";
 const MENU = [
   { href: "/nasil-calisir", ad: "Nasıl çalışır" },
   { href: "/guvenlik", ad: "Güvenlik" },
+  { href: "/belgeler", ad: "Kılavuzlar" },
   { href: "/kvkk", ad: "KVKK" },
   { href: "/acik-kaynak", ad: "Açık kaynak" },
   { href: "/iletisim", ad: "İletişim" },
