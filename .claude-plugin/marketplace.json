@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "akreddit",
-      "source": "./",
+      "source": "./apps/cli",
       "description": "Kalite komisyonları için akreditasyon hazırlığını kaynaklı, kayıtlı ve onaylı yürüten açık kaynak iş akışı."
     }
   ]
