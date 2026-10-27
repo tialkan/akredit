@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@akredit/cekirdek": "workspace:*",
+    "@akredit/gosterge": "workspace:*",
     "@akredit/servis": "workspace:*",
     "@akredit/vt": "workspace:*",
     "@akredit/yetki": "workspace:*",
