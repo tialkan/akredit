@@ -234,6 +234,9 @@ export async function kurumVerisiEkle(db: Vt, kurumId: string, ad: string): Prom
       .insert(s.anketSorusu)
       .values({ kurumId, anketId: anket.id, sira: 1, metin: "Memnun musunuz?", tur: "likert" });
     await tx.insert(s.anketYaniti).values({ kurumId, anketId: anket.id, yanitlar: { 1: 4 } });
+    await tx
+      .insert(s.anketBelirteci)
+      .values({ kurumId, anketId: anket.id, ozet: "0".repeat(64), kaynak: "baglanti", kullanildi: true });
     const gosterge = ilk(await tx.insert(s.gosterge).values({ kurumId, kod: "G1", ad: "Mezun oranı" }).returning());
     await tx.insert(s.gostergeOlcumu).values({ kurumId, gostergeId: gosterge.id, donemId: donem.id, deger: "0.5" });
     await tx
