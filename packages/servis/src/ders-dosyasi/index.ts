@@ -178,12 +178,20 @@ async function dersCiktilari(tx: Islem, dersId: string) {
 
 type OneriKarar = { o: typeof sema.oneri.$inferSelect; k: typeof sema.karar.$inferSelect | null };
 
+/**
+ * D3-2: eşleme ve dosya bölümü yalnız bu akışın kendi ürettiği kayıtlardır. Dış kanaldan (MCP) gelen
+ * aynı türde bir öneri en yeni kayıt olarak onaylı eşlemeyi gölgelememeli; o yüzden seçilmez.
+ */
+const disKanalDegil = sql`coalesce(${sema.oneri.uretici}->>'kanal', '') <> 'mcp'`;
+
 async function oneriler(tx: Islem, tur: "soru_cikti_eslemesi" | "rapor_bolumu", dersId: string): Promise<OneriKarar[]> {
   return tx
     .select({ o: sema.oneri, k: sema.karar })
     .from(sema.oneri)
     .leftJoin(sema.karar, eq(sema.karar.oneriId, sema.oneri.id))
-    .where(and(eq(sema.oneri.tur, tur), eq(sema.oneri.hedefTuru, "ders"), eq(sema.oneri.hedefId, dersId)))
+    .where(
+      and(eq(sema.oneri.tur, tur), eq(sema.oneri.hedefTuru, "ders"), eq(sema.oneri.hedefId, dersId), disKanalDegil),
+    )
     .orderBy(desc(sema.oneri.olusturma), desc(sema.oneri.id));
 }
 
@@ -568,11 +576,11 @@ export async function bekleyenleriUret(db: Vt, kurumId: string, simdi: Date): Pr
       .select({ o: sema.oneri, k: sema.karar })
       .from(sema.oneri)
       .innerJoin(sema.karar, eq(sema.karar.oneriId, sema.oneri.id))
-      .where(eq(sema.oneri.tur, "soru_cikti_eslemesi"));
+      .where(and(eq(sema.oneri.tur, "soru_cikti_eslemesi"), disKanalDegil));
     const dosyalar = await tx
       .select({ icerik: sema.oneri.icerik })
       .from(sema.oneri)
-      .where(eq(sema.oneri.tur, "rapor_bolumu"));
+      .where(and(eq(sema.oneri.tur, "rapor_bolumu"), disKanalDegil));
     const uretilmis = new Set(dosyalar.map((d) => (d.icerik as { eslemeOneriId?: string }).eslemeOneriId));
     return eslemeler
       .filter((r) => !uretilmis.has(r.o.id) && onayliSatirlar(r) !== null)

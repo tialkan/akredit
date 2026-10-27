@@ -179,14 +179,7 @@ describe("hiçbir MCP aracı karar kaydı oluşturamaz", () => {
       ["olcme", { dersId: A.dersId }],
       ["olcme", { programId: A.programId }],
     ];
-    for (const tur of [
-      "kanit_etiketi",
-      "matris_katkisi",
-      "rapor_bolumu",
-      "olgunluk_duzeyi",
-      "yazma_plani",
-      "eylem",
-    ] as const)
+    for (const tur of ["kanit_etiketi", "matris_katkisi", "olgunluk_duzeyi", "yazma_plani", "eylem"] as const)
       cagrilar.push([
         "oneri_olustur",
         {
@@ -208,7 +201,7 @@ describe("hiçbir MCP aracı karar kaydı oluşturamaz", () => {
     expect(await kararSayisi()).toBe(once);
     // MCP'den yazılan öneriler insanı bekler: hiçbirine karar bağlanmamış.
     const yz = await db.select().from(sema.oneri).where(eq(sema.oneri.ureticiTuru, "yz"));
-    expect(yz.length).toBe(6);
+    expect(yz.length).toBe(5);
     for (const o of yz) {
       const [kr] = await db.select().from(sema.karar).where(eq(sema.karar.oneriId, o.id));
       expect(kr).toBeUndefined();
@@ -319,6 +312,46 @@ describe("yetki: servis katmanının kuralları aynen", () => {
       (await cagir(k, "oneri_olustur", { ...oneriGirdisi({ tur: "ders", id: A.dersId }, A.kanitDers), atiflar: [] }))
         .structuredContent.kod,
     ).toBe("gecersiz_istek");
+  });
+
+  it("ders dosyası türleri (eşleme, dosya bölümü) MCP'den yazılamaz (D3-2)", async () => {
+    for (const tur of ["soru_cikti_eslemesi", "rapor_bolumu"]) {
+      const s = await cagir(anahtarlar.yonetici as string, "oneri_olustur", {
+        ...oneriGirdisi({ tur: "ders", id: A.dersId }, A.kanitDers),
+        tur,
+      });
+      expect(s.structuredContent.kod, tur).toBe("gecersiz_istek");
+    }
+  });
+
+  it("kurum düzeyi (kapsamsız) kanıta öneri yazılır; olmayan kanıt bulunamaz (D3-3)", async () => {
+    const k = anahtarlar.yonetici as string;
+    const s = await cagir(k, "oneri_olustur", oneriGirdisi({ tur: "kanit", id: A.kanitKurum }, A.kanitKurum));
+    expect(s.isError).toBe(false);
+    expect(s.structuredContent.durum).toBe("onay_bekliyor");
+    const yok = "00000000-0000-4000-8000-000000000000";
+    expect(
+      (await cagir(k, "oneri_olustur", oneriGirdisi({ tur: "kanit", id: yok }, A.kanitKurum))).structuredContent.kod,
+    ).toBe("bulunamadi");
+    expect(
+      (await cagir(k, "oneri_olustur", oneriGirdisi({ tur: "kanit", id: "uuid-degil" }, A.kanitKurum)))
+        .structuredContent.kod,
+    ).toBe("bulunamadi");
+    // Başka kurumun kapsamsız kanıtı satır güvenliğiyle görünmez.
+    expect(
+      (await cagir(k, "oneri_olustur", oneriGirdisi({ tur: "kanit", id: B.kanitKurum }, A.kanitKurum)))
+        .structuredContent.kod,
+    ).toBe("bulunamadi");
+    // Öğretim elemanının kurum kapsamında yetkisi yok.
+    expect(
+      (
+        await cagir(
+          anahtarlar.ogretim as string,
+          "oneri_olustur",
+          oneriGirdisi({ tur: "kanit", id: A.kanitKurum }, A.kanitDers),
+        )
+      ).structuredContent.kod,
+    ).toBe("yetki_yok");
   });
 
   it("başka kurumun anahtarı A'nın kanıtını göremez", async () => {
