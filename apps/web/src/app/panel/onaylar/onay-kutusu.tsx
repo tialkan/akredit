@@ -5,7 +5,7 @@
 // Kurallar arayüzde gizlemeyle yetinmez, VeriKaynagi da aynı kuralları uygular.
 
 import { etkinRisk, ONERI_RISKI, type OneriId, type RiskDuzeyi } from "@akredit/cekirdek";
-import { Check, FileText, Keyboard, Pencil, Wand2, X } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, FileText, Keyboard, Pencil, Wand2, WifiOff, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -24,6 +24,7 @@ import {
   sinirla,
   yuzdeYaz,
 } from "../../../veri/yardimci.ts";
+import { useCevrimici } from "./mobil-kurulum.tsx";
 
 type Atif = OneriGorunumu["atiflar"][number];
 
@@ -53,6 +54,9 @@ export function OnayKutusu({
   const [yardim, setYardim] = useState(false);
   const [sonKararSayisi, setSonKararSayisi] = useState(0);
   const [hazir, setHazir] = useState(false);
+  // Çevrim dışıyken liste önbellekten okunabilir ama karar verilemez ve kuyruğa alınmaz (İP-33).
+  const cevrimici = useCevrimici();
+  const CEVRIMDISI_HATA = "Bağlantı yok. Karar bağlantı gelince verilebilir; öneri listede bekliyor.";
   const satirlar = useRef<Map<OneriId, HTMLElement>>(new Map());
   const router = useRouter();
   // İnsan dakikası (İP-13): son karardan (ya da sayfa açılışından) bu yana ekranda geçen süre. Bir saatten
@@ -94,6 +98,10 @@ export function OnayKutusu({
     sonuc: "onaylandi" | "duzeltildi" | "reddedildi",
     ek: { duzeltme?: string; gerekce?: string } = {},
   ) => {
+    if (!cevrimici) {
+      bildir(CEVRIMDISI_HATA, "hata");
+      return;
+    }
     const sureMs = sureAl();
     const s = await kaynak.kararVer({ oneriId: o.id, sonuc, ...ek, ...(sureMs !== undefined ? { sureMs } : {}) });
     if (!s.tamam) {
@@ -112,6 +120,7 @@ export function OnayKutusu({
   };
 
   const topluOnayla = async () => {
+    if (!cevrimici) return bildir(CEVRIMDISI_HATA, "hata");
     const idler = [...secili];
     const s = await kaynak.topluKararVer(idler, sureAl());
     if (!s.tamam) {
@@ -180,6 +189,16 @@ export function OnayKutusu({
         </Dugme>
       </div>
 
+      {cevrimici ? null : (
+        <p
+          role="status"
+          className="mb-4 flex items-center gap-2 rounded-lg border-2 border-risk-orta bg-risk-orta-zemin px-3 py-2 font-semibold"
+        >
+          <WifiOff aria-hidden className="size-5 shrink-0" />
+          Bağlantı yok. Son kaydedilen liste gösteriliyor; karar vermek için bağlantı gerekir.
+        </p>
+      )}
+
       {oneriler.length === 0 ? (
         <BosDurum baslik="Bekleyen karar yok" aciklama="Yeni öneriler hazırlandığında burada görünecek." />
       ) : null}
@@ -217,6 +236,7 @@ export function OnayKutusu({
                     boy="kucuk"
                     disabled={grupSecili.length === 0}
                     onClick={() => {
+                      if (!cevrimici) return bildir(CEVRIMDISI_HATA, "hata");
                       setSecili(new Set(grupSecili.map((o) => o.id)));
                       void (async () => {
                         const s = await kaynak.topluKararVer(
@@ -366,6 +386,28 @@ export function OnayKutusu({
         );
       })}
 
+      {secili.size === 0 && odaktaki ? (
+        <TekElCubugu
+          oneri={odaktaki}
+          sira={sinirla(odak, 0, sirali.length - 1)}
+          toplam={sirali.length}
+          cevrimici={cevrimici}
+          onceki={() => odaklan(odak - 1)}
+          sonraki={() => odaklan(odak + 1)}
+          onayla={() => {
+            // Yüksek risk: çubuktan körlemesine onay yok; önce kartı ve kanıtı gösterir.
+            if (etkinRisk(odaktaki) === "yuksek") {
+              const el = satirlar.current.get(odaktaki.id);
+              el?.scrollIntoView({ block: "start" });
+              el?.focus();
+              return;
+            }
+            void karar(odaktaki, "onaylandi");
+          }}
+          reddet={() => setRet({ id: odaktaki.id, gerekce: "" })}
+        />
+      ) : null}
+
       {secili.size > 0 ? (
         <div className="sticky bottom-3 z-20 mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-vurgu bg-yuzey p-3 shadow-lg">
           <span className="font-semibold">{secili.size} öneri seçili</span>
@@ -448,6 +490,84 @@ export function OnayKutusu({
         </dl>
         <p className="mt-4 text-sm text-soluk">Kısayollar bir metin alanına yazarken çalışmaz.</p>
       </IletisimKutusu>
+    </>
+  );
+}
+
+/**
+ * Tek elle karar çubuğu (İP-33): yalnız dar ekranda, başparmağın eriştiği alt kenarda. Hedefler en az 44 px.
+ * Yüksek riskli öneride "Onayla" yerine "Kanıtı gör" vardır: karar kartın üzerindeki düğmeyle, kanıt
+ * görünürken tek tek verilir. Toplu onay bu çubukta hiç yoktur.
+ */
+function TekElCubugu({
+  oneri,
+  sira,
+  toplam,
+  cevrimici,
+  onceki,
+  sonraki,
+  onayla,
+  reddet,
+}: {
+  oneri: OneriGorunumu;
+  sira: number;
+  toplam: number;
+  cevrimici: boolean;
+  onceki: () => void;
+  sonraki: () => void;
+  onayla: () => void;
+  reddet: () => void;
+}) {
+  const yuksek = etkinRisk(oneri) === "yuksek";
+  return (
+    <>
+      <div aria-hidden className="h-36 sm:hidden" />
+      <section
+        aria-label="Hızlı karar"
+        data-tek-el
+        className="fixed inset-x-0 bottom-0 z-30 border-t border-cizgi-guclu bg-yuzey px-3 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-lg sm:hidden"
+      >
+        <p className="truncate text-sm" aria-live="polite">
+          <span className="font-semibold">
+            {sira + 1} / {toplam}
+          </span>{" "}
+          · {RISK_ETIKETI[etkinRisk(oneri)]} · {oneri.icerik.baslik}
+        </p>
+        <div className="mt-2 grid grid-cols-[3rem_1fr_1fr_3rem] gap-2">
+          <Dugme
+            boy="orta"
+            aria-label="Önceki öneri"
+            disabled={sira === 0}
+            onClick={onceki}
+            simge={<ChevronUp aria-hidden className="size-5" />}
+          />
+          <Dugme
+            boy="orta"
+            tur="tehlike"
+            disabled={!cevrimici}
+            onClick={reddet}
+            simge={<X aria-hidden className="size-5" />}
+          >
+            Reddet
+          </Dugme>
+          <Dugme
+            boy="orta"
+            tur="birincil"
+            disabled={!cevrimici && !yuksek}
+            onClick={onayla}
+            simge={yuksek ? <FileText aria-hidden className="size-5" /> : <Check aria-hidden className="size-5" />}
+          >
+            {yuksek ? "Kanıtı gör" : "Onayla"}
+          </Dugme>
+          <Dugme
+            boy="orta"
+            aria-label="Sonraki öneri"
+            disabled={sira >= toplam - 1}
+            onClick={sonraki}
+            simge={<ChevronDown aria-hidden className="size-5" />}
+          />
+        </div>
+      </section>
     </>
   );
 }
