@@ -158,7 +158,7 @@ Durumlar: **hazır** (başlanabilir), **devam**, **inceleme**, **tamam**, **bekl
 | [24](plan/ip/IP-24-cli-birlesmesi.md) | CLI ve Claude Code eklentisinin birleşmesi | 4 | tamam | 01, 12 |
 | [25](plan/ip/IP-25-mcp-sunucusu.md) | MCP sunucusu | 4 | tamam | 12, 13 |
 | [26](plan/ip/IP-26-uretim-altyapisi.md) | Üretim altyapısı ve akredit.org | 5 | inceleme | 08 |
-| [27](plan/ip/IP-27-guvenlik-denetimi.md) | Güvenlik sertleştirme ve bağımsız denetim | 5 | devam | 09-26 |
+| [27](plan/ip/IP-27-guvenlik-denetimi.md) | Güvenlik sertleştirme ve bağımsız denetim | 5 | inceleme | 09-26 |
 | [28](plan/ip/IP-28-kvkk-hukuk.md) | KVKK ve hukuk paketi | 5 | inceleme | araştırma |
 | [29](plan/ip/IP-29-belgeler-egitim.md) | Kullanıcı belgeleri ve eğitim | 5 | inceleme | 07+ |
 | [30](plan/ip/IP-30-pilot.md) | Pilot ve iş yükü ölçümü | 5 | bekliyor | Faz 3 |
