@@ -1,0 +1,23 @@
+{
+  "name": "@akredit/surec",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Süreç motoru: bildirimsel süreç tanımları, hazır kalite döngüleri, zamanlayıcı, akademik takvim (.ics), bildirim tercihleri ve e-posta gönderici.",
+  "license": "Apache-2.0",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "nodemailer": "^10.2.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/nodemailer": "^8.0.2",
+    "node-ical": "^0.27.3"
+  }
+}
