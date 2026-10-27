@@ -106,8 +106,14 @@ export function paketAc(p, klasor, vtAc) {
   vt.exec("BEGIN IMMEDIATE");
   try {
     for (const t of TABLOLAR) {
-      for (const satir of p.tablolar[t]) {
+      // Sütun adları paketten gelir: yalnız tablonun gerçek sütunları kabul edilir (SQL'e ad olarak girer).
+      const sutunlar = new Set(vt.prepare(`PRAGMA table_info(${t})`).all().map((c) => c.name));
+      const satirlar = p.tablolar[t];
+      if (!Array.isArray(satirlar)) throw new Error(`Paketteki ${t} tablosu okunamadı.`);
+      for (const satir of satirlar) {
         const s = Object.keys(satir);
+        const yabanci = s.find((k) => !sutunlar.has(k));
+        if (yabanci !== undefined || !s.length) throw new Error(`Paketteki ${t} tablosunda tanınmayan sütun var.`);
         vt.prepare(`INSERT INTO ${t} (${s.join(", ")}) VALUES (${s.map(() => "?").join(", ")})`).run(...s.map((k) => satir[k]));
       }
     }
