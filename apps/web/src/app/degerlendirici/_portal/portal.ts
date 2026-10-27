@@ -20,7 +20,7 @@ import {
   ServisHatasi,
 } from "@akredit/servis";
 import { gunlugeYaz, type Islem, kiraciIslemi, sema } from "@akredit/vt";
-import { atamaEtkinMi, kimlikOlayi, kurumHedefi, OKUMA_EYLEMLERI } from "@akredit/yetki";
+import { atamaEtkinMi, kurumHedefi, OKUMA_EYLEMLERI } from "@akredit/yetki";
 import {
   type AtifKaynagi,
   atifDenetle,
@@ -65,15 +65,13 @@ export async function portalBaglami(b: ServisBaglami): Promise<PortalBaglami> {
   const atamalar = b.aktor.atamalar.filter((a) => a.rol === "degerlendirici" && atamaEtkinMi(a, simdi));
   if (atamalar.length === 0) {
     await kiraciIslemi(b.db, b.aktor.kurumId, (tx) =>
-      gunlugeYaz(
-        tx,
-        kimlikOlayi({
-          aktor: { tur: "kisi", id: b.aktor.kisiId },
-          eylem: EYLEM.erisimReddedildi,
-          hedef: { tur: "kurum", id: b.aktor.kurumId },
-          ayrinti: { neden: "etkin_atama_yok", yol: b.aktor.tur },
-        }),
-      ),
+      gunlugeYaz(tx, {
+        aktor: { tur: "kisi", id: b.aktor.kisiId },
+        eylem: EYLEM.erisimReddedildi,
+        hedef: { tur: "kurum", id: b.aktor.kurumId },
+        ayrinti: { neden: "etkin_atama_yok", yol: b.aktor.tur },
+        zaman: simdi,
+      }),
     );
     throw new PortalHatasi(403, SURE_DOLDU);
   }
@@ -372,6 +370,7 @@ export async function soruSor(b: PortalBaglami, saglayici: Saglayici, girdi: unk
 // ---------------------------------------------------------------- kurumun erişim günlüğü
 
 export interface ErisimKaydi {
+  id: string;
   zaman: string;
   kisiId: string | null;
   kisiAdi: string | null;
@@ -394,6 +393,7 @@ export async function erisimGunlugu(b: ServisBaglami, sinir = 500): Promise<Eris
   return islem(b, async (tx) => {
     const satir = await tx
       .select({
+        id: sema.gunluk.id,
         zaman: sema.gunluk.zaman,
         aktorId: sema.gunluk.aktorId,
         eylem: sema.gunluk.eylem,
@@ -408,6 +408,7 @@ export async function erisimGunlugu(b: ServisBaglami, sinir = 500): Promise<Eris
       .orderBy(desc(sema.gunluk.sira))
       .limit(sinir);
     return satir.map((r) => ({
+      id: r.id,
       zaman: r.zaman.toISOString(),
       kisiId: r.aktorId,
       kisiAdi: r.kisiAdi ?? null,
