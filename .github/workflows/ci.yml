@@ -70,7 +70,8 @@ jobs:
     timeout-minutes: 15
     services:
       vt:
-        image: pgvector/pgvector:pg17
+        # Kesin sürüm etiketi; özetle (@sha256) sabitleme ağ erişimli ortamda yapılmalı (İP-27 raporu).
+        image: pgvector/pgvector:0.8.0-pg17
         env:
           POSTGRES_USER: akredit
           POSTGRES_PASSWORD: ci-yalniz

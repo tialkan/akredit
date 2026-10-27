@@ -57,6 +57,13 @@
       "when": 1793048432894,
       "tag": "0007_anket",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793048433894,
+      "tag": "0008_oturum_rolu",
+      "breakpoints": true
     }
   ]
 }
