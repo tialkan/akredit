@@ -1,6 +1,6 @@
 # İP-14: Süreç motoru, takvim ve bildirim
 
-- **Durum:** bekliyor
+- **Durum:** inceleme
 - **Faz:** 2
 - **Bağımlılık:** İP-02, İP-12
 - **Sahip olduğu yollar:** `packages/surec/**`, `apps/isci/src/surec/**`, `docs/raporlar/IP-14.md`
@@ -19,10 +19,10 @@ Kalite döngülerini (PUKÖ) insan hatırlamadan yürütmek: zamanında başlatm
 
 ## Kabul ölçütleri
 
-- [ ] Sahte saatle zamanlayıcı testleri.
-- [ ] Bir dönem sonu süreci uçtan uca (başlat → görev → hatırlat → kanıt → kapanış).
-- [ ] Takvim dosyası standart istemcilerde açılır.
-- [ ] `pnpm verify` temiz.
+- [x] Sahte saatle zamanlayıcı testleri. (`packages/surec/test/zaman-bildirim.test.ts` › "sahte saat"; `apps/isci/src/surec/surec.test.ts`, zamanlayıcı sahte saatle günleri ilerletir)
+- [x] Bir dönem sonu süreci uçtan uca (başlat → görev → hatırlat → kanıt → kapanış). (`surec.test.ts` › "başlat → görev → hatırlat → kanıt → kapanış")
+- [x] Takvim dosyası standart istemcilerde açılır. (`takvim-eposta.test.ts`: RFC 5545 kuralları + `node-ical` ile ayrıştırma; elle istemci denemesi yapılmadı)
+- [x] `pnpm verify` temiz.
 
 ## Notlar
 
@@ -31,3 +31,4 @@ Takvim tarihleri (KİDR son tarihi vb.) kod içine gömülmez; kurum ayarı ve �
 ## Günlük
 
 - 2026-10-23: İP tanımlandı. Başlamadan önce kapsamı güncel mimariye göre ayrıntılandır.
+- 2026-10-27: Uygulandı (dal `ip/14-surec-motoru`). `packages/surec`: zod'lu bildirimsel tanım (tarih/olay/koşul tetikleyici, son tarih, en az kanıt, hatırlatma, yükseltme), saf motor (tekil eylem anahtarlarıyla tekrar çalıştırmaya dayanıklı; geç kalınmış hatırlatmaları yağdırmaz; takvimde olmayan tarih `eksik_tarih` olur, uydurulmaz), 7 hazır süreç (yalnız takvim anahtarı, tarih gömülü değil), .ics üretimi/okuma ve akademik takvim eşleme (çatışma insana bırakılır), sessiz saat ve günlük özet, SMTP e-posta gönderici (nodemailer). `apps/isci/src/surec`: VT uygulayıcısı (görev + son tarih + bildirim + günlük), kanıt bağlama, kanıtsız kapanış yasağı, kendiliğinden başlatma, zamanlayıcı, panel için `surecDurumu`, takvim içe/dışa aktarma. Yeni göç gerekmedi (mevcut `surec_*`, `gorev`, `son_tarih`, `bildirim` tabloları). Kalan: panel sayfası ve API uçları (web/servis yolları), pg-boss ile üretim zamanlaması, kişi tercihi düzenleme arayüzü.
