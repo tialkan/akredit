@@ -3,17 +3,23 @@ import Link from "next/link";
 import { Rozet, SayfaBasligi } from "../../../bilesenler/temel.tsx";
 import { panelVeriKaynagi } from "../../../veri/sunucu.ts";
 import { raporKapsamasi } from "./kapsama.ts";
+import { OdrPaneli } from "./odr-paneli.tsx";
 
 export const metadata: Metadata = { title: "Raporlar" };
 
 export default async function RaporlarSayfasi() {
-  const raporlar = await (await panelVeriKaynagi()).raporlar();
+  const kaynak = await panelVeriKaynagi();
+  const raporlar = await kaynak.raporlar();
+  const programlar = (await kaynak.programlar()).map((p) => ({ id: p.id, ad: p.ad }));
   return (
     <>
       <SayfaBasligi
         baslik="Raporlar"
         aciklama="Taslak raporlar. Kanıta bağlanamayan paragraflar EKSİK olarak işaretlidir."
       />
+      <div className="mb-6">
+        <OdrPaneli programlar={programlar} />
+      </div>
       <ul className="grid gap-4 md:grid-cols-2">
         {raporlar.map((r) => {
           const k = raporKapsamasi(r);

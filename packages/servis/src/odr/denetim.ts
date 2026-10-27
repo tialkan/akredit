@@ -66,8 +66,7 @@ export function cumleDenetle(cumle: string, k: DenetimKaynaklari): CumleDenetimi
   if (!eksik && kanitOzetleri.length + hesapKimlikleri.length === 0) sorunlar.push("Cümlede atıf yok.");
   const izinliSayilar = new Set(izinli.flatMap(sayilar));
   const govde = cumle.replace(KANIT_ATFI, " ").replace(HESAP_ATFI, " ").replace(EKSIK_ISARETI, " ");
-  for (const s of sayilar(govde))
-    if (!izinliSayilar.has(s)) sorunlar.push(`Kaynağı gösterilmeyen sayı: ${s}`);
+  for (const s of sayilar(govde)) if (!izinliSayilar.has(s)) sorunlar.push(`Kaynağı gösterilmeyen sayı: ${s}`);
   return { gecerli: sorunlar.length === 0, eksik, kanitOzetleri, hesapKimlikleri, sorunlar };
 }
 

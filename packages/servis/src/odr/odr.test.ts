@@ -10,10 +10,10 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { type Ornek, ortam } from "../../test/yardimci.ts";
 import { ServisHatasi } from "../hata.ts";
 import { kararVer } from "../oneri.ts";
+import { EK_BASLIKLARI, odrDocxModeli } from "./belge.ts";
 import { cumleDenetle, cumlelereBol, sayilar } from "./denetim.ts";
 import * as odr from "./index.ts";
-import { EK_BASLIKLARI, odrDocxModeli } from "./belge.ts";
-import { odrKur, type OnayliKanit } from "./kurucu.ts";
+import { type OnayliKanit, odrKur } from "./kurucu.ts";
 
 const OZ1 = "1a2b3c4d".padEnd(64, "0");
 const OZ2 = "9f8e7d6c".padEnd(64, "1");
@@ -32,9 +32,9 @@ describe("atıf ve sayı denetimi (saf)", () => {
   it("atıflı ve sayısı kaynaktan gelen cümle geçer", () => {
     expect(cumleDenetle("Kurul toplandı [K:1a2b3c4d].", kaynaklar).gecerli).toBe(true);
     expect(cumleDenetle("PÇ1 sağlanması 62,5 oldu [H:abcdef01].", kaynaklar).gecerli).toBe(true);
-    expect(cumleDenetle("“kurul-tutanagi-2026.pdf” 12.03.2026 tarihinde onaylandı [K:1a2b3c4d].", kaynaklar).gecerli).toBe(
-      true,
-    );
+    expect(
+      cumleDenetle("“kurul-tutanagi-2026.pdf” 12.03.2026 tarihinde onaylandı [K:1a2b3c4d].", kaynaklar).gecerli,
+    ).toBe(true);
   });
   it("atıfsız, bilinmeyen atıflı ya da kaynağı gösterilmeyen sayılı cümle reddedilir", () => {
     expect(cumleDenetle("Kurul toplandı.", kaynaklar).sorunlar).toEqual(["Cümlede atıf yok."]);
@@ -82,8 +82,17 @@ describe("ÖDR kurucu ve şablon (saf)", () => {
     programAd: "Deneme Programı",
     kanitlar: [kanit(OZ1, "kurul-tutanagi-2026.pdf", ["P.1", "P.4"])],
     hesaplar: [],
-    surecKayitlari: [{ tanim: "Danışma kurulu yılda 2 kez toplanacak", pukoAsamasi: "planla", olcutKodlari: ["P.4"], kanitOzetleri: [OZ1] }],
-    ekMetinler: [{ olcutKod: "P.1", metin: "Çıktılar web sitesinde yayımlandı. Program 40 yıllıktır [K:1a2b3c4d].", kaynak: "yz" }],
+    surecKayitlari: [
+      {
+        tanim: "Danışma kurulu yılda 2 kez toplanacak",
+        pukoAsamasi: "planla",
+        olcutKodlari: ["P.4"],
+        kanitOzetleri: [OZ1],
+      },
+    ],
+    ekMetinler: [
+      { olcutKod: "P.1", metin: "Çıktılar web sitesinde yayımlandı. Program 40 yıllıktır [K:1a2b3c4d].", kaynak: "yz" },
+    ],
   });
   it("bölümler şablon sırasıyla; her paragraf atıflı ya da EKSİK", () => {
     expect(t.sablonKaynagi).toBe("cerceve");
@@ -130,22 +139,22 @@ describe("ÖDR kurucu ve şablon (saf)", () => {
 let o: Awaited<ReturnType<typeof ortam>>;
 let a: Ornek;
 let kanitDersOzet = "";
-let kanitKurumOzet = "";
 beforeAll(async () => {
   o = await ortam();
   a = o.a;
   await kiraciIslemi(o.db, a.kurumId, async (tx) => {
     const [d] = await tx.select().from(sema.kanit).where(eq(sema.kanit.id, a.kanitDers));
-    const [k] = await tx.select().from(sema.kanit).where(eq(sema.kanit.id, a.kanitKurum));
     kanitDersOzet = d?.ozet ?? "";
-    kanitKurumOzet = k?.ozet ?? "";
     // Kurgu ölçme sonucu (İP-16'nın yazdığı biçimde): BPA102'de PÇ1 sağlanması 62,5; 5 öğrenci.
     await tx.insert(sema.olcmeSonucu).values({
       kurumId: a.kurumId,
       dersAcilisiId: a.dersAcilisiId,
       hesapSurumu: "olcme-1",
       girdiOzeti: "c".repeat(64),
-      sonuc: { pcSaglanmasi: [{ pcKod: "PÇ1", deger: 62.5, katkiToplami: 3, ckSayisi: 1 }], notIstatistikleri: { n: 5 } },
+      sonuc: {
+        pcSaglanmasi: [{ pcKod: "PÇ1", deger: 62.5, katkiToplami: 3, ckSayisi: 1 }],
+        notIstatistikleri: { n: 5 },
+      },
     });
     const etiket = (hedef: string, kodlar: string[]) =>
       tx
@@ -265,7 +274,9 @@ describe("kurgu programla uçtan uca ÖDR", () => {
     const beklenen = ["Rapor hakkında", "1. Program öz değerlendirmesi", ...EK_BASLIKLARI];
     expect(basliklar.filter((b) => beklenen.includes(b as string))).toEqual(beklenen);
     const ikinci = t.bolumler.filter((b) => b.duzey === 2).map((b) => b.baslik);
-    expect(ikinci).toEqual(AKREDIT_ONLISANS_IC.olcutler.flatMap((x) => [x, ...x.altOlcutler]).map((x) => `${x.kod} ${x.baslik}`));
+    expect(ikinci).toEqual(
+      AKREDIT_ONLISANS_IC.olcutler.flatMap((x) => [x, ...x.altOlcutler]).map((x) => `${x.kod} ${x.baslik}`),
+    );
     expect(JSON.stringify(t)).toContain("EKSİK: Rapor henüz onaylanmadı");
 
     const d = await odr.durum(y, raporId);
