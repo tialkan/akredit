@@ -15,6 +15,7 @@ import {
   sayilariCikar,
 } from "@akredit/yz";
 import { z } from "zod";
+import { kisaKimlik } from "./sema.ts";
 
 export interface AcikYanit {
   /** Yanıt satırının kimliği (anket_yaniti.id); kişiyle bağı yoktur. */
@@ -38,9 +39,6 @@ export const AcikOzetSemasi = z.object({
     .max(20),
 });
 export type AcikOzetCiktisi = z.infer<typeof AcikOzetSemasi>;
-
-/** Atıflarda kullanılan kısa kimlik: son 12 onaltılık karakter (UUID v7 başı zamandır, çakışır). */
-export const kisaKimlik = (id: string) => id.replace(/-/gu, "").slice(-12).toLowerCase();
 
 function eslesen(girdi: AcikOzetGirdisi, atif: string): AcikYanit | undefined {
   const a = atif.replace(/^Y:/u, "").toLowerCase();
