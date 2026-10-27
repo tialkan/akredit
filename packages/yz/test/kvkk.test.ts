@@ -90,3 +90,14 @@ describe("geri çevirme", () => {
     expect(m.kaldir("[KİŞİ-1] geldi")).toBe("Ali Veli geldi");
   });
 });
+
+describe("sabit hat telefonu (İP-27, inceleme dalga 1 #5)", () => {
+  it("alan kodlu sabit hat ve 850 numaralarını maskeler", () => {
+    // Uydurma numaralar.
+    const s = maskele("Santral 0212 555 12 34, faks 0312-444-00-11, çağrı +90 850 123 45 67.");
+    expect(s.metin).toBe("Santral [TELEFON-1], faks [TELEFON-2], çağrı [TELEFON-3].");
+  });
+  it("sıradan 10 haneli sayıyı telefon saymaz", () => {
+    expect(maskele("Kayıt 1234567890 numaralı.").metin).toBe("Kayıt 1234567890 numaralı.");
+  });
+});

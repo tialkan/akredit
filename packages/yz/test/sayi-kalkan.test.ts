@@ -82,3 +82,22 @@ describe("istem kalkanı", () => {
     expect(guvenilmeyenSar("temiz").metin).toBe('<akredit-veri kaynak="belge">\ntemiz\n</akredit-veri>');
   });
 });
+
+describe("yazıyla sayılar (İP-27, inceleme dalga 1 #4)", () => {
+  it("yazıyla yazılmış sayıyı ve yüzdeyi çıkarır", () => {
+    const s = sayilariCikar("Beş toplantı yapıldı, katılım yüzde kırk oldu; iki yüz elli öğrenci.");
+    // beş=5; yüzde kırk=40; iki yüz elli = 2*100+50 = 250
+    expect(s.map((x) => [x.tur, x.deger])).toEqual([
+      ["sayi", 5],
+      ["yuzde", 40],
+      ["sayi", 250],
+    ]);
+  });
+  it("belirteç 'bir' ve 'yüz yüze' deyimini sayı saymaz", () => {
+    expect(sayilariCikar("Bir toplantı yüz yüze yapıldı.")).toEqual([]);
+  });
+  it("dayanaksız yazıyla sayıyı işaretler, kaynakta rakamla geçiyorsa kabul eder", () => {
+    expect(sayilariDenetle("Beş toplantı yapıldı.").dayanaksiz.map((d) => d.deger)).toEqual([5]);
+    expect(sayilariDenetle("Beş toplantı yapıldı.", { hesapSonuclari: [5] }).dayanaksiz).toEqual([]);
+  });
+});
