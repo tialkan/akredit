@@ -3,7 +3,8 @@
 
 import { ozetHesapla } from "@akredit/cekirdek";
 import type { AnketSonucu } from "./istatistik.ts";
-import { type AcikOzet, kisaKimlik } from "./ozet.ts";
+import type { AcikOzet } from "./ozet.ts";
+import { kisaKimlik } from "./sema.ts";
 
 const sayi = (x: number, b = 2) => x.toLocaleString("tr-TR", { maximumFractionDigits: b, minimumFractionDigits: 0 });
 const yuzde = (x: number) => `%${sayi(x * 100, 1)}`;

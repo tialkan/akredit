@@ -14,6 +14,7 @@
     "e2e": "playwright test"
   },
   "dependencies": {
+    "@akredit/anket": "workspace:*",
     "@akredit/cekirdek": "workspace:*",
     "@akredit/gosterge": "workspace:*",
     "@akredit/servis": "workspace:*",

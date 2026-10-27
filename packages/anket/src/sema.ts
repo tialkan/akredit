@@ -122,3 +122,6 @@ function degerDogrula(s: Soru, v: unknown): YanitDegeri {
     }
   }
 }
+
+/** Atıflarda kullanılan kısa yanıt kimliği: son 12 onaltılık karakter (UUID v7 başı zamandır, çakışır). */
+export const kisaKimlik = (id: string) => id.replace(/-/gu, "").slice(-12).toLowerCase();
