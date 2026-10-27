@@ -5,6 +5,7 @@ import type { Eylem } from "@akredit/yetki";
 import { z } from "zod";
 import * as akademik from "../akademik.ts";
 import type { ServisBaglami } from "../baglam.ts";
+import * as bologna from "../bologna/index.ts";
 import * as kanit from "../kanit.ts";
 import * as onay from "../onay/index.ts";
 import * as oneri from "../oneri.ts";
@@ -265,6 +266,77 @@ export const UCLAR: Uc[] = [
     govde: Bos,
     cikti: s.PolitikaKaydi,
     isle: (b, g) => politika.politikaIptal(b, g.yol.id as string),
+  },
+  {
+    ad: "bolognaOku",
+    yontem: "POST",
+    yol: "/bologna/programlar/{id}/okumalar",
+    ozet: "Programın Bologna sayfalarını oku (ya da okunmuş veriyi yükle) ve kanıt olarak kaydet",
+    eylem: "kanit.yukle",
+    govde: bologna.OkumaGirdisi,
+    cikti: bologna.OkumaSonucu,
+    basariDurumu: 201,
+    isle: (b, g) => bologna.okumaKaydet(b, g.yol.id as string, g.govde),
+  },
+  {
+    ad: "bolognaDenetimi",
+    yontem: "GET",
+    yol: "/bologna/programlar/{id}/denetim",
+    ozet: "Programdaki derslerin toplu Bologna denetimi ve önceki okumayla karşılaştırma",
+    eylem: "olcme.oku",
+    cikti: bologna.ProgramDenetimi,
+    isle: (b, g) => bologna.programDenetimi(b, g.yol.id as string),
+  },
+  {
+    ad: "bolognaTaslagiUret",
+    yontem: "POST",
+    yol: "/bologna/taslaklar",
+    ozet: "Hocanın beyanı ve Bologna okumasından atıflı ders paketi taslağı üret (onay kutusuna öneri düşer)",
+    eylem: "olcme.veri_gir",
+    govde: bologna.TaslakGirdisi,
+    cikti: bologna.TaslakSonucu,
+    basariDurumu: 201,
+    isle: (b, g) => bologna.taslakUret(b, g.govde),
+  },
+  {
+    ad: "bolognaGecmisi",
+    yontem: "GET",
+    yol: "/bologna/dersler/{id}/gecmis",
+    ozet: "Dersin taslak geçmişi: kararlar, değişen alanlar ve nedenleri",
+    eylem: "oneri.oku",
+    cikti: z.array(bologna.GecmisKaydi),
+    isle: (b, g) => bologna.taslakGecmisi(b, g.yol.id as string),
+  },
+  {
+    ad: "bolognaYazmaPlani",
+    yontem: "POST",
+    yol: "/bologna/taslaklar/{id}/yazma-plani",
+    ozet: "Onaylı ve hatasız taslaktan OBS yazma planı önerisi aç (ayrıca insan onayı ister)",
+    eylem: "olcme.veri_gir",
+    govde: bologna.YazmaPlaniGirdisi,
+    cikti: bologna.YazmaPlaniSonucu,
+    basariDurumu: 201,
+    isle: (b, g) => bologna.yazmaPlaniOner(b, g.yol.id as string, g.govde),
+  },
+  {
+    ad: "bolognaYazmaBaslat",
+    yontem: "POST",
+    yol: "/bologna/yazma-planlari/{id}/baslat",
+    ozet: "Onaylı yazma planını al (alan alan ve kopyalanabilir). Onaysız ya da süresi dolmuş planla çalışmaz.",
+    eylem: "olcme.veri_gir",
+    govde: Bos,
+    cikti: bologna.OnayliPlan,
+    isle: (b, g) => bologna.yazmaPlaniAl(b, g.yol.id as string),
+  },
+  {
+    ad: "bolognaYazmaBitir",
+    yontem: "POST",
+    yol: "/bologna/yazma-planlari/{id}/bitir",
+    ozet: "Yazmanın sonucunu günlüğe yaz",
+    eylem: "olcme.veri_gir",
+    govde: bologna.YazmaBitisGirdisi,
+    cikti: z.object({ tamam: z.literal(true) }),
+    isle: (b, g) => bologna.yazmaBitir(b, g.yol.id as string, g.govde),
   },
   {
     ad: "gunluk",
