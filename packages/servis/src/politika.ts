@@ -304,7 +304,11 @@ export async function uygulanabilirPolitikalar(
           { kurumId: kurumId as YetkiPolitikasi["kurumId"], tur: oneri.tur, risk: oneri.risk, guven: oneri.guven },
           politika,
           simdi.getTime(),
-          { ...(birimId ? { birimId: birimId as never } : {}), ...(program ? { programId: program as never } : {}) },
+          {
+            ...(birimId ? { birimId: birimId as never } : {}),
+            ...(program ? { programId: program as never } : {}),
+            iptalEdilenler: iptal,
+          },
         ).uygulanir,
     );
     if (uygulanir) uygun.push(p.id);

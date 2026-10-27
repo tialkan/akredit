@@ -132,6 +132,14 @@ describe("politika uygulanır mı", () => {
     expect(politikaUygulanirMi(oneri({ tur: "matris_katkisi", risk: "orta" }), hileli, SIMDI).uygulanir).toBe(false);
   });
 
+  it("iptal edilmiş politika uygulanmaz (inceleme bulgu 3)", () => {
+    const p = politika();
+    const r = politikaUygulanirMi(oneri(), p, SIMDI, { iptalEdilenler: new Set([p.id]) });
+    expect(r).toEqual({ uygulanir: false, neden: "Politika iptal edildi." });
+    expect(politikaUygulanirMi(oneri(), p, SIMDI, { iptalEdilenler: [p.id] }).uygulanir).toBe(false);
+    expect(politikaUygulanirMi(oneri(), p, SIMDI, { iptalEdilenler: ["baska"] }).uygulanir).toBe(true);
+  });
+
   it("güven eşiğe eşitse uygulanır, altındaysa uygulanmaz, null ise uygulanmaz", () => {
     expect(politikaUygulanirMi(oneri({ guven: 0.8 }), politika(), SIMDI).uygulanir).toBe(true);
     expect(politikaUygulanirMi(oneri({ guven: 0.79999 }), politika(), SIMDI).neden).toMatch(/eşiğinin altında/);

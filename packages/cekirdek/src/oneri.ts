@@ -68,6 +68,8 @@ export interface PolitikaSonucu {
 export interface OneriKonumu {
   birimId?: BirimId;
   programId?: ProgramId;
+  /** İptal edilmiş politika kimlikleri (iptal kaydının `iptal_ettigi_id` değerleri). Bunlar uygulanmaz. */
+  iptalEdilenler?: ReadonlySet<string> | readonly string[];
 }
 
 const zamanMs = (z: IsoZaman | number): number => (typeof z === "number" ? z : Date.parse(z));
@@ -87,6 +89,12 @@ export function politikaUygulanirMi(
   if (risk === "yuksek") return hayir("Yüksek riskli öneriler politikayla karara bağlanmaz.");
   if (oneri.kurumId !== politika.kurumId) return hayir("Politika başka bir kuruma ait.");
   if (!String(politika.imzalayan ?? "").trim()) return hayir("Politikayı imzalayan kişi yok.");
+  const iptaller = konum.iptalEdilenler;
+  if (
+    iptaller &&
+    (iptaller instanceof Set ? iptaller.has(politika.id) : (iptaller as readonly string[]).includes(politika.id))
+  )
+    return hayir("Politika iptal edildi.");
   const k = politika.kapsam;
   if (!k.oneriTurleri.includes(oneri.tur)) return hayir("Öneri türü politikanın kapsamında değil.");
   if ((k.enYuksekRisk as RiskDuzeyi) === "yuksek" || RISK_SIRASI[risk] > RISK_SIRASI[k.enYuksekRisk])
