@@ -1,0 +1,38 @@
+Akredit kurum içi kurulum ve yükseltme tatbikatı (veritabanı + model)
+Başlangıç (UTC): 2026-10-27T14:58:00Z
+Commit: 22fc0c6
+PostgreSQL: postgres (PostgreSQL) 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)
+Node.js: v22.22.0
+Depodaki göç sayısı: 8 (eski sürüm: ilk 7)
+1. Kurulum (eski sürüm)
+Uygulanan göçler: 0000_eklentiler, 0001_sema, 0002_guvenlik, 0003_tur_riski, 0004_kimlik, 0005_servis, 0006_onay
+  GEÇTİ  uygulanan göç: 7
+  tablo sayısı: 55
+2. Yükseltme
+vt-yedek: alındı /tmp/akredit-kurum-tatbikat.sJLNgr/yedekler/yukseltme.dump
+  GEÇTİ  yedek özeti doğrulanıyor: tamam
+Uygulanan göçler: 0007_anket
+  GEÇTİ  uygulanan göç: 8
+  GEÇTİ  kurulum verisi korundu: 1
+Göçler güncel.
+  GEÇTİ  göçler ikinci kez: değişiklik yok: 8
+3. Yükseltmeden sonra yazım
+4. Veriyle geri dönüş
+vt-yedek: geri yüklendi /tmp/akredit-kurum-tatbikat.sJLNgr/yedekler/yukseltme.dump
+  GEÇTİ  göç sayısı eski sürümde: 7
+  GEÇTİ  kurulum verisi geri geldi: 1
+  GEÇTİ  yükseltme sonrası veri yok: 0
+  GEÇTİ  tablo sayısı eski sürümle aynı: 55
+5. Yedek bütünlüğü
+  GEÇTİ  bozuk yedek reddi: red
+  GEÇTİ  ret sonrası veri yerinde: 1
+  GEÇTİ  var olan yedeğin üzerine yazma: red
+6. Yeniden yükseltme
+Uygulanan göçler: 0007_anket
+  GEÇTİ  uygulanan göç: 8
+7. Yerel model (sahte OpenAI uyumlu sunucu, 127.0.0.1)
+  GEÇTİ  yerel modelden yanıt: yerel-yanit
+  GEÇTİ  model sunucusuna gelen istek: 1
+  GEÇTİ  dış adres reddi (istek atılmadan): red
+Bitiş (UTC): 2026-10-27T14:58:17Z
+SONUÇ: BAŞARILI
