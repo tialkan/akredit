@@ -229,6 +229,12 @@ export function kimlikSunucusuOlustur(s: KimlikSecenekleri) {
       sso({
         modelName: "kimlikSsoSaglayici",
         defaultSSO: ayar.ssoSaglayicilari,
+        // Dalga 2 #1: @better-auth/sso hesap bağlamada trustedProviders'ı değil domainVerified'ı okur.
+        // Alan doğrulaması açıkken ayardan gelen (defaultSSO) sağlayıcılar doğrulanmış sayılır: alan adını
+        // işletmeci yazmıştır. Kütüphane yine de e-postanın sağlayıcının alan adında olmasını şart koşar
+        // (ssoAlanAdiGecerliMi de denetler). Kullanıcı sağlayıcı kaydedemediği için (providersLimit 0)
+        // doğrulanmamış veritabanı sağlayıcısı yoktur.
+        domainVerification: { enabled: true },
         // Sağlayıcılar kurum ayarından gelir; kullanıcılar sağlayıcı kaydedemez.
         providersLimit: 0,
         organizationProvisioning: { disabled: true },
