@@ -413,3 +413,11 @@ describe("rapor ve kanıt", () => {
     expect(r.metin).toContain("[EKSİK: Yanıt sayısı eşiğin altında");
   });
 });
+
+describe("QR", () => {
+  it("bağlantıdan SVG üretir, bağlantı olmayanı reddeder", async () => {
+    const { qrSvg } = await import("../src/qr.ts");
+    expect(await qrSvg("https://akredit.invalid/anket/a/b")).toMatch(/^<svg[\s\S]*<\/svg>\s*$/u);
+    await expect(qrSvg("javascript:alert(1)")).rejects.toThrow();
+  });
+});

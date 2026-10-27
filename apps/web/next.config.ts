@@ -5,6 +5,7 @@ const config: NextConfig = {
   output: "standalone",
   // Çalışma alanı paketleri TypeScript kaynağıyla gelir, Next derler.
   transpilePackages: [
+    "@akredit/anket",
     "@akredit/cekirdek",
     "@akredit/gosterge",
     "@akredit/servis",
@@ -14,7 +15,7 @@ const config: NextConfig = {
     "@akredit/yz",
   ],
   // Veritabanı sürücüleri (WASM ve yerel modüller) paketlenmez, Node yükler.
-  serverExternalPackages: ["@electric-sql/pglite", "@electric-sql/pglite-pgvector", "postgres", "nodemailer"],
+  serverExternalPackages: ["@electric-sql/pglite", "@electric-sql/pglite-pgvector", "postgres", "nodemailer", "qrcode"],
   poweredByHeader: false,
 };
 

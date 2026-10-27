@@ -6,6 +6,7 @@ import {
   BookOpen,
   CalendarDays,
   CheckSquare,
+  ClipboardList,
   FileText,
   FolderArchive,
   Gauge,
@@ -26,6 +27,7 @@ export const PANEL_MENUSU = [
   { href: "/panel/dersler", ad: "Dersler", simge: BookOpen },
   { href: "/panel/raporlar", ad: "Raporlar", simge: FileText },
   { href: "/panel/gostergeler", ad: "Göstergeler", simge: Gauge },
+  { href: "/panel/anketler", ad: "Anketler", simge: ClipboardList },
   { href: "/panel/surecler", ad: "Takvim ve görevler", simge: CalendarDays },
   { href: "/panel/ayarlar", ad: "Ayarlar", simge: Settings },
 ] as const;
