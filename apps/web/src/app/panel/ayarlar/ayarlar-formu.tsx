@@ -6,7 +6,7 @@ import { Dugme } from "../../../bilesenler/dugme.tsx";
 import { useBildirim } from "../../../bilesenler/etkilesimli.tsx";
 import { IsaretKutusu, MetinAlani, Secim } from "../../../bilesenler/form.tsx";
 import { Kart, Rozet } from "../../../bilesenler/temel.tsx";
-import { veriKaynagi } from "../../../veri/bellek.ts";
+import { istemciVeriKaynagi } from "../../../veri/istemci.ts";
 import type { Ayarlar, YzSaglayici } from "../../../veri/kaynak.ts";
 import { ONERI_TURU_ETIKETI, RISK_ETIKETI, tarihYaz } from "../../../veri/yardimci.ts";
 
@@ -21,7 +21,7 @@ const SAGLAYICILAR: { deger: YzSaglayici; ad: string; aciklama: string }[] = [
 const DEVREDILEBILIR = (Object.keys(ONERI_RISKI) as OneriTuru[]).filter((t) => ONERI_RISKI[t] !== "yuksek");
 
 export function AyarlarFormu({ ilk }: { ilk: Ayarlar }) {
-  const kaynak = veriKaynagi();
+  const kaynak = istemciVeriKaynagi();
   const bildir = useBildirim();
   const [ayarlar, setAyarlar] = useState(ilk);
   const [kurumAdi, setKurumAdi] = useState(ilk.kurumAdi);

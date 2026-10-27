@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Rozet, SayfaBasligi } from "../../../bilesenler/temel.tsx";
-import { veriKaynagi } from "../../../veri/bellek.ts";
+import { panelVeriKaynagi } from "../../../veri/sunucu.ts";
 import { raporKapsamasi } from "./kapsama.ts";
 
 export const metadata: Metadata = { title: "Raporlar" };
 
 export default async function RaporlarSayfasi() {
-  const raporlar = await veriKaynagi().raporlar();
+  const raporlar = await (await panelVeriKaynagi()).raporlar();
   return (
     <>
       <SayfaBasligi

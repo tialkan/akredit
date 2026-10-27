@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { SayfaBasligi } from "../../../bilesenler/temel.tsx";
-import { veriKaynagi } from "../../../veri/bellek.ts";
+import { panelVeriKaynagi } from "../../../veri/sunucu.ts";
 import { AyarlarFormu } from "./ayarlar-formu.tsx";
 
 export const metadata: Metadata = { title: "Ayarlar" };
 
 export default async function AyarlarSayfasi() {
-  const ayarlar = await veriKaynagi().ayarlar();
+  const ayarlar = await (await panelVeriKaynagi()).ayarlar();
   return (
     <>
       <SayfaBasligi baslik="Ayarlar" aciklama="Kurum bilgisi, yapay zekâ hizmeti ve yetki politikaları." />
