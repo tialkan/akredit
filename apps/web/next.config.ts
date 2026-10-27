@@ -6,8 +6,11 @@ const config: NextConfig = {
   // Çalışma alanı paketleri TypeScript kaynağıyla gelir, Next derler.
   transpilePackages: [
     "@akredit/anket",
+    "@akredit/baglayicilar",
+    "@akredit/belge",
     "@akredit/cekirdek",
     "@akredit/gosterge",
+    "@akredit/olcme",
     "@akredit/servis",
     "@akredit/surec",
     "@akredit/vt",
