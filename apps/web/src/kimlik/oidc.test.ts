@@ -115,6 +115,33 @@ describe("sahte OIDC sağlayıcısıyla giriş", () => {
     expect(k.map((x) => x.email)).not.toContain(o.b.yoneticiEposta);
   });
 
+  it("sihirli bağlantıyla açılmış var olan hesap kurumsal girişe bağlanır (dalga 2 #1, domainVerified)", async () => {
+    const { sihirliGiris } = await import("./test-yardimci.ts");
+    await sihirliGiris(o, o.a.yoneticiEposta);
+    const [kullanici] = (await o.db.select().from(sema.kimlikKullanici)).filter((x) => x.email === o.a.yoneticiEposta);
+    expect(kullanici).toBeDefined();
+    idp.kullanici = { sub: "oidc-yonetici", email: o.a.yoneticiEposta, name: "Deneme Yönetici" };
+    const { kavanoz, yanit } = await oidcGiris();
+    expect(yanit.headers.get("location")).toBe("/panel");
+    expect(kavanoz.cerezler.has("akredit.session_token")).toBe(true);
+    const hesap = (await o.db.select().from(sema.kimlikHesap)).find(
+      (h) => h.providerId === "a-oidc" && h.accountId === "oidc-yonetici",
+    );
+    expect(hesap?.userId).toBe(kullanici?.id);
+    const b = await istekBaglami(o.k, istek("/", { kavanoz }));
+    expect(b.kisi.kurumId).toBe(o.a.kurumId);
+  });
+
+  it("bağlama yalnız sağlayıcının alan adındaki hesap için: A'nın sağlayıcısı B'nin var olan hesabına bağlanamaz", async () => {
+    const { sihirliGiris } = await import("./test-yardimci.ts");
+    await sihirliGiris(o, o.b.yoneticiEposta);
+    idp.kullanici = { sub: "oidc-b-saldiri", email: o.b.yoneticiEposta, name: "Deneme Saldırgan" };
+    const { kavanoz } = await oidcGiris();
+    expect(kavanoz.cerezler.has("akredit.session_token")).toBe(false);
+    const hesaplar = await o.db.select().from(sema.kimlikHesap);
+    expect(hesaplar.find((h) => h.accountId === "oidc-b-saldiri")).toBeUndefined();
+  });
+
   // İP-27, inceleme dalga 2 #9: kod enjeksiyonu ve yeniden oynatma. @better-auth/sso 1.7 yetkilendirme
   // isteğine nonce koymuyor (yetki kodu akışında OIDC isteğe bağlı sayar); koruma PKCE + state + tek
   // kullanımlık koddur. Aşağıdaki testler bu korumanın nonce'un işini gördüğünü sınar.
