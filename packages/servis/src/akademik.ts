@@ -5,6 +5,7 @@ import { type Islem, sema } from "@akredit/vt";
 import { and, asc, eq, inArray, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { islem, type ServisBaglami } from "./baglam.ts";
+import { kontrolListesi } from "./ders-dosyasi/index.ts";
 import { bulunamadi } from "./hata.ts";
 import type { Cikti, Ders, OlcmeSatiri, Program } from "./semalar.ts";
 
@@ -89,8 +90,7 @@ async function dersGorunumu(tx: Islem, d: typeof sema.ders.$inferSelect): Promis
       : c.length === 0
         ? "Dersin öğrenme çıktıları henüz girilmemiş."
         : "Ders öğrenme çıktıları kayıtlı.",
-    // Ders dosyası İP-16'da gelir; o zamana kadar liste boştur.
-    dersDosyasi: [],
+    dersDosyasi: await kontrolListesi(tx, d.id),
     olcme: await olcmeSatirlari(tx, d.id),
   };
 }

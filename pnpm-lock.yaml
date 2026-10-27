@@ -262,9 +262,18 @@ importers:
 
   packages/servis:
     dependencies:
+      '@akredit/baglayicilar':
+        specifier: workspace:*
+        version: link:../baglayicilar
+      '@akredit/belge':
+        specifier: workspace:*
+        version: link:../belge
       '@akredit/cekirdek':
         specifier: workspace:*
         version: link:../cekirdek
+      '@akredit/olcme':
+        specifier: workspace:*
+        version: link:../olcme
       '@akredit/surec':
         specifier: workspace:*
         version: link:../surec

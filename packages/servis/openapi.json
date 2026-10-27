@@ -68,12 +68,18 @@
                   "type": "string"
                 }
               },
-              "required": ["alan", "ileti"],
+              "required": [
+                "alan",
+                "ileti"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["hata", "kod"],
+        "required": [
+          "hata",
+          "kod"
+        ],
         "additionalProperties": false
       }
     }
@@ -101,7 +107,11 @@
                       "type": "string"
                     }
                   },
-                  "required": ["id", "ad", "unvan"],
+                  "required": [
+                    "id",
+                    "ad",
+                    "unvan"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -206,7 +216,11 @@
                           "type": "number"
                         }
                       },
-                      "required": ["dusuk", "orta", "yuksek"],
+                      "required": [
+                        "dusuk",
+                        "orta",
+                        "yuksek"
+                      ],
                       "additionalProperties": false
                     },
                     "yaklasanlar": {
@@ -228,13 +242,24 @@
                           },
                           "durum": {
                             "type": "string",
-                            "enum": ["bekliyor", "devam", "tamam"]
+                            "enum": [
+                              "bekliyor",
+                              "devam",
+                              "tamam"
+                            ]
                           },
                           "ilgili": {
                             "type": "string"
                           }
                         },
-                        "required": ["id", "baslik", "sonTarih", "sorumlu", "durum", "ilgili"],
+                        "required": [
+                          "id",
+                          "baslik",
+                          "sonTarih",
+                          "sorumlu",
+                          "durum",
+                          "ilgili"
+                        ],
                         "additionalProperties": false
                       }
                     },
@@ -250,7 +275,10 @@
                             "type": "number"
                           }
                         },
-                        "required": ["olcut", "kanitSayisi"],
+                        "required": [
+                          "olcut",
+                          "kanitSayisi"
+                        ],
                         "additionalProperties": false
                       }
                     },
@@ -261,7 +289,13 @@
                       "type": "number"
                     }
                   },
-                  "required": ["bekleyen", "yaklasanlar", "kapsama", "kararSayisi", "harcananDakika"],
+                  "required": [
+                    "bekleyen",
+                    "yaklasanlar",
+                    "kapsama",
+                    "kararSayisi",
+                    "harcananDakika"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -381,7 +415,12 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": ["yukleme", "baglayici", "eposta", "uretilen"]
+              "enum": [
+                "yukleme",
+                "baglayici",
+                "eposta",
+                "uretilen"
+              ]
             }
           },
           {
@@ -427,7 +466,12 @@
                           },
                           "kaynakTuru": {
                             "type": "string",
-                            "enum": ["yukleme", "baglayici", "eposta", "uretilen"]
+                            "enum": [
+                              "yukleme",
+                              "baglayici",
+                              "eposta",
+                              "uretilen"
+                            ]
                           },
                           "kaynakAyrinti": {
                             "type": "object",
@@ -437,7 +481,10 @@
                             "additionalProperties": {}
                           },
                           "belgeTarihi": {
-                            "type": ["string", "null"]
+                            "type": [
+                              "string",
+                              "null"
+                            ]
                           },
                           "kapsamlar": {
                             "type": "array",
@@ -451,7 +498,10 @@
                                   "type": "string"
                                 }
                               },
-                              "required": ["tur", "id"],
+                              "required": [
+                                "tur",
+                                "id"
+                              ],
                               "additionalProperties": false
                             }
                           },
@@ -461,7 +511,12 @@
                           },
                           "kisiselVeri": {
                             "type": "string",
-                            "enum": ["yok", "maskeli", "var", "bilinmiyor"]
+                            "enum": [
+                              "yok",
+                              "maskeli",
+                              "var",
+                              "bilinmiyor"
+                            ]
                           },
                           "baslik": {
                             "type": "string"
@@ -479,20 +534,34 @@
                                 "properties": {
                                   "durum": {
                                     "type": "string",
-                                    "enum": ["bekliyor", "metin_cikarildi", "ocr_gerekli", "gomme_tamam", "hata"]
+                                    "enum": [
+                                      "bekliyor",
+                                      "metin_cikarildi",
+                                      "ocr_gerekli",
+                                      "gomme_tamam",
+                                      "hata"
+                                    ]
                                   },
                                   "asama": {
                                     "type": "string"
                                   },
                                   "ileti": {
-                                    "type": ["string", "null"]
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
                                   },
                                   "zaman": {
                                     "type": "string",
                                     "format": "date-time"
                                   }
                                 },
-                                "required": ["durum", "asama", "ileti", "zaman"],
+                                "required": [
+                                  "durum",
+                                  "asama",
+                                  "ileti",
+                                  "zaman"
+                                ],
                                 "additionalProperties": false
                               },
                               {
@@ -522,7 +591,10 @@
                       }
                     },
                     "sonraki": {
-                      "type": ["string", "null"]
+                      "type": [
+                        "string",
+                        "null"
+                      ]
                     },
                     "toplam": {
                       "type": "integer",
@@ -530,7 +602,11 @@
                       "maximum": 9007199254740991
                     }
                   },
-                  "required": ["ogeler", "sonraki", "toplam"],
+                  "required": [
+                    "ogeler",
+                    "sonraki",
+                    "toplam"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -656,7 +732,12 @@
                         },
                         "kaynakTuru": {
                           "type": "string",
-                          "enum": ["yukleme", "baglayici", "eposta", "uretilen"]
+                          "enum": [
+                            "yukleme",
+                            "baglayici",
+                            "eposta",
+                            "uretilen"
+                          ]
                         },
                         "kaynakAyrinti": {
                           "type": "object",
@@ -666,7 +747,10 @@
                           "additionalProperties": {}
                         },
                         "belgeTarihi": {
-                          "type": ["string", "null"]
+                          "type": [
+                            "string",
+                            "null"
+                          ]
                         },
                         "kapsamlar": {
                           "type": "array",
@@ -680,7 +764,10 @@
                                 "type": "string"
                               }
                             },
-                            "required": ["tur", "id"],
+                            "required": [
+                              "tur",
+                              "id"
+                            ],
                             "additionalProperties": false
                           }
                         },
@@ -690,7 +777,12 @@
                         },
                         "kisiselVeri": {
                           "type": "string",
-                          "enum": ["yok", "maskeli", "var", "bilinmiyor"]
+                          "enum": [
+                            "yok",
+                            "maskeli",
+                            "var",
+                            "bilinmiyor"
+                          ]
                         },
                         "baslik": {
                           "type": "string"
@@ -708,20 +800,34 @@
                               "properties": {
                                 "durum": {
                                   "type": "string",
-                                  "enum": ["bekliyor", "metin_cikarildi", "ocr_gerekli", "gomme_tamam", "hata"]
+                                  "enum": [
+                                    "bekliyor",
+                                    "metin_cikarildi",
+                                    "ocr_gerekli",
+                                    "gomme_tamam",
+                                    "hata"
+                                  ]
                                 },
                                 "asama": {
                                   "type": "string"
                                 },
                                 "ileti": {
-                                  "type": ["string", "null"]
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
                                 },
                                 "zaman": {
                                   "type": "string",
                                   "format": "date-time"
                                 }
                               },
-                              "required": ["durum", "asama", "ileti", "zaman"],
+                              "required": [
+                                "durum",
+                                "asama",
+                                "ileti",
+                                "zaman"
+                              ],
                               "additionalProperties": false
                             },
                             {
@@ -791,12 +897,21 @@
                             "type": "string"
                           }
                         },
-                        "required": ["id", "kanitId", "sira", "capa", "metin"],
+                        "required": [
+                          "id",
+                          "kanitId",
+                          "sira",
+                          "capa",
+                          "metin"
+                        ],
                         "additionalProperties": false
                       }
                     }
                   },
-                  "required": ["kanit", "parcalar"],
+                  "required": [
+                    "kanit",
+                    "parcalar"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -907,11 +1022,19 @@
                           "type": "number"
                         }
                       },
-                      "required": ["isleniyor", "tamam", "hata", "ocr_bekliyor", "kisisel_veri"],
+                      "required": [
+                        "isleniyor",
+                        "tamam",
+                        "hata",
+                        "ocr_bekliyor",
+                        "kisisel_veri"
+                      ],
                       "additionalProperties": false
                     }
                   },
-                  "required": ["sayac"],
+                  "required": [
+                    "sayac"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -1062,7 +1185,10 @@
                                 "type": "string"
                               }
                             },
-                            "required": ["tur", "id"],
+                            "required": [
+                              "tur",
+                              "id"
+                            ],
                             "additionalProperties": false
                           },
                           "icerik": {
@@ -1075,7 +1201,10 @@
                                 "type": "string"
                               }
                             },
-                            "required": ["baslik", "metin"],
+                            "required": [
+                              "baslik",
+                              "metin"
+                            ],
                             "additionalProperties": false
                           },
                           "gerekce": {
@@ -1120,12 +1249,17 @@
                                   "type": "string"
                                 }
                               },
-                              "required": ["kanitId"],
+                              "required": [
+                                "kanitId"
+                              ],
                               "additionalProperties": false
                             }
                           },
                           "guven": {
-                            "type": ["number", "null"]
+                            "type": [
+                              "number",
+                              "null"
+                            ]
                           },
                           "uretici": {
                             "type": "object",
@@ -1136,7 +1270,11 @@
                           },
                           "risk": {
                             "type": "string",
-                            "enum": ["dusuk", "orta", "yuksek"]
+                            "enum": [
+                              "dusuk",
+                              "orta",
+                              "yuksek"
+                            ]
                           },
                           "olusturma": {
                             "type": "string",
@@ -1164,7 +1302,10 @@
                       }
                     },
                     "sonraki": {
-                      "type": ["string", "null"]
+                      "type": [
+                        "string",
+                        "null"
+                      ]
                     },
                     "toplam": {
                       "type": "integer",
@@ -1172,7 +1313,11 @@
                       "maximum": 9007199254740991
                     }
                   },
-                  "required": ["ogeler", "sonraki", "toplam"],
+                  "required": [
+                    "ogeler",
+                    "sonraki",
+                    "toplam"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -1280,11 +1425,18 @@
                           "type": "number"
                         }
                       },
-                      "required": ["dusuk", "orta", "yuksek"],
+                      "required": [
+                        "dusuk",
+                        "orta",
+                        "yuksek"
+                      ],
                       "additionalProperties": false
                     }
                   },
-                  "required": ["toplam", "risk"],
+                  "required": [
+                    "toplam",
+                    "risk"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -1402,13 +1554,22 @@
                       "type": "object",
                       "properties": {
                         "baslangic": {
-                          "type": ["string", "null"]
+                          "type": [
+                            "string",
+                            "null"
+                          ]
                         },
                         "bitis": {
-                          "type": ["string", "null"]
+                          "type": [
+                            "string",
+                            "null"
+                          ]
                         }
                       },
-                      "required": ["baslangic", "bitis"],
+                      "required": [
+                        "baslangic",
+                        "bitis"
+                      ],
                       "additionalProperties": false
                     },
                     "kisiler": {
@@ -1435,7 +1596,14 @@
                             "type": "string"
                           }
                         },
-                        "required": ["kararSayisi", "olculen", "toplam", "ortanca", "kisiId", "ad"],
+                        "required": [
+                          "kararSayisi",
+                          "olculen",
+                          "toplam",
+                          "ortanca",
+                          "kisiId",
+                          "ad"
+                        ],
                         "additionalProperties": false
                       }
                     },
@@ -1460,7 +1628,13 @@
                             "type": "string"
                           }
                         },
-                        "required": ["kararSayisi", "olculen", "toplam", "ortanca", "oneriTuru"],
+                        "required": [
+                          "kararSayisi",
+                          "olculen",
+                          "toplam",
+                          "ortanca",
+                          "oneriTuru"
+                        ],
                         "additionalProperties": false
                       }
                     },
@@ -1492,24 +1666,49 @@
                           "type": "object",
                           "properties": {
                             "onaylandi": {
-                              "type": ["number", "null"]
+                              "type": [
+                                "number",
+                                "null"
+                              ]
                             },
                             "duzeltildi": {
-                              "type": ["number", "null"]
+                              "type": [
+                                "number",
+                                "null"
+                              ]
                             },
                             "reddedildi": {
-                              "type": ["number", "null"]
+                              "type": [
+                                "number",
+                                "null"
+                              ]
                             }
                           },
-                          "required": ["onaylandi", "duzeltildi", "reddedildi"],
+                          "required": [
+                            "onaylandi",
+                            "duzeltildi",
+                            "reddedildi"
+                          ],
                           "additionalProperties": false
                         }
                       },
-                      "required": ["toplam", "onaylandi", "duzeltildi", "reddedildi", "yuzde"],
+                      "required": [
+                        "toplam",
+                        "onaylandi",
+                        "duzeltildi",
+                        "reddedildi",
+                        "yuzde"
+                      ],
                       "additionalProperties": false
                     }
                   },
-                  "required": ["aralik", "kisiler", "surecler", "yollar", "oranlar"],
+                  "required": [
+                    "aralik",
+                    "kisiler",
+                    "surecler",
+                    "yollar",
+                    "oranlar"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -1636,7 +1835,11 @@
                           },
                           "sonuc": {
                             "type": "string",
-                            "enum": ["onaylandi", "duzeltildi", "reddedildi"]
+                            "enum": [
+                              "onaylandi",
+                              "duzeltildi",
+                              "reddedildi"
+                            ]
                           },
                           "duzeltme": {
                             "anyOf": [
@@ -1650,7 +1853,10 @@
                                     "type": "string"
                                   }
                                 },
-                                "required": ["baslik", "metin"],
+                                "required": [
+                                  "baslik",
+                                  "metin"
+                                ],
                                 "additionalProperties": false
                               },
                               {
@@ -1671,7 +1877,9 @@
                                     "const": "dogrudan"
                                   }
                                 },
-                                "required": ["tur"],
+                                "required": [
+                                  "tur"
+                                ],
                                 "additionalProperties": false
                               },
                               {
@@ -1685,25 +1893,43 @@
                                     "type": "string"
                                   }
                                 },
-                                "required": ["tur", "politikaId"],
+                                "required": [
+                                  "tur",
+                                  "politikaId"
+                                ],
                                 "additionalProperties": false
                               }
                             ]
                           },
                           "gerekce": {
-                            "type": ["string", "null"]
+                            "type": [
+                              "string",
+                              "null"
+                            ]
                           },
                           "zaman": {
                             "type": "string",
                             "format": "date-time"
                           }
                         },
-                        "required": ["id", "oneriId", "sonuc", "duzeltme", "kararVeren", "dayanak", "gerekce", "zaman"],
+                        "required": [
+                          "id",
+                          "oneriId",
+                          "sonuc",
+                          "duzeltme",
+                          "kararVeren",
+                          "dayanak",
+                          "gerekce",
+                          "zaman"
+                        ],
                         "additionalProperties": false
                       }
                     },
                     "sonraki": {
-                      "type": ["string", "null"]
+                      "type": [
+                        "string",
+                        "null"
+                      ]
                     },
                     "toplam": {
                       "type": "integer",
@@ -1711,7 +1937,11 @@
                       "maximum": 9007199254740991
                     }
                   },
-                  "required": ["ogeler", "sonraki", "toplam"],
+                  "required": [
+                    "ogeler",
+                    "sonraki",
+                    "toplam"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -1820,7 +2050,11 @@
                   },
                   "sonuc": {
                     "type": "string",
-                    "enum": ["onaylandi", "duzeltildi", "reddedildi"]
+                    "enum": [
+                      "onaylandi",
+                      "duzeltildi",
+                      "reddedildi"
+                    ]
                   },
                   "duzeltme": {
                     "type": "string",
@@ -1836,7 +2070,10 @@
                     "maximum": 3600000
                   }
                 },
-                "required": ["oneriId", "sonuc"],
+                "required": [
+                  "oneriId",
+                  "sonuc"
+                ],
                 "additionalProperties": false
               }
             }
@@ -1858,7 +2095,11 @@
                     },
                     "sonuc": {
                       "type": "string",
-                      "enum": ["onaylandi", "duzeltildi", "reddedildi"]
+                      "enum": [
+                        "onaylandi",
+                        "duzeltildi",
+                        "reddedildi"
+                      ]
                     },
                     "duzeltme": {
                       "anyOf": [
@@ -1872,7 +2113,10 @@
                               "type": "string"
                             }
                           },
-                          "required": ["baslik", "metin"],
+                          "required": [
+                            "baslik",
+                            "metin"
+                          ],
                           "additionalProperties": false
                         },
                         {
@@ -1893,7 +2137,9 @@
                               "const": "dogrudan"
                             }
                           },
-                          "required": ["tur"],
+                          "required": [
+                            "tur"
+                          ],
                           "additionalProperties": false
                         },
                         {
@@ -1907,20 +2153,35 @@
                               "type": "string"
                             }
                           },
-                          "required": ["tur", "politikaId"],
+                          "required": [
+                            "tur",
+                            "politikaId"
+                          ],
                           "additionalProperties": false
                         }
                       ]
                     },
                     "gerekce": {
-                      "type": ["string", "null"]
+                      "type": [
+                        "string",
+                        "null"
+                      ]
                     },
                     "zaman": {
                       "type": "string",
                       "format": "date-time"
                     }
                   },
-                  "required": ["id", "oneriId", "sonuc", "duzeltme", "kararVeren", "dayanak", "gerekce", "zaman"],
+                  "required": [
+                    "id",
+                    "oneriId",
+                    "sonuc",
+                    "duzeltme",
+                    "kararVeren",
+                    "dayanak",
+                    "gerekce",
+                    "zaman"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -2040,7 +2301,9 @@
                     "maximum": 3600000
                   }
                 },
-                "required": ["oneriIdleri"],
+                "required": [
+                  "oneriIdleri"
+                ],
                 "additionalProperties": false
               }
             }
@@ -2064,7 +2327,11 @@
                       },
                       "sonuc": {
                         "type": "string",
-                        "enum": ["onaylandi", "duzeltildi", "reddedildi"]
+                        "enum": [
+                          "onaylandi",
+                          "duzeltildi",
+                          "reddedildi"
+                        ]
                       },
                       "duzeltme": {
                         "anyOf": [
@@ -2078,7 +2345,10 @@
                                 "type": "string"
                               }
                             },
-                            "required": ["baslik", "metin"],
+                            "required": [
+                              "baslik",
+                              "metin"
+                            ],
                             "additionalProperties": false
                           },
                           {
@@ -2099,7 +2369,9 @@
                                 "const": "dogrudan"
                               }
                             },
-                            "required": ["tur"],
+                            "required": [
+                              "tur"
+                            ],
                             "additionalProperties": false
                           },
                           {
@@ -2113,20 +2385,35 @@
                                 "type": "string"
                               }
                             },
-                            "required": ["tur", "politikaId"],
+                            "required": [
+                              "tur",
+                              "politikaId"
+                            ],
                             "additionalProperties": false
                           }
                         ]
                       },
                       "gerekce": {
-                        "type": ["string", "null"]
+                        "type": [
+                          "string",
+                          "null"
+                        ]
                       },
                       "zaman": {
                         "type": "string",
                         "format": "date-time"
                       }
                     },
-                    "required": ["id", "oneriId", "sonuc", "duzeltme", "kararVeren", "dayanak", "gerekce", "zaman"],
+                    "required": [
+                      "id",
+                      "oneriId",
+                      "sonuc",
+                      "duzeltme",
+                      "kararVeren",
+                      "dayanak",
+                      "gerekce",
+                      "zaman"
+                    ],
                     "additionalProperties": false
                   }
                 }
@@ -2229,7 +2516,12 @@
                       },
                       "duzey": {
                         "type": "string",
-                        "enum": ["onlisans", "lisans", "yuksek_lisans", "doktora"]
+                        "enum": [
+                          "onlisans",
+                          "lisans",
+                          "yuksek_lisans",
+                          "doktora"
+                        ]
                       },
                       "birim": {
                         "type": "string"
@@ -2244,7 +2536,12 @@
                             },
                             "tur": {
                               "type": "string",
-                              "enum": ["pea", "program", "ders", "tyyc"]
+                              "enum": [
+                                "pea",
+                                "program",
+                                "ders",
+                                "tyyc"
+                              ]
                             },
                             "sahipId": {
                               "type": "string"
@@ -2259,10 +2556,21 @@
                               "type": "number"
                             },
                             "oncekiSurumId": {
-                              "type": ["string", "null"]
+                              "type": [
+                                "string",
+                                "null"
+                              ]
                             }
                           },
-                          "required": ["id", "tur", "sahipId", "kod", "metin", "surum", "oncekiSurumId"],
+                          "required": [
+                            "id",
+                            "tur",
+                            "sahipId",
+                            "kod",
+                            "metin",
+                            "surum",
+                            "oncekiSurumId"
+                          ],
                           "additionalProperties": false
                         }
                       },
@@ -2298,7 +2606,10 @@
                                       "maximum": 5
                                     }
                                   },
-                                  "required": ["tur", "puan"],
+                                  "required": [
+                                    "tur",
+                                    "puan"
+                                  ],
                                   "additionalProperties": false
                                 },
                                 {
@@ -2309,7 +2620,9 @@
                                       "const": "iliskisiz"
                                     }
                                   },
-                                  "required": ["tur"],
+                                  "required": [
+                                    "tur"
+                                  ],
                                   "additionalProperties": false
                                 },
                                 {
@@ -2320,13 +2633,19 @@
                                       "const": "yetersiz_kanit"
                                     }
                                   },
-                                  "required": ["tur"],
+                                  "required": [
+                                    "tur"
+                                  ],
                                   "additionalProperties": false
                                 }
                               ]
                             }
                           },
-                          "required": ["dersCiktisiId", "programCiktisiId", "deger"],
+                          "required": [
+                            "dersCiktisiId",
+                            "programCiktisiId",
+                            "deger"
+                          ],
                           "additionalProperties": false
                         }
                       },
@@ -2345,7 +2664,11 @@
                               "type": "number"
                             }
                           },
-                          "required": ["ciktiId", "kod", "saglanma"],
+                          "required": [
+                            "ciktiId",
+                            "kod",
+                            "saglanma"
+                          ],
                           "additionalProperties": false
                         }
                       },
@@ -2353,7 +2676,17 @@
                         "type": "number"
                       }
                     },
-                    "required": ["id", "ad", "duzey", "birim", "ciktilar", "dersIdleri", "matris", "olcme", "esik"],
+                    "required": [
+                      "id",
+                      "ad",
+                      "duzey",
+                      "birim",
+                      "ciktilar",
+                      "dersIdleri",
+                      "matris",
+                      "olcme",
+                      "esik"
+                    ],
                     "additionalProperties": false
                   }
                 }
@@ -2465,7 +2798,12 @@
                     },
                     "duzey": {
                       "type": "string",
-                      "enum": ["onlisans", "lisans", "yuksek_lisans", "doktora"]
+                      "enum": [
+                        "onlisans",
+                        "lisans",
+                        "yuksek_lisans",
+                        "doktora"
+                      ]
                     },
                     "birim": {
                       "type": "string"
@@ -2480,7 +2818,12 @@
                           },
                           "tur": {
                             "type": "string",
-                            "enum": ["pea", "program", "ders", "tyyc"]
+                            "enum": [
+                              "pea",
+                              "program",
+                              "ders",
+                              "tyyc"
+                            ]
                           },
                           "sahipId": {
                             "type": "string"
@@ -2495,10 +2838,21 @@
                             "type": "number"
                           },
                           "oncekiSurumId": {
-                            "type": ["string", "null"]
+                            "type": [
+                              "string",
+                              "null"
+                            ]
                           }
                         },
-                        "required": ["id", "tur", "sahipId", "kod", "metin", "surum", "oncekiSurumId"],
+                        "required": [
+                          "id",
+                          "tur",
+                          "sahipId",
+                          "kod",
+                          "metin",
+                          "surum",
+                          "oncekiSurumId"
+                        ],
                         "additionalProperties": false
                       }
                     },
@@ -2534,7 +2888,10 @@
                                     "maximum": 5
                                   }
                                 },
-                                "required": ["tur", "puan"],
+                                "required": [
+                                  "tur",
+                                  "puan"
+                                ],
                                 "additionalProperties": false
                               },
                               {
@@ -2545,7 +2902,9 @@
                                     "const": "iliskisiz"
                                   }
                                 },
-                                "required": ["tur"],
+                                "required": [
+                                  "tur"
+                                ],
                                 "additionalProperties": false
                               },
                               {
@@ -2556,13 +2915,19 @@
                                     "const": "yetersiz_kanit"
                                   }
                                 },
-                                "required": ["tur"],
+                                "required": [
+                                  "tur"
+                                ],
                                 "additionalProperties": false
                               }
                             ]
                           }
                         },
-                        "required": ["dersCiktisiId", "programCiktisiId", "deger"],
+                        "required": [
+                          "dersCiktisiId",
+                          "programCiktisiId",
+                          "deger"
+                        ],
                         "additionalProperties": false
                       }
                     },
@@ -2581,7 +2946,11 @@
                             "type": "number"
                           }
                         },
-                        "required": ["ciktiId", "kod", "saglanma"],
+                        "required": [
+                          "ciktiId",
+                          "kod",
+                          "saglanma"
+                        ],
                         "additionalProperties": false
                       }
                     },
@@ -2589,7 +2958,17 @@
                       "type": "number"
                     }
                   },
-                  "required": ["id", "ad", "duzey", "birim", "ciktilar", "dersIdleri", "matris", "olcme", "esik"],
+                  "required": [
+                    "id",
+                    "ad",
+                    "duzey",
+                    "birim",
+                    "ciktilar",
+                    "dersIdleri",
+                    "matris",
+                    "olcme",
+                    "esik"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -2708,7 +3087,12 @@
                             },
                             "tur": {
                               "type": "string",
-                              "enum": ["pea", "program", "ders", "tyyc"]
+                              "enum": [
+                                "pea",
+                                "program",
+                                "ders",
+                                "tyyc"
+                              ]
                             },
                             "sahipId": {
                               "type": "string"
@@ -2723,16 +3107,31 @@
                               "type": "number"
                             },
                             "oncekiSurumId": {
-                              "type": ["string", "null"]
+                              "type": [
+                                "string",
+                                "null"
+                              ]
                             }
                           },
-                          "required": ["id", "tur", "sahipId", "kod", "metin", "surum", "oncekiSurumId"],
+                          "required": [
+                            "id",
+                            "tur",
+                            "sahipId",
+                            "kod",
+                            "metin",
+                            "surum",
+                            "oncekiSurumId"
+                          ],
                           "additionalProperties": false
                         }
                       },
                       "bolognaDurumu": {
                         "type": "string",
-                        "enum": ["guncel", "eksik", "onay_bekliyor"]
+                        "enum": [
+                          "guncel",
+                          "eksik",
+                          "onay_bekliyor"
+                        ]
                       },
                       "bolognaNotu": {
                         "type": "string"
@@ -2749,7 +3148,10 @@
                               "type": "boolean"
                             }
                           },
-                          "required": ["ad", "tamam"],
+                          "required": [
+                            "ad",
+                            "tamam"
+                          ],
                           "additionalProperties": false
                         }
                       },
@@ -2768,7 +3170,11 @@
                               "type": "number"
                             }
                           },
-                          "required": ["ciktiId", "kod", "saglanma"],
+                          "required": [
+                            "ciktiId",
+                            "kod",
+                            "saglanma"
+                          ],
                           "additionalProperties": false
                         }
                       }
@@ -2913,7 +3319,12 @@
                           },
                           "tur": {
                             "type": "string",
-                            "enum": ["pea", "program", "ders", "tyyc"]
+                            "enum": [
+                              "pea",
+                              "program",
+                              "ders",
+                              "tyyc"
+                            ]
                           },
                           "sahipId": {
                             "type": "string"
@@ -2928,16 +3339,31 @@
                             "type": "number"
                           },
                           "oncekiSurumId": {
-                            "type": ["string", "null"]
+                            "type": [
+                              "string",
+                              "null"
+                            ]
                           }
                         },
-                        "required": ["id", "tur", "sahipId", "kod", "metin", "surum", "oncekiSurumId"],
+                        "required": [
+                          "id",
+                          "tur",
+                          "sahipId",
+                          "kod",
+                          "metin",
+                          "surum",
+                          "oncekiSurumId"
+                        ],
                         "additionalProperties": false
                       }
                     },
                     "bolognaDurumu": {
                       "type": "string",
-                      "enum": ["guncel", "eksik", "onay_bekliyor"]
+                      "enum": [
+                        "guncel",
+                        "eksik",
+                        "onay_bekliyor"
+                      ]
                     },
                     "bolognaNotu": {
                       "type": "string"
@@ -2954,7 +3380,10 @@
                             "type": "boolean"
                           }
                         },
-                        "required": ["ad", "tamam"],
+                        "required": [
+                          "ad",
+                          "tamam"
+                        ],
                         "additionalProperties": false
                       }
                     },
@@ -2973,7 +3402,11 @@
                             "type": "number"
                           }
                         },
-                        "required": ["ciktiId", "kod", "saglanma"],
+                        "required": [
+                          "ciktiId",
+                          "kod",
+                          "saglanma"
+                        ],
                         "additionalProperties": false
                       }
                     }
@@ -2989,6 +3422,1045 @@
                     "bolognaNotu",
                     "dersDosyasi",
                     "olcme"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Girdi geçersiz",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Oturum ya da API anahtarı yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Yetki yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Kayıt yok ya da başka kuruma ait",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Çakışma (ör. öneriye zaten karar verilmiş)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Kural ihlali (ör. yüksek riskli öneri toplu onaylanamaz)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Çok fazla istek",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/dersler/{id}/ders-dosyasi": {
+      "get": {
+        "operationId": "dersinDosyalari",
+        "summary": "Dersin dönemlere göre ders dosyası durumu ve hocanın etkileşimi",
+        "x-akredit-yetki": "olcme.oku",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Başarılı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "dersAcilisiId": {
+                        "type": "string"
+                      },
+                      "dersId": {
+                        "type": "string"
+                      },
+                      "donem": {
+                        "type": "string"
+                      },
+                      "asama": {
+                        "type": "string",
+                        "enum": [
+                          "dokum_bekliyor",
+                          "esleme_onayda",
+                          "esleme_reddedildi",
+                          "olcme_bekliyor",
+                          "onay_bekliyor",
+                          "onaylandi",
+                          "reddedildi"
+                        ]
+                      },
+                      "eslemeOneriId": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "dosyaOneriId": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "raporId": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "olcmeSonucuId": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "eksikler": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "etkilesim": {
+                        "type": "object",
+                        "properties": {
+                          "adimSayisi": {
+                            "type": "number"
+                          },
+                          "yuklemeSayisi": {
+                            "type": "number"
+                          },
+                          "kararSayisi": {
+                            "type": "number"
+                          },
+                          "toplamSureMs": {
+                            "type": "number"
+                          },
+                          "adimlar": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "eylem": {
+                                  "type": "string"
+                                },
+                                "zaman": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "eylem",
+                                "zaman"
+                              ],
+                              "additionalProperties": false
+                            }
+                          }
+                        },
+                        "required": [
+                          "adimSayisi",
+                          "yuklemeSayisi",
+                          "kararSayisi",
+                          "toplamSureMs",
+                          "adimlar"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": [
+                      "dersAcilisiId",
+                      "dersId",
+                      "donem",
+                      "asama",
+                      "eslemeOneriId",
+                      "dosyaOneriId",
+                      "raporId",
+                      "olcmeSonucuId",
+                      "eksikler",
+                      "etkilesim"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Girdi geçersiz",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Oturum ya da API anahtarı yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Yetki yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Kayıt yok ya da başka kuruma ait",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Çakışma (ör. öneriye zaten karar verilmiş)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Kural ihlali (ör. yüksek riskli öneri toplu onaylanamaz)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Çok fazla istek",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ders-dosyasi/dokum": {
+      "post": {
+        "operationId": "dokumAktar",
+        "summary": "OBS not dökümlerini (soru bazlı) aktar ve soru-çıktı eşleme önerisini aç",
+        "x-akredit-yetki": "olcme.veri_gir",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Aynı anahtarla tekrarlanan istek yeniden işlenmez, ilk yanıt döner.",
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 200
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "dersAcilisiId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "araclar": {
+                    "minItems": 1,
+                    "maxItems": 8,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "ad": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 100
+                        },
+                        "tur": {
+                          "type": "string",
+                          "enum": [
+                            "ara_sinav",
+                            "yariyil_sonu",
+                            "odev",
+                            "proje",
+                            "kisa_sinav",
+                            "uygulama",
+                            "butunleme",
+                            "diger"
+                          ]
+                        },
+                        "agirlik": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 100
+                        },
+                        "dosyaAdi": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        },
+                        "icerikBase64": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 900000
+                        },
+                        "tamPuanlar": {
+                          "type": "object",
+                          "propertyNames": {
+                            "type": "string"
+                          },
+                          "additionalProperties": {
+                            "type": "number",
+                            "exclusiveMinimum": 0
+                          }
+                        }
+                      },
+                      "required": [
+                        "ad",
+                        "tur",
+                        "agirlik",
+                        "dosyaAdi",
+                        "icerikBase64"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "adaylar": {
+                    "maxItems": 500,
+                    "type": "array",
+                    "items": {}
+                  },
+                  "uretici": {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string"
+                    },
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "dersAcilisiId",
+                  "araclar"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Başarılı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "eslemeOneriId": {
+                      "type": "string"
+                    },
+                    "araclar": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "ad": {
+                            "type": "string"
+                          },
+                          "soruSayisi": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "ad",
+                          "soruSayisi"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "ogrenciSayisi": {
+                      "type": "number"
+                    },
+                    "uyarilar": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "eksikler": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "eslemeOneriId",
+                    "araclar",
+                    "ogrenciSayisi",
+                    "uyarilar",
+                    "eksikler"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Girdi geçersiz",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Oturum ya da API anahtarı yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Yetki yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Kayıt yok ya da başka kuruma ait",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Çakışma (ör. öneriye zaten karar verilmiş)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Kural ihlali (ör. yüksek riskli öneri toplu onaylanamaz)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Çok fazla istek",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ders-dosyasi/{id}": {
+      "get": {
+        "operationId": "dersDosyasiDurumu",
+        "summary": "Bir ders açılışının ders dosyası durumu",
+        "x-akredit-yetki": "olcme.oku",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Başarılı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "dersAcilisiId": {
+                      "type": "string"
+                    },
+                    "dersId": {
+                      "type": "string"
+                    },
+                    "donem": {
+                      "type": "string"
+                    },
+                    "asama": {
+                      "type": "string",
+                      "enum": [
+                        "dokum_bekliyor",
+                        "esleme_onayda",
+                        "esleme_reddedildi",
+                        "olcme_bekliyor",
+                        "onay_bekliyor",
+                        "onaylandi",
+                        "reddedildi"
+                      ]
+                    },
+                    "eslemeOneriId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "dosyaOneriId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "raporId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "olcmeSonucuId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "eksikler": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "etkilesim": {
+                      "type": "object",
+                      "properties": {
+                        "adimSayisi": {
+                          "type": "number"
+                        },
+                        "yuklemeSayisi": {
+                          "type": "number"
+                        },
+                        "kararSayisi": {
+                          "type": "number"
+                        },
+                        "toplamSureMs": {
+                          "type": "number"
+                        },
+                        "adimlar": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "eylem": {
+                                "type": "string"
+                              },
+                              "zaman": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "eylem",
+                              "zaman"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "adimSayisi",
+                        "yuklemeSayisi",
+                        "kararSayisi",
+                        "toplamSureMs",
+                        "adimlar"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "dersAcilisiId",
+                    "dersId",
+                    "donem",
+                    "asama",
+                    "eslemeOneriId",
+                    "dosyaOneriId",
+                    "raporId",
+                    "olcmeSonucuId",
+                    "eksikler",
+                    "etkilesim"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Girdi geçersiz",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Oturum ya da API anahtarı yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Yetki yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Kayıt yok ya da başka kuruma ait",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Çakışma (ör. öneriye zaten karar verilmiş)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Kural ihlali (ör. yüksek riskli öneri toplu onaylanamaz)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Çok fazla istek",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ders-dosyasi/{id}/olustur": {
+      "post": {
+        "operationId": "dersDosyasiOlustur",
+        "summary": "Onaylı eşlemeyle ölçmeyi yap, ders dosyasını ve onay önerisini oluştur",
+        "x-akredit-yetki": "olcme.veri_gir",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Aynı anahtarla tekrarlanan istek yeniden işlenmez, ilk yanıt döner.",
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 200
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Başarılı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "dersAcilisiId": {
+                      "type": "string"
+                    },
+                    "dersId": {
+                      "type": "string"
+                    },
+                    "donem": {
+                      "type": "string"
+                    },
+                    "asama": {
+                      "type": "string",
+                      "enum": [
+                        "dokum_bekliyor",
+                        "esleme_onayda",
+                        "esleme_reddedildi",
+                        "olcme_bekliyor",
+                        "onay_bekliyor",
+                        "onaylandi",
+                        "reddedildi"
+                      ]
+                    },
+                    "eslemeOneriId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "dosyaOneriId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "raporId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "olcmeSonucuId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "eksikler": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "etkilesim": {
+                      "type": "object",
+                      "properties": {
+                        "adimSayisi": {
+                          "type": "number"
+                        },
+                        "yuklemeSayisi": {
+                          "type": "number"
+                        },
+                        "kararSayisi": {
+                          "type": "number"
+                        },
+                        "toplamSureMs": {
+                          "type": "number"
+                        },
+                        "adimlar": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "eylem": {
+                                "type": "string"
+                              },
+                              "zaman": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "eylem",
+                              "zaman"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "adimSayisi",
+                        "yuklemeSayisi",
+                        "kararSayisi",
+                        "toplamSureMs",
+                        "adimlar"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "dersAcilisiId",
+                    "dersId",
+                    "donem",
+                    "asama",
+                    "eslemeOneriId",
+                    "dosyaOneriId",
+                    "raporId",
+                    "olcmeSonucuId",
+                    "eksikler",
+                    "etkilesim"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Girdi geçersiz",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Oturum ya da API anahtarı yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Yetki yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Kayıt yok ya da başka kuruma ait",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Çakışma (ör. öneriye zaten karar verilmiş)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Kural ihlali (ör. yüksek riskli öneri toplu onaylanamaz)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Çok fazla istek",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ders-dosyasi/{id}/belge": {
+      "get": {
+        "operationId": "dersDosyasiBelgesi",
+        "summary": "Ders dosyası (DOCX) ya da ölçme raporu (XLSX), base64",
+        "x-akredit-yetki": "rapor.oku",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "bicim",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "docx",
+                "xlsx"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Başarılı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "dosyaAdi": {
+                      "type": "string"
+                    },
+                    "mime": {
+                      "type": "string"
+                    },
+                    "ozet": {
+                      "type": "string"
+                    },
+                    "icerikBase64": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "dosyaAdi",
+                    "mime",
+                    "ozet",
+                    "icerikBase64"
                   ],
                   "additionalProperties": false
                 }
@@ -3094,7 +4566,10 @@
                       },
                       "durum": {
                         "type": "string",
-                        "enum": ["taslak", "incelemede"]
+                        "enum": [
+                          "taslak",
+                          "incelemede"
+                        ]
                       },
                       "bolumler": {
                         "type": "array",
@@ -3157,7 +4632,9 @@
                                           "type": "string"
                                         }
                                       },
-                                      "required": ["kanitId"],
+                                      "required": [
+                                        "kanitId"
+                                      ],
                                       "additionalProperties": false
                                     }
                                   },
@@ -3165,17 +4642,32 @@
                                     "type": "boolean"
                                   }
                                 },
-                                "required": ["metin", "atiflar", "eksik"],
+                                "required": [
+                                  "metin",
+                                  "atiflar",
+                                  "eksik"
+                                ],
                                 "additionalProperties": false
                               }
                             }
                           },
-                          "required": ["id", "baslik", "olcut", "paragraflar"],
+                          "required": [
+                            "id",
+                            "baslik",
+                            "olcut",
+                            "paragraflar"
+                          ],
                           "additionalProperties": false
                         }
                       }
                     },
-                    "required": ["id", "ad", "donem", "durum", "bolumler"],
+                    "required": [
+                      "id",
+                      "ad",
+                      "donem",
+                      "durum",
+                      "bolumler"
+                    ],
                     "additionalProperties": false
                   }
                 }
@@ -3290,7 +4782,10 @@
                     },
                     "durum": {
                       "type": "string",
-                      "enum": ["taslak", "incelemede"]
+                      "enum": [
+                        "taslak",
+                        "incelemede"
+                      ]
                     },
                     "bolumler": {
                       "type": "array",
@@ -3353,7 +4848,9 @@
                                         "type": "string"
                                       }
                                     },
-                                    "required": ["kanitId"],
+                                    "required": [
+                                      "kanitId"
+                                    ],
                                     "additionalProperties": false
                                   }
                                 },
@@ -3361,17 +4858,32 @@
                                   "type": "boolean"
                                 }
                               },
-                              "required": ["metin", "atiflar", "eksik"],
+                              "required": [
+                                "metin",
+                                "atiflar",
+                                "eksik"
+                              ],
                               "additionalProperties": false
                             }
                           }
                         },
-                        "required": ["id", "baslik", "olcut", "paragraflar"],
+                        "required": [
+                          "id",
+                          "baslik",
+                          "olcut",
+                          "paragraflar"
+                        ],
                         "additionalProperties": false
                       }
                     }
                   },
-                  "required": ["id", "ad", "donem", "durum", "bolumler"],
+                  "required": [
+                    "id",
+                    "ad",
+                    "donem",
+                    "durum",
+                    "bolumler"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -3478,13 +4990,24 @@
                       },
                       "durum": {
                         "type": "string",
-                        "enum": ["bekliyor", "devam", "tamam"]
+                        "enum": [
+                          "bekliyor",
+                          "devam",
+                          "tamam"
+                        ]
                       },
                       "ilgili": {
                         "type": "string"
                       }
                     },
-                    "required": ["id", "baslik", "sonTarih", "sorumlu", "durum", "ilgili"],
+                    "required": [
+                      "id",
+                      "baslik",
+                      "sonTarih",
+                      "sorumlu",
+                      "durum",
+                      "ilgili"
+                    ],
                     "additionalProperties": false
                   }
                 }
@@ -3585,7 +5108,12 @@
                     },
                     "yzSaglayici": {
                       "type": "string",
-                      "enum": ["evren", "kurum_sunucusu", "ollama", "diger"]
+                      "enum": [
+                        "evren",
+                        "kurum_sunucusu",
+                        "ollama",
+                        "diger"
+                      ]
                     },
                     "yurtDisiIzni": {
                       "type": "boolean"
@@ -3625,7 +5153,10 @@
                               },
                               "enYuksekRisk": {
                                 "type": "string",
-                                "enum": ["dusuk", "orta"]
+                                "enum": [
+                                  "dusuk",
+                                  "orta"
+                                ]
                               },
                               "enDusukGuven": {
                                 "type": "number"
@@ -3643,12 +5174,20 @@
                                 }
                               }
                             },
-                            "required": ["oneriTurleri", "enYuksekRisk", "enDusukGuven"],
+                            "required": [
+                              "oneriTurleri",
+                              "enYuksekRisk",
+                              "enDusukGuven"
+                            ],
                             "additionalProperties": false
                           },
                           "durum": {
                             "type": "string",
-                            "enum": ["imza_bekliyor", "imzali", "iptal"]
+                            "enum": [
+                              "imza_bekliyor",
+                              "imzali",
+                              "iptal"
+                            ]
                           },
                           "olusturan": {
                             "type": "string"
@@ -3658,7 +5197,10 @@
                             "format": "date-time"
                           },
                           "imzalayan": {
-                            "type": ["string", "null"]
+                            "type": [
+                              "string",
+                              "null"
+                            ]
                           },
                           "imzaZamani": {
                             "anyOf": [
@@ -3686,7 +5228,13 @@
                       }
                     }
                   },
-                  "required": ["kurumAdi", "kurumKisaAdi", "yzSaglayici", "yurtDisiIzni", "politikalar"],
+                  "required": [
+                    "kurumAdi",
+                    "kurumKisaAdi",
+                    "yzSaglayici",
+                    "yurtDisiIzni",
+                    "politikalar"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -3799,7 +5347,12 @@
                   },
                   "yzSaglayici": {
                     "type": "string",
-                    "enum": ["evren", "kurum_sunucusu", "ollama", "diger"]
+                    "enum": [
+                      "evren",
+                      "kurum_sunucusu",
+                      "ollama",
+                      "diger"
+                    ]
                   },
                   "yurtDisiIzni": {
                     "type": "boolean"
@@ -3826,7 +5379,12 @@
                     },
                     "yzSaglayici": {
                       "type": "string",
-                      "enum": ["evren", "kurum_sunucusu", "ollama", "diger"]
+                      "enum": [
+                        "evren",
+                        "kurum_sunucusu",
+                        "ollama",
+                        "diger"
+                      ]
                     },
                     "yurtDisiIzni": {
                       "type": "boolean"
@@ -3866,7 +5424,10 @@
                               },
                               "enYuksekRisk": {
                                 "type": "string",
-                                "enum": ["dusuk", "orta"]
+                                "enum": [
+                                  "dusuk",
+                                  "orta"
+                                ]
                               },
                               "enDusukGuven": {
                                 "type": "number"
@@ -3884,12 +5445,20 @@
                                 }
                               }
                             },
-                            "required": ["oneriTurleri", "enYuksekRisk", "enDusukGuven"],
+                            "required": [
+                              "oneriTurleri",
+                              "enYuksekRisk",
+                              "enDusukGuven"
+                            ],
                             "additionalProperties": false
                           },
                           "durum": {
                             "type": "string",
-                            "enum": ["imza_bekliyor", "imzali", "iptal"]
+                            "enum": [
+                              "imza_bekliyor",
+                              "imzali",
+                              "iptal"
+                            ]
                           },
                           "olusturan": {
                             "type": "string"
@@ -3899,7 +5468,10 @@
                             "format": "date-time"
                           },
                           "imzalayan": {
-                            "type": ["string", "null"]
+                            "type": [
+                              "string",
+                              "null"
+                            ]
                           },
                           "imzaZamani": {
                             "anyOf": [
@@ -3927,7 +5499,13 @@
                       }
                     }
                   },
-                  "required": ["kurumAdi", "kurumKisaAdi", "yzSaglayici", "yurtDisiIzni", "politikalar"],
+                  "required": [
+                    "kurumAdi",
+                    "kurumKisaAdi",
+                    "yzSaglayici",
+                    "yurtDisiIzni",
+                    "politikalar"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -4051,7 +5629,10 @@
                           },
                           "enYuksekRisk": {
                             "type": "string",
-                            "enum": ["dusuk", "orta"]
+                            "enum": [
+                              "dusuk",
+                              "orta"
+                            ]
                           },
                           "enDusukGuven": {
                             "type": "number"
@@ -4069,12 +5650,20 @@
                             }
                           }
                         },
-                        "required": ["oneriTurleri", "enYuksekRisk", "enDusukGuven"],
+                        "required": [
+                          "oneriTurleri",
+                          "enYuksekRisk",
+                          "enDusukGuven"
+                        ],
                         "additionalProperties": false
                       },
                       "durum": {
                         "type": "string",
-                        "enum": ["imza_bekliyor", "imzali", "iptal"]
+                        "enum": [
+                          "imza_bekliyor",
+                          "imzali",
+                          "iptal"
+                        ]
                       },
                       "olusturan": {
                         "type": "string"
@@ -4084,7 +5673,10 @@
                         "format": "date-time"
                       },
                       "imzalayan": {
-                        "type": ["string", "null"]
+                        "type": [
+                          "string",
+                          "null"
+                        ]
                       },
                       "imzaZamani": {
                         "anyOf": [
@@ -4098,7 +5690,16 @@
                         ]
                       }
                     },
-                    "required": ["id", "ad", "kapsam", "durum", "olusturan", "olusturma", "imzalayan", "imzaZamani"],
+                    "required": [
+                      "id",
+                      "ad",
+                      "kapsam",
+                      "durum",
+                      "olusturan",
+                      "olusturma",
+                      "imzalayan",
+                      "imzaZamani"
+                    ],
                     "additionalProperties": false
                   }
                 }
@@ -4228,7 +5829,11 @@
                   },
                   "enYuksekRisk": {
                     "type": "string",
-                    "enum": ["dusuk", "orta", "yuksek"]
+                    "enum": [
+                      "dusuk",
+                      "orta",
+                      "yuksek"
+                    ]
                   },
                   "enDusukGuven": {
                     "type": "number",
@@ -4254,7 +5859,12 @@
                     }
                   }
                 },
-                "required": ["ad", "oneriTurleri", "enYuksekRisk", "enDusukGuven"],
+                "required": [
+                  "ad",
+                  "oneriTurleri",
+                  "enYuksekRisk",
+                  "enDusukGuven"
+                ],
                 "additionalProperties": false
               }
             }
@@ -4298,7 +5908,10 @@
                         },
                         "enYuksekRisk": {
                           "type": "string",
-                          "enum": ["dusuk", "orta"]
+                          "enum": [
+                            "dusuk",
+                            "orta"
+                          ]
                         },
                         "enDusukGuven": {
                           "type": "number"
@@ -4316,12 +5929,20 @@
                           }
                         }
                       },
-                      "required": ["oneriTurleri", "enYuksekRisk", "enDusukGuven"],
+                      "required": [
+                        "oneriTurleri",
+                        "enYuksekRisk",
+                        "enDusukGuven"
+                      ],
                       "additionalProperties": false
                     },
                     "durum": {
                       "type": "string",
-                      "enum": ["imza_bekliyor", "imzali", "iptal"]
+                      "enum": [
+                        "imza_bekliyor",
+                        "imzali",
+                        "iptal"
+                      ]
                     },
                     "olusturan": {
                       "type": "string"
@@ -4331,7 +5952,10 @@
                       "format": "date-time"
                     },
                     "imzalayan": {
-                      "type": ["string", "null"]
+                      "type": [
+                        "string",
+                        "null"
+                      ]
                     },
                     "imzaZamani": {
                       "anyOf": [
@@ -4345,7 +5969,16 @@
                       ]
                     }
                   },
-                  "required": ["id", "ad", "kapsam", "durum", "olusturan", "olusturma", "imzalayan", "imzaZamani"],
+                  "required": [
+                    "id",
+                    "ad",
+                    "kapsam",
+                    "durum",
+                    "olusturan",
+                    "olusturma",
+                    "imzalayan",
+                    "imzaZamani"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -4464,7 +6097,9 @@
                     "maxLength": 200
                   }
                 },
-                "required": ["imzalayanAd"],
+                "required": [
+                  "imzalayanAd"
+                ],
                 "additionalProperties": false
               }
             }
@@ -4508,7 +6143,10 @@
                         },
                         "enYuksekRisk": {
                           "type": "string",
-                          "enum": ["dusuk", "orta"]
+                          "enum": [
+                            "dusuk",
+                            "orta"
+                          ]
                         },
                         "enDusukGuven": {
                           "type": "number"
@@ -4526,12 +6164,20 @@
                           }
                         }
                       },
-                      "required": ["oneriTurleri", "enYuksekRisk", "enDusukGuven"],
+                      "required": [
+                        "oneriTurleri",
+                        "enYuksekRisk",
+                        "enDusukGuven"
+                      ],
                       "additionalProperties": false
                     },
                     "durum": {
                       "type": "string",
-                      "enum": ["imza_bekliyor", "imzali", "iptal"]
+                      "enum": [
+                        "imza_bekliyor",
+                        "imzali",
+                        "iptal"
+                      ]
                     },
                     "olusturan": {
                       "type": "string"
@@ -4541,7 +6187,10 @@
                       "format": "date-time"
                     },
                     "imzalayan": {
-                      "type": ["string", "null"]
+                      "type": [
+                        "string",
+                        "null"
+                      ]
                     },
                     "imzaZamani": {
                       "anyOf": [
@@ -4555,7 +6204,16 @@
                       ]
                     }
                   },
-                  "required": ["id", "ad", "kapsam", "durum", "olusturan", "olusturma", "imzalayan", "imzaZamani"],
+                  "required": [
+                    "id",
+                    "ad",
+                    "kapsam",
+                    "durum",
+                    "olusturan",
+                    "olusturma",
+                    "imzalayan",
+                    "imzaZamani"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -4711,7 +6369,10 @@
                         },
                         "enYuksekRisk": {
                           "type": "string",
-                          "enum": ["dusuk", "orta"]
+                          "enum": [
+                            "dusuk",
+                            "orta"
+                          ]
                         },
                         "enDusukGuven": {
                           "type": "number"
@@ -4729,12 +6390,20 @@
                           }
                         }
                       },
-                      "required": ["oneriTurleri", "enYuksekRisk", "enDusukGuven"],
+                      "required": [
+                        "oneriTurleri",
+                        "enYuksekRisk",
+                        "enDusukGuven"
+                      ],
                       "additionalProperties": false
                     },
                     "durum": {
                       "type": "string",
-                      "enum": ["imza_bekliyor", "imzali", "iptal"]
+                      "enum": [
+                        "imza_bekliyor",
+                        "imzali",
+                        "iptal"
+                      ]
                     },
                     "olusturan": {
                       "type": "string"
@@ -4744,7 +6413,10 @@
                       "format": "date-time"
                     },
                     "imzalayan": {
-                      "type": ["string", "null"]
+                      "type": [
+                        "string",
+                        "null"
+                      ]
                     },
                     "imzaZamani": {
                       "anyOf": [
@@ -4758,7 +6430,16 @@
                       ]
                     }
                   },
-                  "required": ["id", "ad", "kapsam", "durum", "olusturan", "olusturma", "imzalayan", "imzaZamani"],
+                  "required": [
+                    "id",
+                    "ad",
+                    "kapsam",
+                    "durum",
+                    "olusturan",
+                    "olusturma",
+                    "imzalayan",
+                    "imzaZamani"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -4902,7 +6583,10 @@
                               "maxLength": 20000
                             }
                           },
-                          "required": ["kod", "metin"]
+                          "required": [
+                            "kod",
+                            "metin"
+                          ]
                         }
                       },
                       "matris": {
@@ -4945,7 +6629,10 @@
                                   ]
                                 },
                                 "yariyil": {
-                                  "type": ["number", "null"]
+                                  "type": [
+                                    "number",
+                                    "null"
+                                  ]
                                 },
                                 "grupBasligi": {
                                   "type": "boolean"
@@ -4961,14 +6648,28 @@
                                   }
                                 }
                               },
-                              "required": ["kod", "ad", "zorunlu", "grup", "yariyil", "grupBasligi", "degerler"]
+                              "required": [
+                                "kod",
+                                "ad",
+                                "zorunlu",
+                                "grup",
+                                "yariyil",
+                                "grupBasligi",
+                                "degerler"
+                              ]
                             }
                           }
                         },
-                        "required": ["pkodlar", "dersler"]
+                        "required": [
+                          "pkodlar",
+                          "dersler"
+                        ]
                       },
                       "tyycIsaret": {
-                        "type": ["number", "null"]
+                        "type": [
+                          "number",
+                          "null"
+                        ]
                       },
                       "dersler": {
                         "maxItems": 500,
@@ -4993,7 +6694,10 @@
                                   "maxLength": 2000
                                 },
                                 "yariyil": {
-                                  "type": ["number", "null"]
+                                  "type": [
+                                    "number",
+                                    "null"
+                                  ]
                                 },
                                 "ad": {
                                   "type": "string",
@@ -5004,10 +6708,16 @@
                                   "maxLength": 20
                                 },
                                 "kredi": {
-                                  "type": ["number", "null"]
+                                  "type": [
+                                    "number",
+                                    "null"
+                                  ]
                                 },
                                 "akts": {
-                                  "type": ["number", "null"]
+                                  "type": [
+                                    "number",
+                                    "null"
+                                  ]
                                 },
                                 "guncelleme": {
                                   "type": "string",
@@ -5035,13 +6745,23 @@
                                         "maxLength": 200
                                       },
                                       "sayi": {
-                                        "type": ["number", "null"]
+                                        "type": [
+                                          "number",
+                                          "null"
+                                        ]
                                       },
                                       "katki": {
-                                        "type": ["number", "null"]
+                                        "type": [
+                                          "number",
+                                          "null"
+                                        ]
                                       }
                                     },
-                                    "required": ["ad", "sayi", "katki"]
+                                    "required": [
+                                      "ad",
+                                      "sayi",
+                                      "katki"
+                                    ]
                                   }
                                 },
                                 "isyuku": {
@@ -5055,16 +6775,30 @@
                                         "maxLength": 200
                                       },
                                       "sayi": {
-                                        "type": ["number", "null"]
+                                        "type": [
+                                          "number",
+                                          "null"
+                                        ]
                                       },
                                       "sure": {
-                                        "type": ["number", "null"]
+                                        "type": [
+                                          "number",
+                                          "null"
+                                        ]
                                       },
                                       "toplam": {
-                                        "type": ["number", "null"]
+                                        "type": [
+                                          "number",
+                                          "null"
+                                        ]
                                       }
                                     },
-                                    "required": ["ad", "sayi", "sure", "toplam"]
+                                    "required": [
+                                      "ad",
+                                      "sayi",
+                                      "sure",
+                                      "toplam"
+                                    ]
                                   }
                                 },
                                 "dersYapisi": {
@@ -5078,10 +6812,16 @@
                                         "maxLength": 200
                                       },
                                       "yuzde": {
-                                        "type": ["number", "null"]
+                                        "type": [
+                                          "number",
+                                          "null"
+                                        ]
                                       }
                                     },
-                                    "required": ["alan", "yuzde"]
+                                    "required": [
+                                      "alan",
+                                      "yuzde"
+                                    ]
                                   }
                                 },
                                 "ciktilar": {
@@ -5099,7 +6839,10 @@
                                         "maxLength": 20000
                                       }
                                     },
-                                    "required": ["kod", "metin"]
+                                    "required": [
+                                      "kod",
+                                      "metin"
+                                    ]
                                   }
                                 },
                                 "haftalar": {
@@ -5153,13 +6896,23 @@
                                   "maxLength": 2000
                                 }
                               },
-                              "required": ["kod", "hata"]
+                              "required": [
+                                "kod",
+                                "hata"
+                              ]
                             }
                           ]
                         }
                       }
                     },
-                    "required": ["adres", "okundu", "programCiktilari", "matris", "tyycIsaret", "dersler"]
+                    "required": [
+                      "adres",
+                      "okundu",
+                      "programCiktilari",
+                      "matris",
+                      "tyycIsaret",
+                      "dersler"
+                    ]
                   }
                 },
                 "additionalProperties": false
@@ -5194,7 +6947,13 @@
                       }
                     }
                   },
-                  "required": ["kanitId", "ozet", "yeni", "dersSayisi", "okunamayan"],
+                  "required": [
+                    "kanitId",
+                    "ozet",
+                    "yeni",
+                    "dersSayisi",
+                    "okunamayan"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -5312,7 +7071,10 @@
                               "type": "string"
                             }
                           },
-                          "required": ["kanitId", "okundu"],
+                          "required": [
+                            "kanitId",
+                            "okundu"
+                          ],
                           "additionalProperties": false
                         },
                         {
@@ -5332,7 +7094,10 @@
                               "type": "string"
                             }
                           },
-                          "required": ["kanitId", "okundu"],
+                          "required": [
+                            "kanitId",
+                            "okundu"
+                          ],
                           "additionalProperties": false
                         },
                         {
@@ -5347,7 +7112,11 @@
                         "properties": {
                           "duzey": {
                             "type": "string",
-                            "enum": ["hata", "uyari", "bilgi"]
+                            "enum": [
+                              "hata",
+                              "uyari",
+                              "bilgi"
+                            ]
                           },
                           "kural": {
                             "type": "string"
@@ -5359,7 +7128,11 @@
                             "type": "string"
                           }
                         },
-                        "required": ["duzey", "kural", "aciklama"],
+                        "required": [
+                          "duzey",
+                          "kural",
+                          "aciklama"
+                        ],
                         "additionalProperties": false
                       }
                     },
@@ -5383,7 +7156,10 @@
                                     "type": "number"
                                   }
                                 },
-                                "required": ["hata", "uyari"],
+                                "required": [
+                                  "hata",
+                                  "uyari"
+                                ],
                                 "additionalProperties": false
                               },
                               {
@@ -5401,20 +7177,39 @@
                                 "type": "number"
                               }
                             },
-                            "required": ["hata", "uyari"],
+                            "required": [
+                              "hata",
+                              "uyari"
+                            ],
                             "additionalProperties": false
                           },
                           "degisim": {
                             "type": "string",
-                            "enum": ["iyilesti", "kotulesti", "ayni", "yeni"]
+                            "enum": [
+                              "iyilesti",
+                              "kotulesti",
+                              "ayni",
+                              "yeni"
+                            ]
                           }
                         },
-                        "required": ["kod", "once", "sonra", "degisim"],
+                        "required": [
+                          "kod",
+                          "once",
+                          "sonra",
+                          "degisim"
+                        ],
                         "additionalProperties": false
                       }
                     }
                   },
-                  "required": ["programId", "okuma", "oncekiOkuma", "bulgular", "dersler"],
+                  "required": [
+                    "programId",
+                    "okuma",
+                    "oncekiOkuma",
+                    "bulgular",
+                    "dersler"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -5528,7 +7323,9 @@
                     "maxLength": 4000
                   }
                 },
-                "required": ["dersId"],
+                "required": [
+                  "dersId"
+                ],
                 "additionalProperties": false
               }
             }
@@ -5562,7 +7359,11 @@
                             "properties": {
                               "duzey": {
                                 "type": "string",
-                                "enum": ["hata", "uyari", "bilgi"]
+                                "enum": [
+                                  "hata",
+                                  "uyari",
+                                  "bilgi"
+                                ]
                               },
                               "kural": {
                                 "type": "string"
@@ -5574,7 +7375,11 @@
                                 "type": "string"
                               }
                             },
-                            "required": ["duzey", "kural", "aciklama"],
+                            "required": [
+                              "duzey",
+                              "kural",
+                              "aciklama"
+                            ],
                             "additionalProperties": false
                           }
                         },
@@ -5591,7 +7396,13 @@
                           "type": "number"
                         }
                       },
-                      "required": ["bulgular", "hata", "uyari", "isToplam", "hedef"],
+                      "required": [
+                        "bulgular",
+                        "hata",
+                        "uyari",
+                        "isToplam",
+                        "hedef"
+                      ],
                       "additionalProperties": false
                     },
                     "fark": {
@@ -5609,7 +7420,10 @@
                             }
                           }
                         },
-                        "required": ["alan", "neden"],
+                        "required": [
+                          "alan",
+                          "neden"
+                        ],
                         "additionalProperties": false
                       }
                     },
@@ -5628,12 +7442,22 @@
                             "type": "string"
                           }
                         },
-                        "required": ["alan", "aciklama"],
+                        "required": [
+                          "alan",
+                          "aciklama"
+                        ],
                         "additionalProperties": false
                       }
                     }
                   },
-                  "required": ["oneriId", "taslak", "denetim", "fark", "tur", "atifSorunlari"],
+                  "required": [
+                    "oneriId",
+                    "taslak",
+                    "denetim",
+                    "fark",
+                    "tur",
+                    "atifSorunlari"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -5748,7 +7572,11 @@
                         "anyOf": [
                           {
                             "type": "string",
-                            "enum": ["onaylandi", "duzeltildi", "reddedildi"]
+                            "enum": [
+                              "onaylandi",
+                              "duzeltildi",
+                              "reddedildi"
+                            ]
                           },
                           {
                             "type": "null"
@@ -5756,7 +7584,10 @@
                         ]
                       },
                       "kararZamani": {
-                        "type": ["string", "null"]
+                        "type": [
+                          "string",
+                          "null"
+                        ]
                       },
                       "hata": {
                         "type": "number"
@@ -5779,15 +7610,30 @@
                               }
                             }
                           },
-                          "required": ["alan", "neden"],
+                          "required": [
+                            "alan",
+                            "neden"
+                          ],
                           "additionalProperties": false
                         }
                       },
                       "yazmaPlaniId": {
-                        "type": ["string", "null"]
+                        "type": [
+                          "string",
+                          "null"
+                        ]
                       }
                     },
-                    "required": ["oneriId", "zaman", "karar", "kararZamani", "hata", "uyari", "fark", "yazmaPlaniId"],
+                    "required": [
+                      "oneriId",
+                      "zaman",
+                      "karar",
+                      "kararZamani",
+                      "hata",
+                      "uyari",
+                      "fark",
+                      "yazmaPlaniId"
+                    ],
                     "additionalProperties": false
                   }
                 }
@@ -5907,7 +7753,9 @@
                     "format": "uri"
                   }
                 },
-                "required": ["adres"],
+                "required": [
+                  "adres"
+                ],
                 "additionalProperties": false
               }
             }
@@ -5928,7 +7776,10 @@
                       "type": "number"
                     }
                   },
-                  "required": ["oneriId", "alanSayisi"],
+                  "required": [
+                    "oneriId",
+                    "alanSayisi"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -6081,7 +7932,12 @@
                             "type": "string"
                           }
                         },
-                        "required": ["sekme", "alan", "deger", "kaynak"],
+                        "required": [
+                          "sekme",
+                          "alan",
+                          "deger",
+                          "kaynak"
+                        ],
                         "additionalProperties": false
                       }
                     },
@@ -6226,14 +8082,20 @@
                 "properties": {
                   "sonuc": {
                     "type": "string",
-                    "enum": ["tamamlandi", "yarim_kaldi", "vazgecildi"]
+                    "enum": [
+                      "tamamlandi",
+                      "yarim_kaldi",
+                      "vazgecildi"
+                    ]
                   },
                   "not": {
                     "type": "string",
                     "maxLength": 1000
                   }
                 },
-                "required": ["sonuc"],
+                "required": [
+                  "sonuc"
+                ],
                 "additionalProperties": false
               }
             }
@@ -6252,7 +8114,9 @@
                       "const": true
                     }
                   },
-                  "required": ["tamam"],
+                  "required": [
+                    "tamam"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -6385,10 +8249,16 @@
                                 "type": "string"
                               },
                               "id": {
-                                "type": ["string", "null"]
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
                               }
                             },
-                            "required": ["tur", "id"],
+                            "required": [
+                              "tur",
+                              "id"
+                            ],
                             "additionalProperties": false
                           },
                           "eylem": {
@@ -6406,7 +8276,10 @@
                                     "type": "string"
                                   }
                                 },
-                                "required": ["tur", "id"],
+                                "required": [
+                                  "tur",
+                                  "id"
+                                ],
                                 "additionalProperties": false
                               },
                               {
@@ -6418,12 +8291,22 @@
                             "type": "string"
                           }
                         },
-                        "required": ["sira", "zaman", "aktor", "eylem", "hedef", "ozet"],
+                        "required": [
+                          "sira",
+                          "zaman",
+                          "aktor",
+                          "eylem",
+                          "hedef",
+                          "ozet"
+                        ],
                         "additionalProperties": false
                       }
                     },
                     "sonraki": {
-                      "type": ["string", "null"]
+                      "type": [
+                        "string",
+                        "null"
+                      ]
                     },
                     "toplam": {
                       "type": "integer",
@@ -6431,7 +8314,11 @@
                       "maximum": 9007199254740991
                     }
                   },
-                  "required": ["ogeler", "sonraki", "toplam"],
+                  "required": [
+                    "ogeler",
+                    "sonraki",
+                    "toplam"
+                  ],
                   "additionalProperties": false
                 }
               }
