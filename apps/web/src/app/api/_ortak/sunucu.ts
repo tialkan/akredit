@@ -6,8 +6,11 @@
 // - AKREDIT_VT_ADRES: PostgreSQL bağlantı adresi; yoksa AKREDIT_VT_DIZIN (PGlite, geliştirme).
 // - AKREDIT_ADRES, AKREDIT_KIMLIK_GIZLI, AKREDIT_SSO: kimlik ayarı (`kimlik/ayar.ts`).
 // - AKREDIT_GELISTIRME_EPOSTA=konsol: geliştirmede giriş bağlantısını sunucu konsoluna yazar (üretimde kapalı).
+// - AKREDIT_SMTP_SUNUCU, AKREDIT_SMTP_PORT, AKREDIT_SMTP_KULLANICI, AKREDIT_SMTP_PAROLA, AKREDIT_EPOSTA_GONDEREN:
+//   gerçek e-posta gönderici (İP-14, `@akredit/surec`).
 
 import { apiIsleyici, HizSiniri, vtTekrarDeposu } from "@akredit/servis";
+import { kimlikEpostaGondericisi, ortamdanEpostaAyari, smtpTasiyici } from "@akredit/surec";
 import { pgliteBaglantisi, postgresBaglantisi, type Vt } from "@akredit/vt";
 import { ortamdanAyar } from "../../../kimlik/ayar.ts";
 import { type EpostaGonderici, type KimlikSunucusu, kimlikSunucusuOlustur } from "../../../kimlik/sunucu.ts";
@@ -15,6 +18,8 @@ import { type EpostaGonderici, type KimlikSunucusu, kimlikSunucusuOlustur } from
 export const gercekVeriMi = (): boolean => process.env.NEXT_PUBLIC_AKREDIT_VERI === "gercek";
 
 function epostaGonderici(): EpostaGonderici {
+  const smtp = ortamdanEpostaAyari(process.env);
+  if (smtp) return kimlikEpostaGondericisi(smtpTasiyici(smtp));
   const konsol = process.env.NODE_ENV !== "production" && process.env.AKREDIT_GELISTIRME_EPOSTA === "konsol";
   return {
     async sihirliBaglanti(alici, baglanti) {
@@ -24,7 +29,7 @@ function epostaGonderici(): EpostaGonderici {
         console.info(`[geliştirme] ${alici} için giriş bağlantısı: ${baglanti}`);
         return;
       }
-      throw new Error("E-posta gönderici yapılandırılmadı (İP-14).");
+      throw new Error("E-posta gönderici yapılandırılmadı (AKREDIT_SMTP_SUNUCU).");
     },
     async supheliGiris() {
       // Bildirim gönderici İP-14'te; şüpheli giriş günlüğe yine yazılır.
