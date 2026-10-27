@@ -19,3 +19,4 @@ export * as rapor from "./rapor.ts";
 export type { Sayfa, SayfaGirdisi } from "./semalar.ts";
 export * as semalar from "./semalar.ts";
 export * as toplanti from "./toplanti/index.ts";
+export * as odr from "./odr/index.ts";
