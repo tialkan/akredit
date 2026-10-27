@@ -10,7 +10,21 @@ Ortak arayüz (`src/baglayici.ts`): ağ, bekleme ve zaman her zaman `DisBaglam` 
 - **Kullanım:** `programiOku(adres, baglam, { dersler?, aralikMs?, zamanAsimiMs? })` → `BolognaVerisi` (`@akredit/cekirdek`). Denetim (`denetle`) `@akredit/cekirdek` içindedir.
 - **Hız sınırı:** istekler sıralıdır; ilk istekten sonra her istekten önce varsayılan 350 ms beklenir. Zaman aşımı 20 sn. `User-Agent: Akredit (akreditasyon hazirligi; salt okuma)` (HTTP başlığı Latin-1 olmak zorunda olduğu için ASCII).
 - **Kullanım koşulları:** sayfalar herkese açıktır; yine de kurumun bilgi işlem birimine haber verilmesi ve sunucuyu yormayacak aralıkla okunması önerilir. Kurumun kullanım koşulları DOĞRULANMADI.
-- **Bilinen sınırlar:** ayrıştırıcı `apps/cli/lib/bologna.mjs` ile birebir aynı davranır (eşdeğerlik testi var). Proliz sayfa yapısı kuruma ya da sürüme göre değişirse tablolar bulunamaz ve boş sonuç döner; bu durum hata değil, denetimde bulgu olarak görünür. Yalnız `lang` ve `curSunit` parametreli program adresleri desteklenir.
+- **Durum:** yapı 2026-10-27'de canlı sayfadan doğrulandı (kurum: EBYÜ); kullanım koşulları DOĞRULANMADI. Sayısal ders kodları (`1000.020105`), TYYÇ 14/12 hücreli satırlar ve başlıksız alan yüzdesi tablosu desteklenir. Ders sayfası çıktısında e-posta adresleri ayıklanır. Notlar: `docs/baglayicilar/canli-dogrulama-2026-10-27/`.
+- **Bilinen sınırlar:** ayrıştırıcı `apps/cli/lib/bologna.mjs` ile birebir aynı davranır (eşdeğerlik testi var). TYYÇ matrisinde işaretli hücrenin hangi karakterle gösterildiği DOĞRULANMADI (canlı örnekte P hücreleri boştu). Proliz sayfa yapısı kuruma ya da sürüme göre değişirse tablolar bulunamaz ve boş sonuç döner; bu durum hata değil, denetimde bulgu olarak görünür. Yalnız `lang` ve `curSunit` parametreli program adresleri desteklenir.
+
+## YÖK Atlas
+
+- **Durum:** yapı 2026-10-27'de canlı sayfadan doğrulandı (kurum: EBYÜ); kullanım koşulları DOĞRULANMADI.
+- **Kaynak:** `POST https://yokatlas.yok.gov.tr/api/tercih-kilavuz/search`, gövde `{filters:{kilavuzKodu}, page, size, sortBy:"basariSirasi", direction:"ASC"}`; yanıt Spring sayfası. Eski HTML parça yolu 418 döndürüyor, kaldırıldı.
+- **Kullanım:** `programIstatistikleriniOku(kodlar, baglam)` → kontenjan, ÖBS kontenjanı, taban puan, başarı sırası, önceki üç yıl, puan türü, öğrenim süresi, akademik kadro, akreditasyon (üniversite düzeyi `uniAkreditasyon`). İstekler arası en az 2 sn.
+- **Doluluk:** yanıtta yerleşen sayısı yok; `doluluk` her zaman `null`, tahmin edilmez. `kosulList` alınmaz.
+
+## AVESİS
+
+- **Durum:** yapı 2026-10-27'de canlı sayfadan doğrulandı (kurum: EBYÜ); kullanım koşulları DOĞRULANMADI.
+- **Kaynak:** profil `/<kullanici>` (ad/unvan, metrikler), yayınlar `/<kullanici>/yayinlar` (bölüm, başlık, yazarlar, dergi, atıf, `data-filters` dizinleri, yıl). Betik içeriği atlanır.
+- **Araştırma alanları:** sunucu HTML'inde boş gelir (istemci tarafında yüklenir); okunmaz, `DOĞRULANMADI: istemci tarafında yükleniyor` bildirilir.
 
 ## OBS not aktarımı
 
