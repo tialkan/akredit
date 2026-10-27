@@ -1,6 +1,6 @@
 # İP-32: Kurumlar arası kıyaslama
 
-- **Durum:** bekliyor
+- **Durum:** inceleme
 - **Faz:** 6
 - **Bağımlılık:** İP-20, İP-21
 - **Sahip olduğu yollar:** `packages/kiyaslama/**`, `docs/raporlar/IP-32.md`
@@ -18,9 +18,10 @@ Kurumların kendilerini açık verilerle ve (izinli) diğer kurumlarla kıyaslay
 
 ## Kabul ölçütleri
 
-- [ ] Hiçbir kurumun verisi izinsiz görünmez.
-- [ ] `pnpm verify` temiz.
+- [x] Hiçbir kurumun verisi izinsiz görünmez. (`kiyaslama.test.ts` › "izni olmayan, süresi geçen ya da geri alan…", "sonuç başka kurumun kimliğini…", "en az grup…")
+- [x] `pnpm verify` temiz.
 
 ## Günlük
 
 - 2026-10-23: İP tanımlandı. Başlamadan önce kapsamı güncel mimariye göre ayrıntılandır.
+- 2026-10-27: Saf `@akredit/kiyaslama` paketi yazıldı. `havuzKiyasla`: yalnız `an` anında geçerli izinli (süre, geri alma, gösterge kapsamı) kurumların değerleri; isteyen hariç en az 5 kurum (alt sınır düşürülemez), kurum kimliği/min/max yok, çelişen katkı dışlanır, yuvarlı ve sıradan bağımsız sonuç. `atlasKiyasla` (YÖK Atlas, kaynak zorunlu) ve `kidrKiyasla` (kamuya açık KİDR, adres + SHA-256 + sayfa zorunlu; kendi tarafta yalnız komisyonun kesin düzeyi). Kalan: vt tablosu (izin, katkı), servis/API ucu, panel sayfası, izin kaydının günlüğe yazılması, üyelik değişiminden fark saldırısına ek önlem. Göç gerekmedi (vt bu İP'nin yolu değil).
