@@ -157,8 +157,9 @@ export function tutanakTaslagiKur(g: {
     const anahtar = normallestir(kucukHarf(metin));
     if (gorulen.has(anahtar)) continue;
     gorulen.add(anahtar);
-    // Sorumlu: kararın kendi metninde ya da atıf yerinde adı geçen tek katılımcı (birden çoksa seçilmez).
-    const adiGecen = katilimcilar.filter((k) => ad(k) && normallestir(kucukHarf(`${metin}\n${yer}`)).includes(ad(k)));
+    // Sorumlu: kararın kendi metninde adı geçen tek katılımcı (birden çoksa ya da hiç yoksa seçilmez).
+    const kararNormal = normallestir(kucukHarf(metin));
+    const adiGecen = katilimcilar.filter((k) => ad(k) && kararNormal.includes(ad(k)));
     kararlar.push({
       no: kararlar.length + 1,
       metin,

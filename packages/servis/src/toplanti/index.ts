@@ -383,7 +383,7 @@ export async function kesinlestir(b: ServisBaglami, oneriId: string, kopru?: Sur
     toplantiId: sonuc.toplantiId,
     eylemIdleri: sonuc.eylemIdleri,
     olcutOneriId: sonuc.olcutOneriId,
-    surecOrnekleri,
+    surecOrnekleri: [...new Set(surecOrnekleri)],
   };
 }
 
