@@ -44,6 +44,7 @@ export function olcutTaslagiCikar(
           olcut: {
             kod: m[1],
             baslik: m[2].trim(),
+            baslikDurumu: "resmi",
             metin: "",
             metinDurumu: "resmi",
             kaynakSayfa: s.sayfa,
@@ -94,6 +95,7 @@ export function taslakCerceve(girdi: {
     surum: girdi.surum,
     resmi: true,
     kaynak: girdi.kaynak,
+    ekKaynaklar: [],
     yayimTarihi: girdi.yayimTarihi,
     dogrulandi: false,
     dogrulayan: null,
@@ -112,7 +114,7 @@ export function taslakCerceve(girdi: {
 export function uzmanOnayi(cerceve: Cerceve, onay: { dogrulayan: string; zaman: string }): Cerceve {
   if (!onay.dogrulayan.trim()) throw new Error("Onaylayanın adı yazılmalı. Onayı yapay zekâ veremez.");
   if (!cerceve.resmi) throw new Error("İç çerçeve resmî metin olarak onaylanamaz.");
-  if (tumOlcutler(cerceve.olcutler).some((o) => o.metinDurumu !== "resmi"))
+  if (tumOlcutler(cerceve.olcutler).some((o) => o.metinDurumu !== "resmi" || o.baslikDurumu !== "resmi"))
     throw new Error("Doğrulanmamış ölçüt metni var. Önce metni resmî belgeden alın.");
   return cerceveSemasi.parse({
     ...structuredClone(cerceve),
