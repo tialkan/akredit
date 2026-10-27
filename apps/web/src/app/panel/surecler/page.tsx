@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Tablo } from "../../../bilesenler/tablo.tsx";
 import { Kart, SayfaBasligi } from "../../../bilesenler/temel.tsx";
-import { panelVeriKaynagi } from "../../../veri/sunucu.ts";
 import type { SurecGorevi } from "../../../veri/kaynak.ts";
 import { ORNEK_SIMDI } from "../../../veri/ornek.ts";
+import { panelVeriKaynagi } from "../../../veri/sunucu.ts";
 import { gunFarki, tarihYaz } from "../../../veri/yardimci.ts";
 
 export const metadata: Metadata = { title: "Takvim ve görevler" };

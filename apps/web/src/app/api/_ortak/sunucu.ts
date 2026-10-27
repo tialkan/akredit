@@ -8,7 +8,7 @@
 // - AKREDIT_GELISTIRME_EPOSTA=konsol: geliştirmede giriş bağlantısını sunucu konsoluna yazar (üretimde kapalı).
 
 import { apiIsleyici, HizSiniri, vtTekrarDeposu } from "@akredit/servis";
-import { gocleriUygula, pgliteBaglantisi, postgresBaglantisi, type Vt } from "@akredit/vt";
+import { pgliteBaglantisi, postgresBaglantisi, type Vt } from "@akredit/vt";
 import { ortamdanAyar } from "../../../kimlik/ayar.ts";
 import { type EpostaGonderici, type KimlikSunucusu, kimlikSunucusuOlustur } from "../../../kimlik/sunucu.ts";
 
@@ -44,11 +44,8 @@ async function kur(): Promise<Tekiller> {
   const adres = process.env.AKREDIT_VT_ADRES;
   let db: Vt;
   if (adres) db = postgresBaglantisi(adres).db;
-  else {
-    db = (await pgliteBaglantisi(process.env.AKREDIT_VT_DIZIN)).db;
-    // Geliştirme veritabanında göçler açılışta uygulanır; üretimde göç ayrı adımdır (İP-26).
-    await gocleriUygula(db);
-  }
+  // Göçler ayrı adımda uygulanır: `pnpm --filter @akredit/servis vt:hazirla`.
+  else db = (await pgliteBaglantisi(process.env.AKREDIT_VT_DIZIN)).db;
   const kimlik = kimlikSunucusuOlustur({ db, ayar: ortamdanAyar(process.env), eposta: epostaGonderici() });
   const api = apiIsleyici({
     db,

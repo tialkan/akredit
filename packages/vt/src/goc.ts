@@ -8,7 +8,10 @@ import { sql } from "drizzle-orm";
 import type { Vt } from "./baglanti.ts";
 import { type SorguSonucu, satirlar } from "./gunluk.ts";
 
-const GOC_DIZINI = new URL("./gocler/", import.meta.url);
+// Göreli yol sabit metin olarak yazılmaz: paketleyiciler (Next/Turbopack) `new URL("./x/", import.meta.url)`
+// kalıbını varlık bağımlılığı sanıp dizini çözmeye çalışıyor. Göçler paketlenmiş koddan değil, kaynaktan
+// çalıştırılır (`@akredit/servis vt:hazirla`).
+const GOC_DIZINI = new URL([".", "gocler", ""].join("/"), import.meta.url);
 
 interface Gunce {
   entries: { idx: number; tag: string }[];

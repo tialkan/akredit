@@ -15,7 +15,7 @@ export async function generateStaticParams() {
 export const metadata: Metadata = { title: "Rapor" };
 
 export default async function RaporSayfasi({ params }: { params: Promise<{ id: string }> }) {
-  const kaynak = (await panelVeriKaynagi());
+  const kaynak = await panelVeriKaynagi();
   const rapor = await kaynak.rapor((await params).id);
   if (!rapor) notFound();
   const kanitAdlari = Object.fromEntries((await kaynak.kanitlar()).map((k) => [k.id, k.baslik]));

@@ -86,7 +86,9 @@ export class ApiVeriKaynagi implements VeriKaynagi {
     return this.#hepsi<Awaited<ReturnType<VeriKaynagi["kanitlar"]>>[number]>("/kanitlar", q);
   }
   kanit(id: string) {
-    return this.#bosOlabilir<NonNullable<Awaited<ReturnType<VeriKaynagi["kanit"]>>>>(`/kanitlar/${encodeURIComponent(id)}`);
+    return this.#bosOlabilir<NonNullable<Awaited<ReturnType<VeriKaynagi["kanit"]>>>>(
+      `/kanitlar/${encodeURIComponent(id)}`,
+    );
   }
   kanitHattiOzeti() {
     return this.#al<Awaited<ReturnType<VeriKaynagi["kanitHattiOzeti"]>>>("/kanit-hatti");
@@ -95,19 +97,25 @@ export class ApiVeriKaynagi implements VeriKaynagi {
     return this.#al<Awaited<ReturnType<VeriKaynagi["programlar"]>>>("/programlar");
   }
   program(id: string) {
-    return this.#bosOlabilir<NonNullable<Awaited<ReturnType<VeriKaynagi["program"]>>>>(`/programlar/${encodeURIComponent(id)}`);
+    return this.#bosOlabilir<NonNullable<Awaited<ReturnType<VeriKaynagi["program"]>>>>(
+      `/programlar/${encodeURIComponent(id)}`,
+    );
   }
   dersler() {
     return this.#al<Awaited<ReturnType<VeriKaynagi["dersler"]>>>("/dersler");
   }
   ders(id: string) {
-    return this.#bosOlabilir<NonNullable<Awaited<ReturnType<VeriKaynagi["ders"]>>>>(`/dersler/${encodeURIComponent(id)}`);
+    return this.#bosOlabilir<NonNullable<Awaited<ReturnType<VeriKaynagi["ders"]>>>>(
+      `/dersler/${encodeURIComponent(id)}`,
+    );
   }
   raporlar() {
     return this.#al<Awaited<ReturnType<VeriKaynagi["raporlar"]>>>("/raporlar");
   }
   rapor(id: string) {
-    return this.#bosOlabilir<NonNullable<Awaited<ReturnType<VeriKaynagi["rapor"]>>>>(`/raporlar/${encodeURIComponent(id)}`);
+    return this.#bosOlabilir<NonNullable<Awaited<ReturnType<VeriKaynagi["rapor"]>>>>(
+      `/raporlar/${encodeURIComponent(id)}`,
+    );
   }
   surecler() {
     return this.#al<Awaited<ReturnType<VeriKaynagi["surecler"]>>>("/surecler");

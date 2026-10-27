@@ -9,7 +9,7 @@ import { GERCEK_VERI, panelVeriKaynagi } from "../../veri/sunucu.ts";
 export const metadata = { title: { default: "Panel", template: "%s · Panel · Akredit" } };
 
 export default async function PanelYerlesimi({ children }: { children: ReactNode }) {
-  const kaynak = (await panelVeriKaynagi());
+  const kaynak = await panelVeriKaynagi();
   const [kullanici, ayarlar, bekleyen] = await Promise.all([
     kaynak.kullanici(),
     kaynak.ayarlar(),
