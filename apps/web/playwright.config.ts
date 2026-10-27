@@ -37,11 +37,19 @@ export default defineConfig({
     timeout: 60_000,
   },
   projects: [
-    { name: "masaustu", use: { ...devices["Desktop Chrome"] }, testIgnore: /telefon\.spec\.ts/ },
+    { name: "masaustu", use: { ...devices["Desktop Chrome"] }, testIgnore: /(telefon|performans)\.spec\.ts/ },
     {
       name: "telefon",
       use: { ...devices["Desktop Chrome"], viewport: { width: 360, height: 740 }, hasTouch: true, isMobile: true },
       testMatch: /telefon\.spec\.ts/,
+    },
+    // Performans ölçümleri işlemciyi yavaşlattığı için öteki testlerle aynı anda koşarsa TBT gürültülenir.
+    // Bu yüzden diğer projeler bitince, tek çalışanda sırayla koşar (dosya içinde mode: "default").
+    {
+      name: "performans",
+      use: { ...devices["Desktop Chrome"] },
+      testMatch: /performans\.spec\.ts/,
+      dependencies: ["masaustu", "telefon"],
     },
   ],
 });
