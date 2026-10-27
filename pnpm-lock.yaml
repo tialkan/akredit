@@ -292,6 +292,9 @@ importers:
       '@akredit/cekirdek':
         specifier: workspace:*
         version: link:../cekirdek
+      '@akredit/cerceveler':
+        specifier: workspace:*
+        version: link:../cerceveler
       '@akredit/olcme':
         specifier: workspace:*
         version: link:../olcme
