@@ -31,7 +31,10 @@ async function odakBilgisi(page: Page): Promise<OdakBilgisi | null> {
     const ustteki = document.elementFromPoint(x, y);
     const ortulmus = !!ustteki && !(e === ustteki || e.contains(ustteki) || ustteki.contains(e));
     const k = window as unknown as { __odakSayac?: number };
-    e.dataset.odakNo ??= String((k.__odakSayac = (k.__odakSayac ?? 0) + 1));
+    if (!e.dataset.odakNo) {
+      k.__odakSayac = (k.__odakSayac ?? 0) + 1;
+      e.dataset.odakNo = String(k.__odakSayac);
+    }
     return {
       no: e.dataset.odakNo,
       ad: (e.getAttribute("aria-label") || e.textContent || e.getAttribute("name") || e.tagName).trim().slice(0, 60),
