@@ -178,6 +178,17 @@ export const SIMGE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5
  * Servis çalışanının kaynağı. Karar mantığı `onbellekKarari` ile aynıdır; aynı işlev JS olarak gömülür;
  * testte bu metin çalıştırılıp `onbellekKarari` ile aynı sonucu verdiği sınanır.
  */
+/**
+ * Oturum kapatma yanıtına `Clear-Site-Data: "cache"` ekler: tarayıcı, bu cihazdaki önbelleğe alınmış onay
+ * listesini (servis çalışanı önbelleği dahil) siler. Diğer kimlik yanıtları değişmez.
+ */
+export function cikisYanitiniSertlestir(yol: string, y: Response): Response {
+  if (!/\/sign-out\/?$/u.test(yol) || !y.ok) return y;
+  const basliklar = new Headers(y.headers);
+  basliklar.set("clear-site-data", '"cache"');
+  return new Response(y.body, { status: y.status, statusText: y.statusText, headers: basliklar });
+}
+
 export function servisCalisaniKaynagi(): string {
   return `// Akredit onay kutusu servis çalışanı (İP-33). Yalnız onay listesi önbelleğe alınır.
 "use strict";
@@ -223,6 +234,8 @@ self.addEventListener("fetch", (e) => {
     try {
       const y = await fetch(e.request);
       if (y.ok && !y.redirected) await c.put(e.request, y.clone());
+      // Oturum yok ya da sona erdi: önceki kişinin listesi bu cihazda kalmasın.
+      else if (y.status === 401 || y.status === 403 || y.redirected) await caches.delete(ONBELLEK_ADI);
       return y;
     } catch (hata) {
       const var_ = await c.match(e.request, { ignoreSearch: false });
@@ -230,6 +243,10 @@ self.addEventListener("fetch", (e) => {
       throw hata;
     }
   })());
+});
+
+self.addEventListener("message", (e) => {
+  if (e.data && e.data.tur === "oturum-kapandi") e.waitUntil(caches.delete(ONBELLEK_ADI));
 });
 
 self.addEventListener("push", (e) => {

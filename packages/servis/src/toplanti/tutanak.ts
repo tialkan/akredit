@@ -68,6 +68,17 @@ const anlamli = (m: string) =>
     .split(/[^\p{L}\p{N}]+/u)
     .filter((k) => k.length >= 4 && !DURAK.has(k));
 
+const SAYILAR = /\d+/gu;
+
+/**
+ * Karardaki her sayı (tarih parçaları dahil) atıf yerinde de geçmeli. Kelime oranı denetimi kısa sayıları
+ * saymadığından, bu denetim olmadan modelin eklediği tarih ya da sayı karara ve eylemin hedef tarihine girerdi.
+ */
+export function sayilarKaynaktaMi(karar: string, kaynak: string): boolean {
+  const kaynakta = new Set([...kaynak.matchAll(SAYILAR)].map((m) => String(Number(m[0]))));
+  return [...karar.matchAll(SAYILAR)].every((m) => kaynakta.has(String(Number(m[0]))));
+}
+
 /** Atıf yapılan metin kararı taşıyor mu? Kararın anlamlı kelimelerinin en az %70'i atıf yerinde geçmeli. */
 export function kayitKarariTasiyorMu(karar: string, kaynak: string): boolean {
   const k = anlamli(karar);
@@ -152,6 +163,10 @@ export function tutanakTaslagiKur(g: {
     }
     if (!kayitKarariTasiyorMu(metin, yer)) {
       reddedilenler.push({ metin, neden: "Karar, atıf yapılan yerde geçmiyor." });
+      continue;
+    }
+    if (!sayilarKaynaktaMi(metin, yer)) {
+      reddedilenler.push({ metin, neden: "Kararda atıf yapılan yerde geçmeyen bir sayı ya da tarih var." });
       continue;
     }
     const anahtar = normallestir(kucukHarf(metin));
