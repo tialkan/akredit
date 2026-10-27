@@ -7,6 +7,15 @@
 import { randomUUID } from "node:crypto";
 import { type OneriTuru, politikaUygulanirMi, type YetkiPolitikasi } from "@akredit/cekirdek";
 import { type Islem, sema } from "@akredit/vt";
+import {
+  anahtarIzi,
+  type FetchIslevi,
+  openaiUyumlu,
+  openrouterAnahtariBicimi,
+  ortamdanAnahtarKasasi,
+  type SaglayiciAnahtarKasasi,
+  YzHatasi,
+} from "@akredit/yz";
 import { desc, eq, isNotNull } from "drizzle-orm";
 import { z } from "zod";
 import { gunluge, type Hedef, hedefZinciri, islem, type ServisBaglami } from "./baglam.ts";
@@ -17,6 +26,7 @@ import {
   ImzaGirdisi,
   PolitikaGirdisi,
   type PolitikaKaydi,
+  YzAnahtarGirdisi,
   YzSaglayici,
 } from "./semalar.ts";
 import { adlarAyniMi } from "./yardimci.ts";
@@ -40,6 +50,16 @@ const KurumAyarlari = z
   .object({
     yz: z.object({ yurtDisiIzin: z.boolean().optional() }).passthrough().optional(),
     yzSaglayici: YzSaglayici.optional(),
+    yzAnahtar: z
+      .object({
+        saglayici: z.literal("openrouter"),
+        sifreli: z.string(),
+        son4: z.string(),
+        model: z.string(),
+        kayitZamani: z.string(),
+        kaydeden: z.string(),
+      })
+      .optional(),
     politikaTaslaklari: z.array(Taslak).optional(),
   })
   .passthrough();
@@ -327,6 +347,15 @@ export async function ayarlar(b: ServisBaglami): Promise<z.infer<typeof Ayarlar>
       kurumKisaAdi: kurum.kisaAd ?? "",
       yzSaglayici: ayar.yzSaglayici ?? "kurum_sunucusu",
       yurtDisiIzni: ayar.yz?.yurtDisiIzin === true,
+      yzAnahtar: ayar.yzAnahtar
+        ? {
+            saglayici: ayar.yzAnahtar.saglayici,
+            son4: ayar.yzAnahtar.son4,
+            model: ayar.yzAnahtar.model,
+            kayitZamani: ayar.yzAnahtar.kayitZamani,
+            kaydeden: ayar.yzAnahtar.kaydeden,
+          }
+        : null,
       politikalar: await politikaKayitlari(tx, b.aktor.kurumId),
     };
   });
@@ -367,3 +396,105 @@ export async function ayarlariGuncelle(b: ServisBaglami, girdi: unknown): Promis
 }
 
 export type { AyarDegisikligi };
+
+// ---------- Kurumun yapay zekâ anahtarı (BYOK) ----------
+//
+// Anahtarı yalnız `kurum.ayar_yonet` yetkisi olan kişi (kurum yöneticisi) girer. Anahtar sunucuda AES-256-GCM
+// ile, kuruma bağlı türetilmiş anahtarla şifrelenip kurum ayarlarında saklanır. Hiçbir yanıtta anahtarın
+// kendisi dönmez; yalnız son dört karakteri gösterilir. Günlüğe anahtar ya da izi yazılmaz.
+
+/** OpenRouter'ın kendi yönlendiricisi; kurum isterse başka model adı verir. */
+export const VARSAYILAN_OPENROUTER_MODELI = "openrouter/auto";
+
+const KASA_YOK = "Sunucuda anahtar saklama ayarı yapılmamış. Anahtar kaydedilmedi. Sistem yöneticinize bildirin.";
+
+function kasaGerekli(kasa: SaglayiciAnahtarKasasi | null): SaglayiciAnahtarKasasi {
+  if (!kasa) throw new ServisHatasi("kural_ihlali", KASA_YOK);
+  return kasa;
+}
+
+export async function yzAnahtariKaydet(
+  b: ServisBaglami,
+  girdi: unknown,
+  kasa: SaglayiciAnahtarKasasi | null = ortamdanAnahtarKasasi(process.env),
+): Promise<z.infer<typeof Ayarlar>> {
+  const g = YzAnahtarGirdisi.parse(girdi);
+  if (!openrouterAnahtariBicimi(g.anahtar))
+    throw new ServisHatasi("gecersiz_istek", "Bu bir OpenRouter anahtarına benzemiyor. Anahtar sk-or- ile başlar.", [
+      { alan: "anahtar", ileti: "Anahtar sk-or- ile başlamalı." },
+    ]);
+  const k = kasaGerekli(kasa);
+  await islem(b, async (tx, gerekli) => {
+    await gerekli("kurum.ayar_yonet", kurumHedefi(b));
+    const { kurum } = await kurumOku(tx, b.aktor.kurumId);
+    const eski = (kurum.ayarlar ?? {}) as Record<string, unknown>;
+    const yeni = {
+      ...eski,
+      yzSaglayici: "openrouter",
+      yzAnahtar: {
+        saglayici: "openrouter",
+        sifreli: k.sifrele(g.anahtar.trim(), b.aktor.kurumId),
+        son4: anahtarIzi(g.anahtar),
+        model: g.model ?? VARSAYILAN_OPENROUTER_MODELI,
+        kayitZamani: b.simdi().toISOString(),
+        kaydeden: await kisiAdi(tx, b.aktor.kisiId),
+      },
+    };
+    await tx.update(sema.kurum).set({ ayarlar: yeni }).where(eq(sema.kurum.id, b.aktor.kurumId));
+    await gunluge(
+      tx,
+      b,
+      "kurum.yz_anahtari_kaydedildi",
+      { tur: "kurum", id: b.aktor.kurumId },
+      { saglayici: "openrouter" },
+    );
+  });
+  return ayarlar(b);
+}
+
+export async function yzAnahtariKaldir(b: ServisBaglami): Promise<z.infer<typeof Ayarlar>> {
+  await islem(b, async (tx, gerekli) => {
+    await gerekli("kurum.ayar_yonet", kurumHedefi(b));
+    const { kurum } = await kurumOku(tx, b.aktor.kurumId);
+    const { yzAnahtar: _silinen, ...kalan } = (kurum.ayarlar ?? {}) as Record<string, unknown>;
+    await tx.update(sema.kurum).set({ ayarlar: kalan }).where(eq(sema.kurum.id, b.aktor.kurumId));
+    await gunluge(
+      tx,
+      b,
+      "kurum.yz_anahtari_kaldirildi",
+      { tur: "kurum", id: b.aktor.kurumId },
+      { saglayici: "openrouter" },
+    );
+  });
+  return ayarlar(b);
+}
+
+/**
+ * Kayıtlı anahtarla çok kısa bir istek gönderir (en çok 1 belirteç) ve sonucu sade dille döndürür.
+ * Bu istekte kurum verisi yoktur. Anahtar yalnız bu işlev içinde çözülür.
+ */
+export async function yzBaglantiDene(
+  b: ServisBaglami,
+  secenek: { kasa?: SaglayiciAnahtarKasasi | null; fetch?: FetchIslevi } = {},
+): Promise<{ tamam: boolean; ileti: string; model: string }> {
+  const kasa = kasaGerekli(secenek.kasa === undefined ? ortamdanAnahtarKasasi(process.env) : secenek.kasa);
+  const kayit = await islem(b, async (tx, gerekli) => {
+    await gerekli("kurum.ayar_yonet", kurumHedefi(b));
+    return (await kurumOku(tx, b.aktor.kurumId)).ayar.yzAnahtar ?? null;
+  });
+  if (!kayit) throw new ServisHatasi("kural_ihlali", "Kayıtlı anahtar yok. Önce anahtarı girin.");
+  const saglayici = openaiUyumlu({
+    hazir: "openrouter",
+    anahtar: kasa.coz(kayit.sifreli, b.aktor.kurumId),
+    model: kayit.model,
+    ...(secenek.fetch ? { fetch: secenek.fetch } : {}),
+    http: { denemeSayisi: 1, zamanAsimiMs: 15_000 },
+  });
+  try {
+    await saglayici.sohbet({ mesajlar: [{ rol: "kullanici", icerik: "Yalnız: tamam" }], enCokBelirtec: 1 });
+    return { tamam: true, ileti: "Bağlantı çalışıyor. Anahtar geçerli.", model: kayit.model };
+  } catch (e) {
+    const ileti = e instanceof YzHatasi ? e.message : "Hizmete ulaşılamadı. Biraz sonra yeniden deneyin.";
+    return { tamam: false, ileti, model: kayit.model };
+  }
+}
