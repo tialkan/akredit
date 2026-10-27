@@ -1,0 +1,58 @@
+# Akredit Helm değerleri. Kılavuz: docs/kurulum/kubernetes.md
+# İmaj sürümleri infra/kurum-ici/surumler.env ile aynı tutulur. `latest` kullanılmaz.
+
+# Kurulan Akredit sürümü (zorunlu): --set surum=vX.Y.Z
+surum: ""
+
+imajlar:
+  web: ghcr.io/SAHIP/akredit-web
+  isci: ghcr.io/SAHIP/akredit-isci
+  vt: pgvector/pgvector:0.8.0-pg17
+  ollama: ollama/ollama:0.4.7
+  vllm: vllm/vllm-openai:v0.6.4.post1
+  # İnternete kapalı kümede kurumun iç kayıt defteri: imajlar demet-yukle.sh sonrası buraya itilir.
+  kayitDefteri: ""
+  cekmePolitikasi: IfNotPresent
+
+alanAdi: akredit.kurum.example
+ingress:
+  sinif: nginx
+  # Kurumun TLS sertifikasını içeren gizli nesnenin adı (kubernetes.io/tls)
+  tlsGizli: akredit-tls
+
+# Gizli değerleri içeren, kurulumdan önce elle oluşturulan Secret (kubernetes.md 2. adım). Anahtarlar:
+#   POSTGRES_PASSWORD, AKREDIT_ONAY_GIZLI, AKREDIT_ANKET_GIZLI, AKREDIT_TAKMA_AD_ANAHTARI,
+#   S3_ERISIM_ANAHTARI, S3_GIZLI_ANAHTAR
+gizliNesne: akredit-gizli
+
+vt:
+  kullanici: akredit
+  ad: akredit
+  depolama: 50Gi
+  depolamaSinifi: ""
+
+s3:
+  ucNoktasi: ""
+  bolge: yerel
+  kova: akredit-kanit
+
+smtp: ""
+
+yz:
+  # ollama | vllm
+  sunucu: ollama
+  model: qwen2.5:14b
+  # Model ağırlıklarının durduğu kalıcı birim (demetteki modeller.tar buraya açılır)
+  modelDepolama: 100Gi
+  depolamaSinifi: ""
+  gpu: 0
+  vllmBaglam: 32768
+
+web:
+  kopya: 2
+isci:
+  kopya: 1
+
+# Ağ ilkesi: uygulama, veritabanı ve model ad alanı dışına çıkamaz (yalnız küme DNS'i).
+# Kapatmak (false) veri yerleşimi güvencesini kaldırır; denetle.sh false değerini reddeder.
+disariCikisYasak: true

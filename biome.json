@@ -17,7 +17,8 @@
       "!**/test/fixtures",
       "!**/*.fixture.*",
       "!pnpm-lock.yaml",
-      "!**/*.md"
+      "!**/*.md",
+      "!infra/kurum-ici/helm/*/templates"
     ]
   },
   "formatter": {
