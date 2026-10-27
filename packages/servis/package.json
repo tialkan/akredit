@@ -15,7 +15,10 @@
     "vt:hazirla": "node betik/vt-hazirla.ts"
   },
   "dependencies": {
+    "@akredit/baglayicilar": "workspace:*",
+    "@akredit/belge": "workspace:*",
     "@akredit/cekirdek": "workspace:*",
+    "@akredit/olcme": "workspace:*",
     "@akredit/surec": "workspace:*",
     "@akredit/vt": "workspace:*",
     "@akredit/yetki": "workspace:*",
