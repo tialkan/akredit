@@ -33,11 +33,14 @@ kubectl create namespace akredit
 kubectl -n akredit create secret tls akredit-tls --cert=akredit.crt --key=akredit.key
 kubectl -n akredit create secret generic akredit-gizli \
   --from-literal=POSTGRES_PASSWORD="$(openssl rand -hex 32)" \
+  --from-literal=UYGULAMA_VT_PAROLA="$(openssl rand -hex 32)" \
   --from-literal=AKREDIT_ONAY_GIZLI="$(openssl rand -hex 32)" \
   --from-literal=AKREDIT_ANKET_GIZLI="$(openssl rand -hex 32)" \
   --from-literal=AKREDIT_TAKMA_AD_ANAHTARI="$(openssl rand -hex 32)" \
   --from-literal=S3_ERISIM_ANAHTARI=... --from-literal=S3_GIZLI_ANAHTAR=...
 ```
+
+`POSTGRES_PASSWORD` yalnız göç işinin kullandığı süper kullanıcınındır; web ve işçi `UYGULAMA_VT_PAROLA` ile ayrıcalıksız `akredit_uyg` kullanıcısıyla bağlanır (`vt.uygulamaKullanici`). Eski bir kurulumu yükseltirken gizli nesneye `UYGULAMA_VT_PAROLA` anahtarını ekleyin; kullanıcıyı yükseltme kancası açar.
 
 Parolalar onaltılık (hex) üretilmelidir: veritabanı adresine olduğu gibi yazılır, özel karakter adresi bozar. `AKREDIT_TAKMA_AD_ANAHTARI`'nın kopyasını kurum kasasında saklayın.
 

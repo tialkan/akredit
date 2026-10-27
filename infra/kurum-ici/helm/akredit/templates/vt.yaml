@@ -8,6 +8,22 @@ spec:
   selector: { app.kubernetes.io/name: akredit-vt, app.kubernetes.io/instance: {{ .Release.Name }} }
   ports: [{ name: pg, port: 5432 }]
 ---
+# Uygulama kullanıcısı betiği (G-27-2): boş veri diziniyle ilk açılışta çalışır. Eski kurulumlar için
+# vt-kullanici işi aynı betiği her kurulum/yükseltmede yeniden çalıştırır (yinelenebilir).
+# Kanca nesnesidir: ilk yükseltmede de (pre-upgrade) işten önce var olmalı.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-vt-ilk
+  labels: {{- include "akredit.etiketler" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "-5"
+    helm.sh/hook-delete-policy: before-hook-creation
+data:
+  02-uygulama-kullanicisi.sh: |-
+{{ .Files.Get "files/02-uygulama-kullanicisi.sh" | indent 4 }}
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -36,12 +52,19 @@ spec:
             - { name: PGDATA, value: /var/lib/postgresql/data/pgdata }
             - name: POSTGRES_PASSWORD
               valueFrom: { secretKeyRef: { name: {{ .Values.gizliNesne }}, key: POSTGRES_PASSWORD } }
+            - { name: UYGULAMA_VT_KULLANICI, value: {{ include "akredit.uygulamaKullanicisi" . | quote }} }
+            - name: UYGULAMA_VT_PAROLA
+              valueFrom: { secretKeyRef: { name: {{ .Values.gizliNesne }}, key: UYGULAMA_VT_PAROLA } }
           ports: [{ containerPort: 5432, name: pg }]
           readinessProbe:
             exec: { command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""] }
             periodSeconds: 10
           volumeMounts:
             - { name: veri, mountPath: /var/lib/postgresql/data }
+            - { name: ilk, mountPath: /docker-entrypoint-initdb.d, readOnly: true }
+      volumes:
+        - name: ilk
+          configMap: { name: {{ .Release.Name }}-vt-ilk, defaultMode: 0555 }
   volumeClaimTemplates:
     - metadata: { name: veri }
       spec:
@@ -50,3 +73,46 @@ spec:
         storageClassName: {{ . }}
         {{- end }}
         resources: { requests: { storage: {{ .Values.vt.depolama }} } }
+---
+# G-27-2: veri dizini doluyken initdb çalışmaz; eski kurulumlarda uygulama kullanıcısını açar ya da
+# parolasını/yetkilerini eşitler. Göç işinden (ağırlık 0) sonra çalışır. Veritabanı imajı psql içerir.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-vt-kullanici-{{ .Release.Revision }}
+  labels: {{- include "akredit.etiketler" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: post-install,pre-upgrade
+    helm.sh/hook-weight: "1"
+    helm.sh/hook-delete-policy: before-hook-creation
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: akredit-vt-kullanici
+        {{- include "akredit.etiketler" . | nindent 8 }}
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: vt-kullanici
+          image: {{ include "akredit.imaj" (dict "kok" . "ad" .Values.imajlar.vt) }}
+          imagePullPolicy: {{ .Values.imajlar.cekmePolitikasi }}
+          command:
+            - sh
+            - -c
+            - until pg_isready -q; do sleep 2; done; exec /docker-entrypoint-initdb.d/02-uygulama-kullanicisi.sh
+          env:
+            - { name: PGHOST, value: {{ .Release.Name }}-vt }
+            - { name: POSTGRES_USER, value: {{ .Values.vt.kullanici | quote }} }
+            - { name: POSTGRES_DB, value: {{ .Values.vt.ad | quote }} }
+            - name: PGPASSWORD
+              valueFrom: { secretKeyRef: { name: {{ .Values.gizliNesne }}, key: POSTGRES_PASSWORD } }
+            - { name: UYGULAMA_VT_KULLANICI, value: {{ include "akredit.uygulamaKullanicisi" . | quote }} }
+            - name: UYGULAMA_VT_PAROLA
+              valueFrom: { secretKeyRef: { name: {{ .Values.gizliNesne }}, key: UYGULAMA_VT_PAROLA } }
+          volumeMounts:
+            - { name: ilk, mountPath: /docker-entrypoint-initdb.d, readOnly: true }
+      volumes:
+        - name: ilk
+          configMap: { name: {{ .Release.Name }}-vt-ilk, defaultMode: 0555 }
