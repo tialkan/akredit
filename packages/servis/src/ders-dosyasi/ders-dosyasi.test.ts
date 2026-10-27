@@ -286,6 +286,39 @@ describe("kurgu dönemle uçtan uca", () => {
     expect(liste.every((x) => x.tamam)).toBe(true);
   });
 
+  it("dış kanaldan (MCP) gelen aynı türde öneri onaylı eşlemeyi ve dosyayı gölgelemez (D3-2)", async () => {
+    const b = await o.baglam(a, a.ogretim);
+    const once = await dd.durum(b, a.dersAcilisiId);
+    await kiraciIslemi(o.db, a.kurumId, async (tx) => {
+      for (const tur of ["soru_cikti_eslemesi", "rapor_bolumu"] as const)
+        await tx.insert(sema.oneri).values({
+          kurumId: a.kurumId,
+          tur,
+          hedefTuru: "ders",
+          hedefId: a.dersId,
+          // En kötü durum: içerik bu açılışı ve dosyanın yapısını taklit eder.
+          icerik: {
+            baslik: "Dış öneri",
+            metin: "Vize · S1: ÖÇ2",
+            dersAcilisiId: a.dersAcilisiId,
+            eslemeOneriId: once.eslemeOneriId,
+          },
+          gerekce: "Deneme.",
+          atiflar: [],
+          ureticiTuru: "yz",
+          uretici: { model: "deneme-istemci", kanal: "mcp" },
+          risk: "orta",
+          olusturma: new Date(SIMDI.getTime() + 86_400_000),
+        });
+    });
+    const sonra = await dd.durum(b, a.dersAcilisiId);
+    expect(sonra.asama).toBe("onaylandi");
+    expect(sonra.dosyaOneriId).toBe(once.dosyaOneriId);
+    const liste = await kiraciIslemi(o.db, a.kurumId, (tx) => dd.kontrolListesi(tx, a.dersId));
+    expect(liste.every((x) => x.tamam)).toBe(true);
+    expect(await dd.bekleyenleriUret(o.db, a.kurumId, SIMDI)).toEqual([]);
+  });
+
   it("sonraki dönemde onaylı eşleme taşınır", async () => {
     const yeni = await kiraciIslemi(o.db, a.kurumId, async (tx) => {
       const [d] = await tx

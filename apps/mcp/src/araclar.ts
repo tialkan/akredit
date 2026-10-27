@@ -71,7 +71,12 @@ const Sayfa = {
     .optional(),
 };
 
-/** Öneri türünü yazmak için gereken eylem. Dış gönderim MCP'den önerilemez. */
+/**
+ * Öneri türünü yazmak için gereken eylem. Dış gönderim MCP'den önerilemez.
+ * `soru_cikti_eslemesi` ve `rapor_bolumu` yoktur (D3-2): ders dosyası akışı bu türlerin yapılı
+ * içeriğini (eşleme satırları, dosya bölümleri) okur; MCP'nin {baslik, metin} kaydı en yeni öneri
+ * olarak onaylı eşlemeyi gölgeleyip rapor üretimini durdurabiliyordu. Bu türleri servis üretir.
+ */
 export const ONERI_EYLEMI = {
   kanit_etiketi: "kanit.yukle",
   toplanti_tutanagi: "kanit.yukle",
@@ -79,8 +84,6 @@ export const ONERI_EYLEMI = {
   eylem: "kanit.yukle",
   bologna_taslagi: "rapor.duzenle",
   matris_katkisi: "olcme.veri_gir",
-  soru_cikti_eslemesi: "olcme.veri_gir",
-  rapor_bolumu: "rapor.duzenle",
   olgunluk_duzeyi: "rapor.duzenle",
   yazma_plani: "rapor.duzenle",
 } as const satisfies Record<string, Eylem>;
@@ -216,8 +219,15 @@ export const ARACLAR: Arac[] = [
           hedefTuru: g.hedef.tur,
           hedefId: g.hedef.id,
         } as Parameters<typeof oneri.hedefVeKonum>[2]);
-        // Kurum dışı bir hedef çözülemediyse kayıt yoktur (ya da başka kurumundur).
-        if (g.hedef.tur !== "kurum" && yer.hedef.tur === "kurum")
+        // Kurum dışı bir hedef çözülemediyse kayıt yoktur (ya da başka kurumundur). Kapsamsız (kurum
+        // düzeyi) kanıt kurum hedefine çözülür; kayıt varsa geçerlidir (D3-3). Satır güvenliği başka
+        // kurumun kanıtını göstermez.
+        const kurumDuzeyiKanit =
+          g.hedef.tur === "kanit" &&
+          yer.hedef.tur === "kurum" &&
+          Kimlik.safeParse(g.hedef.id).success &&
+          (await tx.select({ id: sema.kanit.id }).from(sema.kanit).where(eq(sema.kanit.id, g.hedef.id))).length > 0;
+        if (g.hedef.tur !== "kurum" && yer.hedef.tur === "kurum" && !kurumDuzeyiKanit)
           throw new ServisHatasi("bulunamadi", "Önerinin hedefi bulunamadı.");
         if (g.hedef.tur === "kurum" && g.hedef.id !== kurumId)
           throw new ServisHatasi("bulunamadi", "Önerinin hedefi bulunamadı.");
