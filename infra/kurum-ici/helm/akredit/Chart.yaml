@@ -1,0 +1,8 @@
+apiVersion: v2
+name: akredit
+description: Akredit kurum içi kurulum (tek kiracılı; veritabanı, kanıt deposu ve yapay zekâ modeli kurumda)
+type: application
+version: 0.1.0
+# Uygulama sürümü kurulumda --set surum=vX.Y.Z ile verilir; buradaki değer yalnız bilgi içindir.
+appVersion: "0.1.0"
+license: Apache-2.0
