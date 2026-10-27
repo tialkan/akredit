@@ -1,0 +1,105 @@
+# Sürekli dağıtım (İP-26). Ayrıntı: docs/isletim/surum-ve-geri-alma.md
+#   main'e her push  -> imajlar ana-<kısa-sha> etiketiyle GHCR'ye -> hazırlık sunucusuna dağıtım
+#   vX.Y.Z etiketi   -> imajlar vX.Y.Z etiketiyle -> üretim (GitHub "uretim" ortamında insan onayı)
+# Sunucu değişkenleri tanımlı değilse dağıtım adımı atlanır; yalnız imajlar üretilir.
+
+name: Yayın
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: yayin-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  imajlar:
+    name: İmajları derle ve yayımla
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      surum: ${{ steps.surum.outputs.surum }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - name: Sürüm adı
+        id: surum
+        run: |
+          if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then s="$GITHUB_REF_NAME"; else s="ana-${GITHUB_SHA::12}"; fi
+          echo "surum=$s" >> "$GITHUB_OUTPUT"
+      - name: Altyapı denetimi
+        run: infra/uretim/denetle.sh
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Web imajı
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: .
+          file: infra/gelistirme/web.Dockerfile
+          push: true
+          provenance: true
+          sbom: true
+          tags: ghcr.io/${{ github.repository_owner }}/akredit-web:${{ steps.surum.outputs.surum }}
+      - name: İşçi imajı
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: .
+          file: infra/uretim/isci.Dockerfile
+          push: true
+          provenance: true
+          sbom: true
+          tags: ghcr.io/${{ github.repository_owner }}/akredit-isci:${{ steps.surum.outputs.surum }}
+
+  hazirlik:
+    name: Hazırlığa dağıt
+    if: github.ref_type == 'branch' && vars.HAZIRLIK_SUNUCU != ''
+    needs: imajlar
+    runs-on: ubuntu-latest
+    environment: hazirlik
+    timeout-minutes: 20
+    steps:
+      - name: Dağıt
+        env:
+          SUNUCU: ${{ vars.HAZIRLIK_SUNUCU }}
+          SSH_ANAHTARI: ${{ secrets.DAGITIM_SSH_ANAHTARI }}
+          SSH_BILINEN: ${{ vars.HAZIRLIK_SSH_BILINEN }}
+          SURUM: ${{ needs.imajlar.outputs.surum }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_ANAHTARI" > ~/.ssh/id_ed25519 && chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$SSH_BILINEN" > ~/.ssh/known_hosts
+          ssh -o StrictHostKeyChecking=yes "akredit@$SUNUCU" \
+            "cd /opt/akredit && git fetch --quiet origin && git checkout --quiet --detach origin/main && sudo infra/uretim/dagit.sh hazirlik '$SURUM'"
+
+  uretim:
+    name: Üretime dağıt
+    if: github.ref_type == 'tag' && vars.URETIM_SUNUCU != ''
+    needs: imajlar
+    runs-on: ubuntu-latest
+    # "uretim" ortamında zorunlu onaylayıcı tanımlanır: üretime çıkış insan kararıdır.
+    environment: uretim
+    timeout-minutes: 30
+    steps:
+      - name: Dağıt
+        env:
+          SUNUCU: ${{ vars.URETIM_SUNUCU }}
+          SSH_ANAHTARI: ${{ secrets.DAGITIM_SSH_ANAHTARI }}
+          SSH_BILINEN: ${{ vars.URETIM_SSH_BILINEN }}
+          SURUM: ${{ needs.imajlar.outputs.surum }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_ANAHTARI" > ~/.ssh/id_ed25519 && chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$SSH_BILINEN" > ~/.ssh/known_hosts
+          ssh -o StrictHostKeyChecking=yes "akredit@$SUNUCU" \
+            "cd /opt/akredit && git fetch --quiet --tags origin && git checkout --quiet --detach '$SURUM' && sudo infra/uretim/dagit.sh uretim '$SURUM'"
