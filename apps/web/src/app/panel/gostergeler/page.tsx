@@ -2,7 +2,7 @@ import { egilim, gostergeHesapla, hedefSapmasi, kaynakMetni, raporTablosu, type 
 import type { Metadata } from "next";
 import { Tablo } from "../../../bilesenler/tablo.tsx";
 import { EksikIsareti, Kart, Rozet, SayfaBasligi } from "../../../bilesenler/temel.tsx";
-import { ORNEK_DONEMLER, ORNEK_TANIMLAR, ORNEK_VERILER } from "./ornek.ts";
+import { gostergeVerisi } from "../../../veri/sunucu.ts";
 
 export const metadata: Metadata = { title: "Göstergeler" };
 
@@ -17,17 +17,49 @@ const EGILIM = { iyilesiyor: "↗ İyileşiyor", kotulesiyor: "↘ Kötüleşiyo
 
 const sayi = (x: number) => x.toLocaleString("tr-TR", { maximumFractionDigits: 2 });
 
-export default function GostergelerSayfasi() {
-  const donemler = [...ORNEK_DONEMLER];
-  const son = donemler[donemler.length - 1] as string;
-  const satirlar = raporTablosu(ORNEK_TANIMLAR, ORNEK_VERILER, donemler);
+const ACIKLAMA =
+  "Stratejik plan ve faaliyet raporu göstergeleri. Her değer kaynağından hesaplanır; hedefin gerisinde kalan gösterge için onay kutusuna eylem önerisi düşer.";
+
+export default async function GostergelerSayfasi() {
+  const pano = await gostergeVerisi();
+  if (!pano)
+    return (
+      <>
+        <SayfaBasligi baslik="Göstergeler" aciklama={ACIKLAMA} />
+        <Kart baslik="Erişim yok">
+          <p>
+            Göstergeleri görmek için kurum düzeyinde ölçme verisini okuma yetkiniz olmalı. Kurum yöneticinize başvurun.
+          </p>
+        </Kart>
+      </>
+    );
+  const { donemler, tanimlar, veriler, reddedilenler } = pano;
+  const son = donemler[donemler.length - 1] ?? "";
+  const satirlar = raporTablosu(tanimlar, veriler, donemler);
   return (
     <>
-      <SayfaBasligi
-        baslik="Göstergeler"
-        aciklama="Stratejik plan ve faaliyet raporu göstergeleri. Her değer kaynağından hesaplanır; hedefin gerisinde kalan gösterge için onay kutusuna eylem önerisi düşer."
-      />
+      <SayfaBasligi baslik="Göstergeler" aciklama={ACIKLAMA} />
       <div className="space-y-6">
+        {tanimlar.length === 0 ? (
+          <Kart baslik="Henüz gösterge yok">
+            <p>Kurumun gösterge tanımları eklenince değerler burada kaynaklarıyla görünür.</p>
+          </Kart>
+        ) : null}
+        {reddedilenler.length ? (
+          <Kart baslik="Hesaba girmeyen veriler" baslikDuzeyi={2}>
+            <p className="text-sm text-soluk">Bu değerler kaynağı ya da kanıtı eksik olduğu için hesaba katılmadı.</p>
+            <ul className="mt-2 list-disc space-y-1 pl-5">
+              {reddedilenler.map((r, i) => (
+                // biome-ignore lint/suspicious/noArrayIndexKey: liste yalnız okunur, sırası değişmez.
+                <li key={i}>
+                  <span className="font-semibold">{r.gostergeKod}</span>
+                  {r.donem ? ` · ${r.donem}` : ""}
+                  {r.anahtar ? ` · ${r.anahtar}` : ""}: {r.neden}
+                </li>
+              ))}
+            </ul>
+          </Kart>
+        ) : null}
         <Tablo
           baslik="Gösterge tablosu"
           sutunlar={[
@@ -69,8 +101,8 @@ export default function GostergelerSayfasi() {
             },
           }))}
         />
-        {ORNEK_TANIMLAR.map((t) => {
-          const olcumler = donemler.map((d) => gostergeHesapla(t, d, ORNEK_VERILER));
+        {tanimlar.map((t) => {
+          const olcumler = donemler.map((d) => gostergeHesapla(t, d, veriler));
           const sonOlcum = olcumler[olcumler.length - 1];
           const sapma = sonOlcum ? hedefSapmasi(t, sonOlcum) : null;
           return (

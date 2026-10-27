@@ -305,6 +305,9 @@ importers:
       '@akredit/cerceveler':
         specifier: workspace:*
         version: link:../cerceveler
+      '@akredit/gosterge':
+        specifier: workspace:*
+        version: link:../gosterge
       '@akredit/olcme':
         specifier: workspace:*
         version: link:../olcme
