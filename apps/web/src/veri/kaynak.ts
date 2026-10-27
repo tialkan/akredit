@@ -167,6 +167,8 @@ export interface KararGirdisi {
   /** Yalnız `duzeltildi` için: düzeltilmiş metin. */
   duzeltme?: string;
   gerekce?: string;
+  /** İnsan dakikası ölçümü (İP-13): karar ekranında geçen süre, ms. */
+  sureMs?: number;
 }
 
 export interface PolitikaGirdisi {
@@ -197,7 +199,7 @@ export interface VeriKaynagi {
 
   kararVer(girdi: KararGirdisi): Promise<IslemSonucu<Karar<OneriIcerigi>>>;
   /** Yalnız düşük ve orta riskli öneriler toplu onaylanır; yüksek risk varsa hiçbiri onaylanmaz. */
-  topluKararVer(oneriIdleri: OneriId[]): Promise<IslemSonucu<Karar<OneriIcerigi>[]>>;
+  topluKararVer(oneriIdleri: OneriId[], sureMs?: number): Promise<IslemSonucu<Karar<OneriIcerigi>[]>>;
   /** İmza bekleyen politika taslağı oluşturur. Yüksek risk için politika oluşturulamaz. */
   politikaTaslagiOlustur(girdi: PolitikaGirdisi): Promise<IslemSonucu<PolitikaKaydi>>;
   politikaImzala(id: string, imzalayanAd: string): Promise<IslemSonucu<PolitikaKaydi>>;

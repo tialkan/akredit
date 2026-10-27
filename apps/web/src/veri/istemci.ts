@@ -129,11 +129,15 @@ export class ApiVeriKaynagi implements VeriKaynagi {
       sonuc: girdi.sonuc,
       ...(girdi.sonuc === "duzeltildi" ? { duzeltme: girdi.duzeltme ?? "" } : {}),
       ...(girdi.gerekce ? { gerekce: girdi.gerekce } : {}),
+      ...(girdi.sureMs !== undefined ? { sureMs: girdi.sureMs } : {}),
     };
     return this.#iste("POST", "/kararlar", govde) as ReturnType<VeriKaynagi["kararVer"]>;
   }
-  topluKararVer(oneriIdleri: Parameters<VeriKaynagi["topluKararVer"]>[0]) {
-    return this.#iste("POST", "/kararlar/toplu", { oneriIdleri }) as ReturnType<VeriKaynagi["topluKararVer"]>;
+  topluKararVer(oneriIdleri: Parameters<VeriKaynagi["topluKararVer"]>[0], sureMs?: number) {
+    return this.#iste("POST", "/kararlar/toplu", {
+      oneriIdleri,
+      ...(sureMs !== undefined ? { sureMs } : {}),
+    }) as ReturnType<VeriKaynagi["topluKararVer"]>;
   }
   politikaTaslagiOlustur(girdi: Parameters<VeriKaynagi["politikaTaslagiOlustur"]>[0]) {
     return this.#iste("POST", "/politikalar", girdi) as ReturnType<VeriKaynagi["politikaTaslagiOlustur"]>;
