@@ -5,6 +5,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { Aktor } from "../src/baglam.ts";
 import { HizSiniri } from "../src/http/hiz.ts";
 import { apiIsleyici } from "../src/http/isleyici.ts";
+import * as odr from "../src/odr/index.ts";
 import { vtTekrarDeposu } from "../src/http/tekrar.ts";
 import { UCLAR } from "../src/http/uclar.ts";
 import { type Ornek, ortam, SIMDI } from "./yardimci.ts";
@@ -12,8 +13,16 @@ import { type Ornek, ortam, SIMDI } from "./yardimci.ts";
 let o: Awaited<ReturnType<typeof ortam>>;
 // Test için uydurma takma ad anahtarı (32 bayttan uzun).
 process.env.AKREDIT_TAKMA_AD_ANAHTARI ??= "deneme-anahtari-yalniz-test-icin-0123456789";
+let odrRaporId = "";
 beforeAll(async () => {
   o = await ortam();
+  const y = await aktor(o.a, o.a.yonetici);
+  odrRaporId = (
+    await odr.olustur(
+      { db: o.db, aktor: y, simdi: () => SIMDI },
+      { programId: o.a.programId, cerceveKod: "akredit-onlisans-ic" },
+    )
+  ).raporId;
 });
 afterAll(async () => {
   await o.kapat();
@@ -90,6 +99,11 @@ function ornekIstek(ad: string, a: Ornek): { yol: string; govde?: unknown } {
     dersDosyasiDurumu: { yol: `/ders-dosyasi/${a.dersAcilisiId}` },
     dersDosyasiOlustur: { yol: `/ders-dosyasi/${a.dersAcilisiId}/olustur`, govde: {} },
     dersDosyasiBelgesi: { yol: `/ders-dosyasi/${a.dersAcilisiId}/belge?bicim=docx` },
+    odrOlustur: { yol: "/odr", govde: { programId: a.programId, cerceveKod: "akredit-onlisans-ic" } },
+    programinOdrleri: { yol: `/programlar/${a.programId}/odr` },
+    odrDurumu: { yol: `/odr/${odrRaporId}` },
+    odrEksikleri: { yol: `/odr/${odrRaporId}/eksikler`, govde: {} },
+    odrBelgesi: { yol: `/odr/${odrRaporId}/belge?bicim=docx` },
   };
   const s = g[ad];
   if (!s) throw new Error(`örnek istek yok: ${ad}`);
@@ -149,7 +163,8 @@ describe("her uç için yetkisiz erişim", () => {
       u.ad === "kararVer" ||
       u.ad === "topluKararVer" ||
       u.ad === "bolognaTaslagiUret" ||
-      u.ad === "dokumAktar"
+      u.ad === "dokumAktar" ||
+      u.ad === "odrOlustur"
     ) {
       expect(y.status, govde).toBe(404);
     } else expect(y.status, govde).toBeLessThan(300);
