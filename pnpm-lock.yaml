@@ -65,6 +65,9 @@ importers:
       '@akredit/cekirdek':
         specifier: workspace:*
         version: link:../../packages/cekirdek
+      '@akredit/servis':
+        specifier: workspace:*
+        version: link:../../packages/servis
       '@akredit/vt':
         specifier: workspace:*
         version: link:../../packages/vt

@@ -13,4 +13,5 @@ export * as oneri from "./oneri.ts";
 export * as panel from "./panel.ts";
 export * as politika from "./politika.ts";
 export * as rapor from "./rapor.ts";
+export type { Sayfa, SayfaGirdisi } from "./semalar.ts";
 export * as semalar from "./semalar.ts";

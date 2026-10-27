@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   boyutYaz,
   gunFarki,
+  islemeMetni,
   kisayolEylemi,
   matrisHucreYazisi,
   metinAramaAnahtari,
@@ -14,6 +15,17 @@ import {
 } from "./yardimci.ts";
 
 describe("yardımcılar", () => {
+  it("işleme durumu metni duruma göre Türkçe ve hattın iletisini taşır", () => {
+    expect(islemeMetni({ durum: "hata", asama: "cikarma", ileti: "Dosya okunamadı." })).toBe(
+      "İşlenemedi: Dosya okunamadı.",
+    );
+    expect(islemeMetni({ durum: "gomme_tamam", asama: "tamam", ileti: null })).toBe("İşlendi");
+    expect(islemeMetni({ durum: "ocr_gerekli", asama: "ocr", ileti: null })).toBe(
+      "Taranmış belge, metnin okunması bekleniyor",
+    );
+    expect(islemeMetni({ durum: "bekliyor", asama: "alindi", ileti: null })).toBe("İşleniyor");
+  });
+
   it("arama anahtarı Türkçe büyük harf ve aksanları sadeleştirir", () => {
     expect(metinAramaAnahtari("  ÖĞRENCİ   Işık ")).toBe("ogrenci isik");
   });

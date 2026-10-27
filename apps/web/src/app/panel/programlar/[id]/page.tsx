@@ -4,11 +4,13 @@ import { notFound } from "next/navigation";
 import { Sekmeler } from "../../../../bilesenler/etkilesimli.tsx";
 import { OlcmeCubuklari } from "../../../../bilesenler/olcme-cubuklari.tsx";
 import { Kart, KirintiYolu, SayfaBasligi } from "../../../../bilesenler/temel.tsx";
-import { veriKaynagi } from "../../../../veri/bellek.ts";
+import { GERCEK_VERI, panelVeriKaynagi } from "../../../../veri/sunucu.ts";
 import { matrisHucreYazisi } from "../../../../veri/yardimci.ts";
 
 export async function generateStaticParams() {
-  return (await veriKaynagi().programlar()).map((p) => ({ id: p.id }));
+  // Gerçek veride sayfalar istek anında, oturumdaki kişinin yetkisiyle üretilir.
+  if (GERCEK_VERI) return [];
+  return (await (await panelVeriKaynagi()).programlar()).map((p) => ({ id: p.id }));
 }
 
 export const metadata: Metadata = { title: "Program" };
@@ -19,7 +21,7 @@ function hucreStili(seviye: number): { background: string; color: string } {
 }
 
 export default async function ProgramSayfasi({ params }: { params: Promise<{ id: string }> }) {
-  const kaynak = veriKaynagi();
+  const kaynak = (await panelVeriKaynagi());
   const program = await kaynak.program((await params).id);
   if (!program) notFound();
   const dersler = (await kaynak.dersler()).filter((d) => program.dersIdleri.includes(d.id));

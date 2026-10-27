@@ -3,17 +3,19 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EksikIsareti, KirintiYolu, Rozet, SayfaBasligi } from "../../../../bilesenler/temel.tsx";
-import { veriKaynagi } from "../../../../veri/bellek.ts";
+import { GERCEK_VERI, panelVeriKaynagi } from "../../../../veri/sunucu.ts";
 import { bolumKapsamasi, raporKapsamasi } from "../kapsama.ts";
 
 export async function generateStaticParams() {
-  return (await veriKaynagi().raporlar()).map((r) => ({ id: r.id }));
+  // Gerçek veride sayfalar istek anında, oturumdaki kişinin yetkisiyle üretilir.
+  if (GERCEK_VERI) return [];
+  return (await (await panelVeriKaynagi()).raporlar()).map((r) => ({ id: r.id }));
 }
 
 export const metadata: Metadata = { title: "Rapor" };
 
 export default async function RaporSayfasi({ params }: { params: Promise<{ id: string }> }) {
-  const kaynak = veriKaynagi();
+  const kaynak = (await panelVeriKaynagi());
   const rapor = await kaynak.rapor((await params).id);
   if (!rapor) notFound();
   const kanitAdlari = Object.fromEntries((await kaynak.kanitlar()).map((k) => [k.id, k.baslik]));

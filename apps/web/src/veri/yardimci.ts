@@ -158,3 +158,16 @@ export function matrisHucreYazisi(d: MatrisDegeri): { kisa: string; uzun: string
 export function sinirla(deger: number, en: number, enCok: number): number {
   return Math.min(Math.max(deger, en), enCok);
 }
+
+/** Kanıt hattı işleme durumunun kullanıcıya gösterilen metni. Hattın kendi iletisi varsa eklenir. */
+export function islemeMetni(i: { durum: string; asama: string; ileti: string | null }): string {
+  const ana =
+    i.durum === "hata"
+      ? "İşlenemedi"
+      : i.asama === "tamam"
+        ? "İşlendi"
+        : i.durum === "ocr_gerekli"
+          ? "Taranmış belge, metnin okunması bekleniyor"
+          : "İşleniyor";
+  return i.ileti ? `${ana}: ${i.ileti}` : ana;
+}

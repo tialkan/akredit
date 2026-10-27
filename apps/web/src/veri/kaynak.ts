@@ -1,5 +1,5 @@
-// Web arayüzünün veri sözleşmesi. Arayüz yalnız bu arayüzü bilir; şimdilik bellekteki örnek veri
-// (`bellek.ts` + `ornek.ts`) kullanılır, gerçek API bağlantısı İP-12'de gelir.
+// Web arayüzünün veri sözleşmesi. Arayüz yalnız bu arayüzü bilir. Örnek veri kipinde bellek (`bellek.ts`),
+// gerçek veri kipinde sunucuda `gercek.ts` (servis), tarayıcıda `istemci.ts` (/api/v1) kullanılır.
 
 import type {
   Cikti,
@@ -41,6 +41,13 @@ export interface KanitGorunumu extends Kanit {
   baslik: string;
   /** Kanıtın bağlandığı ölçüt kodları. */
   olcutler: string[];
+  /** Kanıt hattındaki son işleme durumu (gerçek veride). */
+  isleme?: { durum: string; asama: string; ileti: string | null; zaman: IsoZaman } | null;
+}
+
+/** Kanıt hattı iş durumu sayaçları. */
+export interface KanitHattiOzeti {
+  sayac: Record<"isleniyor" | "tamam" | "hata" | "ocr_bekliyor" | "kisisel_veri", number>;
 }
 
 export interface KanitAyrintisi {
@@ -83,7 +90,7 @@ export interface MatrisHucresi {
 export interface Program {
   id: string;
   ad: string;
-  duzey: "onlisans" | "lisans";
+  duzey: "onlisans" | "lisans" | "yuksek_lisans" | "doktora";
   birim: string;
   ciktilar: Cikti[];
   dersIdleri: string[];
@@ -130,7 +137,7 @@ export interface PolitikaKaydi {
   id: string;
   ad: string;
   kapsam: YetkiPolitikasiKapsami;
-  durum: "imza_bekliyor" | "imzali";
+  durum: "imza_bekliyor" | "imzali" | "iptal";
   olusturan: string;
   olusturma: IsoZaman;
   imzalayan: string | null;
@@ -178,6 +185,7 @@ export interface VeriKaynagi {
   kararlar(): Promise<Karar<OneriIcerigi>[]>;
   kanitlar(filtre?: KanitFiltresi): Promise<KanitGorunumu[]>;
   kanit(id: KanitId | string): Promise<KanitAyrintisi | null>;
+  kanitHattiOzeti(): Promise<KanitHattiOzeti>;
   programlar(): Promise<Program[]>;
   program(id: string): Promise<Program | null>;
   dersler(): Promise<Ders[]>;

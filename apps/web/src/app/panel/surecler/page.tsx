@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Tablo } from "../../../bilesenler/tablo.tsx";
 import { Kart, SayfaBasligi } from "../../../bilesenler/temel.tsx";
-import { veriKaynagi } from "../../../veri/bellek.ts";
+import { panelVeriKaynagi } from "../../../veri/sunucu.ts";
 import type { SurecGorevi } from "../../../veri/kaynak.ts";
 import { ORNEK_SIMDI } from "../../../veri/ornek.ts";
 import { gunFarki, tarihYaz } from "../../../veri/yardimci.ts";
@@ -25,7 +25,7 @@ const AYLAR = [
 ];
 
 export default async function SureclerSayfasi() {
-  const gorevler = await veriKaynagi().surecler();
+  const gorevler = await (await panelVeriKaynagi()).surecler();
   const aylar = new Map<string, SurecGorevi[]>();
   for (const g of [...gorevler].sort((a, b) => a.sonTarih.localeCompare(b.sonTarih))) {
     const anahtar = g.sonTarih.slice(0, 7);

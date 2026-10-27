@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Tablo } from "../../../bilesenler/tablo.tsx";
 import { SayfaBasligi } from "../../../bilesenler/temel.tsx";
-import { veriKaynagi } from "../../../veri/bellek.ts";
+import { panelVeriKaynagi } from "../../../veri/sunucu.ts";
 import { BolognaRozeti } from "./bologna-rozeti.tsx";
 
 export const metadata: Metadata = { title: "Dersler" };
 
 export default async function DerslerSayfasi() {
-  const dersler = await veriKaynagi().dersler();
+  const dersler = await (await panelVeriKaynagi()).dersler();
   return (
     <>
       <SayfaBasligi baslik="Dersler" aciklama="Ders bilgi paketi ve ders dosyası durumları." />

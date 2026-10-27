@@ -2,7 +2,7 @@ import { CalendarDays, Clock } from "lucide-react";
 import Link from "next/link";
 import { dugmeSinifi } from "../../bilesenler/dugme.tsx";
 import { Kart, RiskSimgesi, SayfaBasligi } from "../../bilesenler/temel.tsx";
-import { veriKaynagi } from "../../veri/bellek.ts";
+import { panelVeriKaynagi } from "../../veri/sunucu.ts";
 import { ORNEK_SIMDI } from "../../veri/ornek.ts";
 import { gunFarki, RISK_ETIKETI, RISK_SIRASI, sureYaz, tarihYaz } from "../../veri/yardimci.ts";
 
@@ -13,7 +13,7 @@ const RENK = {
 } as const;
 
 export default async function PanelAnaSayfa() {
-  const ozet = await veriKaynagi().panelOzeti();
+  const ozet = await (await panelVeriKaynagi()).panelOzeti();
   const toplam = ozet.bekleyen.dusuk + ozet.bekleyen.orta + ozet.bekleyen.yuksek;
   const enCokKanit = Math.max(1, ...ozet.kapsama.map((k) => k.kanitSayisi));
   return (

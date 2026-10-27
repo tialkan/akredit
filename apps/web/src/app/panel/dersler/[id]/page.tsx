@@ -3,17 +3,19 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { OlcmeCubuklari } from "../../../../bilesenler/olcme-cubuklari.tsx";
 import { Kart, KirintiYolu, SayfaBasligi } from "../../../../bilesenler/temel.tsx";
-import { veriKaynagi } from "../../../../veri/bellek.ts";
+import { GERCEK_VERI, panelVeriKaynagi } from "../../../../veri/sunucu.ts";
 import { BolognaRozeti } from "../bologna-rozeti.tsx";
 
 export async function generateStaticParams() {
-  return (await veriKaynagi().dersler()).map((d) => ({ id: d.id }));
+  // Gerçek veride sayfalar istek anında, oturumdaki kişinin yetkisiyle üretilir.
+  if (GERCEK_VERI) return [];
+  return (await (await panelVeriKaynagi()).dersler()).map((d) => ({ id: d.id }));
 }
 
 export const metadata: Metadata = { title: "Ders" };
 
 export default async function DersSayfasi({ params }: { params: Promise<{ id: string }> }) {
-  const ders = await veriKaynagi().ders((await params).id);
+  const ders = await (await panelVeriKaynagi()).ders((await params).id);
   if (!ders) notFound();
   return (
     <>

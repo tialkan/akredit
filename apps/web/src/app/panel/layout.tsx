@@ -4,12 +4,12 @@ import { BildirimSaglayici } from "../../bilesenler/etkilesimli.tsx";
 import { KenarCubugu } from "../../bilesenler/kenar-cubugu.tsx";
 import { Logo } from "../../bilesenler/logo.tsx";
 import { OrnekVeriSeridi } from "../../bilesenler/temel.tsx";
-import { veriKaynagi } from "../../veri/bellek.ts";
+import { GERCEK_VERI, panelVeriKaynagi } from "../../veri/sunucu.ts";
 
 export const metadata = { title: { default: "Panel", template: "%s · Panel · Akredit" } };
 
 export default async function PanelYerlesimi({ children }: { children: ReactNode }) {
-  const kaynak = veriKaynagi();
+  const kaynak = (await panelVeriKaynagi());
   const [kullanici, ayarlar, bekleyen] = await Promise.all([
     kaynak.kullanici(),
     kaynak.ayarlar(),
@@ -18,7 +18,7 @@ export default async function PanelYerlesimi({ children }: { children: ReactNode
   return (
     <BildirimSaglayici>
       <div className="flex min-h-screen flex-col">
-        <OrnekVeriSeridi />
+        {GERCEK_VERI ? null : <OrnekVeriSeridi />}
         <header className="border-b border-cizgi bg-yuzey">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-1 px-4 py-2">
             <Link href="/" aria-label="Akredit ana sayfa">
