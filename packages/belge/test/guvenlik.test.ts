@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { metinCikar, tabloOku } from "../src/index.ts";
 import { ZamanAsimi, zamanSinirli } from "../src/pdf.ts";
 import { XmlHatasi, xmlAyristir } from "../src/xml.ts";
-import { GuvenlikHatasi, VARSAYILAN_ZIP, zipAc } from "../src/zip.ts";
+import { crc32, GuvenlikHatasi, VARSAYILAN_ZIP, zipAc, zipCrcUyusmayanlar } from "../src/zip.ts";
 import { pdfOlustur } from "./pdf-yardimci.ts";
 import { docxHam, W_NS_ATTR, zip } from "./yardimci.ts";
 
@@ -93,5 +93,31 @@ describe("bozuk girdiler çökmez", () => {
     const b = await metinCikar(v);
     expect(b.bolumler).toEqual([]);
     expect(b.uyarilar.length).toBeGreaterThan(0);
+  });
+});
+
+/** Merkez dizinde ilk girdinin bildirilen açılmış boyutunu `yeni` yapar (kurcalanmış paket). */
+function boyutKurcala(zip: Uint8Array, yeni: number): Uint8Array {
+  const v = new DataView(zip.buffer, zip.byteOffset, zip.byteLength);
+  for (let i = 0; i + 4 <= zip.length; i++)
+    if (v.getUint32(i, true) === 0x02014b50) {
+      v.setUint32(i + 24, yeni, true);
+      return zip;
+    }
+  throw new Error("merkez dizin yok");
+}
+
+describe("ZIP CRC denetimi (İP-27, inceleme dalga 2 #4)", () => {
+  it("CRC-32 bilinen değeri verir", () => {
+    // "123456789" için standart CRC-32 denetim değeri 0xCBF43926.
+    expect(crc32(strToU8("123456789"))).toBe(0xcbf43926);
+  });
+  it("boyutu küçük bildirilmiş (kesilen) girdiyi reddeder", () => {
+    const z = boyutKurcala(zipSync({ "content.xml": strToU8("a".repeat(100)) }, { level: 0 }), 10);
+    expect(() => zipAc(z, VARSAYILAN_ZIP)).toThrow(/bozuk ya da kurcalanmış/u);
+  });
+  it("sağlam paketi açar", () => {
+    const z = zipSync({ "content.xml": strToU8("<x/>") });
+    expect(zipCrcUyusmayanlar(z, zipAc(z, VARSAYILAN_ZIP))).toEqual([]);
   });
 });
