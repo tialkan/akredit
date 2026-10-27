@@ -1,0 +1,125 @@
+{{- $surum := include "akredit.surum" . -}}
+# Göçler: her kurulum ve yükseltmede, web/işçi güncellenmeden ÖNCE (Helm kancası).
+# Göç başarısızsa Helm yükseltmeyi durdurur; çalışan sürüm değişmez.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-goc-{{ .Release.Revision }}
+  labels: {{- include "akredit.etiketler" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: post-install,pre-upgrade
+    helm.sh/hook-weight: "0"
+    helm.sh/hook-delete-policy: before-hook-creation
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: akredit-goc
+        {{- include "akredit.etiketler" . | nindent 8 }}
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: goc
+          image: {{ include "akredit.imaj" (dict "kok" . "ad" .Values.imajlar.isci) }}:{{ $surum }}
+          imagePullPolicy: {{ .Values.imajlar.cekmePolitikasi }}
+          command: ["node", "infra/uretim/goc.ts"]
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom: { secretKeyRef: { name: {{ .Values.gizliNesne }}, key: POSTGRES_PASSWORD } }
+            - name: DATABASE_URL
+              value: postgres://{{ .Values.vt.kullanici }}:$(POSTGRES_PASSWORD)@{{ .Release.Name }}-vt:5432/{{ .Values.vt.ad }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-web
+  labels: {{- include "akredit.etiketler" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.web.kopya }}
+  selector:
+    matchLabels: { app.kubernetes.io/name: akredit-web, app.kubernetes.io/instance: {{ .Release.Name }} }
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: akredit-web
+        {{- include "akredit.etiketler" . | nindent 8 }}
+    spec:
+      securityContext: { runAsNonRoot: true }
+      containers:
+        - name: web
+          image: {{ include "akredit.imaj" (dict "kok" . "ad" .Values.imajlar.web) }}:{{ $surum }}
+          imagePullPolicy: {{ .Values.imajlar.cekmePolitikasi }}
+          securityContext: { readOnlyRootFilesystem: true, allowPrivilegeEscalation: false }
+          env:
+            {{- include "akredit.uygulamaOrtami" . | nindent 12 }}
+            - { name: AKREDIT_ADRES, value: "https://{{ .Values.alanAdi }}" }
+            - name: AKREDIT_ONAY_GIZLI
+              valueFrom: { secretKeyRef: { name: {{ .Values.gizliNesne }}, key: AKREDIT_ONAY_GIZLI } }
+            - name: AKREDIT_ANKET_GIZLI
+              valueFrom: { secretKeyRef: { name: {{ .Values.gizliNesne }}, key: AKREDIT_ANKET_GIZLI } }
+          ports: [{ containerPort: 3000, name: http }]
+          readinessProbe:
+            httpGet: { path: /, port: http }
+            periodSeconds: 15
+          volumeMounts:
+            - { name: tmp, mountPath: /tmp }
+            - { name: onbellek, mountPath: /uygulama/apps/web/.next/cache }
+      volumes:
+        - { name: tmp, emptyDir: {} }
+        - { name: onbellek, emptyDir: {} }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-web
+  labels: {{- include "akredit.etiketler" . | nindent 4 }}
+spec:
+  selector: { app.kubernetes.io/name: akredit-web, app.kubernetes.io/instance: {{ .Release.Name }} }
+  ports: [{ name: http, port: 3000, targetPort: http }]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-isci
+  labels: {{- include "akredit.etiketler" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.isci.kopya }}
+  selector:
+    matchLabels: { app.kubernetes.io/name: akredit-isci, app.kubernetes.io/instance: {{ .Release.Name }} }
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: akredit-isci
+        {{- include "akredit.etiketler" . | nindent 8 }}
+    spec:
+      securityContext: { runAsNonRoot: true }
+      containers:
+        - name: isci
+          image: {{ include "akredit.imaj" (dict "kok" . "ad" .Values.imajlar.isci) }}:{{ $surum }}
+          imagePullPolicy: {{ .Values.imajlar.cekmePolitikasi }}
+          securityContext: { readOnlyRootFilesystem: true, allowPrivilegeEscalation: false }
+          env:
+            {{- include "akredit.uygulamaOrtami" . | nindent 12 }}
+          volumeMounts:
+            - { name: tmp, mountPath: /tmp }
+      volumes:
+        - { name: tmp, emptyDir: {} }
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}
+  labels: {{- include "akredit.etiketler" . | nindent 4 }}
+spec:
+  ingressClassName: {{ .Values.ingress.sinif }}
+  tls:
+    - hosts: [{{ .Values.alanAdi | quote }}]
+      secretName: {{ .Values.ingress.tlsGizli }}
+  rules:
+    - host: {{ .Values.alanAdi | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend: { service: { name: {{ .Release.Name }}-web, port: { name: http } } }

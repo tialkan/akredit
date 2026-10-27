@@ -55,7 +55,7 @@ services:
     depends_on:
       web:
         condition: service_healthy
-    networks: [on, kopru]
+    networks: [giris, kopru]
 
   web:
     <<: [*gunluk, *guvenli]
@@ -110,6 +110,7 @@ services:
     volumes:
       - vt-veri:/var/lib/postgresql/data
       - ${AKREDIT_YEDEK_DIZINI:-./yedekler}:/yedekler
+      - ./vt-yedek.sh:/kurum-ici/vt-yedek.sh:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
@@ -178,7 +179,7 @@ services:
 
 networks:
   # Yalnız caddy: kullanıcı erişimi için tek açık ağ.
-  on: {}
+  giris: {}
   # caddy <-> web; dışa çıkış yok.
   kopru:
     internal: true
