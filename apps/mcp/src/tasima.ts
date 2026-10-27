@@ -85,7 +85,9 @@ export async function mcpStdio(s: StdioSecenekleri): Promise<void> {
     try {
       ileti = JSON.parse(satir);
     } catch {
-      s.cikti.write(`${JSON.stringify({ jsonrpc: "2.0", id: null, error: { code: -32700, message: "İleti okunamadı." } })}\n`);
+      s.cikti.write(
+        `${JSON.stringify({ jsonrpc: "2.0", id: null, error: { code: -32700, message: "İleti okunamadı." } })}\n`,
+      );
       continue;
     }
     const y = await sunucu.isle(ileti);

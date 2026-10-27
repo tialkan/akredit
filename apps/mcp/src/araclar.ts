@@ -20,8 +20,8 @@ import {
   oneri,
   panel,
   rapor,
-  ServisHatasi,
   type ServisBaglami,
+  ServisHatasi,
   semalar,
 } from "@akredit/servis";
 import { sema } from "@akredit/vt";
@@ -63,7 +63,13 @@ export interface Arac<S extends z.ZodType = z.ZodType> {
 const arac = <S extends z.ZodType>(a: Arac<S>): Arac => a as unknown as Arac;
 
 const Kimlik = z.uuid({ error: "Geçerli bir kimlik değil." });
-const Sayfa = { sinir: z.number().int().min(1).max(100).optional(), imlec: z.string().regex(/^[0-9]+$/u).optional() };
+const Sayfa = {
+  sinir: z.number().int().min(1).max(100).optional(),
+  imlec: z
+    .string()
+    .regex(/^[0-9]+$/u)
+    .optional(),
+};
 
 /** Öneri türünü yazmak için gereken eylem. Dış gönderim MCP'den önerilemez. */
 export const ONERI_EYLEMI = {
