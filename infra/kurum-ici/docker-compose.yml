@@ -1,0 +1,196 @@
+# Akredit kurum içi yığını (tek kiracılı, tek sunucu, Docker Compose).
+# Kılavuz: docs/kurulum/README.md. Elle değil, kur.sh / yukselt.sh / geri-don.sh ile çalıştırılır.
+#
+# Veri yerleşimi: veritabanı, kanıt dosyaları ve yapay zekâ modeli bu sunucudadır.
+# Ağ kuralı: dışarıya açık tek hizmet ters vekildir (caddy). Web, işçi, veritabanı, nesne deposu ve
+# model `internal: true` ağlardadır; Docker bu ağlardan dışa çıkışı engeller. Bu yüzden yapay zekâ
+# isteği ve kişisel veri kurum dışına (yurt dışına) çıkamaz. denetle.sh bu kuralı zorunlu tutar.
+#
+# Model sunucusu profille seçilir: --profile ollama (CPU ya da küçük GPU) | --profile vllm (NVIDIA GPU).
+
+name: akredit-kurum
+
+x-gunluk: &gunluk
+  logging:
+    driver: json-file
+    options:
+      max-size: "20m"
+      max-file: "5"
+
+x-guvenli: &guvenli
+  security_opt:
+    - no-new-privileges:true
+  restart: unless-stopped
+
+x-uygulama-ortami: &uygulama-ortami
+  NODE_ENV: production
+  AKREDIT_VT_ADRES: postgres://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@vt:5432/${POSTGRES_DB:?}
+  AKREDIT_TAKMA_AD_ANAHTARI: ${AKREDIT_TAKMA_AD_ANAHTARI:?}
+  S3_UC_NOKTASI: ${S3_UC_NOKTASI:-}
+  S3_BOLGE: ${S3_BOLGE:-}
+  S3_KOVA: ${S3_KOVA:-}
+  S3_ERISIM_ANAHTARI: ${S3_ERISIM_ANAHTARI:-}
+  S3_GIZLI_ANAHTAR: ${S3_GIZLI_ANAHTAR:-}
+  SMTP_ADRESI: ${SMTP_ADRESI:-}
+  # Yapay zekâ: yalnız iç ağdaki model sunucusu. Yurt dışı izni kapalıdır ve kapalı kalır.
+  AKREDIT_YZ_HAZIR: ${AKREDIT_YZ_HAZIR:?}
+  AKREDIT_YZ_ADRES: ${AKREDIT_YZ_ADRES:?}
+  AKREDIT_YZ_MODEL: ${AKREDIT_YZ_MODEL:?}
+  AKREDIT_YZ_YURT_DISI_IZIN: "hayir"
+
+services:
+  caddy:
+    <<: [*gunluk, *guvenli]
+    image: ${CADDY_IMAJI:?}
+    ports:
+      - "${AKREDIT_HTTPS_PORT:-443}:443"
+      - "${AKREDIT_HTTP_PORT:-80}:80"
+    environment:
+      AKREDIT_UYGULAMA_ALAN: ${AKREDIT_UYGULAMA_ALAN:?}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ${AKREDIT_SERTIFIKA_DIZINI:-./sertifika}:/sertifika:ro
+      - caddy-veri:/data
+      - caddy-ayar:/config
+    depends_on:
+      web:
+        condition: service_healthy
+    networks: [on, kopru]
+
+  web:
+    <<: [*gunluk, *guvenli]
+    image: ${WEB_IMAJ_ADI:?}:${AKREDIT_SURUM:?AKREDIT_SURUM tanımlı değil}
+    read_only: true
+    tmpfs: [/tmp, /uygulama/apps/web/.next/cache]
+    environment:
+      <<: *uygulama-ortami
+      AKREDIT_ADRES: https://${AKREDIT_UYGULAMA_ALAN:?}
+      AKREDIT_ONAY_GIZLI: ${AKREDIT_ONAY_GIZLI:?}
+      AKREDIT_ANKET_GIZLI: ${AKREDIT_ANKET_GIZLI:?}
+    depends_on:
+      vt:
+        condition: service_healthy
+    networks: [kopru, arka, model]
+
+  isci:
+    <<: [*gunluk, *guvenli]
+    image: ${ISCI_IMAJ_ADI:?}:${AKREDIT_SURUM:?}
+    read_only: true
+    tmpfs: [/tmp]
+    environment:
+      <<: *uygulama-ortami
+    depends_on:
+      vt:
+        condition: service_healthy
+    networks: [arka, model]
+
+  # Göçler: kur.sh / yukselt.sh tarafından `run --rm goc` ile, web/işçi güncellenmeden ÖNCE çalışır.
+  goc:
+    <<: *gunluk
+    image: ${ISCI_IMAJ_ADI:?}:${AKREDIT_SURUM:?}
+    profiles: [goc]
+    command: ["node", "infra/uretim/goc.ts"]
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@vt:5432/${POSTGRES_DB:?}
+    depends_on:
+      vt:
+        condition: service_healthy
+    networks: [arka]
+    restart: "no"
+
+  vt:
+    <<: [*gunluk, *guvenli]
+    image: ${VT_IMAJI:?}
+    shm_size: 1g
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+      POSTGRES_DB: ${POSTGRES_DB:?}
+      POSTGRES_INITDB_ARGS: --data-checksums
+    volumes:
+      - vt-veri:/var/lib/postgresql/data
+      - ${AKREDIT_YEDEK_DIZINI:-./yedekler}:/yedekler
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    networks: [arka]
+
+  # Kanıt nesne deposu (S3 uyumlu). Kurumun kendi S3 deposu varsa bu profil açılmaz.
+  depo:
+    <<: [*gunluk, *guvenli]
+    image: ${MINIO_IMAJI:?}
+    profiles: [depo]
+    command: ["server", "/veri"]
+    environment:
+      MINIO_ROOT_USER: ${S3_ERISIM_ANAHTARI:?}
+      MINIO_ROOT_PASSWORD: ${S3_GIZLI_ANAHTAR:?}
+    volumes:
+      - depo-veri:/veri
+    networks: [arka]
+
+  # --- Yerel model sunucusu (birini seçin; ikisi de iç ağda `model` adıyla görünür) ---
+  ollama:
+    <<: [*gunluk, *guvenli]
+    image: ${OLLAMA_IMAJI:?}
+    profiles: [ollama]
+    environment:
+      OLLAMA_HOST: 0.0.0.0:11434
+      # Model ağırlıkları demetle gelir (demet-yukle.sh); çalışırken indirme yapılmaz (ağ zaten kapalı).
+      OLLAMA_MODELS: /modeller
+      OLLAMA_KEEP_ALIVE: 24h
+    volumes:
+      - ${AKREDIT_MODEL_DIZINI:-./modeller}:/modeller
+    networks:
+      model:
+        aliases: [model]
+
+  vllm:
+    <<: [*gunluk, *guvenli]
+    image: ${VLLM_IMAJI:?}
+    profiles: [vllm]
+    ipc: host
+    environment:
+      HF_HUB_OFFLINE: "1"
+      TRANSFORMERS_OFFLINE: "1"
+      VLLM_NO_USAGE_STATS: "1"
+      DO_NOT_TRACK: "1"
+    command:
+      - --model=/modeller/${AKREDIT_YZ_MODEL:?}
+      - --served-model-name=${AKREDIT_YZ_MODEL:?}
+      - --host=0.0.0.0
+      - --port=8000
+      - --max-model-len=${VLLM_BAGLAM:-32768}
+      - --gpu-memory-utilization=${VLLM_GPU_ORANI:-0.90}
+    volumes:
+      - ${AKREDIT_MODEL_DIZINI:-./modeller}:/modeller:ro
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    networks:
+      model:
+        aliases: [model]
+
+networks:
+  # Yalnız caddy: kullanıcı erişimi için tek açık ağ.
+  on: {}
+  # caddy <-> web; dışa çıkış yok.
+  kopru:
+    internal: true
+  # web/işçi <-> veritabanı, nesne deposu; dışa çıkış yok.
+  arka:
+    internal: true
+  # web/işçi <-> model sunucusu; dışa çıkış yok.
+  model:
+    internal: true
+
+volumes:
+  caddy-veri:
+  caddy-ayar:
+  vt-veri:
+  depo-veri:
