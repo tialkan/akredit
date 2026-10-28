@@ -6,22 +6,59 @@
 // - AKREDIT_VT_ADRES: PostgreSQL bağlantı adresi; yoksa AKREDIT_VT_DIZIN (PGlite, geliştirme).
 // - AKREDIT_ADRES, AKREDIT_KIMLIK_GIZLI, AKREDIT_SSO: kimlik ayarı (`kimlik/ayar.ts`).
 // - AKREDIT_GELISTIRME_EPOSTA=konsol: geliştirmede giriş bağlantısını sunucu konsoluna yazar (üretimde kapalı).
+// - AKREDIT_TEST_EPOSTA_DIZINI (yalnız AKREDIT_TEST_KIPI=1 iken): uçtan uca testlerde e-postalar bu dizine JSON
+//   olarak yazılır. Üretim kurulumunda bu iki değişken tanımlanmaz.
+// - AKREDIT_ANAHTAR_KASASI: kurumların YZ anahtarlarını şifreleyen ana anahtar (base64, 32 bayt).
 // - AKREDIT_SMTP_SUNUCU, AKREDIT_SMTP_PORT, AKREDIT_SMTP_KULLANICI, AKREDIT_SMTP_PAROLA, AKREDIT_EPOSTA_GONDEREN:
 //   gerçek e-posta gönderici (İP-14, `@akredit/surec`).
 
+import { randomUUID } from "node:crypto";
+import { mkdir, writeFile } from "node:fs/promises";
+import { join } from "node:path";
 import { apiIsleyici, HizSiniri, vtTekrarDeposu } from "@akredit/servis";
-import { kimlikEpostaGondericisi, ortamdanEpostaAyari, smtpTasiyici } from "@akredit/surec";
+import { type EpostaTasiyici, kimlikEpostaGondericisi, ortamdanEpostaAyari, smtpTasiyici } from "@akredit/surec";
 import { pgliteBaglantisi, postgresBaglantisi, type Vt } from "@akredit/vt";
 import { ortamdanAyar } from "../../../kimlik/ayar.ts";
 import { type EpostaGonderici, type KimlikSunucusu, kimlikSunucusuOlustur } from "../../../kimlik/sunucu.ts";
 
 export const gercekVeriMi = (): boolean => process.env.NEXT_PUBLIC_AKREDIT_VERI === "gercek";
 
+/** Uçtan uca test taşıyıcısı: iletileri dizine yazar. Yalnız açıkça test kipi açıkken kurulur. */
+function testTasiyicisi(): EpostaTasiyici | null {
+  const dizin = process.env.AKREDIT_TEST_EPOSTA_DIZINI;
+  if (process.env.AKREDIT_TEST_KIPI !== "1" || !dizin) return null;
+  return {
+    async gonder(i) {
+      await mkdir(dizin, { recursive: true });
+      await writeFile(join(dizin, `${Date.now()}-${randomUUID()}.json`), JSON.stringify(i));
+    },
+  };
+}
+
 function epostaGonderici(): EpostaGonderici {
   const smtp = ortamdanEpostaAyari(process.env);
   if (smtp) return kimlikEpostaGondericisi(smtpTasiyici(smtp));
+  const test = testTasiyicisi();
+  if (test) return kimlikEpostaGondericisi(test);
   const konsol = process.env.NODE_ENV !== "production" && process.env.AKREDIT_GELISTIRME_EPOSTA === "konsol";
+  const yok = () => {
+    throw new Error("E-posta gönderici yapılandırılmadı (AKREDIT_SMTP_SUNUCU).");
+  };
   return {
+    async kurumAcilisi(alici, a) {
+      if (konsol) {
+        console.info(`[geliştirme] ${alici} için kurum açılış bağlantısı: ${a.baglanti}`);
+        return;
+      }
+      yok();
+    },
+    async davet(alici, a) {
+      if (konsol) {
+        console.info(`[geliştirme] ${alici} için davet bağlantısı: ${a.baglanti}`);
+        return;
+      }
+      yok();
+    },
     async sihirliBaglanti(alici, baglanti) {
       // Bağlantı giriş bilgisidir: günlüğe ve modele girmez. Yalnız açıkça istenen geliştirme kipinde
       // geliştiricinin kendi konsoluna yazılır.

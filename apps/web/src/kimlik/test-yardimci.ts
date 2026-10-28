@@ -24,7 +24,7 @@ export interface KurumOrnegi {
 export interface Gonderilen {
   alici: string;
   baglanti?: string;
-  tur: "sihirli" | "supheli";
+  tur: "sihirli" | "supheli" | "kurum_acilisi" | "davet";
 }
 
 export function epostaYakalayici(): EpostaGonderici & { kutu: Gonderilen[] } {
@@ -36,6 +36,12 @@ export function epostaYakalayici(): EpostaGonderici & { kutu: Gonderilen[] } {
     },
     async supheliGiris(alici) {
       kutu.push({ alici, tur: "supheli" });
+    },
+    async kurumAcilisi(alici, a) {
+      kutu.push({ alici, baglanti: a.baglanti, tur: "kurum_acilisi" });
+    },
+    async davet(alici, a) {
+      kutu.push({ alici, baglanti: a.baglanti, tur: "davet" });
     },
   };
 }
