@@ -16,13 +16,14 @@ export default function Guvenlik() {
         sayfa={SAYFALAR.guvenlik}
         ozet="Bu sayfa sistemin bugün nasıl kurulduğunu anlatır. Bağımsız sızma testi henüz yapılmadı. Hukuk metinleri taslaktır."
       />
-      <Bolum id="kayit" baslik="Değiştirilemez kayıt">
+      <Bolum id="kayit" baslik="İz bırakmadan değiştirilemez kayıt">
         <Metin>
           <ul>
             <li>
-              Kanıt dosyaları içerik özetiyle (SHA-256) saklanır. Üzerine yazılmaz, silinmez. Aynı içerik iki kez
-              eklenmez.
+              Kanıt dosyaları içerik özetiyle (SHA-256) saklanır. Üzerine yazılmaz; yeni sürüm ayrı kayıt olur. Aynı
+              içerik iki kez eklenmez.
             </li>
+            <li>Kayıt iz bırakmadan değiştirilemez. Her değişiklik, eskisinin yanında yeni kayıt olarak görünür.</li>
             <li>Öneri, karar ve günlük kayıtları yalnız eklenir. Bu kural veritabanında da uygulanır.</li>
             <li>
               Günlük kayıtları özet zinciriyle birbirine bağlıdır. Araya kayıt sokulursa ya da bir kayıt değişirse
@@ -66,8 +67,8 @@ export default function Guvenlik() {
             <li>Öğrenci numarası kuruma özgü anahtarla takma ada çevrilir. Gerçek kimlikle eşleme üniversitededir.</li>
             <li>Anket yanıtı hiçbir yerde kişiye bağlanmaz.</li>
             <li>
-              Silme talebi kabul edilirse takma adı kişiyle eşleyen bilgi silinir. Kayıtlar kimseyle ilişkilendirilemez
-              hâle gelir.
+              KVKK silme hakkı korunur. Silme talebi kabul edilirse takma adı kişiyle eşleyen bilgi silinir. Kayıtlar
+              kimseyle ilişkilendirilemez hâle gelir. Silme işlemi de günlüğe yeni kayıt olarak girer.
             </li>
           </ul>
         </Metin>

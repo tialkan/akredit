@@ -30,6 +30,8 @@ services:
       AKREDIT_SMTP_KULLANICI: ${AKREDIT_SMTP_KULLANICI:-}
       AKREDIT_SMTP_PAROLA: ${AKREDIT_SMTP_PAROLA:-}
       AKREDIT_EPOSTA_GONDEREN: ${AKREDIT_EPOSTA_GONDEREN:-}
+      # Pilot başvurusu bildiriminin alıcısı (İP-42). Boşsa başvuru yalnız kaydedilir, günlüğe uyarı yazılır.
+      AKREDIT_PILOT_ALICI: ${AKREDIT_PILOT_ALICI:-}
       # Kanıt deposu: işçiyle aynı birim ve aynı imza gizlisi (site taraması, Bologna okuma kaydı, Word paketi).
       AKREDIT_DEPO_DIZINI: /veri/kanit
       AKREDIT_DEPO_IMZA_GIZLISI: ${SERVICE_BASE64_64_DEPO}

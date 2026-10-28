@@ -4,7 +4,7 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
-import type { DonemAdimi, SayfaBilgisi } from "./icerik.ts";
+import type { DayanakKaynagi, DonemAdimi, SayfaBilgisi } from "./icerik.ts";
 import { yapisalVeri } from "./yapisal.ts";
 
 /** JSON-LD. İçerik kodda sabit veridir, kullanıcı girdisi değildir; "<" kaçışlanır. */
@@ -72,8 +72,9 @@ export function Bolum({
       <div className="mx-auto grid max-w-6xl gap-x-12 gap-y-4 px-4 py-12 sm:py-16 lg:grid-cols-[17rem_1fr]">
         <div className="lg:sticky lg:top-6 lg:self-start">
           {no ? (
-            <p className="paragraf-no border-t border-cizgi-guclu pt-2 text-xl" aria-hidden>
-              § {no}
+            <p className="paragraf-no whitespace-nowrap border-t border-cizgi-guclu pt-2 text-xl" aria-hidden>
+              {"§\u00a0"}
+              {no}
             </p>
           ) : null}
           <h2 id={id} className="mt-1 text-[1.85rem] leading-[1.1] tracking-[-0.015em] text-vurgu sm:text-[2.1rem]">
@@ -202,8 +203,11 @@ export function Dayanak({
   );
 }
 
-/** Sayfa sonundaki dayanak listesi. Her öğe depodaki bir dosya ya da resmî belgedir. */
-export function Dayanaklar({ ogeler }: { ogeler: string[] }) {
+/**
+ * Sayfa sonundaki dayanak listesi. Her öğe insan diliyle bir başlık ve açık kaynak deposundaki ya da resmî
+ * kaynaktaki adresi taşır. Depo yolu (dosya adı, klasör) son kullanıcıya yazılmaz (İP-42).
+ */
+export function Dayanaklar({ ogeler }: { ogeler: DayanakKaynagi[] }) {
   return (
     <section aria-labelledby="dayanaklar" className="border-t border-cizgi bg-zemin">
       <div className="mx-auto grid max-w-6xl gap-x-12 gap-y-4 px-4 py-10 lg:grid-cols-[17rem_1fr]">
@@ -211,11 +215,17 @@ export function Dayanaklar({ ogeler }: { ogeler: string[] }) {
           <h2 id="dayanaklar" className="text-xl text-vurgu">
             Dayanaklar
           </h2>
-          <p className="mt-2 text-sm text-soluk">Sayfadaki numaralı iddiaların depodaki kaynağı.</p>
+          <p className="mt-2 text-sm text-soluk">
+            Numaralı iddiaların kaynağı. Bağlantılar açık kaynak kodun ilgili bölümünü açar.
+          </p>
         </div>
         <ol className="dayanaklar-listesi grid gap-2 text-sm text-soluk">
           {ogeler.map((o, i) => (
-            <li key={o} id={`dayanak-${i + 1}`} className="grid grid-cols-[2.5rem_1fr] gap-2 rounded-sm px-1 py-0.5">
+            <li
+              key={o.baslik}
+              id={`dayanak-${i + 1}`}
+              className="grid grid-cols-[2.5rem_1fr] gap-2 rounded-sm px-1 py-0.5"
+            >
               <a
                 href={`#dayanak-imi-${i + 1}`}
                 className="font-semibold text-petrol"
@@ -223,7 +233,12 @@ export function Dayanaklar({ ogeler }: { ogeler: string[] }) {
               >
                 [{i + 1}]
               </a>
-              <span className="min-w-0 break-words">{o}</span>
+              <span className="min-w-0 break-words">
+                {o.baslik}{" "}
+                <a href={o.adres} className="whitespace-nowrap text-vurgu underline underline-offset-4">
+                  {o.bag ?? "Kaynağı açın"}
+                </a>
+              </span>
             </li>
           ))}
         </ol>

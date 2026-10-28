@@ -87,10 +87,17 @@
       "breakpoints": true
     },
     {
-      "idx": 40,
+      "idx": 12,
       "version": "7",
       "when": 1793048437894,
       "tag": "0040_kriptografik_silme",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1793048486894,
+      "tag": "0060_pilot_basvurusu",
       "breakpoints": true
     }
   ]
