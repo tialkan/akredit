@@ -16,7 +16,7 @@ function sayfa(baslik: string, govde: string, durum = 200): Response {
   const html = `<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex"><title>${kacis(baslik)} · Akredit</title>
 <style>body{font-family:system-ui,sans-serif;max-width:36rem;margin:3rem auto;padding:0 1rem;line-height:1.5;color:#1a1a1a;background:#fff}
-@media (prefers-color-scheme:dark){body{color:#eee;background:#141414}}button{font:inherit;padding:.6rem 1.2rem;border-radius:.4rem;border:0;background:#1d4ed8;color:#fff;cursor:pointer}
+button{font:inherit;padding:.6rem 1.2rem;border-radius:.4rem;border:0;background:#1d4ed8;color:#fff;cursor:pointer}
 button:focus-visible{outline:3px solid #f59e0b;outline-offset:2px}a{color:inherit}</style></head>
 <body><main><h1>${kacis(baslik)}</h1>${govde}<p><a href="/panel/onaylar">Onay kutusuna git</a></p></main></body></html>`;
   return new Response(html, {

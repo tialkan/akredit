@@ -42,7 +42,7 @@ export default async function SureclerSayfasi() {
                 <h3 className="font-semibold">
                   {AYLAR[Number(ay.slice(5, 7)) - 1]} {ay.slice(0, 4)}
                 </h3>
-                <ul className="mt-1 space-y-1 border-l-2 border-cizgi pl-3">
+                <ul className="mt-1 list-disc space-y-1 pl-5">
                   {liste.map((g) => (
                     <li key={g.id} className={g.durum === "tamam" ? "text-soluk line-through" : ""}>
                       <span className="font-semibold">{Number(g.sonTarih.slice(8, 10))}</span> {g.baslik}

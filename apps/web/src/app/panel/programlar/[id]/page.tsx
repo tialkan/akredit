@@ -61,7 +61,7 @@ export default async function ProgramSayfasi({ params }: { params: Promise<{ id:
                   return (
                     <td
                       key={pc.id}
-                      className="border-l border-cizgi px-3 py-1.5 font-semibold"
+                      className="border border-cizgi px-3 py-1.5 font-semibold"
                       style={hucreStili(y.seviye)}
                     >
                       <span aria-hidden>{y.kisa}</span>

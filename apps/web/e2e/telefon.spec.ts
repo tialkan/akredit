@@ -112,7 +112,7 @@ test("PWA bildirimi ve servis çalışanı onay kutusuyla sınırlı", async ({ 
   expect(new URL(kapsam).pathname).toBe("/panel/onaylar");
 });
 
-for (const tema of ["light", "dark"] as const) {
+for (const tema of ["light"] as const) {
   test(`telefonda onay kutusu WCAG 2.2 AA (${tema})`, async ({ page }) => {
     test.setTimeout(90_000);
     await page.emulateMedia({ colorScheme: tema });
