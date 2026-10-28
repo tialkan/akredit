@@ -176,7 +176,8 @@ afterAll(async () => {
 });
 
 const gun = (n: number) => new Date(SIMDI.getTime() + n * 86_400_000);
-const nedeni = (d: RegExp) => (e: unknown) => d.test(String((e as { cause?: { message?: string } }).cause?.message ?? e));
+const nedeni = (d: RegExp) => (e: unknown) =>
+  d.test(String((e as { cause?: { message?: string } }).cause?.message ?? e));
 
 describe("iş günü hesabı", () => {
   it("hafta sonu ve tatil günlerini saymaz (elle doğrulanmış)", () => {
@@ -224,7 +225,12 @@ describe("devir taslağı (saf)", () => {
       ders,
       programCiktilari: null,
       onlemler: [
-        { eylemId: "e1", tanim: "Proje", asama: "onlem_al", bolognaDuzeltmesi: { alan: "yontem", dil: "tr", metin: "Yeni yöntem." } },
+        {
+          eylemId: "e1",
+          tanim: "Proje",
+          asama: "onlem_al",
+          bolognaDuzeltmesi: { alan: "yontem", dil: "tr", metin: "Yeni yöntem." },
+        },
         { eylemId: "e2", tanim: "Duyuru", asama: "kontrol_et" },
       ],
     });
@@ -259,7 +265,7 @@ describe("sessiz devir: politika yokken ve akademik değişiklikte", () => {
     );
     expect(bildirim).toHaveLength(1);
     expect(bildirim[0]?.kisiId).toBe(o.b.ogretim);
-    expect((bildirim[0]?.icerik as { eposta: { durum: string } }).eposta.durum).toBe("bekliyor");
+    expect((bildirim[0]?.icerik as { eposta?: { durum: string } } | undefined)?.eposta?.durum).toBe("bekliyor");
     // Süre ne kadar geçerse geçsin karar verilmez.
     const v = await bologna.varsayilanOnaylariUygula(o.db, o.b.kurumId, gun(60));
     expect(v.onaylanan).toEqual([]);
@@ -269,7 +275,14 @@ describe("sessiz devir: politika yokken ve akademik değişiklikte", () => {
     await kiraciIslemi(o.db, o.b.kurumId, async (tx) => {
       const [d] = await tx
         .insert(sema.ders)
-        .values({ kurumId: o.b.kurumId, programId: o.b.digerProgramId, kod: "MUH101", ad: "Muhasebe", akts: 4, yariyil: 1 })
+        .values({
+          kurumId: o.b.kurumId,
+          programId: o.b.digerProgramId,
+          kod: "MUH101",
+          ad: "Muhasebe",
+          akts: 4,
+          yariyil: 1,
+        })
         .returning();
       await tx.insert(sema.dersAcilisi).values({ kurumId: o.b.kurumId, dersId: d?.id as string, donemId: b.donemId });
     });
@@ -329,7 +342,10 @@ describe("sessiz devir: imzalı politika ve düşük risk", () => {
     expect(ic.metin).toMatch(/İtiraz etmezseniz/u);
     expect(r?.risk).toBe("dusuk");
     const g = await kiraciIslemi(o.db, o.a.kurumId, (tx) =>
-      tx.select().from(sema.gunluk).where(and(eq(sema.gunluk.eylem, "bologna.devir_taslagi_acildi"), eq(sema.gunluk.hedefId, ilk))),
+      tx
+        .select()
+        .from(sema.gunluk)
+        .where(and(eq(sema.gunluk.eylem, "bologna.devir_taslagi_acildi"), eq(sema.gunluk.hedefId, ilk))),
     );
     expect(g[0]?.aktorTuru).toBe("sistem");
   });
@@ -414,7 +430,10 @@ describe("sessiz devir: imzalı politika ve düşük risk", () => {
     expect(k).toMatchObject({ dayanak: "sure_dolumu", politikaId, kararVerenKisiId: o.a.yonetici, sonuc: "onaylandi" });
     expect(k?.gerekce).toMatch(/Süre dolumuyla, "Dönem devri yönergesi md\. 5" politikası dayanağıyla/u);
     const [g] = await kiraciIslemi(o.db, o.a.kurumId, (tx) =>
-      tx.select().from(sema.gunluk).where(and(eq(sema.gunluk.eylem, "karar.verildi"), eq(sema.gunluk.hedefId, k?.id as string))),
+      tx
+        .select()
+        .from(sema.gunluk)
+        .where(and(eq(sema.gunluk.eylem, "karar.verildi"), eq(sema.gunluk.hedefId, k?.id as string))),
     );
     expect(g?.ayrinti).toMatchObject({
       dayanak: "sure_dolumu",
@@ -423,7 +442,10 @@ describe("sessiz devir: imzalı politika ve düşük risk", () => {
       yol: "sure_dolumu",
     });
     const durum = await bologna.devirDurumu(hoca, d1);
-    expect(durum).toMatchObject({ durum: "varsayilan_onaylandi", karar: { dayanak: "sure_dolumu", kararVeren: "Deneme Yönetici A" } });
+    expect(durum).toMatchObject({
+      durum: "varsayilan_onaylandi",
+      karar: { dayanak: "sure_dolumu", kararVeren: "Deneme Yönetici A" },
+    });
     expect(durum?.yazma?.durum).toBe("bekliyor");
     // Tekrar çalıştırmak ikinci karar yazmaz.
     expect((await bologna.varsayilanOnaylariUygula(o.db, o.a.kurumId, gun(30))).onaylanan).toEqual([]);
@@ -504,7 +526,13 @@ describe("kaynağa geri yazma", () => {
       tx
         .select()
         .from(sema.gunluk)
-        .where(and(eq(sema.gunluk.eylem, "bologna.kaynak_alani"), eq(sema.gunluk.hedefId, oneriId), sql`${sema.gunluk.ayrinti} ->> 'kuru' = 'false'`)),
+        .where(
+          and(
+            eq(sema.gunluk.eylem, "bologna.kaynak_alani"),
+            eq(sema.gunluk.hedefId, oneriId),
+            sql`${sema.gunluk.ayrinti} ->> 'kuru' = 'false'`,
+          ),
+        ),
     );
     expect(alanlar.length).toBe(cagrilar.at(-1)?.alan);
     // Değerin kendisi değil özeti yazılır (yetkili e-postası günlükte açık durmaz).
