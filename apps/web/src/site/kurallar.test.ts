@@ -73,6 +73,31 @@ describe("kullanıcı metni", () => {
     expect(bulunan).toEqual([]);
   });
 
+  it("'sadece X değil, aynı zamanda Y' kalıbı yok (madde 36)", () => {
+    const bulunan = KAYNAK.flatMap((d) =>
+      satirlar(d.metin.toLocaleLowerCase("tr"), (s) =>
+        /(sadece|yalnızca)\s+[^.]{1,60}\s+değil,?\s+aynı zamanda/u.test(s),
+      ).map((n) => `${d.ad}:${n}`),
+    );
+    expect(bulunan).toEqual([]);
+  });
+
+  it("her görselin alt metni var; anlamlı SVG başlık ya da etiket taşır (madde 130)", () => {
+    const tsx = KAYNAK.filter((d) => d.ad.endsWith(".tsx"));
+    const eksik: string[] = [];
+    for (const d of tsx) {
+      for (const m of d.metin.matchAll(/<(img|Image)\b[^>]*>/gu))
+        if (!/\balt=/u.test(m[0])) eksik.push(`${d.ad}: ${m[1]}`);
+      for (const m of d.metin.matchAll(/<svg\b[^>]*>/gu)) {
+        const etiket = m[0];
+        const susMu = /aria-hidden/u.test(etiket);
+        const adliMi = /aria-label|aria-labelledby/u.test(etiket);
+        if (!susMu && !adliMi) eksik.push(`${d.ad}: svg`);
+      }
+    }
+    expect(eksik).toEqual([]);
+  });
+
   it("emoji süsleme yok", () => {
     const bulunan = KAYNAK.flatMap((d) =>
       satirlar(d.metin, (s) => /\p{Extended_Pictographic}/u.test(s)).map((n) => `${d.ad}:${n}`),
