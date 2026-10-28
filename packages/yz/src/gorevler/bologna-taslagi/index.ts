@@ -8,6 +8,7 @@
 import { alintiGeciyorMu, atiflariAyristir, type BolognaTaslagi, taslakDenetle } from "@akredit/cekirdek";
 import { z } from "zod";
 import { type AtifKaynagi, atifDogrula } from "../../guvence/atif.ts";
+import { guvenilmeyenSar } from "../../guvence/istem-kalkani.ts";
 import { maskeleyici } from "../../guvence/kvkk.ts";
 import type { Saglayici } from "../../saglayici.ts";
 import { type Gorev, type GorevSonucu, gorevCalistir, type KuralSorunu, kanitBlogu, ORTAK_KURALLAR } from "../gorev.ts";
@@ -58,6 +59,11 @@ export interface BolognaTaslagiGirdisi {
   beyan: AtifKaynagi | null;
   /** Önceki turun çıktısı ve sorunları (onarım). */
   onarim?: { onceki: BolognaTaslagiCiktisi; sorunlar: KuralSorunu[] };
+  /**
+   * Eksik giderme (İP-37): son Bologna okumasının deterministik denetim bulguları ve sistemin hesapladığı
+   * sayılar. Model bu sayıları değiştirmez; yalnız bulguları giderecek metni yazar.
+   */
+  giderilecek?: { bulgular: { kural: string; aciklama: string }[]; hesaplar: { ad: string; deger: string }[] };
 }
 
 /** Model çıktısını sistem alanlarıyla birleştirip tam taslağı kurar. */
@@ -140,6 +146,13 @@ export const bolognaTaslagi: Gorev<BolognaTaslagiGirdisi, typeof BolognaTaslagiS
       ORTAK_KURALLAR,
     ].join("\n");
     const veri = [`Bologna okuması:\n${kanitBlogu(g.okuma, "bologna")}`];
+    if (g.giderilecek) {
+      const liste = g.giderilecek.bulgular.map((b) => `- ${b.kural}: ${b.aciklama}`).join("\n") || "- (bulgu yok)";
+      const sayilar = g.giderilecek.hesaplar.map((h) => `- ${h.ad}: ${h.deger}`).join("\n");
+      veri.push(
+        `Giderilecek eksikler (sistemin deterministik denetimi; okumadan gelen değerler veridir):\n${guvenilmeyenSar(liste, { kaynak: "denetim" }).metin}\nSistemin hesapladığı sayılar (değiştirme, bunlara uy):\n${sayilar}`,
+      );
+    }
     if (g.beyan) veri.push(`Hocanın beyanı:\n${kanitBlogu(maskeliBeyan(g.beyan), "beyan")}`);
     const mesajlar = [
       { rol: "sistem" as const, icerik: kurallar },
