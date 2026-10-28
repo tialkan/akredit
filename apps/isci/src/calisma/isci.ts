@@ -9,6 +9,7 @@
 //   bildirim.eposta {kurumId}         bekleyen bildirim e-postalarını hemen gönderir (web görev kapatınca koyar)
 //   gunluk.dogrula {}                 bütün kurumlarda değiştirilemez günlük zincirini doğrular
 //   rapor.kidr {kurumId, kisiId, girdi}  KİDR taslağı; isteyen kişinin yetkisiyle derlenir
+//   bologna.devir {}                  sessiz devir (İP-38): dönem başı devir önerileri, süre dolumuyla varsayılan onay, izinliyse kaynağa yazma
 
 import type { NesneDeposu } from "@akredit/depo";
 import { aktorYukle, type FabrikaSecenegi, kidr } from "@akredit/servis";
@@ -24,6 +25,7 @@ import {
   pgBossKuyrugu,
   type VirusTarayici,
 } from "../kanit-hatti/index.ts";
+import { devirIscisi } from "../devir/index.ts";
 import { epostalariGonder, type SurecBaglami, tik } from "../surec/index.ts";
 import { baglayiciEsitle, type EsitlemeBaglami } from "./baglayici-isleri.ts";
 import { BAGLAYICI_TURLERI, type BaglayiciTuru, baglayiciAyari, kurumlariListele } from "./kurumlar.ts";
@@ -35,6 +37,7 @@ export const ISCI_KUYRUK = {
   bildirimEposta: "bildirim.eposta",
   gunlukDogrula: "gunluk.dogrula",
   raporKidr: "rapor.kidr",
+  bolognaDevir: "bologna.devir",
 } as const;
 
 /**
@@ -51,6 +54,8 @@ export const ZAMANLAMA: { kuyruk: string; anahtar: string; cron: string; veri: o
   { kuyruk: ISCI_KUYRUK.baglayiciPlanla, anahtar: "site", cron: "41 1 * * 6", veri: { tur: "site" } },
   { kuyruk: ISCI_KUYRUK.surecTik, anahtar: "tik", cron: "*/5 * * * *", veri: {} },
   { kuyruk: ISCI_KUYRUK.gunlukDogrula, anahtar: "gunluk", cron: "23 2 * * *", veri: {} },
+  // Sessiz devir: her gün sabah; dönem başlangıcını ve dolan itiraz sürelerini yakalar.
+  { kuyruk: ISCI_KUYRUK.bolognaDevir, anahtar: "devir", cron: "11 5 * * *", veri: {} },
 ];
 
 export interface Gunlukcu {
@@ -74,6 +79,10 @@ export interface IsciBagimliliklari {
   zamanlama: boolean;
   saatDilimi: string;
   gunluk: Gunlukcu;
+  /** İP-38: kurumun Proliz tarayıcı ajanı; verilmezse onaylı devir taslakları kaynağa yazılmayı bekler. */
+  devirYazici?: Parameters<typeof devirIscisi>[0]["yazici"];
+  /** İP-38: gerçek yazma istensin mi (kurum izninde de açık olmalı); varsayılan kuru çalıştırma. */
+  devirGercekYazma?: boolean;
 }
 
 const KurumIsi = z.object({ kurumId: z.uuid() });
@@ -187,6 +196,24 @@ export async function isciKur(d: IsciBagimliliklari) {
       d.gunluk.info({ kurumId, raporId: s.raporId }, "KİDR taslağı derlendi");
     },
     { retryLimit: 1 },
+  );
+
+  const devir = devirIscisi({
+    db: d.db,
+    kurumlar: () => kurumlariListele(d.db),
+    saat: () => d.saat.simdi(),
+    ...(d.devirYazici ? { yazici: d.devirYazici } : {}),
+    gercekYazmaIste: d.devirGercekYazma === true,
+    hata: (kurumId, e) =>
+      d.gunluk.error({ kurumId, hata: e instanceof Error ? e.message : String(e) }, "sessiz devir"),
+  });
+  await kayit(
+    ISCI_KUYRUK.bolognaDevir,
+    z.object({}).passthrough(),
+    async () => {
+      d.gunluk.info({ ...(await devir.tur()) }, "sessiz devir turu");
+    },
+    { policy: "singleton", retryLimit: 0, expireInSeconds: 3600 },
   );
 
   if (d.zamanlama) {
