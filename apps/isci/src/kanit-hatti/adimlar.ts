@@ -19,7 +19,7 @@ import {
 } from "@akredit/yz";
 import { and, asc, eq } from "drizzle-orm";
 import { z } from "zod";
-import { type HatBaglami, KUYRUK, kurumYzAyari, olcutListesi } from "./baglam.ts";
+import { type HatBaglami, KUYRUK, kurumYzAyari, olcutListesi, saglayiciCoz } from "./baglam.ts";
 import { yalitilmisMetinCikar } from "./cikarma.ts";
 import { type Asama, durumYaz, type IslemeDurumu } from "./durum.ts";
 
@@ -226,7 +226,8 @@ export async function zenginlestirAdimi(b: HatBaglami, v: z.infer<typeof MetinIs
 
 export async function siniflaAdimi(b: HatBaglami, v: IsVerisi): Promise<void> {
   const bitir = (ek: Record<string, unknown>) => durum(b, v, "gomme_tamam", "tamam", ek);
-  if (!b.saglayici) return bitir({ ileti: "Yapay zekâ hizmeti tanımlı değil; ölçüt önerisi yapılmadı." });
+  if (!b.saglayici && !b.kurumFabrikasi)
+    return bitir({ ileti: "Yapay zekâ hizmeti tanımlı değil; ölçüt önerisi yapılmadı." });
   const k = await kanitSatiri(b, v);
   const { parcalar, oneriVar } = await kiraciIslemi(b.db, v.kurumId, async (tx) => ({
     parcalar: await tx
@@ -253,10 +254,13 @@ export async function siniflaAdimi(b: HatBaglami, v: IsVerisi): Promise<void> {
   const olcutler = await olcutListesi(b, v.kurumId);
   if (!olcutler.length) return bitir({ ileti: "Ölçüt listesi boş; ölçüt önerisi yapılmadı." });
   const ayar = await kurumYzAyari(b, v.kurumId);
-  let saglayici: typeof b.saglayici;
+  let saglayici: NonNullable<typeof b.saglayici>;
   try {
+    // Sağlayıcı iş anında çözülür (kurum anahtarı kasadan); iş yükünde anahtar yoktur.
+    const c = await saglayiciCoz(b, v.kurumId);
+    if (!c.saglayici) return bitir({ ileti: c.ileti, ...(c.anahtarYok ? { atlandi: "anahtar_yok" } : {}) });
     // Yurt dışı sağlayıcı: izin yoksa çağrı yapılmaz; izin varsa mesajlar maskelenerek gider.
-    saglayici = politikaUygula(b.saglayici, ayar);
+    saglayici = c.politikaUygulandi ? c.saglayici : politikaUygula(c.saglayici, ayar);
   } catch (e) {
     if (e instanceof YzHatasi && e.tur === "politika") return bitir({ ileti: e.message, atlandi: "politika" });
     throw e;

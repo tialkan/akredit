@@ -200,8 +200,8 @@ describe("Bologna otomasyonu uçtan uca", () => {
     expect((bpa?.once?.hata ?? 0) - (bpa?.sonra.hata ?? 0)).toBe(1);
   });
 
-  it("YZ bağlı değilse taslak üretilmez", async () => {
-    expect(await kod(bologna.taslakUret(hoca, { dersId: tbpId }))).toBe("gecersiz_istek");
+  it("kurumun YZ anahtarı yoksa taslak üretilmez (İP-35: kurum anahtarı fabrikası)", async () => {
+    expect(await kod(bologna.taslakUret(hoca, { dersId: tbpId }))).toBe("kural_ihlali");
   });
 
   it("örnek taslak K1-K12'den hatasız geçer, atıflı öneri olarak onay kutusuna düşer", async () => {

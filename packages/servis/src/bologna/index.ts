@@ -21,11 +21,12 @@ import {
   okunamadiMi,
 } from "@akredit/cekirdek";
 import { type Islem, sema } from "@akredit/vt";
-import { type AtifKaynagi, bolognaTaslagiUret, politikaUygula, type Saglayici } from "@akredit/yz";
+import { type AtifKaynagi, bolognaTaslagiUret, politikaUygula, type Saglayici, YzHatasi } from "@akredit/yz";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { gunluge, type Hedef, islem, type ServisBaglami } from "../baglam.ts";
 import { bulunamadi, ServisHatasi } from "../hata.ts";
+import { kurumSaglayicisi, YzAnahtariYokHatasi } from "../yz-fabrika.ts";
 import {
   type AlanDegisikligi,
   dersBazinda,
@@ -483,6 +484,20 @@ async function beyanKaydet(
   return { id: k.id, ozet: nesne.ozet };
 }
 
+async function kurumSaglayicisiCoz(b: ServisBaglami, maske: { adlar?: string[] }): Promise<Saglayici> {
+  try {
+    return (await kurumSaglayicisi(b.db, b.aktor.kurumId, { ekMaske: maske, simdi: b.simdi })).saglayici;
+  } catch (e) {
+    if (e instanceof YzAnahtariYokHatasi)
+      throw new ServisHatasi(
+        "kural_ihlali",
+        "Yapay zekâ anahtarı tanımlı değil. Kurum yöneticinize bildirildi; anahtar girilince yeniden deneyin.",
+      );
+    if (e instanceof YzHatasi) throw new ServisHatasi("kural_ihlali", e.message);
+    throw e;
+  }
+}
+
 /**
  * Hocanın beyanı ve son Bologna okumasından atıflı tam taslak üretir; onay kutusuna öneri olarak düşer.
  * Kod, ad, AKTS, T+U+L ve yetkililer sistemden (ders kaydı ve oturumdaki hoca) gelir.
@@ -493,11 +508,8 @@ export async function taslakUret(b: ServisBaglami, girdi: unknown): Promise<Tasl
     await gerekli("olcme.veri_gir", { tur: "ders", id: (await dersYukle(tx, g.dersId)).id });
   });
   const k = bolognaKoprusu();
-  if (!k.saglayici)
-    throw new ServisHatasi(
-      "gecersiz_istek",
-      "Yapay zekâ hizmeti bu sunucuda henüz bağlı değil. Yöneticinize bildirin.",
-    );
+  // Anahtar yoksa beyan saklanmadan önce durulur; bildirim kurum yöneticisine düşer.
+  if (!k.saglayici) await kurumSaglayicisiCoz(b, {});
   const beyan = g.beyan?.length ? g.beyan : null;
   const nesne = beyan ? await depoGerekli().koy(b.aktor.kurumId, metinBaytlari(beyan), { mime: "text/plain" }) : null;
 
@@ -538,10 +550,11 @@ export async function taslakUret(b: ServisBaglami, girdi: unknown): Promise<Tasl
     ...(hoca?.avesisAdresi ? { avesis: hoca.avesisAdresi } : {}),
   };
   const yzAyari = (baglam.kurum?.ayarlar as { yz?: { yurtDisiIzin?: boolean } } | undefined)?.yz;
-  const saglayici = politikaUygula(k.saglayici, {
-    yurtDisiIzin: yzAyari?.yurtDisiIzin === true,
-    maske: { adlar: hoca?.adSoyad ? [hoca.adSoyad] : [] },
-  });
+  const maske = { adlar: hoca?.adSoyad ? [hoca.adSoyad] : [] };
+  // Sağlayıcı: köprüde sabit sağlayıcı varsa o; yoksa kurumun kayıtlı anahtarıyla iş anında kurulur (İP-35).
+  let saglayici: Saglayici;
+  if (k.saglayici) saglayici = politikaUygula(k.saglayici, { yurtDisiIzin: yzAyari?.yurtDisiIzin === true, maske });
+  else saglayici = await kurumSaglayicisiCoz(b, maske);
   const okumaKaynagi: AtifKaynagi = { ozet: okuma.ozet, parcalar: dersParcalari };
   const beyanKaynagi: AtifKaynagi | null = beyanKaniti
     ? { ozet: beyanKaniti.ozet, parcalar: [{ capa: { bolum: "beyan" }, metin: beyan as string }] }
