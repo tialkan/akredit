@@ -1,4 +1,6 @@
 // Site içeriğinin koddaki gerçekle tutarlılığı ve yapılandırılmış veri.
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { ROLLER } from "@akredit/yetki";
 import { describe, expect, it } from "vitest";
 import { yokakOzeti } from "./cerceve-ozeti.ts";
@@ -58,5 +60,19 @@ describe("üst veri", () => {
     expect(turler).toEqual(["Organization", "BreadcrumbList", "FAQPage"]);
     expect(j["@graph"][2].mainEntity).toHaveLength(SSS.length);
     expect(yapisalVeri({ ...SAYFALAR.sss, ad: "</script>" })).not.toContain("</script>");
+  });
+});
+
+describe("hareket ve önizleme (tasarım v2)", () => {
+  const css = readFileSync(join(import.meta.dirname, "../app/globals.css"), "utf8");
+  it("önizleme hareketi, hareket azaltma tercihinde kapanır ve son durumu gösterir", () => {
+    const azalt = css.slice(css.indexOf("@media (prefers-reduced-motion: reduce)"));
+    for (const sinif of [".onizleme-kart", ".onizleme-onaylandi", ".onizleme-gunluk", ".onizleme-bekliyor"])
+      expect(azalt).toContain(sinif);
+    expect(azalt).toMatch(/\.onizleme-bekliyor\s*\{[^}]*visibility:\s*hidden/u);
+  });
+  it("dayanak vurgusu her dayanak numarası için tanımlı (1-9)", () => {
+    for (let n = 1; n <= 9; n++)
+      expect(css).toContain(`a[href="#dayanak-${n}"]:is(:hover, :focus-visible)) #dayanak-${n}`);
   });
 });
