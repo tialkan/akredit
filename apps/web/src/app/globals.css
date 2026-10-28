@@ -34,6 +34,8 @@
   --isi-4: #157c80;
   --isi-5: #10325b;
   --isi-metin-koyu: #ffffff;
+  /* Hareket eğrisi: hızlı başlar, yumuşak durur. Bütün site hareketleri bunu kullanır. */
+  --egri: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 @theme inline {
@@ -86,6 +88,15 @@ h2 :where(span) {
   font-family: var(--font-sans);
 }
 
+/* Bağlantı altı çizgisi üzerine gelince kalınlaşır; renk değişmez, yer kaymaz. */
+main a {
+  text-decoration-thickness: 1px;
+  transition: text-decoration-thickness 150ms var(--egri);
+}
+main a:hover {
+  text-decoration-thickness: 2px;
+}
+
 /* İmza öğesi: dayanak (dipnot) numaraları. Her olgusal iddia kod tabanındaki kaynağına numarayla bağlanır;
    ürünün "kanıtsız iddia yok" ilkesinin sitedeki karşılığı. */
 .dayanak-imi {
@@ -114,6 +125,121 @@ h2 :where(span) {
 }
 li:target {
   background: var(--petrol-zemin);
+}
+
+/* Rakamlar: ölçü, yüzde ve zaman her yerde eşit genişlikli dizilir; sütunlar alt alta hizalanır. */
+.sayilar,
+.paragraf-no,
+table {
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* Dayanak numarasına gelinince (fare ya da klavye) sayfa sonundaki ilgili dipnot belirir; ters yönde de.
+   Yalnız CSS (:has); betik yok. Sayfalarda en çok 9 dayanak var. */
+.dayanaklar-listesi li {
+  transition: background-color 200ms var(--egri);
+}
+body:has(a[href="#dayanak-1"]:is(:hover, :focus-visible)) #dayanak-1,
+body:has(#dayanak-1:hover) a[href="#dayanak-1"] {
+  background: var(--petrol-zemin);
+}
+body:has(a[href="#dayanak-2"]:is(:hover, :focus-visible)) #dayanak-2,
+body:has(#dayanak-2:hover) a[href="#dayanak-2"] {
+  background: var(--petrol-zemin);
+}
+body:has(a[href="#dayanak-3"]:is(:hover, :focus-visible)) #dayanak-3,
+body:has(#dayanak-3:hover) a[href="#dayanak-3"] {
+  background: var(--petrol-zemin);
+}
+body:has(a[href="#dayanak-4"]:is(:hover, :focus-visible)) #dayanak-4,
+body:has(#dayanak-4:hover) a[href="#dayanak-4"] {
+  background: var(--petrol-zemin);
+}
+body:has(a[href="#dayanak-5"]:is(:hover, :focus-visible)) #dayanak-5,
+body:has(#dayanak-5:hover) a[href="#dayanak-5"] {
+  background: var(--petrol-zemin);
+}
+body:has(a[href="#dayanak-6"]:is(:hover, :focus-visible)) #dayanak-6,
+body:has(#dayanak-6:hover) a[href="#dayanak-6"] {
+  background: var(--petrol-zemin);
+}
+body:has(a[href="#dayanak-7"]:is(:hover, :focus-visible)) #dayanak-7,
+body:has(#dayanak-7:hover) a[href="#dayanak-7"] {
+  background: var(--petrol-zemin);
+}
+body:has(a[href="#dayanak-8"]:is(:hover, :focus-visible)) #dayanak-8,
+body:has(#dayanak-8:hover) a[href="#dayanak-8"] {
+  background: var(--petrol-zemin);
+}
+body:has(a[href="#dayanak-9"]:is(:hover, :focus-visible)) #dayanak-9,
+body:has(#dayanak-9:hover) a[href="#dayanak-9"] {
+  background: var(--petrol-zemin);
+}
+
+/* Belge dokusu: ilk ekranın arkasında on iki sütunluk ince ızgara (yalnız geniş ekranda, süs). */
+.belge-izgara {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Onay kutusu önizlemesi: bir öneri "onay bekliyor" durumundan "onaylandı" durumuna geçer, karar günlüğe eklenir.
+   Hareket bir kez oynar. Hareket azaltma tercihinde son durum doğrudan görünür (aşağıdaki @media). */
+.onizleme-kart {
+  border-color: var(--cizgi-guclu);
+  animation: onizleme-kart 600ms var(--egri) 2.2s both;
+}
+.onizleme-bekliyor {
+  animation: onizleme-cik 300ms var(--egri) 2.1s both;
+}
+.onizleme-onaylandi {
+  animation: onizleme-gir 500ms var(--egri) 2.3s both;
+}
+.onizleme-dugme {
+  animation: onizleme-bas 260ms var(--egri) 1.85s both;
+}
+.onizleme-gunluk {
+  animation: onizleme-satir 700ms var(--egri) 2.6s both;
+}
+@keyframes onizleme-kart {
+  from {
+    border-color: var(--cizgi-guclu);
+  }
+  to {
+    border-color: var(--petrol);
+  }
+}
+@keyframes onizleme-cik {
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+@keyframes onizleme-gir {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes onizleme-bas {
+  50% {
+    transform: translateY(1px);
+    background: var(--metin);
+  }
+}
+@keyframes onizleme-satir {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* Klavye odağı her zaman görünür (WCAG 2.4.7, 2.4.11). */
@@ -172,5 +298,19 @@ dialog::backdrop {
     animation-duration: 0.01ms !important;
     /* biome-ignore lint/complexity/noImportantStyles: aynı gerekçe */
     transition-duration: 0.01ms !important;
+  }
+  /* Önizleme son durumuyla durağan görünür: bekliyor etiketi gizli, onay ve günlük satırı görünür. */
+  .onizleme-kart,
+  .onizleme-onaylandi,
+  .onizleme-dugme,
+  .onizleme-gunluk {
+    animation: none;
+  }
+  .onizleme-kart {
+    border-color: var(--petrol);
+  }
+  .onizleme-bekliyor {
+    animation: none;
+    visibility: hidden;
   }
 }

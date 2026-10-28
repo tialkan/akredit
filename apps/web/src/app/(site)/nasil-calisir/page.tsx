@@ -30,11 +30,17 @@ export default function NasilCalisir() {
       <SayfaBasi
         sayfa={SAYFALAR.nasil}
         ozet="Akredit işi ikiye böler. Hazırlığı sistem yapar, kararı yetkili kişi verir. Aradaki her adım kayıt altındadır."
+        kunye={[
+          { deger: AKIS.length, ad: "adım: kanıttan günlüğe", dayanak: 1 },
+          { deger: RISKLER.length, ad: "risk düzeyi", dayanak: 2 },
+          { deger: ILKELER.length, ad: "değişmez ilke", dayanak: 5 },
+          { deger: DONEM_AKISI.reduce((t, a) => t + a.dokunus, 0), ad: "dokunuş: örnek bir dönemde", dayanak: 4 },
+        ]}
       />
       <Bolum no={1} id="akis" baslik="Kanıttan günlüğe" not="Her öneri bu sırayla ilerler.">
         <p className="mb-6 max-w-[62ch]">
           Bir öneri altı adımdan geçer. Her adımın çıktısı bir sonrakinin girdisidir ve kayıtlıdır.
-          <Dayanak n={1} />
+          <Dayanak n={1} tekrar />
         </p>
         <AkisCizimi />
         <ol className="mt-8 divide-y divide-cizgi border-y border-cizgi">
@@ -58,7 +64,7 @@ export default function NasilCalisir() {
       >
         <p className="mb-6 max-w-[62ch]">
           Aşağıdaki çizelge bir öğretim elemanının bir dönemini gösterir. Sağ sütun hocanın bütün işidir.
-          <Dayanak n={4} />
+          <Dayanak n={4} tekrar />
         </p>
         <DonemCizelgesi adimlar={DONEM_AKISI} />
       </Bolum>
@@ -66,7 +72,7 @@ export default function NasilCalisir() {
       <Bolum no={3} id="riskler" baslik="Risk düzeyleri" not="Önerinin türü, nasıl onaylanacağını belirler.">
         <p className="mb-4 max-w-[62ch]">
           Her öneri türünün sabit bir risk düzeyi vardır. Düzey, onayın biçimini belirler.
-          <Dayanak n={2} />
+          <Dayanak n={2} tekrar />
         </p>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[34rem] border-collapse text-left">
@@ -125,7 +131,7 @@ export default function NasilCalisir() {
         not={
           <>
             Kodla uygulanır. Kullanıcı ya da belge istese de esnemez.
-            <Dayanak n={5} />
+            <Dayanak n={5} tekrar />
           </>
         }
       >

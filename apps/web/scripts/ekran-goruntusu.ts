@@ -34,7 +34,8 @@ for (const g of GENISLIKLER) {
     await sayfa.evaluate(async () => {
       await document.fonts.ready;
     });
-    await sayfa.waitForTimeout(300);
+    // Ana sayfadaki önizleme hareketi yaklaşık 3,3 sn sürer; görüntü son durumu göstersin.
+    await sayfa.waitForTimeout(3500);
     await sayfa.screenshot({ path: join(HEDEF, `${ad}${EK}-${g}.png`), fullPage: false });
   }
   await sayfa.close();
