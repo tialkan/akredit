@@ -85,11 +85,13 @@ function depoKur(y: Yapilandirma): NesneDeposu | null {
 }
 
 /** SMTP yoksa e-postalar bekletilir (motor 15 dk sonra yeniden dener, 5 denemeden sonra bırakır). */
-const bekletenTasiyici: EpostaTasiyici = {
-  async gonder() {
-    throw new EpostaGonderilemediHatasi("E-posta sunucusu yapılandırılmamış.");
-  },
-};
+function bekletenTasiyici(): EpostaTasiyici {
+  return {
+    async gonder() {
+      throw new EpostaGonderilemediHatasi("E-posta sunucusu yapılandırılmamış.");
+    },
+  };
+}
 
 async function baslat(y: Yapilandirma, uyarilar: string[]) {
   const o = y.ortam;
@@ -126,7 +128,7 @@ async function baslat(y: Yapilandirma, uyarilar: string[]) {
   kapanislar.push(() => boss.stop({ graceful: true, timeout: 30_000 }));
 
   const ayar = ortamdanEpostaAyari(process.env);
-  const eposta = ayar ? smtpTasiyici(ayar) : bekletenTasiyici;
+  const eposta = ayar ? smtpTasiyici(ayar) : bekletenTasiyici();
 
   let kurumIci: Saglayici | null = null;
   if (o.AKREDIT_YZ_HAZIR) kurumIci = kurumIciSaglayici(o).saglayici;
