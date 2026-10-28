@@ -1,6 +1,7 @@
 // @akredit/servis: arayüz, API, CLI ve MCP'nin ortak iş kuralları. Kapsam: plan/ip/IP-12-servis-ve-api.md
 
 export * as akademik from "./akademik.ts";
+export * as arastirma from "./arastirma/index.ts";
 export * from "./baglam.ts";
 export * as bologna from "./bologna/index.ts";
 export * as dersDosyasi from "./ders-dosyasi/index.ts";
