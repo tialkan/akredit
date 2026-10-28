@@ -472,7 +472,7 @@ export function OnayKutusu({
           ) : null
         }
       >
-        <blockquote className="border-l-4 border-vurgu bg-vurgu-zemin px-4 py-3 text-lg">“{kanit?.alinti}”</blockquote>
+        <blockquote className="rounded-sm bg-vurgu-zemin px-4 py-3 text-lg">“{kanit?.alinti}”</blockquote>
       </IletisimKutusu>
 
       <PolitikaKutusu oneri={politika} kapat={() => setPolitika(null)} />
@@ -605,7 +605,7 @@ function AtifListesi({
               {a.capa?.sayfa ? `, s. ${a.capa.sayfa}` : ""}
             </button>
             {acik && a.alinti ? (
-              <blockquote className="mt-1 border-l-4 border-cizgi-guclu pl-3 text-sm">“{a.alinti}”</blockquote>
+              <blockquote className="mt-1 rounded-sm bg-yuzey-2 px-3 py-2 text-sm">“{a.alinti}”</blockquote>
             ) : null}
           </li>
         ))}

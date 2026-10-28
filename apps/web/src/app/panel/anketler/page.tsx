@@ -50,7 +50,7 @@ export default async function AnketlerSayfasi() {
               ),
               durum: <Rozet vurgulu={a.durum === "yayinda"}>{DURUM[a.durum]}</Rozet>,
               yanit: a.davetSayisi ? `${a.sonuc.yanitSayisi} / ${a.davetSayisi}` : String(a.sonuc.yanitSayisi),
-              oran: a.sonuc.yanitOrani === null ? "—" : yuzde(a.sonuc.yanitOrani),
+              oran: a.sonuc.yanitOrani === null ? "Yok" : yuzde(a.sonuc.yanitOrani),
             },
           }))}
         />
@@ -83,7 +83,7 @@ export default async function AnketlerSayfasi() {
                       ) : (
                         sayi(s.ozet?.ortalama ?? 0)
                       ),
-                    katilan: ust === null || s.tur !== "likert" ? "—" : yuzde(ust),
+                    katilan: ust === null || s.tur !== "likert" ? "Yok" : yuzde(ust),
                   },
                 };
               })}
@@ -93,8 +93,8 @@ export default async function AnketlerSayfasi() {
 
         <Kart baslik="AKTS iş yükü denetimi (HUK101)">
           <p>
-            Ders sayfasında beyan edilen iş yükü <strong>{isyuku.beyan ?? "—"} saat</strong>, öğrencilerin bildirdiği
-            (etkinlik başına ortanca) <strong>{sayi(isyuku.olculen)} saat</strong>, AKTS {isyuku.akts ?? "—"}.
+            Ders sayfasında beyan edilen iş yükü <strong>{isyuku.beyan ?? "belirtilmemiş"} saat</strong>, öğrencilerin bildirdiği
+            (etkinlik başına ortanca) <strong>{sayi(isyuku.olculen)} saat</strong>, AKTS {isyuku.akts ?? "belirtilmemiş"}.
           </p>
           {isyuku.bulgular.length ? (
             <ul className="mt-3 list-disc space-y-1 pl-6">

@@ -43,7 +43,7 @@ describe("yardımcılar", () => {
 
   it("yüzde, boyut ve süre", () => {
     expect(yuzdeYaz(0.866)).toBe("%87");
-    expect(yuzdeYaz(null)).toBe("—");
+    expect(yuzdeYaz(null)).toBe("Yok");
     expect(boyutYaz(512)).toBe("512 B");
     expect(boyutYaz(12_697)).toBe("12,4 KB"); // 12697 / 1024 = 12,399...
     expect(sureYaz(45)).toBe("45 dk");

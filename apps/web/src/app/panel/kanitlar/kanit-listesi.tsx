@@ -97,7 +97,7 @@ export function KanitListesi({ kanitlar, olcutler }: { kanitlar: KanitGorunumu[]
               </span>
             ),
             kaynak: KAYNAK_ETIKETI[k.kaynakTuru],
-            tarih: k.belgeTarihi ? tarihYaz(k.belgeTarihi) : "—",
+            tarih: k.belgeTarihi ? tarihYaz(k.belgeTarihi) : "Yok",
             boyut: boyutYaz(k.boyut),
           },
         }))}

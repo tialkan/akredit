@@ -15,7 +15,7 @@ const DEGISIM: Record<string, string> = {
   yeni: "İlk okuma",
 };
 
-const sayilar = (x: { hata: number; uyari: number } | null) => (x ? `${x.hata} hata, ${x.uyari} uyarı` : "—");
+const sayilar = (x: { hata: number; uyari: number } | null) => (x ? `${x.hata} hata, ${x.uyari} uyarı` : "Yok");
 
 export default async function BolognaDenetimiSayfasi() {
   const programlar = await programDenetimleri();
