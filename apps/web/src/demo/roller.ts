@@ -70,7 +70,8 @@ export const DEMO_ROL_BILGISI: Readonly<Record<DemoRolu, DemoRolBilgisi>> = {
       },
       {
         baslik: "Kanıtlar",
-        metin: "Ders bilgi paketleri ve tutanaklar kanıt olarak kayıtlı. Bir öneriden kanıtın ilgili bölümüne gidebilirsiniz.",
+        metin:
+          "Ders bilgi paketleri ve tutanaklar kanıt olarak kayıtlı. Bir öneriden kanıtın ilgili bölümüne gidebilirsiniz.",
         yol: "/panel/kanitlar",
       },
       {

@@ -78,7 +78,10 @@ export async function demoOturumuAc(
     .insert(sema.kimlikUyelik)
     .values({ eposta, bagliKurumId: kurumId, kisiId, demoBitis: bitis, demoRolu: rol });
   const ctx = await k.auth.$context;
-  const kullanici = await ctx.internalAdapter.createUser({ email: eposta, name: "Ziyaretçi", emailVerified: true }, undefined);
+  const kullanici = await ctx.internalAdapter.createUser(
+    { email: eposta, name: "Ziyaretçi", emailVerified: true },
+    { method: "akredit-demo" },
+  );
   if (!kullanici) throw new Error("Ziyaretçi hesabı açılamadı.");
   const oturum = await ctx.internalAdapter.createSession(kullanici.id, false, { expiresAt: bitis }, true);
   if (!oturum) throw new Error("Ziyaretçi oturumu açılamadı.");
