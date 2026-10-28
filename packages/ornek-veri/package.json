@@ -18,5 +18,8 @@
     "@akredit/olcme": "workspace:*",
     "@akredit/vt": "workspace:*",
     "drizzle-orm": "^0.45.4"
+  },
+  "devDependencies": {
+    "@akredit/servis": "workspace:*"
   }
 }
