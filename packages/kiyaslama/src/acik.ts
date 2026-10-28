@@ -16,19 +16,22 @@ export const AcikKaynakSemasi = z
   .strict();
 export type AcikKaynak = z.infer<typeof AcikKaynakSemasi>;
 
-/** `@akredit/baglayicilar` YÖK Atlas `ProgramIstatistigi` çıktısının kıyas için gereken alt kümesi. */
-export const AtlasKaydiSemasi = z
-  .object({
-    programKodu: z.string().regex(/^\d{9}$/),
-    yil: z.number().int().nullable(),
-    kontenjan: z.number().int().nonnegative().nullable(),
-    yerlesen: z.number().int().nonnegative().nullable(),
-    tabanPuan: z.number().nullable(),
-    basariSirasi: z.number().int().nullable(),
-    doluluk: z.number().min(0).nullable(),
-    kaynak: AcikKaynakSemasi,
-  })
-  .strict();
+/**
+ * `@akredit/baglayicilar` YÖK Atlas `ProgramIstatistigi` çıktısının kıyas için gereken alt kümesi.
+ * YÖK Atlas tercih kılavuzu yanıtı artık yerleşen sayısını vermiyor: `yerlesen` gelmeyebilir ve `doluluk`
+ * null olur. Eksik alan "veri yok" sayılır; kontenjandan ya da başka bir alandan tahmin edilmez.
+ * Bağlayıcının ek alanları (program adı, akademik kadro) yok sayılır.
+ */
+export const AtlasKaydiSemasi = z.object({
+  programKodu: z.string().regex(/^\d{9}$/),
+  yil: z.number().int().nullable(),
+  kontenjan: z.number().int().nonnegative().nullable(),
+  yerlesen: z.number().int().nonnegative().nullable().optional().default(null),
+  tabanPuan: z.number().nullable(),
+  basariSirasi: z.number().int().nullable(),
+  doluluk: z.number().min(0).nullable(),
+  kaynak: AcikKaynakSemasi,
+});
 export type AtlasKaydi = z.infer<typeof AtlasKaydiSemasi>;
 
 export const ATLAS_ALANLARI = ["doluluk", "tabanPuan", "basariSirasi", "kontenjan", "yerlesen"] as const;
@@ -63,7 +66,14 @@ export type AcikKiyas =
       altindakiOran: number;
       kaynaklar: AcikKaynak[];
     }
-  | { durum: "EKSIK"; alan: string; neden: string };
+  | { durum: "EKSIK"; alan: string; neden: string }
+  /** Kaynak bu alanı hiç yayımlamıyor (ör. YÖK Atlas yerleşen sayısı). Değer uydurulmaz. */
+  | { durum: "veri_yok"; alan: string; neden: string };
+
+/** YÖK Atlas'ın artık yayımlamadığı alanlar. */
+export const ATLAS_VERI_YOK_ALANLARI: readonly AtlasAlani[] = ["doluluk", "yerlesen"];
+export const ATLAS_VERI_YOK_NEDENI =
+  "Veri yok: YÖK Atlas artık yerleşen sayısını yayımlamıyor, doluluk oranı hesaplanamaz.";
 
 function dagilim(alan: string, kendi: number | null, digerler: { deger: number; kaynak: AcikKaynak }[]): AcikKiyas {
   if (kendi === null) return { durum: "EKSIK", alan, neden: "Kendi değeriniz yok." };
@@ -96,6 +106,8 @@ export function atlasKiyasla(kendiHam: unknown, benzerHam: readonly unknown[], a
     gorulen.add(b.programKodu);
     digerler.push({ deger: d, kaynak: b.kaynak });
   }
+  if (kendi[alan] === null && digerler.length === 0 && ATLAS_VERI_YOK_ALANLARI.includes(alan))
+    return { durum: "veri_yok", alan, neden: ATLAS_VERI_YOK_NEDENI };
   return dagilim(alan, kendi[alan], digerler);
 }
 

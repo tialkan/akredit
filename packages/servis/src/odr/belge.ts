@@ -178,7 +178,7 @@ export function odrDocxModeli(g: OdrBelgeGirdisi): DocxModeli {
   return {
     baslik: `Öz Değerlendirme Raporu — ${t.programAd}`,
     altBaslik: `${g.kurumAd} · ${t.cerceve.ad}`,
-    ustBilgi: g.onay ? g.kurumAd : "Taslak — onaylanmadı",
+    ustBilgi: g.onay ? g.kurumAd : "Taslak: onaylanmadı",
     altBilgi: `Sürüm ${g.surum} · ${t.cerceve.rozet}`,
     bolumler: [giris, ...bolumler, ...ekler],
   };
