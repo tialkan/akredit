@@ -9,6 +9,7 @@ import { type OneriTuru, politikaUygulanirMi, type YetkiPolitikasi } from "@akre
 import { type Islem, sema } from "@akredit/vt";
 import {
   anahtarIzi,
+  cikisKapisi,
   type FetchIslevi,
   openaiUyumlu,
   openrouterAnahtariBicimi,
@@ -513,13 +514,17 @@ export async function yzBaglantiDene(
     return (await kurumOku(tx, b.aktor.kurumId)).ayar.yzAnahtar ?? null;
   });
   if (!kayit) throw new ServisHatasi("kural_ihlali", "Kayıtlı anahtar yok. Önce anahtarı girin.");
-  const saglayici = openaiUyumlu({
-    hazir: "openrouter",
-    anahtar: kasa.coz(kayit.sifreli, b.aktor.kurumId),
-    model: kayit.model,
-    ...(secenek.fetch ? { fetch: secenek.fetch } : {}),
-    http: { denemeSayisi: 1, zamanAsimiMs: 15_000 },
-  });
+  // Çıkış kapısı (İP-40): sabit deneme metni kurum verisi değildir; yine de kapıdan, maskeli ve kayıtlı geçer.
+  const saglayici = cikisKapisi(
+    openaiUyumlu({
+      hazir: "openrouter",
+      anahtar: kasa.coz(kayit.sifreli, b.aktor.kurumId),
+      model: kayit.model,
+      ...(secenek.fetch ? { fetch: secenek.fetch } : {}),
+      http: { denemeSayisi: 1, zamanAsimiMs: 15_000 },
+    }),
+    { yurtDisiIzin: true, amac: "baglanti_denemesi" },
+  );
   try {
     await saglayici.sohbet({ mesajlar: [{ rol: "kullanici", icerik: "Yalnız: tamam" }], enCokBelirtec: 1 });
     return { tamam: true, ileti: "Bağlantı çalışıyor. Anahtar geçerli.", model: kayit.model };

@@ -1,6 +1,7 @@
 // OpenAI uyumlu /chat/completions bağdaştırıcısı: EVREN, vLLM, SGLang, Ollama, OpenAI, OpenRouter.
 // Hazır adresler apps/cli/lib/model.mjs HAZIRLAR ile aynıdır.
 import { z } from "zod";
+import { kapiDenetimi } from "../guvence/cikis-kapisi.ts";
 import { type HttpAyari, jsonIstek } from "../http.ts";
 import {
   type AracCagrisi,
@@ -94,6 +95,7 @@ export function openaiUyumlu(ayar: OpenaiUyumluAyari): Saglayici {
     yurtIci,
     yapilandirilmisCikti: yapilandirilmis,
     async sohbet(istek: SohbetIstegi): Promise<SohbetYaniti> {
+      kapiDenetimi({ yurtIci });
       const govde: Record<string, unknown> = {
         model,
         messages: mesajlariCevir(istek.mesajlar),
@@ -129,6 +131,7 @@ export function openaiUyumlu(ayar: OpenaiUyumluAyari): Saglayici {
       return yanit;
     },
     async gomme(metinler: string[]): Promise<number[][]> {
+      kapiDenetimi({ yurtIci });
       const ham = await jsonIstek(`${adres}/embeddings`, basliklar, { model, input: metinler }, http);
       const v = z.object({ data: z.array(z.object({ embedding: z.array(z.number()) })) }).safeParse(ham);
       if (!v.success)

@@ -60,7 +60,16 @@ export interface Saglayici {
   gomme?(metinler: string[]): Promise<number[][]>;
 }
 
-export type YzHataTuru = "anahtar" | "yogunluk" | "ag" | "zaman_asimi" | "sunucu" | "yanit" | "iptal" | "politika";
+export type YzHataTuru =
+  | "anahtar"
+  | "yogunluk"
+  | "ag"
+  | "zaman_asimi"
+  | "sunucu"
+  | "yanit"
+  | "iptal"
+  | "politika"
+  | "insan_incelemesi";
 
 /** Kullanıcıya gösterilebilir Türkçe iletili YZ hatası. */
 export class YzHatasi extends Error {

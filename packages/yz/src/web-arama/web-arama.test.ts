@@ -2,11 +2,12 @@
 // denetlenir; yanıt notları zod ile doğrulanır; kurum politikası izinsiz kurumda hiçbir isteğe izin vermez.
 
 import { describe, expect, it } from "vitest";
+import { tekMetinKapisi } from "../guvence/cikis-kapisi.ts";
 import { type FetchIslevi, YzHatasi } from "../saglayici.ts";
 import {
   atiflariCoz,
+  openrouterWebArayici as hamArayici,
   kurumSonucTavani,
-  openrouterWebArayici,
   sahteWebArayici,
   sonucSiniri,
   WEB_ARAMA_MUTLAK_TAVAN,
@@ -14,6 +15,22 @@ import {
   webAramaMaliyeti,
   webAramaPolitikasi,
 } from "./index.ts";
+
+// İP-40: arayıcı çıkış kapısı dışında çağrılamaz; biçim testleri kapıdan (izinli kurum) geçirir.
+function openrouterWebArayici(a: Parameters<typeof hamArayici>[0]) {
+  const h = hamArayici(a);
+  return {
+    ...h,
+    ara: (i: Parameters<typeof h.ara>[0]) =>
+      tekMetinKapisi(
+        { ad: h.ad, model: h.motor, yurtIci: h.yurtIci },
+        { yurtDisiIzin: true },
+        "web_arama",
+        i.soru,
+        (soru) => h.ara({ ...i, soru }),
+      ),
+  };
+}
 
 function sahteFetch(yanit: unknown) {
   const cagrilar: { adres: string; govde: Record<string, unknown>; basliklar: Record<string, string> }[] = [];

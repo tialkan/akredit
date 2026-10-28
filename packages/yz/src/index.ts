@@ -13,6 +13,20 @@ export * from "./gorevler/kanit-avcisi/index.ts";
 export * from "./gorevler/kanit-siniflama.ts";
 export * from "./gorevler/toplanti-bilgisi.ts";
 export * from "./guvence/atif.ts";
+// Çıkış kapısı (İP-40). `tekMetinKapisi` ve `cikisIzniDenetle` bilerek dışa açılmaz: kapı bağlamını yalnız paket kurar.
+export {
+  type CikisAyari,
+  type CikisIslemi,
+  type CikisKaydi,
+  type CikisKipi,
+  type CikisSonucu,
+  cikisKapisi,
+  InsanIncelemesiGerekliHatasi,
+  kapiDenetimi,
+  SAGLAYICI_KATALOGU,
+  type SaglayiciBilgisi,
+  saglayiciBilgisi,
+} from "./guvence/cikis-kapisi.ts";
 export * from "./guvence/istem-kalkani.ts";
 export * from "./guvence/kvkk.ts";
 export * from "./guvence/politika.ts";

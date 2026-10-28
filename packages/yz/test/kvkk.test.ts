@@ -15,9 +15,10 @@ describe("T.C. kimlik no sağlaması", () => {
     expect(tcknGecerliMi("01000000146")).toBe(false);
     expect(tcknGecerliMi("1000000014")).toBe(false);
   });
-  it("geçersiz numara maskelenmez, geçerli maskelenir", () => {
+  it("geçersiz numara TCKN sayılmaz, geçerli TCKN sayılır", () => {
     const s = maskele(`No: ${TCKN} ve 10000000147`);
-    expect(s.metin).toBe("No: [TCKN-1] ve 10000000147");
+    // İP-40: sağlaması tutmayan 11 haneli sayı da numara olabilir; TCKN olarak değil, numara olarak maskelenir.
+    expect(s.metin).toBe("No: [TCKN-1] ve [ÖĞRENCİ-NO-1]");
   });
 });
 
@@ -98,6 +99,7 @@ describe("sabit hat telefonu (İP-27, inceleme dalga 1 #5)", () => {
     expect(s.metin).toBe("Santral [TELEFON-1], faks [TELEFON-2], çağrı [TELEFON-3].");
   });
   it("sıradan 10 haneli sayıyı telefon saymaz", () => {
-    expect(maskele("Kayıt 1234567890 numaralı.").metin).toBe("Kayıt 1234567890 numaralı.");
+    // İP-40: telefon sayılmaz ama etiketsiz 8-12 haneli sayı numara olabileceği için yine maskelenir.
+    expect(maskele("Kayıt 1234567890 numaralı.").metin).toBe("Kayıt [ÖĞRENCİ-NO-1] numaralı.");
   });
 });

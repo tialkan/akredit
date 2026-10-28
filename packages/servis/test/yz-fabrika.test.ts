@@ -92,6 +92,8 @@ describe("kurumSaglayicisi", () => {
     const yerel: Saglayici = { ...sahteSaglayici([{ icerik: "yerel" }]), yurtIci: true };
     const k = await kurumSaglayicisi(o.db, o.b.kurumId, { kasa, kurumIci: yerel, bildir: false });
     expect(k.kaynak).toBe("kurum_ici");
-    expect(k.saglayici).toBe(yerel);
+    // İP-40: kurum içi model de çıkış kapısından (kurum içi kipte, maskesiz) geçer.
+    expect(k.saglayici.ad).toBe(yerel.ad);
+    expect((await k.saglayici.sohbet({ mesajlar: [{ rol: "kullanici", icerik: "x" }] })).icerik).toBe("yerel");
   });
 });

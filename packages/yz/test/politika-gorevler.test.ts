@@ -19,11 +19,14 @@ describe("sağlayıcı politikası", () => {
     expect(disari.istekler).toHaveLength(0);
   });
 
-  it("yurt içi sağlayıcı olduğu gibi döner ve öncelik alır", () => {
-    const ic = sahteSaglayici([]);
+  it("yurt içi sağlayıcı kurum içi kipte kapıdan geçer (maskesiz) ve öncelik alır", async () => {
+    const ic = sahteSaglayici(["tamam"], { ad: "ic" });
     const disari = sahteSaglayici([], { yurtIci: false });
-    expect(politikaUygula(ic, { yurtDisiIzin: false })).toBe(ic);
-    expect(saglayiciSec([disari, ic], { yurtDisiIzin: true })).toBe(ic);
+    const s = politikaUygula(ic, { yurtDisiIzin: false });
+    expect(s).not.toBe(ic);
+    await s.sohbet({ mesajlar: [{ rol: "kullanici", icerik: "Ayla Deniz" }] });
+    expect(ic.istekler[0]?.mesajlar[0]?.icerik).toBe("Ayla Deniz");
+    expect(saglayiciSec([disari, ic], { yurtDisiIzin: true }).ad).toBe("ic");
   });
 
   it("izin varsa maskeleme zorunlu: sağlayıcı kişisel veriyi görmez, yanıt geri çevrilir", async () => {
@@ -109,7 +112,12 @@ describe("toplantı bilgisi görevi", () => {
     const giden = JSON.stringify(s.istekler);
     for (const ad of ["Ayla", "Kerem", "İlknur"]) expect(giden).not.toContain(ad);
     expect(tutanagiMaskele(girdi).eslemeler).toHaveLength(3);
-    expect(tutanagiMaskele({ kanit: KURGU_TUTANAK }).eslemeler).toHaveLength(0);
+    // İP-40: ad listesi verilmese de bağlamlı ad yakalama (yaygın ad + soyad) aynı üç kişiyi maskeler.
+    expect(tutanagiMaskele({ kanit: KURGU_TUTANAK }).eslemeler.map((e) => e.deger)).toEqual([
+      "Ayla Deniz",
+      "Kerem Toprak",
+      "İlknur Yaz",
+    ]);
   });
 
   it("uydurma tarih, sayı ve atıfsız alanlar reddedilir", async () => {
