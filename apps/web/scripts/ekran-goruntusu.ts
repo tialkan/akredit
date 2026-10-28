@@ -4,6 +4,8 @@ import { join } from "node:path";
 import { chromium } from "@playwright/test";
 
 const KOK = process.argv[2] ?? "http://127.0.0.1:3108";
+// İsteğe bağlı ek: `-v2-once` gibi; dosya adı `ana-sayfa-v2-once-1440.png` olur.
+const EK = process.argv[3] ?? "";
 const HEDEF = join(import.meta.dirname, "../../../docs/tasarim/ekranlar");
 const SAYFALAR: [string, string][] = [
   ["ana-sayfa", "/"],
@@ -33,7 +35,7 @@ for (const g of GENISLIKLER) {
       await document.fonts.ready;
     });
     await sayfa.waitForTimeout(300);
-    await sayfa.screenshot({ path: join(HEDEF, `${ad}-${g}.png`), fullPage: false });
+    await sayfa.screenshot({ path: join(HEDEF, `${ad}${EK}-${g}.png`), fullPage: false });
   }
   await sayfa.close();
 }
