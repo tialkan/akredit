@@ -10,6 +10,7 @@ const config: NextConfig = {
     "@akredit/belge",
     "@akredit/cerceveler",
     "@akredit/cekirdek",
+    "@akredit/depo",
     "@akredit/gosterge",
     "@akredit/olcme",
     "@akredit/servis",

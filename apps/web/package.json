@@ -16,8 +16,11 @@
   },
   "dependencies": {
     "@akredit/anket": "workspace:*",
+    "@akredit/baglayicilar": "workspace:*",
+    "@akredit/belge": "workspace:*",
     "@akredit/cekirdek": "workspace:*",
     "@akredit/cerceveler": "workspace:*",
+    "@akredit/depo": "workspace:*",
     "@akredit/gosterge": "workspace:*",
     "@akredit/servis": "workspace:*",
     "@akredit/surec": "workspace:*",

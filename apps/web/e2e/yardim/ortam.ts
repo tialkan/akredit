@@ -11,6 +11,7 @@ export const KURULUM_ADRESI = `http://localhost:${PORT}`;
 export const KOK = join(tmpdir(), `akredit-e2e-${PORT}`);
 export const VT_DIZINI = join(KOK, "vt");
 export const EPOSTA_DIZINI = join(KOK, "eposta");
+export const DEPO_DIZINI = join(KOK, "kanit");
 
 export const SUNUCU_ORTAMI: Record<string, string> = {
   AKREDIT_ADRES: KURULUM_ADRESI,
@@ -20,6 +21,9 @@ export const SUNUCU_ORTAMI: Record<string, string> = {
   // Panel sayfaları örnek veriyle sınanır; derleme de `AKREDIT_ORNEK_VERI=1` ile yapılmalı (ci.yml).
   AKREDIT_ORNEK_VERI: "1",
   AKREDIT_TEST_EPOSTA_DIZINI: EPOSTA_DIZINI,
+  // Yerel kanıt deposu (İP-37 köprüleri); üretim kipinde depo tanımsızsa sunucu açılmaz.
+  AKREDIT_DEPO_DIZINI: DEPO_DIZINI,
+  AKREDIT_DEPO_IMZA_GIZLISI: "e2e-yalniz-test-icin-depo-imza-gizlisi-0000",
   AKREDIT_BOLOGNA_YEREL_IZIN: "1",
   // 32 baytlık sabit test anahtarı (base64). Gerçek bir kurulumda kullanılmaz.
   AKREDIT_ANAHTAR_KASASI: Buffer.alloc(32, 7).toString("base64"),

@@ -102,12 +102,21 @@ importers:
       '@akredit/anket':
         specifier: workspace:*
         version: link:../../packages/anket
+      '@akredit/baglayicilar':
+        specifier: workspace:*
+        version: link:../../packages/baglayicilar
+      '@akredit/belge':
+        specifier: workspace:*
+        version: link:../../packages/belge
       '@akredit/cekirdek':
         specifier: workspace:*
         version: link:../../packages/cekirdek
       '@akredit/cerceveler':
         specifier: workspace:*
         version: link:../../packages/cerceveler
+      '@akredit/depo':
+        specifier: workspace:*
+        version: link:../../packages/depo
       '@akredit/gosterge':
         specifier: workspace:*
         version: link:../../packages/gosterge

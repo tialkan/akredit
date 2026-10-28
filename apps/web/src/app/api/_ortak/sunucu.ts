@@ -12,6 +12,8 @@
 // - AKREDIT_ANAHTAR_KASASI: kurumların YZ anahtarlarını şifreleyen ana anahtar (base64, 32 bayt).
 // - AKREDIT_SMTP_SUNUCU, AKREDIT_SMTP_PORT, AKREDIT_SMTP_KULLANICI, AKREDIT_SMTP_PAROLA, AKREDIT_EPOSTA_GONDEREN:
 //   gerçek e-posta gönderici (İP-14, `@akredit/surec`).
+// - S3_* ya da AKREDIT_DEPO_DIZINI + AKREDIT_DEPO_IMZA_GIZLISI: kanıt nesne deposu; site taraması, metin çıkarma
+//   ve Bologna okuma kaydı köprüleri bununla kurulur (`kopruler.ts`, İP-37). Üretimde zorunludur.
 
 import { randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
@@ -22,6 +24,7 @@ import { pgliteBaglantisi, postgresBaglantisi, type Vt } from "@akredit/vt";
 import { ortamdanAyar } from "../../../kimlik/ayar.ts";
 import { type EpostaGonderici, type KimlikSunucusu, kimlikSunucusuOlustur } from "../../../kimlik/sunucu.ts";
 import { GERCEK_VERI } from "../../../veri/kip.ts";
+import { kopruleriKur } from "./kopruler.ts";
 
 export const gercekVeriMi = (): boolean => GERCEK_VERI;
 
@@ -85,6 +88,9 @@ interface Tekiller {
 const kuresel = globalThis as unknown as { __akredit?: Promise<Tekiller> };
 
 async function kur(): Promise<Tekiller> {
+  // Üretimde depo eksikse burada açık Türkçe hatayla durur; geliştirmede uyarı yazılır, uçlar 400 verir.
+  const kopru = kopruleriKur(process.env);
+  if (!kopru.kuruldu) console.warn(`[geliştirme] Site taraması ve kanıt deposu bağlı değil. ${kopru.neden}`);
   const adres = process.env.AKREDIT_VT_ADRES;
   let db: Vt;
   if (adres) db = postgresBaglantisi(adres).db;

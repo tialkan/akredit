@@ -30,6 +30,11 @@ services:
       AKREDIT_SMTP_KULLANICI: ${AKREDIT_SMTP_KULLANICI:-}
       AKREDIT_SMTP_PAROLA: ${AKREDIT_SMTP_PAROLA:-}
       AKREDIT_EPOSTA_GONDEREN: ${AKREDIT_EPOSTA_GONDEREN:-}
+      # Kanıt deposu: işçiyle aynı birim ve aynı imza gizlisi (site taraması, Bologna okuma kaydı, Word paketi).
+      AKREDIT_DEPO_DIZINI: /veri/kanit
+      AKREDIT_DEPO_IMZA_GIZLISI: ${SERVICE_BASE64_64_DEPO}
+    volumes:
+      - akredit-kanit:/veri/kanit
     depends_on:
       vt: { condition: service_healthy }
       goc: { condition: service_completed_successfully }
