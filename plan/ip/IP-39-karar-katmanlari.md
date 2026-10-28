@@ -1,6 +1,6 @@
 # İP-39: Üç katmanlı karar modeli, karar kartları, kendini kapatan PÜKÖ
 
-- **Durum:** devam
+- **Durum:** inceleme
 - **Faz:** 7
 - **Bağımlılık:** İP-13, İP-14 (ortak: İP-38 sessiz devir)
 - **Sahip olduğu yollar:** `packages/cekirdek/src/karar/**`, `packages/cekirdek/test/karar*.test.ts`, `packages/olcme/src/kok-neden.ts`, `packages/olcme/test/kok-neden.test.ts`, `packages/servis/src/puko/**`, `packages/servis/test/puko.test.ts`, `apps/web/src/app/panel/kararlar/**`, `apps/web/src/app/panel/onaylar/yonetici-ozeti.tsx`, `apps/web/e2e/kararlar.spec.ts`, `docs/raporlar/IP-39.md`
@@ -36,3 +36,6 @@ Onay yorgunluğunu önlemek (dış incelemeler, 2026-10-28, Argon ilkesi): insan
 ## Günlük
 
 - 2026-10-28: İP tanımlandı.
+- 2026-10-28: Uygulandı (dal `ip/39-karar-katmanlari`): çekirdek katman kuralı ve kart hesapları, ölçmede kök neden, servis PÜKÖ (bellek deposu, yalnız eklenen olaylar), `/panel/kararlar` ve yönetici özeti, e2e. `pnpm verify` adımları temiz, web derlemesi başarılı.
+- Karar: İP-38 henüz yok; `SessizDevirGirdisi` servis içinde yerel tür.
+- Kalan: PÜKÖ veritabanı tablosu ve göçü, İP-38/İP-14 gerçek bağlantısı, yönetici özeti kapısının onay motoruna bağlanması ve görülmenin günlüğe yazılması, YZ önlem görevi. Ayrıntı: `docs/raporlar/IP-39.md`.
