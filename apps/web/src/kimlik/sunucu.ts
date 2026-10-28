@@ -19,6 +19,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { magicLink } from "better-auth/plugins/magic-link";
 import { and, desc, eq, isNull } from "drizzle-orm";
+import { demoEpostasiMi } from "../demo/roller.ts";
 import type { KimlikAyari } from "./ayar.ts";
 
 export interface EpostaGonderici {
@@ -217,7 +218,8 @@ export function kimlikSunucusuOlustur(s: KimlikSecenekleri) {
                   );
               });
             }
-            if (supheli) await s.eposta.supheliGiris(kullanici.email, { zaman: simdi(), cihaz: iz.cihaz });
+            if (supheli && !demoEpostasiMi(kullanici.email))
+              await s.eposta.supheliGiris(kullanici.email, { zaman: simdi(), cihaz: iz.cihaz });
           },
         },
       },
@@ -227,6 +229,8 @@ export function kimlikSunucusuOlustur(s: KimlikSecenekleri) {
         expiresIn: SIHIRLI_BAGLANTI_SURESI_SN,
         storeToken: "hashed",
         sendMagicLink: async ({ email, url }) => {
+          // Demo ziyaretçi adresi (İP-41) teslim edilemez bir ad alanındadır; e-posta hiç gönderilmez.
+          if (demoEpostasiMi(email)) return;
           await s.eposta.sihirliBaglanti(email, url);
         },
       }),

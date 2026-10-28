@@ -1,6 +1,7 @@
 // Drizzle şeması: bütün tablolar ve türler.
 
 export * from "./cerceve.ts";
+export * from "./demo.ts";
 export * from "./gunluk.ts";
 export * from "./kanit.ts";
 export * from "./kimlik.ts";

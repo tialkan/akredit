@@ -17,6 +17,7 @@ import { type Vt, zinciriDogrula } from "@akredit/vt";
 import type { Saglayici } from "@akredit/yz";
 import type { PgBoss } from "pg-boss";
 import { z } from "zod";
+import { DEMO_CRON, DEMO_KUYRUGU, demoIsi } from "../demo/index.ts";
 import {
   type HatBaglami,
   kanitHattiniBaslat,
@@ -72,6 +73,8 @@ export interface IsciBagimliliklari {
   ocr?: OcrMotoru;
   virus?: VirusTarayici;
   zamanlama: boolean;
+  /** Sentetik demo kiracısı (İP-41): gece yenilemesi yalnız true iken kurulur. */
+  demo?: boolean;
   saatDilimi: string;
   gunluk: Gunlukcu;
 }
@@ -188,6 +191,23 @@ export async function isciKur(d: IsciBagimliliklari) {
     },
     { retryLimit: 1 },
   );
+
+  if (d.demo) {
+    await kayit(
+      DEMO_KUYRUGU,
+      z.object({ zorla: z.boolean().optional() }).passthrough(),
+      async ({ zorla }) => {
+        const o = await demoIsi(d.db, d.saat.simdi(), zorla ? { zorla } : {});
+        d.gunluk.info(o, "demo kiracısı yenilendi");
+      },
+      { policy: "singleton", retryLimit: 1, expireInSeconds: 3600 },
+    );
+    if (d.zamanlama) {
+      await d.boss.schedule(DEMO_KUYRUGU, DEMO_CRON, {}, { tz: d.saatDilimi, key: "demo" });
+      // Açılışta: etkin nesil yoksa hemen yüklensin.
+      await d.boss.send(DEMO_KUYRUGU, {});
+    }
+  }
 
   if (d.zamanlama) {
     for (const z_ of ZAMANLAMA)
