@@ -39,6 +39,24 @@ export default function Kvkk() {
         bilgi silinir; mevcut kayıtlar kimseyle ilişkilendirilemez hale gelir ve silme işlemi yeni bir kayıtla
         belgelenir.
       </p>
+      <h2>Yapay zekâya kişisel veri gitmez</h2>
+      <p>
+        Kurum dışındaki ya da yurt dışındaki bir yapay zekâ hizmetine giden her metin önce bir denetimden geçer. Ad,
+        öğrenci numarası, kimlik numarası, e-posta, telefon, banka hesabı, adres ve imza gizlenir. Gizlenemeyen kişisel
+        bilgi şüphesi varsa metin gönderilmez, bir yetkili inceler. Her gönderim için hangi türden kaç bilginin
+        gizlendiği kaydedilir; bilginin kendisi kaydedilmez.
+      </p>
+      <h2>Kurum hukuk paketi</h2>
+      <p>
+        Üniversitenizin hukuk birimi için hazırladığımız taslak belgeler: veri işleme sözleşmesi, yurt dışı aktarım
+        notu, VERBİS değerlendirmesi, aydınlatma metinleri, sorumluluk tablosu ve veri akışı listesi. Hepsi taslaktır ve
+        avukat incelemesi gerektirir.
+      </p>
+      <p>
+        <a href="/indir/akredit-kurum-hukuk-paketi.zip" download>
+          Kurum hukuk paketini indir (.zip)
+        </a>
+      </p>
       <h2>Diğer metinler</h2>
       <ul>
         <li>
