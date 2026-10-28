@@ -109,6 +109,10 @@ export const kimlikUyelik = pgTable(
     kisiId: uuid("kisi_id")
       .notNull()
       .references(() => kisi.id),
+    /** Demo ziyaretçisinin üyeliği (İP-41): bu andan sonra istek bağlamı kurulmaz. */
+    demoBitis: zaman("demo_bitis"),
+    /** Demo ziyaretçisinin seçtiği rol (rehber turu için). */
+    demoRolu: text("demo_rolu"),
     olusturma: olusturma(),
   },
   (t) => [

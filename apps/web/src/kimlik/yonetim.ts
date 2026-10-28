@@ -47,6 +47,8 @@ export type DavetGirdisi = z.input<typeof DavetGirdisi>;
 function oturumlaOlmali(b: IstekBaglami) {
   // Kullanıcı ekleme ve anahtar yönetimi kişinin kendisi tarafından yapılır, API anahtarıyla yapılamaz.
   if (b.tur !== "oturum") throw new ErisimHatasi(403, "Bu işlem yalnız oturum açarak yapılabilir.");
+  // Demo oturumu (İP-41) kullanıcı eklemez, rol atamaz, anahtar yönetmez.
+  if (b.demo) throw new ErisimHatasi(403, "Örnek kurumda bu işlem yapılamaz.");
 }
 
 async function atamaDenetle(

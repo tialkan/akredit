@@ -17,6 +17,7 @@ import {
   yetkiliMi,
 } from "@akredit/yetki";
 import { and, eq } from "drizzle-orm";
+import { DEMO_EYLEMLERI } from "../demo/roller.ts";
 import type { KimlikSunucusu } from "./sunucu.ts";
 
 export class ErisimHatasi extends Error {
@@ -31,9 +32,14 @@ export interface IstekBaglami {
   tur: "oturum" | "anahtar";
   kullaniciId: string | null;
   kisi: YetkiKisisi;
-  /** API anahtarıyla gelindiyse anahtarın izinleri; yetki, kişinin rolleriyle bunun kesişimidir. */
+  /**
+   * İzin üst sınırı: API anahtarıyla gelindiyse anahtarın izinleri, demo oturumunda `DEMO_EYLEMLERI`.
+   * Yetki, kişinin rolleriyle bunun kesişimidir.
+   */
   anahtarKapsami: readonly Eylem[] | null;
   anahtarId: string | null;
+  /** Demo oturumu (İP-41): sentetik Örnek Üniversitesi, seçilen rol ve bitiş. Gerçek kurumda hiçbir zaman dolu değil. */
+  demo?: { rol: string; bitis: Date } | null;
 }
 
 /** Kişinin rol atamalarını kiracı işleminde okur. */
@@ -69,12 +75,26 @@ export async function istekBaglami(k: KimlikSunucusu, istek: Request): Promise<I
   const secilen = istek.headers.get("x-akredit-kurum");
   const uyelik = secilen ? uyelikler.find((u) => u.bagliKurumId === secilen) : uyelikler[0];
   if (!uyelik) throw new ErisimHatasi(403, "Hesabınız bu kuruma bağlı değil. Kurum yöneticinizden davet isteyin.");
+  if (uyelik.demoBitis) {
+    // Demo oturumu: süre üyelikte tutulur (oturum yenilense bile uzamaz) ve izinler demo sınırıyla kesişir.
+    if (uyelik.demoBitis.getTime() <= k.simdi().getTime())
+      throw new ErisimHatasi(401, "Örnek oturumunuzun süresi doldu. Deneyin sayfasından yeniden başlayabilirsiniz.");
+    return {
+      tur: "oturum",
+      kullaniciId: oturum.user.id,
+      kisi: await kisiYukle(k, uyelik.bagliKurumId, uyelik.kisiId),
+      anahtarKapsami: DEMO_EYLEMLERI,
+      anahtarId: null,
+      demo: { rol: uyelik.demoRolu ?? "", bitis: uyelik.demoBitis },
+    };
+  }
   return {
     tur: "oturum",
     kullaniciId: oturum.user.id,
     kisi: await kisiYukle(k, uyelik.bagliKurumId, uyelik.kisiId),
     anahtarKapsami: null,
     anahtarId: null,
+    demo: null,
   };
 }
 

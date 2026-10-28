@@ -106,6 +106,9 @@ export default function AnaSayfa() {
               <Link href="/nasil-calisir" className={`inline-flex min-h-11 items-center ${BAG}`}>
                 Nasıl çalıştığını okuyun
               </Link>
+              <Link href="/deneyin" className={`inline-flex min-h-11 items-center ${BAG}`}>
+                Hesap açmadan deneyin
+              </Link>
               <Link href="/panel/onaylar" className={`inline-flex min-h-11 items-center ${BAG}`}>
                 Örnek onay kutusunu açın
               </Link>
