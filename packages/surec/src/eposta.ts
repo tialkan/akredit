@@ -21,6 +21,10 @@ export interface EpostaTasiyici {
 export interface EpostaGonderici {
   sihirliBaglanti(alici: string, baglanti: string): Promise<void>;
   supheliGiris(alici: string, ayrinti: { zaman: Date; cihaz: string }): Promise<void>;
+  /** Kurum açılışı doğrulama bağlantısı (İP-35). Bağlantı gizlidir. */
+  kurumAcilisi(alici: string, ayrinti: { kurumAdi: string; baglanti: string }): Promise<void>;
+  /** Kuruma davet (İP-35). Bağlantı gizlidir. */
+  davet(alici: string, ayrinti: { kurumAdi: string; davetEden: string; baglanti: string }): Promise<void>;
 }
 
 export const EpostaAyari = z.object({
@@ -102,6 +106,23 @@ export function kimlikEpostaGondericisi(t: EpostaTasiyici, saatDilimi = "Europe/
         metin:
           `Hesabınıza ${a.zaman.toLocaleString("tr-TR", { timeZone: saatDilimi })} tarihinde yeni bir cihazdan ` +
           `(${a.cihaz}) giriş yapıldı. Siz değilseniz kurumunuzun Akredit yöneticisine haber verin.\n`,
+      }),
+    kurumAcilisi: (alici, a) =>
+      t.gonder({
+        alici,
+        konu: "Akredit: kurum açılışını doğrulayın",
+        metin:
+          `${a.kurumAdi} için Akredit'te kurum açma başvurusu yapıldı. Başvuruyu siz yaptıysanız aşağıdaki ` +
+          `bağlantıyı açın. Bağlantı 30 dakika geçerlidir ve bir kez kullanılabilir.\n\n${a.baglanti}\n\n` +
+          `Başvuruyu siz yapmadıysanız bu iletiyi silin; kurum açılmaz.\n`,
+      }),
+    davet: (alici, a) =>
+      t.gonder({
+        alici,
+        konu: `Akredit: ${a.kurumAdi} sizi davet ediyor`,
+        metin:
+          `${a.davetEden}, sizi ${a.kurumAdi} kurumunun Akredit hesabına davet etti. Katılmak için aşağıdaki ` +
+          `bağlantıyı açın ve bu e-posta adresiyle giriş yapın. Bağlantı 7 gün geçerlidir.\n\n${a.baglanti}\n`,
       }),
   };
 }

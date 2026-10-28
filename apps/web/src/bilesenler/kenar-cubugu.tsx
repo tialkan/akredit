@@ -4,6 +4,7 @@
 
 import {
   BookOpen,
+  Building2,
   CalendarDays,
   CheckSquare,
   ClipboardList,
@@ -30,6 +31,7 @@ export const PANEL_MENUSU = [
   { href: "/panel/gostergeler", ad: "Göstergeler", simge: Gauge },
   { href: "/panel/anketler", ad: "Anketler", simge: ClipboardList },
   { href: "/panel/surecler", ad: "Takvim ve görevler", simge: CalendarDays },
+  { href: "/panel/birimler", ad: "Birimler ve programlar", simge: Building2 },
   { href: "/panel/ayarlar", ad: "Ayarlar", simge: Settings },
 ] as const;
 

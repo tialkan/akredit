@@ -64,6 +64,12 @@ export default function AnaSayfa() {
                 Nasıl çalıştığını okuyun
               </Link>
               <Link
+                href="/kurum-ac"
+                className="inline-flex min-h-11 items-center font-semibold text-vurgu underline underline-offset-4"
+              >
+                Kurumunuzu açın
+              </Link>
+              <Link
                 href="/panel/onaylar"
                 className="inline-flex min-h-11 items-center font-semibold text-vurgu underline underline-offset-4"
               >
