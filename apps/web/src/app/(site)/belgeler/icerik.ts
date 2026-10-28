@@ -272,7 +272,7 @@ export const KILAVUZLAR: Kilavuz[] = [
     sinirlar: [
       "Çerçeve seçimi ve süreç takviminin ayarlanması şu an panelden yapılamaz; kurulum sırasında birlikte tanımlanır.",
       "Çerçeve ölçüt verisi bir kalite uzmanının doğrulamasını beklemektedir.",
-      "Göstergeler ve takvim sayfaları şu an örnek veriyle görünür.",
+      "Göstergeler ve takvim sayfaları kurumun kendi kayıtlarını gösterir; kayıt yoksa boş görünür.",
       "Kurum iç değerlendirme raporu ve olgunluk değerlendirmesi yapım aşamasındadır.",
     ],
   },

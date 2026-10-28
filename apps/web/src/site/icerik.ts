@@ -180,7 +180,7 @@ export const ALT_MENU: { baslik: string; sayfalar: SayfaBilgisi[] }[] = [
 
 // Dayanak: İP-35 (kurum açılışı, kurulum sihirbazı, davet uçtan uca testli). Panel sayfaları örnek kipte derlenir.
 export const DURUM_NOTU =
-  "Akredit geliştirme aşamasındadır. Kurum açılışı, kurulum sihirbazı ve hoca daveti çalışır. Bu sitedeki panel ekranları kurgu örnek veriyle gösterilen bir önizlemedir.";
+  "Akredit geliştirme aşamasındadır. Kurum açılışı, kurulum sihirbazı ve hoca daveti çalışır. Panel kurumun kendi kayıtlarıyla açılır. Arka plan işleri kendiliğinden çalışır: gelen belgeler okunur ve ölçüt önerisi onayınıza düşer, süreç hatırlatmaları gider. Panelden toplu belge yükleme ve bağlayıcıları açma ekranları henüz yok.";
 
 /**
  * "Kurumunuzu açın" adımları. Dayanak: apps/web/src/kimlik/kurum-acilisi.ts, packages/servis/src/kurum-acilisi.ts,
@@ -606,7 +606,7 @@ export const SSS: { soru: string; cevap: string }[] = [
   {
     soru: "Şu an kullanabilir miyiz?",
     cevap:
-      "Kurumunuzu Kurumunuzu açın sayfasından açabilir, kurulum sihirbazıyla birim, program ve hocaları tanımlayabilirsiniz. Geliştirme sürüyor. Bu sitedeki panel ekranları kurgu örnek veriyle gösterilir.",
+      "Kurumunuzu Kurumunuzu açın sayfasından açabilir, kurulum sihirbazıyla birim, program ve hocaları tanımlayabilirsiniz. Belge işleme, süreç hatırlatmaları ve düzenli eşitlemeler arka planda kendiliğinden çalışır. Geliştirme sürüyor: bağlayıcıları açma ve toplu belge yükleme ekranları henüz yok, bağlayıcılar canlı kurum sistemlerinde pilotla denenmedi.",
   },
   {
     soru: "MÜDEK ya da başka program akreditasyonları destekleniyor mu?",

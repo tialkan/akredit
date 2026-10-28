@@ -6,8 +6,15 @@ import { aktorOlustur } from "../app/api/_ortak/v1.ts";
 import { ErisimHatasi, istekBaglami } from "../kimlik/erisim.ts";
 import { veriKaynagi as bellekKaynagi } from "./bellek.ts";
 import type { VeriKaynagi } from "./kaynak.ts";
+import { GERCEK_VERI } from "./kip.ts";
+import { ORNEK_SIMDI } from "./ornek.ts";
 
-export const GERCEK_VERI = process.env.NEXT_PUBLIC_AKREDIT_VERI === "gercek";
+export { GERCEK_VERI };
+
+/** Panelde "kaç gün kaldı" hesabının bugünü: gerçek kipte şimdiki zaman, örnek kipte örneğin sabit günü. */
+export function panelSimdi(): string {
+  return GERCEK_VERI ? new Date().toISOString() : ORNEK_SIMDI;
+}
 
 export async function panelVeriKaynagi(): Promise<VeriKaynagi> {
   if (!GERCEK_VERI) return bellekKaynagi();

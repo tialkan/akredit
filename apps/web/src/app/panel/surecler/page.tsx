@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Tablo } from "../../../bilesenler/tablo.tsx";
 import { Kart, SayfaBasligi } from "../../../bilesenler/temel.tsx";
 import type { SurecGorevi } from "../../../veri/kaynak.ts";
-import { ORNEK_SIMDI } from "../../../veri/ornek.ts";
-import { panelVeriKaynagi } from "../../../veri/sunucu.ts";
+import { panelSimdi, panelVeriKaynagi } from "../../../veri/sunucu.ts";
 import { gunFarki, tarihYaz } from "../../../veri/yardimci.ts";
 
 export const metadata: Metadata = { title: "Takvim ve görevler" };
@@ -63,7 +62,7 @@ export default async function SureclerSayfasi() {
             { anahtar: "durum", baslik: "Durum", siralanabilir: true },
           ]}
           satirlar={gorevler.map((g) => {
-            const kalan = gunFarki(ORNEK_SIMDI, g.sonTarih);
+            const kalan = gunFarki(panelSimdi(), g.sonTarih);
             return {
               anahtar: g.id,
               degerler: { baslik: g.baslik, son: g.sonTarih, sorumlu: g.sorumlu, durum: DURUM[g.durum] },

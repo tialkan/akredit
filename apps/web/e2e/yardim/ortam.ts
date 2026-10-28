@@ -17,6 +17,8 @@ export const SUNUCU_ORTAMI: Record<string, string> = {
   AKREDIT_KIMLIK_GIZLI: "e2e-yalniz-test-icin-sabit-gizli-deger-0000",
   AKREDIT_VT_DIZIN: VT_DIZINI,
   AKREDIT_TEST_KIPI: "1",
+  // Panel sayfaları örnek veriyle sınanır; derleme de `AKREDIT_ORNEK_VERI=1` ile yapılmalı (ci.yml).
+  AKREDIT_ORNEK_VERI: "1",
   AKREDIT_TEST_EPOSTA_DIZINI: EPOSTA_DIZINI,
   AKREDIT_BOLOGNA_YEREL_IZIN: "1",
   // 32 baytlık sabit test anahtarı (base64). Gerçek bir kurulumda kullanılmaz.
