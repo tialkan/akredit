@@ -173,9 +173,10 @@ function BirimKarti({ birim, birimler, bitti }: { birim: Birim; birimler: Birim[
             boy="kucuk"
             onClick={() => setDuzenle((d) => !d)}
             aria-expanded={duzenle}
+            aria-label={`Düzelt: ${birim.ad}`}
             simge={<Pencil aria-hidden className="size-4" />}
           >
-            Düzelt<span className="sr-only">: {birim.ad}</span>
+            Düzelt
           </Dugme>
           <Gecmis tur="birimler" id={birim.id} ad={birim.ad} />
         </div>
@@ -242,9 +243,10 @@ function ProgramSatiri({
             boy="kucuk"
             onClick={() => setDuzenle((d) => !d)}
             aria-expanded={duzenle}
+            aria-label={`Düzelt: ${program.ad}`}
             simge={<Pencil aria-hidden className="size-4" />}
           >
-            Düzelt<span className="sr-only">: {program.ad}</span>
+            Düzelt
           </Dugme>
           <Gecmis tur="programlar" id={program.id} ad={program.ad} />
         </div>
@@ -360,9 +362,10 @@ function Gecmis({ tur, id, ad }: { tur: "birimler" | "programlar"; id: string; a
         tur="sessiz"
         onClick={() => void ac()}
         aria-expanded={acik}
+        aria-label={`Geçmiş: ${ad}`}
         simge={<History aria-hidden className="size-4" />}
       >
-        Geçmiş<span className="sr-only">: {ad}</span>
+        Geçmiş
       </Dugme>
       {acik ? (
         <div className="w-full basis-full rounded-sm border border-cizgi px-4 py-3 text-sm">
