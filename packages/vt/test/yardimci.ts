@@ -250,6 +250,10 @@ export async function kurumVerisiEkle(db: Vt, kurumId: string, ad: string): Prom
     await tx
       .insert(s.takmaAd)
       .values({ kurumId, takmaAd: "tk-1", numaraSifreli: new Uint8Array([1, 2, 3]), anahtarSurumu: "1" });
+    // İP-40: kişiye özgü anahtar (sarılı anahtar uydurma baytlardır).
+    await tx.execute(
+      sql`insert into kisi_anahtari (kurum_id, konu, anahtar_sarili) values (${kurumId}, 'ornek-konu', ${new Uint8Array([9])})`,
+    );
     await tx.insert(s.kayitDuzeltmesi).values({
       kurumId,
       hedefTuru: "birim",

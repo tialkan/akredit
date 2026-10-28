@@ -4,6 +4,7 @@
 export * from "./baglanti.ts";
 export * from "./goc.ts";
 export * from "./gunluk.ts";
+export * from "./kriptografik-silme.ts";
 export * as sema from "./sema/index.ts";
 export * from "./tohum.ts";
 

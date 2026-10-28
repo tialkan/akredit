@@ -1,6 +1,6 @@
 // Değiştirilemez günlük (docs/mimari.md §3.7) ve öğrenci takma ad eşlemesi.
 
-import { bigint, customType, jsonb, pgTable, text, unique } from "drizzle-orm/pg-core";
+import { bigint, customType, jsonb, pgTable, text, unique, uuid } from "drizzle-orm/pg-core";
 import { kurumIdSutunu } from "./kurum.ts";
 import { aktorTuru, kimlik, olusturma, zaman } from "./ortak.ts";
 
@@ -43,6 +43,8 @@ export const takmaAd = pgTable(
     takmaAd: text("takma_ad").notNull(),
     numaraSifreli: bytea("numara_sifreli").notNull(),
     anahtarSurumu: text("anahtar_surumu").notNull(),
+    /** Kişiye özgü anahtar (İP-40); anahtar silinince eşleme de silinir. */
+    kisiAnahtariId: uuid("kisi_anahtari_id"),
     olusturma: olusturma(),
   },
   (t) => [unique("takma_ad_tekil").on(t.kurumId, t.takmaAd)],
