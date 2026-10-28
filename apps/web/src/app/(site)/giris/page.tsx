@@ -2,7 +2,12 @@ import type { Metadata } from "next";
 import { Logo } from "../../../bilesenler/logo.tsx";
 import { GirisFormu } from "./giris-formu.tsx";
 
-export const metadata: Metadata = { title: "Giriş" };
+export const metadata: Metadata = {
+  title: "Giriş",
+  description:
+    "Akredit hesabınıza kurumsal e-postanıza gelen bağlantıyla ya da kurumunuzun tek oturum sistemiyle girin.",
+  alternates: { canonical: "https://akredit.org/giris" },
+};
 
 export default function Giris() {
   return (
