@@ -118,7 +118,7 @@ export interface DocxBolumu {
 export interface DocxModeli {
   baslik: string;
   altBaslik?: string;
-  /** Sayfa üstü ve altı metinleri (ör. kurum adı, "Taslak — onaylanmadı"). */
+  /** Sayfa üstü ve altı metinleri (ör. kurum adı, "Taslak: onaylanmadı"). */
   ustBilgi?: string;
   altBilgi?: string;
   bolumler: DocxBolumu[];

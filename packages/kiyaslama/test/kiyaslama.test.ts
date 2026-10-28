@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  ATLAS_VERI_YOK_NEDENI,
   atlasKiyasla,
   havuzKiyasla,
   izinGecerliMi,
@@ -167,6 +168,35 @@ describe("atlasKiyasla", () => {
     expect(atlasKiyasla(atlas(1, 0.5), [], "doluluk").durum).toBe("EKSIK");
     const { kaynak: _k, ...kaynaksiz } = atlas(2, 0.8);
     expect(() => atlasKiyasla(atlas(1, 0.5), [kaynaksiz], "doluluk")).toThrow();
+  });
+});
+
+describe("atlasKiyasla: YÖK Atlas yerleşen sayısını vermiyor", () => {
+  // Bağlayıcının bugünkü çıktısı: yerlesen alanı yok, doluluk null, ek alanlar var.
+  const bugunku = (n: number) => ({
+    programKodu: `10000000${n}`,
+    yil: 2025,
+    programAdi: "Uydurma Programı",
+    kontenjan: 60,
+    tabanPuan: 300 + n,
+    basariSirasi: 1000 * n,
+    doluluk: null,
+    akademikKadro: { prof: 1, doc: null, drOgrUyesi: 2, arGor: null },
+    kaynak: kaynak(n),
+  });
+
+  it("doluluk ve yerleşen 'veri yok' döner; değer uydurulmaz", () => {
+    for (const alan of ["doluluk", "yerlesen"] as const) {
+      const s = atlasKiyasla(bugunku(1), [bugunku(2), bugunku(3)], alan);
+      expect(s).toEqual({ durum: "veri_yok", alan, neden: ATLAS_VERI_YOK_NEDENI });
+      expect(JSON.stringify(s)).not.toMatch(/medyan|kendi/u);
+    }
+  });
+
+  it("yayımlanan alanlar (taban puan) yine kıyaslanır", () => {
+    const s = atlasKiyasla(bugunku(1), [bugunku(2), bugunku(3)], "tabanPuan");
+    // 302, 303 -> medyan 302.5; 301'in altında değer yok
+    expect(s).toMatchObject({ durum: "hazir", kendi: 301, medyan: 302.5, altindakiOran: 0 });
   });
 });
 

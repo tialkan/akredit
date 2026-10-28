@@ -366,7 +366,7 @@ export function raporDocxModeli(g: DisaAktarimGirdisi): DocxModeli {
   return {
     baslik: g.baslik,
     altBaslik: g.donem || undefined,
-    ustBilgi: `${g.kurumAdi}${g.onaylandi ? "" : " · Taslak — onaylanmadı"}`,
+    ustBilgi: `${g.kurumAdi}${g.onaylandi ? "" : " · Taslak: onaylanmadı"}`,
     altBilgi: "Akredit ile derlendi. Her olgusal cümle bir kanıta bağlıdır; bağlanamayan EKSİK yazılır.",
     bolumler,
   };
