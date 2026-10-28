@@ -5,6 +5,23 @@
 export const SITE_ADRESI = "https://akredit.org";
 export const SON_GUNCELLEME = "2026-10-28";
 
+/** Açık kaynak deposu. Dayanaklar son kullanıcıya depo yolu yazmaz; bu adrese bağlanır. */
+export const DEPO_ADRESI = "https://github.com/tialkan/akredit";
+
+/** Depodaki bir dosya ya da klasörün GitHub adresi. Yol yalnız bağlantıda durur, metinde görünmez. */
+export function depo(yol: string): string {
+  const tur = /\.[a-z]+$/u.test(yol) ? "blob" : "tree";
+  return `${DEPO_ADRESI}/${tur}/main/${yol}`;
+}
+
+/** Sayfa sonundaki dayanak: insan diliyle başlık ve kaynağın adresi. */
+export interface DayanakKaynagi {
+  baslik: string;
+  adres: string;
+  /** Bağlantı metni; yoksa "Kaynağı açın". */
+  bag?: string;
+}
+
 export interface SayfaBilgisi {
   yol: string;
   /** Menü ve kırıntı yolundaki kısa ad. */
@@ -24,7 +41,7 @@ export const SAYFALAR = {
     baslik: "Akreditasyon dosyasını sistem hazırlar. Siz yalnız onaylarsınız.",
     title: "Akredit: kalite ve akreditasyon işlerini kanıtla hazırlayan açık kaynak platform",
     aciklama:
-      "Akredit, üniversitelerde kalite güvencesi ve akreditasyon işlerini kanıttan hazırlar. Sistem toplar, hesaplar, atıflı taslak yazar; beyan ve onay insanda kalır.",
+      "Akredit akreditasyon dosyasını kanıttan hazırlar: toplar, hesaplar, yazar, takip eder. Hocaya sıfır evrak işi kalır; beyan ve karar yetkili kişidedir.",
   },
   neYapar: {
     yol: "/ne-yapar",
@@ -46,9 +63,9 @@ export const SAYFALAR = {
     yol: "/kimler-icin",
     ad: "Kimler için",
     baslik: "Kimler için",
-    title: "Kimler için: öğretim elemanı, kalite komisyonu, değerlendirici",
+    title: "Kimler için: rektörlük, kalite komisyonu, bölüm başkanı, öğretim elemanı",
     aciklama:
-      "Öğretim elemanı, program akreditasyon sorumlusu, birim kalite komisyonu, kurum kalite koordinatörlüğü ve değerlendirici Akredit'te ne görür, ne yapar.",
+      "Rektörlük, kalite komisyonu, bölüm başkanı ve öğretim elemanı için Akredit: neyi sistem yapar, kime hangi karar kalır, risk ve KVKK nasıl yönetilir.",
   },
   cerceveler: {
     yol: "/cerceveler",
@@ -80,7 +97,7 @@ export const SAYFALAR = {
     baslik: "Güvenlik ve kişisel veriler",
     title: "Güvenlik ve KVKK: değiştirilemez kayıt, kurum yalıtımı, maskeleme",
     aciklama:
-      "Kanıtlar özetle saklanır ve silinmez, kurumlar birbirinden yalıtılır, öğrenci kimliği takma adla tutulur. Hukuk metinleri taslaktır, avukat incelemesi bekler.",
+      "Kayıtlar iz bırakmadan değiştirilemez, kurumlar birbirinden yalıtılır, öğrenci kimliği takma adla tutulur, KVKK silme hakkı korunur. Hukuk metinleri taslaktır.",
   },
   sinirlar: {
     yol: "/sinirlar",
@@ -143,6 +160,22 @@ export const SAYFALAR = {
     aciklama:
       "Akredit'te kurumunuzu teknik yardım almadan açın: kurumsal e-posta doğrulaması, OpenRouter anahtarı, Bologna'dan program ve ders önerisi, hocaların daveti.",
   },
+  yolHaritasi: {
+    yol: "/yol-haritasi",
+    ad: "Yol haritası",
+    baslik: "Yol haritası",
+    title: "Yol haritası: şimdi yapılan ve sıradaki işler",
+    aciklama:
+      "Akredit'te şu an yapılan ve sıradaki işler sade dille: sessiz devir, karar katmanları, kişisel veri, örnek üniversite, sınav taraması, saha ziyareti hazırlığı.",
+  },
+  pilot: {
+    yol: "/pilot",
+    ad: "Pilot başvurusu",
+    baslik: "Pilot kurum olun",
+    title: "Pilot başvurusu: Akredit'i kurumunuzda gerçek veriyle deneyin",
+    aciklama:
+      "Akredit'i kurumunuzda gerçek veriyle deneyen ilk kurumlardan olun. Kurum, birim, rol ve hangi süreçle başlamak istediğinizi yazın; size dönüş yapılır.",
+  },
   belgeler: {
     yol: "/belgeler",
     ad: "Kılavuzlar",
@@ -166,10 +199,13 @@ export const UST_MENU = [
 
 /** Alt menü: bütün sayfalar, gruplu. */
 export const ALT_MENU: { baslik: string; sayfalar: SayfaBilgisi[] }[] = [
-  { baslik: "Ürün", sayfalar: [SAYFALAR.neYapar, SAYFALAR.nasil, SAYFALAR.kimler, SAYFALAR.cerceveler] },
+  {
+    baslik: "Ürün",
+    sayfalar: [SAYFALAR.neYapar, SAYFALAR.nasil, SAYFALAR.kimler, SAYFALAR.cerceveler, SAYFALAR.yolHaritasi],
+  },
   {
     baslik: "Kullanım",
-    sayfalar: [SAYFALAR.kurumAc, SAYFALAR.yz, SAYFALAR.giris, SAYFALAR.belgeler, SAYFALAR.sss],
+    sayfalar: [SAYFALAR.pilot, SAYFALAR.kurumAc, SAYFALAR.yz, SAYFALAR.giris, SAYFALAR.belgeler, SAYFALAR.sss],
   },
   {
     baslik: "Güven",
@@ -269,17 +305,62 @@ export interface Modul {
   cikar: string[];
   hoca: string;
   not?: string;
+  /** Bugünkü durum. Gerekçesi MODUL_DURUMU_DAYANAGI'nda (site.test.ts denetler). */
+  durum: ModulDurumu;
 }
+
+export type ModulDurumu = "yayinda" | "pilotta" | "yapimda";
+
+/** Durum adları ve anlamları; /ne-yapar sayfasındaki açıklama bu tablodan üretilir. */
+export const DURUM_ADI: Record<ModulDurumu, { ad: string; anlam: string }> = {
+  yayinda: {
+    ad: "Yayında",
+    anlam: "Kurumunuzu açınca panelde kullanılır. Otomatik testlerle sınanır.",
+  },
+  pilotta: {
+    ad: "Pilotta doğrulanıyor",
+    anlam:
+      "Yazıldı ve kayıtlı örneklerle sınandı. Gerçek kurum verisiyle doğrulaması pilot uygulamada yapılacak ya da bir ekranı eksik.",
+  },
+  yapimda: {
+    ad: "Yapım aşamasında",
+    anlam: "Çekirdeği yazıldı, bir kısmı henüz bağlanmadı ya da incelemede.",
+  },
+};
+
+/**
+ * Modül durumlarının koddaki gerekçesi (2026-10-28, plan.md §8 ve İP raporları). Site metnine girmez; durum
+ * değiştiğinde önce bu gerekçe güncellenir.
+ */
+export const MODUL_DURUMU_DAYANAGI: Record<string, string> = {
+  kanit: "İP-10 tamam; panelden toplu belge yükleme ekranı yok (DURUM_NOTU).",
+  baglayicilar: "İP-05 tamam, İP-23 inceleme; bağlayıcı açma ekranı yok, canlı kurum sisteminde denenmedi.",
+  olcme: "İP-06 tamam; belirlenimci, panelde ders ve rapor sayfalarında.",
+  bologna: "İP-15 tamam, eksik giderme İP-37 inceleme; canlı Bologna sayfasıyla pilot yapılmadı.",
+  "kanit-avcisi": "İP-37 inceleme; OpenRouter yanıtı canlı doğrulanmadı, site taraması ayar ekranı yok.",
+  "word-paketi": "İP-37 inceleme; gidiş-dönüş testi var, pilot yok.",
+  "ders-dosyasi": "İP-16 tamam; gerçek not dökümüyle pilot yapılmadı.",
+  anket: "İP-17 tamam; panel/anketler ve /anket sayfaları.",
+  toplanti: "İP-18 tamam; panel/toplantilar.",
+  odr: "İP-19 inceleme.",
+  kidr: "İP-20 inceleme.",
+  gosterge: "İP-21 tamam; panel/gostergeler.",
+  surec: "İP-14 tamam, İP-36 işçi zamanlanmış işleri; panel/surecler.",
+  degerlendirici: "İP-22 tamam; /degerlendirici portalı.",
+  mobil: "İP-33 inceleme; onay kutusu İP-13 tamam.",
+  arac: "İP-24 ve İP-25 tamam.",
+};
 
 /** Her modülün dayanağı: docs/raporlar/IP-xx.md. */
 export const MODULLER: Modul[] = [
   {
     kimlik: "kanit",
+    durum: "pilotta",
     ad: "Kanıt hattı",
     ozet: "Bir belge, kimseden ek iş istemeden kanıta dönüşür.", // İP-10
     girer: ["PDF, Word, Excel, PowerPoint ve görüntü dosyaları", "Bağlayıcılardan gelen dosyalar"],
     cikar: [
-      "İçerik özetiyle (SHA-256) saklanan, üzerine yazılamayan ve silinemeyen kanıt",
+      "İçerik özetiyle (SHA-256) saklanan kanıt. Üzerine yazılmaz; yeni sürüm ayrı kayıt olur",
       "Sayfa ve bölüm atıflı metin parçaları",
       "Kişisel veri taraması sonucu",
       "Kanıtın hangi ölçüte ait olduğuna dair bir etiket önerisi",
@@ -289,6 +370,7 @@ export const MODULLER: Modul[] = [
   },
   {
     kimlik: "baglayicilar",
+    durum: "pilotta",
     ad: "Bağlayıcılar",
     ozet: "Kanıt, kurumun zaten kullandığı sistemlerden gelir.", // İP-05, İP-23
     girer: [
@@ -307,6 +389,7 @@ export const MODULLER: Modul[] = [
   },
   {
     kimlik: "olcme",
+    durum: "yayinda",
     ad: "Ölçme motoru (ÇK ve PÇ)",
     ozet: "Ders ve program çıktılarının sağlanma düzeyini not verisinden hesaplar.", // İP-06
     girer: ["Soru bazlı not dökümü", "Soru ile ders çıktısı (ÇK) eşlemesi", "Ders ile program çıktısı (PÇ) matrisi"],
@@ -316,6 +399,7 @@ export const MODULLER: Modul[] = [
   },
   {
     kimlik: "bologna",
+    durum: "pilotta",
     ad: "Ders bilgi paketi (Bologna)",
     ozet: "Ders sayfasını okur, denetler ve eksiksiz bir taslak hazırlar.", // İP-15
     girer: ["Programın Bologna sayfaları", "Hocanın kısa beyanı (ör. projenin olup olmadığı)"],
@@ -329,6 +413,7 @@ export const MODULLER: Modul[] = [
   },
   {
     kimlik: "kanit-avcisi",
+    durum: "yapimda",
     ad: "Kanıt arama",
     ozet: "Bir ölçütün kanıtını kurumun kendi belgelerinde ve sitesinde arar.", // İP-37
     girer: [
@@ -346,6 +431,7 @@ export const MODULLER: Modul[] = [
   },
   {
     kimlik: "word-paketi",
+    durum: "pilotta",
     ad: "Word paketi",
     ozet: "Ders bilgi paketini, bulguları ve kaynakçayı düzenlenebilir Word dosyası olarak verir.", // İP-37
     girer: ["Dersin son taslağı", "Bologna denetim bulguları", "Varsa ders dosyası"],
@@ -359,6 +445,7 @@ export const MODULLER: Modul[] = [
   },
   {
     kimlik: "ders-dosyasi",
+    durum: "pilotta",
     ad: "Ders dosyası",
     ozet: "Not dökümünden ve sınav belgelerinden ders dosyası çıkarır.", // İP-16
     girer: ["OBS not dökümü", "Sınav kâğıtları ve cevap anahtarı gibi belgeler"],
@@ -368,6 +455,7 @@ export const MODULLER: Modul[] = [
   },
   {
     kimlik: "anket",
+    durum: "yayinda",
     ad: "Anketler",
     ozet: "Paydaş anketlerini gönderir, hatırlatır ve analiz eder.", // İP-17
     girer: [
@@ -384,6 +472,7 @@ export const MODULLER: Modul[] = [
   },
   {
     kimlik: "toplanti",
+    durum: "yayinda",
     ad: "Toplantı asistanı",
     ozet: "Danışma kurulu ve komisyon toplantılarını planlar.", // İP-18
     girer: ["Açık eylemler ve görevler", "Katılımcı listesi", "Toplantı notları"],
@@ -393,6 +482,7 @@ export const MODULLER: Modul[] = [
   },
   {
     kimlik: "odr",
+    durum: "yapimda",
     ad: "Öz değerlendirme raporu (ÖDR)",
     ozet: "Programın raporunu kanıttan, ölçmeden ve süreç kayıtlarından kurar.", // İP-19
     girer: ["Onaylı kanıt ve ölçüt bağları", "Ölçme sonuçları", "Süreç ve eylem kayıtları"],
@@ -401,6 +491,7 @@ export const MODULLER: Modul[] = [
   },
   {
     kimlik: "kidr",
+    durum: "yapimda",
     ad: "BİDR ve KİDR",
     ozet: "Birim ve kurum iç değerlendirme raporlarını derler.", // İP-20
     girer: ["Birimlerin onaylı kanıtları", "YÖKAK KİDR 3.2.1 şablonu"],
@@ -414,6 +505,7 @@ export const MODULLER: Modul[] = [
   },
   {
     kimlik: "gosterge",
+    durum: "yayinda",
     ad: "Performans göstergeleri",
     ozet: "Stratejik plan ve faaliyet raporu göstergelerini veriden hesaplar.", // İP-21
     girer: ["Gösterge tanımı ve hedefi", "Bağlayıcı, anket ya da ölçme verisi", "Elle giriş (kanıt zorunlu)"],
@@ -422,6 +514,7 @@ export const MODULLER: Modul[] = [
   },
   {
     kimlik: "surec",
+    durum: "yayinda",
     ad: "Süreç takvimi",
     ozet: "Kalite döngülerini insan hatırlamadan yürütür.", // İP-14
     girer: ["Süreç tanımı: adımlar, son tarihler, gereken kanıt sayısı"],
@@ -430,6 +523,7 @@ export const MODULLER: Modul[] = [
   },
   {
     kimlik: "degerlendirici",
+    durum: "yayinda",
     ad: "Değerlendirici portalı",
     ozet: "Dış değerlendiriciye süreli, salt okunur bir kanıt odası açar.", // İP-22
     girer: ["Kurumun açtığı süreli değerlendirici hesabı (en çok 120 gün)"],
@@ -438,6 +532,7 @@ export const MODULLER: Modul[] = [
   },
   {
     kimlik: "mobil",
+    durum: "pilotta",
     ad: "Mobil onay",
     ozet: "Onay kutusu telefona uygulama gibi eklenir.", // İP-33
     girer: ["Bekleyen öneriler"],
@@ -447,6 +542,7 @@ export const MODULLER: Modul[] = [
   },
   {
     kimlik: "arac",
+    durum: "yayinda",
     ad: "Komut satırı ve MCP",
     ozet: "Teknik kullanıcılar için aynı kuralları uygulayan araçlar.", // İP-24, İP-25
     girer: ["Kişiye bağlı API anahtarı"],
@@ -462,12 +558,15 @@ export const MODULLER: Modul[] = [
 // ---------------------------------------------------------------- Nasıl çalışır
 
 export const AKIS = [
-  { ad: "Kanıt", metin: "Belge ya da veri gelir. İçerik özetiyle saklanır, değiştirilemez." },
+  { ad: "Kanıt", metin: "Belge ya da veri gelir. İçerik özetiyle saklanır. Değişirse yeni kayıt olur." },
   { ad: "Hesap", metin: "Sayılar ölçme motorunda belirlenimci olarak hesaplanır." },
   { ad: "Atıflı taslak", metin: "Yapay zekâ taslak yazar. Her olgusal cümle bir kanıta bağlanır." },
   { ad: "Denetim", metin: "Atıfsız cümle, dayanaksız sayı ve eksik kanıt işaretlenir." },
   { ad: "Onay", metin: "Yetkili kişi kanıtı görerek onaylar, düzeltir ya da reddeder." },
-  { ad: "Günlük", metin: "Karar ad, zaman ve dayanakla değiştirilemez günlüğe eklenir." },
+  {
+    ad: "Günlük",
+    metin: "Karar ad, zaman ve dayanakla günlüğe eklenir. Kayıt iz bırakmadan değiştirilemez.",
+  },
 ];
 
 /** ONERI_RISKI (@akredit/cekirdek) ile aynı sınıflama; örnekler ayarlar ekranındaki türlerdendir. */
@@ -505,9 +604,9 @@ export const ILKELER = [
     metin: "Kurum adına beyan, akreditasyonu etkileyen onay ve dış kuruma son gönderim bir kişinin kararıdır.",
   },
   {
-    ad: "Kayıt değişmez",
+    ad: "Kayıt iz bırakmadan değişmez",
     metin:
-      "Kanıt silinmez, üzerine yazılmaz. Öneri, karar ve günlük kayıtları yalnız eklenir. Düzeltme yeni kayıtla yapılır.",
+      "Kanıtın üzerine yazılmaz. Öneri, karar ve günlük kayıtları yalnız eklenir; her kayıt öncekinin özetini taşır. Düzeltme yeni kayıtla yapılır. KVKK silme talebinde kişiyi tanıtan eşleme silinir, silme de yeni kayıt olarak görünür.",
   },
   {
     ad: "Belge veridir",
@@ -557,7 +656,7 @@ export const ROL_ANLATIMLARI: RolAnlatimi[] = [
   {
     ad: "Kurum kalite koordinatörlüğü",
     roller: ["kalite_komisyonu_baskani", "kurum_yoneticisi"],
-    gorur: "Kurumun bütün verisini ve değiştirilemez günlüğü.",
+    gorur: "Kurumun bütün verisini ve karar günlüğünü.",
     yapar:
       "Komisyon başkanı yetki devri politikasını imzalar ve dış gönderimi yapar. Kurum yöneticisi ayarları, yapay zekâ anahtarını ve kullanıcıları yönetir.",
   },
@@ -635,7 +734,7 @@ export const SSS: { soru: string; cevap: string }[] = [
   {
     soru: "Sistem bir şey uydurursa ne olur?",
     cevap:
-      "Her olgusal cümle bir kanıta bağlanmak zorundadır. Bağlanamayan içerik EKSİK işaretlenir. Sayılar modelden değil, hesaplamadan gelir.",
+      "Kanıtı olmayan olgusal cümle rapora girmez, EKSİK olarak işaretlenir. Sayılar modelden değil, hesaplamadan gelir. Rapor resmîleşmeden önce yetkili kişi onaylar.",
   },
   {
     soru: "Anahtarımızı kim görebilir?",
@@ -791,3 +890,319 @@ export const BAGLAYICILAR: { ad: string; kaynak: string; okur: string; okumaz: s
     okumaz: "Parola. Bağlantı yalnız hesabın kendi yetkilendirme ekranıyla kurulur.",
   },
 ];
+
+// ---------------------------------------------------------------- Vaat ve sorumluluk (İP-42)
+
+/** Ana vaatin çerçevesi (docs/danismanlik/2026-10-28-dis-incelemeler.md, kurucu kararı 1 ve 2). */
+export const VAAT_CERCEVESI = "Sıfır evrak angaryası, tam akademik irade.";
+
+/** İşin bölümü: veri, hesap, yazım ve takip sistemde; pedagojik ve kurumsal karar insanda (ADR 0004). */
+export const IS_BOLUMU: { alan: string; sistem: string; insan: string }[] = [
+  {
+    alan: "Veri toplama",
+    sistem: "Kanıtı kurumun sistemlerinden ve gelen belgelerden toplar.",
+    insan: "Belge aramaz, form doldurmaz.",
+  },
+  {
+    alan: "Hesap",
+    sistem: "ÇK ve PÇ düzeyini, not istatistiğini, göstergeleri hesaplar. Sayıyı model yazmaz.",
+    insan: "Tablo kurmaz, formül yazmaz.",
+  },
+  {
+    alan: "Yazım",
+    sistem: "Ders sayfası, ders dosyası, tutanak ve rapor bölümünü kanıta bağlayarak yazar.",
+    insan: "Taslağa bakar, kararını verir.",
+  },
+  {
+    alan: "Takip",
+    sistem: "Son tarihleri izler, hatırlatır, geciken işi sorumlusunun üstüne bildirir.",
+    insan: "Hatırlatma peşinde koşmaz.",
+  },
+  {
+    alan: "Karar",
+    sistem: "Kararı hazırlar: kanıtı, farkı ve gerekçeyi tek ekranda gösterir.",
+    insan: "Pedagojik ve kurumsal kararı verir. Bu karar her zaman insandadır.",
+  },
+];
+
+/** Sorumluluk kutusu: CLAUDE.md değişmez ilke 3. */
+export const SORUMLULUK =
+  "Resmî beyan ve sorumluluk, onaylayan kurum yetkilisindedir. Akredit kurum adına beyanda bulunmaz ve dış kuruma kendiliğinden gönderim yapmaz. Her onay, onaylayanın adı, zamanı ve dayanağıyla kaydedilir.";
+
+// ---------------------------------------------------------------- Dört rol (İP-42)
+
+export interface KararRolu {
+  kimlik: "rektorluk" | "kalite-komisyonu" | "bolum-baskani" | "ogretim-elemani";
+  ad: string;
+  /** Ana sayfadaki tek satırlık yönlendirme. */
+  kisa: string;
+  /** Rolün sorusu: bu rol Akredit'e hangi gözle bakar. */
+  soru: string;
+  maddeler: { baslik: string; metin: string }[];
+  /** Bu role kalan karar. */
+  karar: string;
+  /** Sistemdeki karşılığı (@akredit/yetki ROLLER). */
+  roller: string[];
+}
+
+/**
+ * Dört karar verici rolün anlatımı (kurucu kararı 4). Dayanaklar: ADR 0004 (sıfır iş yükü), İP-14 (süreç),
+ * İP-19/20 (ÖDR, KİDR), İP-28 ve İP-40 (KVKK), İP-34 (kurum içi kurulum), yetki tablosu (@akredit/yetki).
+ */
+export const DORT_ROL: KararRolu[] = [
+  {
+    kimlik: "rektorluk",
+    ad: "Rektörlük",
+    kisa: "Kurumsal risk, maliyet, KVKK ve denetlenebilirlik.",
+    soru: "Kurumu riske atmadan bu işi nasıl yükten kurtarırım?",
+    maddeler: [
+      {
+        baslik: "Kurumsal risk",
+        metin:
+          "Kurum adına beyan, olgunluk düzeyi ve dış kuruma gönderim hiçbir politikaya bağlanamaz. Her biri yetkili kişinin tek tek kararıdır.",
+      },
+      {
+        baslik: "Maliyet",
+        metin:
+          "Yazılım ilk etapta ücretsizdir ve açık kaynaktır. Yapay zekâ ücreti kurumun kendi OpenRouter hesabına yansır, harcama sınırını kurum koyar. Kurum içi modelde bu ücret yoktur.",
+      },
+      {
+        baslik: "KVKK",
+        metin:
+          "Öğrenci numarası takma ada çevrilir; ad ve kimlik numarası okunmaz. Kişisel veri, kurum izin vermedikçe yurt dışına gitmez. İzin verilirse maskelenerek gider.",
+      },
+      {
+        baslik: "Denetlenebilirlik",
+        metin:
+          "Her öneri, karar ve politika günlüğe eklenir. Kayıt iz bırakmadan değiştirilemez; her değişiklik yeni kayıt olarak görünür. Kodu kurumun bilgi işlemi inceleyebilir.",
+      },
+      {
+        baslik: "Kurum içi kurulum",
+        metin:
+          "Akredit kurumun kendi sunucusuna, kendi modeliyle kurulabilir. Bu kurulumda yapay zekâ işi kurumdan çıkmaz ve yurt dışı izni açılamaz.",
+      },
+    ],
+    karar:
+      "Hangi işlerin otomatik onaylanabileceğini kurum yönergesi belirler. Yetki devri politikasını yetkili kişi adıyla imzalar.",
+    roller: ["kurum_yoneticisi"],
+  },
+  {
+    kimlik: "kalite-komisyonu",
+    ad: "Kalite komisyonu",
+    kisa: "Ölçüt bazında kanıt envanteri, eksik takibi, KİDR ve BİDR.",
+    soru: "Hangi ölçütün kanıtı var, hangisi eksik, kim kapatacak?",
+    maddeler: [
+      {
+        baslik: "Kanıt envanteri",
+        metin:
+          "YÖKAK 3.3'ün her alt ölçütü için kayıtlı kanıtlar listelenir. Her kanıtın kaynağı, okunma zamanı ve içerik özeti yazılıdır.",
+      },
+      {
+        baslik: "Eksik takibi",
+        metin:
+          "Kanıtı olmayan alt ölçüt EKSİK görünür. Eksik, süreç takviminde sorumlusu ve son tarihi olan bir işe dönüşür.",
+      },
+      {
+        baslik: "KİDR ve BİDR",
+        metin:
+          "Rapor birimlerin onaylı kanıtlarından derlenir. Kanıtı olmayan olgusal cümle rapora girmez. Olgunluk düzeyi önerisi gelir.",
+      },
+      {
+        baslik: "Yetki devri",
+        metin:
+          "Kanıt etiketi gibi düşük riskli işleri imzalı bir politikayla otomatik onaya bırakabilirsiniz. Politika da adla imzalanır ve günlüğe girer.",
+      },
+    ],
+    karar: "Olgunluk düzeyine ve raporun son hâline yetkili kişi tek tek karar verir.",
+    roller: ["kalite_komisyonu_baskani", "kalite_komisyonu_uyesi", "birim_kalite_sorumlusu"],
+  },
+  {
+    kimlik: "bolum-baskani",
+    ad: "Bölüm başkanı",
+    kisa: "Her işin sorumlusu ve son tarihi, program akreditasyonu.",
+    soru: "Programımda kim neyi ne zamana kadar yapacak?",
+    maddeler: [
+      {
+        baslik: "Sorumlu ve son tarih",
+        metin:
+          "Her iş bir kişiye ve bir tarihe bağlıdır. Sistem hatırlatır. Geciken iş sorumlusunun üstüne, yani size bildirilir.",
+      },
+      {
+        baslik: "Program akreditasyonu",
+        metin:
+          "Öz değerlendirme raporu program kanıtından, ölçme sonuçlarından ve süreç kayıtlarından kurulur. Ölçüt kapsama haritası ve eksik analizi gelir.",
+      },
+      {
+        baslik: "Matris ve danışma kurulu",
+        metin:
+          "Ders ile program çıktısı matrisine kanıta dayalı katkı önerisi gelir, toplu onaylanır. Danışma kurulunun gündemi, daveti ve tutanak taslağı hazırlanır.",
+      },
+      {
+        baslik: "Çerçeveler",
+        metin:
+          "YÖKAK çerçevesi resmî metinden yüklüdür. MÜDEK ve diğer program akreditasyonu çerçeveleri resmî belge alınınca eklenecek.",
+      },
+    ],
+    karar: "Program raporunun bölümlerini onaylar. Son gönderimi yetkili kişi yapar.",
+    roller: ["program_sorumlusu"],
+  },
+  {
+    kimlik: "ogretim-elemani",
+    ad: "Öğretim elemanı",
+    kisa: "Ne yapmayacağınız ve ne zaman tek dokunuş gerektiği.",
+    soru: "Bu dönem benden ne istenecek?",
+    maddeler: [
+      { baslik: "Bologna sayfası", metin: "Sıfırdan doldurmazsınız. Sistem okur, denetler, taslağı hazırlar." },
+      {
+        baslik: "Ders dosyası",
+        metin: "Not listesi ve ÇK tablosu hazırlamazsınız. Not dökümünü bir kez yüklersiniz.",
+      },
+      { baslik: "Anketler", metin: "Anket göndermez, hatırlatma yazmazsınız. Sistem gönderir ve analiz eder." },
+      { baslik: "Tutanak ve rapor", metin: "Tutanak ve rapor bölümü yazmazsınız. Taslak size onay için gelir." },
+    ],
+    karar: "Dersinizdeki önerilere kanıtı açık tek dokunuşla karar verirsiniz: onay, düzeltme ya da ret.",
+    roller: ["ogretim_elemani"],
+  },
+];
+
+// ---------------------------------------------------------------- Konum (İP-42)
+
+/**
+ * Akredit mevcut sistemlerin yerine geçmez, üstünde çalışır (kurucu kararı 7). Satırlar BAGLAYICILAR ve
+ * İP-05, İP-23 raporlarındaki gerçek bağlantı biçimidir. Rakip ya da karşılaştırma iddiası yoktur.
+ */
+export const KONUM_TABLOSU: { sistem: string; baglanti: string; sinir: string }[] = [
+  {
+    sistem: "OBS ve Bologna (Proliz ya da benzeri)",
+    baglanti: "Herkese açık ders bilgi paketi sayfaları okunur. Not dökümü CSV ya da Excel olarak alınır.",
+    sinir: "Öğrenci bilgi sisteminde son kaydı yetkili kişi yapar.",
+  },
+  {
+    sistem: "UBYS ve diğer öğrenci bilgi sistemleri",
+    baglanti: "Ders not listeleri alınır, öğrenci numarası takma ada çevrilir.",
+    sinir: "Kimlik bilgisi okunmaz.",
+  },
+  {
+    sistem: "EBYS",
+    baglanti: "e-Yazışma paketleri (.eyp) kanıt olarak alınır.",
+    sinir: "Gizlilik dereceli paket reddedilir.",
+  },
+  {
+    sistem: "AVESİS",
+    baglanti: "Öğretim elemanlarının açık profillerindeki yayın ve proje bilgisi okunur.",
+    sinir: "Parola ve oturum bilgisi alınmaz.",
+  },
+  {
+    sistem: "YÖK Atlas",
+    baglanti: "Kontenjan, yerleşen sayısı ve taban puan okunur.",
+    sinir: "Kişiye ait bilgi okunmaz.",
+  },
+  {
+    sistem: "Kurumun kalite yönetim yazılımı (ör. ÜNİKYS)",
+    baglanti: "Bağlayıcı yok. Akredit onun yerine geçmez; ürettiği raporlar indirilerek kullanılır.",
+    sinir: "Kurumun kendi sistemine yükleme kurum yetkilisinin işidir.",
+  },
+  {
+    sistem: "E-posta, Google Drive, OneDrive",
+    baglanti: "Kurumun açtığı kutuya iletilen ekler ve yetki verilen klasörler alınır.",
+    sinir: "E-posta gövdesi ve parola alınmaz.",
+  },
+];
+
+// ---------------------------------------------------------------- Yol haritası (İP-42)
+
+/** plan.md §8, İP-38…48, sade dille. Dalga plan tablosundan alınmıştır (2026-10-28). */
+export const YOL_HARITASI: { no: number; ad: string; metin: string; dalga: "simdi" | "sonra" }[] = [
+  {
+    no: 38,
+    ad: "Sessiz devir",
+    metin:
+      "Önceki dönemden değişmeyen ders bilgisi yeni döneme kendiliğinden taşınır. Onaylı bilgi, kurumun yazılı izniyle kaynağına geri yazılır.",
+    dalga: "simdi",
+  },
+  {
+    no: 39,
+    ad: "Üç katmanlı karar",
+    metin:
+      "İşler üçe ayrılır: kendiliğinden yürüyen, süre dolunca onaylanmış sayılan ve mutlaka bir kişinin vereceği karar. Zorunlu karar kısa bir karar kartıyla verilir.",
+    dalga: "simdi",
+  },
+  {
+    no: 40,
+    ad: "Kişisel veri ve hukuk paketi",
+    metin:
+      "Kişisel veri dışarı çıkmadan çalışma, KVKK veri akış envanteri, hukuk birimi için sözleşme paketi ve yetki devri yönergesi taslağı.",
+    dalga: "simdi",
+  },
+  {
+    no: 41,
+    ad: "Örnek Üniversitesi",
+    metin: "Uydurma veriyle kurulmuş bir örnek kurum. Her rolün ekranını hesap açmadan deneyebileceksiniz.",
+    dalga: "simdi",
+  },
+  {
+    no: 42,
+    ad: "Site metni ve pilot başvurusu",
+    metin: "Dört rolün anlatımı, mevcut sistemlerle ilişki ve pilot kurum başvurusu. Bu sayfa da bu işin parçası.",
+    dalga: "simdi",
+  },
+  {
+    no: 43,
+    ad: "Sınav kâğıdı taraması",
+    metin: "Sınav kâğıtları toplu taranır, soru bazlı puan çıkarılır. Yalnız kurum içindeki modelle çalışır.",
+    dalga: "sonra",
+  },
+  {
+    no: 44,
+    ad: "Cümleden kanıta tek tık",
+    metin: "Rapordaki bir cümleden kanıtına tek tıkla gidilir. Rapor dili ayrıca denetlenir.",
+    dalga: "sonra",
+  },
+  {
+    no: 45,
+    ad: "Hesapsız belge isteme",
+    metin: "İdari birimlerden, onlara hesap açmadan, tek kullanımlık bağlantıyla belge istenir.",
+    dalga: "sonra",
+  },
+  {
+    no: 46,
+    ad: "Toplantıdan tutanağa",
+    metin: "Toplantı kaydından tutanak taslağı ve EBYS yazısı taslağı hazırlanır.",
+    dalga: "sonra",
+  },
+  {
+    no: 47,
+    ad: "Program akreditasyonu tabloları",
+    metin: "MÜDEK, FEDEK, EPDAD ve SABAK tabloları kanıttan hazırlanır. Resmî belge alınmadan çerçeve eklenmez.",
+    dalga: "sonra",
+  },
+  {
+    no: 48,
+    ad: "Saha ziyareti hazırlığı",
+    metin: "Değerlendirici ziyaretine hazırlık: olası sorular ve her birinin kanıtı üzerinden prova.",
+    dalga: "sonra",
+  },
+];
+
+// ---------------------------------------------------------------- Pilot başvurusu (İP-42)
+
+/** Formdaki rol seçenekleri; sunucu şeması da bu listeyi kullanır (src/pilot/basvuru.ts). */
+export const PILOT_ROLLERI = [
+  { deger: "rektorluk", ad: "Rektörlük" },
+  { deger: "kalite_komisyonu", ad: "Kalite komisyonu ya da kalite birimi" },
+  { deger: "bolum_baskani", ad: "Bölüm başkanı ya da program sorumlusu" },
+  { deger: "ogretim_elemani", ad: "Öğretim elemanı" },
+  { deger: "bilgi_islem", ad: "Bilgi işlem" },
+  { deger: "diger", ad: "Diğer" },
+] as const;
+
+/** Pilotla başlanacak süreç; plan.md §3 süreç kataloğundan. */
+export const PILOT_SURECLERI = [
+  { deger: "bologna", ad: "Bologna ders bilgi paketi" },
+  { deger: "ders_dosyasi", ad: "Ders dosyası ve ÇK, PÇ ölçme" },
+  { deger: "anket", ad: "Paydaş anketleri" },
+  { deger: "toplanti", ad: "Danışma kurulu ve komisyon toplantıları" },
+  { deger: "odr", ad: "Program öz değerlendirme raporu" },
+  { deger: "kidr", ad: "BİDR ve KİDR" },
+  { deger: "diger", ad: "Henüz karar vermedik" },
+] as const;
