@@ -69,7 +69,9 @@ export default async function RaporSayfasi({ params }: { params: Promise<{ id: s
                     <div
                       // biome-ignore lint/suspicious/noArrayIndexKey: paragraflar sabit sıralı
                       key={j}
-                      className={eksik ? "rounded-sm border border-dashed border-risk-yuksek bg-risk-yuksek-zemin p-3" : ""}
+                      className={
+                        eksik ? "rounded-sm border border-dashed border-risk-yuksek bg-risk-yuksek-zemin p-3" : ""
+                      }
                     >
                       <p className="max-w-prose text-lg">
                         {eksik ? (

@@ -8,6 +8,7 @@ const config: NextConfig = {
     "@akredit/anket",
     "@akredit/baglayicilar",
     "@akredit/belge",
+    "@akredit/cerceveler",
     "@akredit/cekirdek",
     "@akredit/gosterge",
     "@akredit/olcme",
