@@ -18,14 +18,15 @@ Yalnız açık tema. `color-scheme: light`, `prefers-color-scheme: dark` kuralı
 
 ## Yazı tipi
 
-- **Başlık:** Source Serif 4 (değişken, OFL 1.1, `@fontsource-variable/source-serif-4`), 600 ağırlık.
+- **Başlık:** Source Serif 4, 600 ağırlık (OFL 1.1). `@fontsource/source-serif-4` dosyalarından Türkçe alt küme
+  üretilir (`apps/web/scripts/baslik-yazi-tipi.py`, ~18 KB, `apps/web/src/app/yazi/`).
 - **Metin ve arayüz:** Source Sans 3 (değişken, OFL 1.1), 400 gövde, 600 vurgu.
 
 Gerekçe: Akredit'in ürettiği şey yönetmelik, kılavuz ve rapor dilidir. Serif başlık bu belgelerin ağırbaşlı sesini
 taşır, ama bir kamu kurumunun yazı tipini taklit etmez. İki aile aynı tasarım ailesindendir (Adobe, Frank Grießhammer
 ve Paul D. Hunt); x yüksekliği ve oranları uyumludur, yan yana durduklarında iki ayrı marka gibi görünmez. Türkçe
 karakterlerin tamamı latin ve latin-ext alt kümelerindedir; yalnız bu iki alt küme yüklenir. Fontlar yerel
-barındırılır, `font-display: optional` ile sayfa kaymaz. Inter, Poppins, Space Grotesk, Manrope, DM Sans
+barındırılır (başlık yazı tipi alt kümesi ana sayfanın 350 KB aktarım bütçesine sığsın diye), `font-display: optional` ile sayfa kaymaz. Inter, Poppins, Space Grotesk, Manrope, DM Sans
 kullanılmaz. IBM Plex de değerlendirildi; Source Sans 3 zaten markanın logo kelimesinde kullanıldığı için aynı aileden
 serif seçildi ve yeni aile sayısı bire indi.
 
