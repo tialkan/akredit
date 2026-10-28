@@ -8,6 +8,9 @@ import { SITE_ADRESI } from "../site/icerik.ts";
 const KAPALI = ["/panel", "/api/", "/degerlendirici", "/davet", "/onay/", "/anket/"];
 const EGITIM_BOTLARI = ["GPTBot", "ClaudeBot", "Google-Extended", "CCBot"];
 
+// Ortam değişkeni çalışma anında okunur; derleme anına sabitlenmez.
+export const dynamic = "force-dynamic";
+
 export default function robots(): MetadataRoute.Robots {
   if (process.env.AKREDIT_ORTAM === "hazirlik") return { rules: [{ userAgent: "*", disallow: "/" }] };
   return {
