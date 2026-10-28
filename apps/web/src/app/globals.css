@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Kurumsal palet: lacivert #10325B ve petrol #157C80 (docs/marka.md). Her metin/zemin çifti WCAG 2.2 AA
+/* Yalnız açık tema vardır (bilinçli karar; koyu tema yok). Kurumsal palet: lacivert #10325B ve petrol #157C80 (docs/marka.md). Her metin/zemin çifti WCAG 2.2 AA
    eşiğini geçer; src/marka/kontrast.test.ts bu dosyayı okuyup hesaplar. */
 :root {
   color-scheme: light;
@@ -34,40 +34,6 @@
   --isi-4: #157c80;
   --isi-5: #10325b;
   --isi-metin-koyu: #ffffff;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
-    --isaret-a: #e8eef6;
-    --isaret-onay: #5cc6c6;
-    --zemin: #0b1320;
-    --yuzey: #111c2c;
-    --yuzey-2: #1a2738;
-    --metin: #e8edf3;
-    --soluk: #a9b5c4;
-    --cizgi: #2a3749;
-    --cizgi-guclu: #6b7a8f;
-    --vurgu: #9cc2ee;
-    --vurgu-metin: #0b1320;
-    --vurgu-zemin: #17304f;
-    --petrol: #5cc6c6;
-    --petrol-zemin: #123437;
-    --odak: #ffb067;
-    --risk-dusuk: #8bd8a2;
-    --risk-dusuk-zemin: #142a1b;
-    --risk-orta: #f2bb6b;
-    --risk-orta-zemin: #2f2210;
-    --risk-yuksek: #ffa196;
-    --risk-yuksek-zemin: #36161a;
-    --isi-0: #172233;
-    --isi-1: #163338;
-    --isi-2: #1c4b50;
-    --isi-3: #23676b;
-    --isi-4: #3a9a9b;
-    --isi-5: #9cc2ee;
-    --isi-metin-koyu: #0b1320;
-  }
 }
 
 @theme inline {

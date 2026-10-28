@@ -779,6 +779,7 @@ export function ornekAyarlar(): Ayarlar {
     kurumKisaAdi: "ÖÜ",
     yzSaglayici: "kurum_sunucusu",
     yurtDisiIzni: false,
+    yzAnahtar: null,
     politikalar: [
       {
         id: "politika-1",

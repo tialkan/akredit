@@ -12,7 +12,12 @@ type Parametre = { params: Promise<{ kilavuz: string }> };
 
 export async function generateMetadata({ params }: Parametre): Promise<Metadata> {
   const k = kilavuzBul((await params).kilavuz);
-  return { title: k ? k.baslik : "Kılavuz bulunamadı" };
+  if (!k) return { title: "Kılavuz bulunamadı" };
+  return {
+    title: `${k.baslik} (kılavuz)`,
+    description: k.ozet,
+    alternates: { canonical: `https://akredit.org/belgeler/${k.yol}` },
+  };
 }
 
 export default async function KilavuzSayfasi({ params }: Parametre) {

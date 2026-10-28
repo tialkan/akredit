@@ -6,7 +6,7 @@ describe("sadelik ölçüleri", () => {
   it("cümleleri ayırır ve kelimeleri sayar", () => {
     // "Bir iki üç." (3 kelime) ve "Dört beş!" (2 kelime): ortalama 2,5, en uzun 3.
     expect(cumleler("Bir iki üç. Dört beş!")).toEqual(["Bir iki üç.", "Dört beş!"]);
-    expect(kelimeSayisi("Bir iki — üç.")).toBe(3);
+    expect(kelimeSayisi("Bir iki - üç.")).toBe(3);
     expect(sadelikOlc(["Bir iki üç. Dört beş!"])).toEqual({ cumleSayisi: 2, ortalamaKelime: 2.5, enUzunCumle: 3 });
   });
 

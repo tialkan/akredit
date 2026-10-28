@@ -2,7 +2,14 @@
 // Değerlendirici portalı örnek kipte "kapalı" durumunu gösterir; dolu hâli ayrıca sınanır.
 export const SAYFALAR = [
   "/",
+  "/ne-yapar",
   "/nasil-calisir",
+  "/kimler-icin",
+  "/cerceveler",
+  "/yapay-zeka",
+  "/giris-ve-hesap",
+  "/sinirlar",
+  "/sss",
   "/guvenlik",
   "/kvkk",
   "/gizlilik",

@@ -1,33 +1,115 @@
 import type { Metadata } from "next";
-import { MetinSayfasi } from "../../../bilesenler/logo.tsx";
+import Link from "next/link";
+import { Bolum, Metin, SayfaBasi, TaslakNotu, YapisalVeri } from "../../../site/bilesenler.tsx";
+import { SAYFALAR } from "../../../site/icerik.ts";
+import { sayfaUstVerisi } from "../../../site/yapisal.ts";
 
-export const metadata: Metadata = { title: "Güvenlik" };
+export const metadata: Metadata = sayfaUstVerisi(SAYFALAR.guvenlik);
+
+// Dayanak: docs/guvenlik/README.md, docs/hukuk/README.md, docs/raporlar/IP-02, IP-09, IP-27, IP-28.
 
 export default function Guvenlik() {
   return (
-    <MetinSayfasi
-      baslik="Güvenlik yaklaşımı"
-      ozet="Bu sayfa tasarım ilkelerimizi anlatır. Ürün geliştirme aşamasındadır; bağımsız güvenlik denetimi henüz yapılmamıştır."
-    >
-      <h2>Değiştirilemez kayıt</h2>
-      <ul>
-        <li>Kanıt dosyaları içerik özetiyle (SHA-256) saklanır; üzerine yazılmaz, silinmez.</li>
-        <li>Öneri, karar ve günlük kayıtları yalnız eklenir.</li>
-      </ul>
-      <h2>Kurumlar arası yalıtım</h2>
-      <p>Her kurumun verisi ayrı tutulur; bir kurumun kullanıcısı başka kurumun verisini göremez.</p>
-      <h2>Yapay zekâ ile ilgili güvenceler</h2>
-      <ul>
-        <li>Belgelerdeki metinler yapay zekâya talimat olarak geçmez; yalnız veri olarak okunur.</li>
-        <li>Parola, doğrulama kodu ve oturum bilgisi yapay zekâya ve günlüğe girmez.</li>
-        <li>Kurum adına beyan ve dış kuruma gönderim her zaman bir kişinin kararıdır.</li>
-      </ul>
-      <h2>Açık kaynak</h2>
-      <p>Kod açıktır; kurumlar ve araştırmacılar nasıl çalıştığını inceleyebilir.</p>
-      <h2>Güvenlik açığı bildirimi</h2>
-      <p>
-        Bir açık bulduğunuzu düşünüyorsanız lütfen herkese açık yazmadan önce İletişim sayfasındaki yoldan bildirin.
-      </p>
-    </MetinSayfasi>
+    <>
+      <YapisalVeri sayfa={SAYFALAR.guvenlik} />
+      <SayfaBasi
+        sayfa={SAYFALAR.guvenlik}
+        ozet="Bu sayfa sistemin bugün nasıl kurulduğunu anlatır. Bağımsız sızma testi henüz yapılmadı. Hukuk metinleri taslaktır."
+      />
+      <Bolum id="kayit" baslik="Değiştirilemez kayıt">
+        <Metin>
+          <ul>
+            <li>
+              Kanıt dosyaları içerik özetiyle (SHA-256) saklanır. Üzerine yazılmaz, silinmez. Aynı içerik iki kez
+              eklenmez.
+            </li>
+            <li>Öneri, karar ve günlük kayıtları yalnız eklenir. Bu kural veritabanında da uygulanır.</li>
+            <li>
+              Günlük kayıtları özet zinciriyle birbirine bağlıdır. Araya kayıt sokulursa ya da bir kayıt değişirse
+              zincir bozulur.
+            </li>
+          </ul>
+        </Metin>
+      </Bolum>
+      <Bolum id="yalitim" baslik="Kurumlar arası yalıtım" zemin>
+        <Metin>
+          <p>
+            Her kurumun verisi veritabanında satır güvenliğiyle ayrılır. Uygulama kurum verisine yalnız o kurumla
+            sınırlanmış bir işlem içinde erişir. Başka kurumun kaydı sorulduğunda "bulunamadı" döner. Bu davranış
+            otomatik testlerle sınanır.
+          </p>
+          <p>Yetki her istekte sunucuda denetlenir. Reddedilen erişim de günlüğe yazılır.</p>
+        </Metin>
+      </Bolum>
+      <Bolum id="yz" baslik="Yapay zekâ güvenceleri">
+        <Metin>
+          <ul>
+            <li>
+              Belgedeki, web sayfasındaki ve e-postadaki metin modele veri olarak gider. İçindeki komut benzeri cümleler
+              işlenmez.
+            </li>
+            <li>Model bir kayıt yazmak isterse bu doğrudan yapılmaz; bekleyen bir onaya dönüşür.</li>
+            <li>Parola, doğrulama kodu ve oturum bilgisi modele ve günlüğe girmez.</li>
+            <li>
+              Yurt dışındaki hizmet ancak kurum izin verirse kullanılır; o zaman da kişisel veriler maskelenir.{" "}
+              <Link href="/yapay-zeka#veri">Ayrıntı</Link>
+            </li>
+          </ul>
+        </Metin>
+      </Bolum>
+      <Bolum id="kvkk" baslik="Kişisel veriler" not="KVKK" zemin>
+        <Metin>
+          <ul>
+            <li>
+              Akredit'i kullanan üniversite veri sorumlusudur. Platformu işleten taraf veriyi üniversite adına işler.
+            </li>
+            <li>Öğrenci numarası kuruma özgü anahtarla takma ada çevrilir. Gerçek kimlikle eşleme üniversitededir.</li>
+            <li>Anket yanıtı hiçbir yerde kişiye bağlanmaz.</li>
+            <li>
+              Silme talebi kabul edilirse takma adı kişiyle eşleyen bilgi silinir. Kayıtlar kimseyle ilişkilendirilemez
+              hâle gelir.
+            </li>
+          </ul>
+        </Metin>
+        <TaslakNotu>
+          <p className="font-semibold">Hukuk metinleri taslaktır.</p>
+          <p className="mt-1">
+            Aydınlatma metinleri, gizlilik politikası, çerez politikası, kullanım koşulları, veri işleme sözleşmesi,
+            saklama ve imha politikası ile yurt dışı aktarım değerlendirmesi hazırlandı. Hiçbiri avukat incelemesinden
+            geçmedi ve bağlayıcı değildir. İşletmecinin tüzel kimliği henüz belirlenmedi.
+          </p>
+        </TaslakNotu>
+        <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2">
+          <li>
+            <Link href="/kvkk" className="font-semibold text-vurgu underline underline-offset-4">
+              KVKK (taslak)
+            </Link>
+          </li>
+          <li>
+            <Link href="/gizlilik" className="font-semibold text-vurgu underline underline-offset-4">
+              Gizlilik (taslak)
+            </Link>
+          </li>
+          <li>
+            <Link href="/kosullar" className="font-semibold text-vurgu underline underline-offset-4">
+              Kullanım koşulları (taslak)
+            </Link>
+          </li>
+        </ul>
+      </Bolum>
+      <Bolum id="durum" baslik="Denetim durumu">
+        <Metin>
+          <p>
+            Tehdit modeli ve OWASP ASVS 4.0.3 düzey 2 kontrol listesi yazıldı. Kritik ya da yüksek önemde açık bulgu
+            varken üretime çıkılmaması kuraldır. Bağımsız sızma testinin kapsamı hazırlandı; test henüz yapılmadı.
+          </p>
+          <h3>Açık bildirimi</h3>
+          <p>
+            Bir güvenlik açığı bulduğunuzu düşünüyorsanız herkese açık yazmadan önce{" "}
+            <Link href="/iletisim">İletişim</Link> sayfasındaki yoldan bildirin. İlk yanıt hedefi 3 iş günüdür.
+          </p>
+        </Metin>
+      </Bolum>
+    </>
   );
 }
