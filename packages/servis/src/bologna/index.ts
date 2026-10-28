@@ -45,6 +45,9 @@ import {
   yazmaPlaniKur,
 } from "./saf.ts";
 
+export * from "./devir.ts";
+export * from "./devir-saf.ts";
+export * from "./devir-yazma.ts";
 export * from "./eksik-giderme.ts";
 export * from "./saf.ts";
 
