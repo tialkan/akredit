@@ -11,7 +11,7 @@ export async function kurumlariListele(db: Vt): Promise<string[]> {
   return satirlar(s).map((x) => x.id);
 }
 
-export const BAGLAYICI_TURLERI = ["bologna", "avesis", "yokatlas", "eposta", "drive"] as const;
+export const BAGLAYICI_TURLERI = ["bologna", "avesis", "yokatlas", "eposta", "drive", "site"] as const;
 export type BaglayiciTuru = (typeof BAGLAYICI_TURLERI)[number];
 
 const Son = z
@@ -52,6 +52,21 @@ export const BaglayiciAyarSemasi = z.object({
       son: Son,
     })
     .optional(),
+  /**
+   * Kurum sitesi taraması (İP-37): yalnız kurumun kayıtlı alan adı ve alt alan adları. Sınırlar tarayıcının
+   * mutlak tavanlarıyla aynıdır (derinlik 4, 500 adres, istekler arası en az 1 sn).
+   */
+  site: z
+    .object({
+      acik: z.boolean(),
+      /** Verilmezse https://www.<alan adı>/ */
+      baslangic: z.url().optional(),
+      derinlik: z.number().int().min(0).max(4).default(2),
+      enCokSayfa: z.number().int().min(1).max(500).default(50),
+      aralikMs: z.number().int().min(1000).max(5000).default(2000),
+      son: Son,
+    })
+    .optional(),
 });
 export type BaglayiciAyari = z.infer<typeof BaglayiciAyarSemasi>;
 
@@ -73,6 +88,14 @@ export async function baglayiciAyari<T extends BaglayiciTuru>(
   const d = alan.safeParse(ham);
   if (!d.success || !d.data || !(d.data as { acik: boolean }).acik) return null;
   return d.data as NonNullable<BaglayiciAyari[T]>;
+}
+
+/** Kurumun kayıtlı alan adı (site taraması yalnız bu alanda çalışır). */
+export async function kurumAlanAdi(db: Vt, kurumId: string): Promise<string | null> {
+  const [k] = await kiraciIslemi(db, kurumId, (tx) =>
+    tx.select({ a: sema.kurum.alanAdi }).from(sema.kurum).where(eq(sema.kurum.id, kurumId)),
+  );
+  return k?.a ?? null;
 }
 
 /** Bağlayıcı ayarının alanlarını birleştirir (ör. eşitleme durumu, şifreli yeni belirteç, son çalışma). */

@@ -18,11 +18,12 @@ import {
   programIstatistikleriniOku,
   programiOku,
   type Soket,
+  siteTara,
 } from "@akredit/baglayicilar";
 import { kiraciIslemi, sema } from "@akredit/vt";
 import { isNotNull } from "drizzle-orm";
 import { epostaAl, type HatBaglami, kanitAl } from "../kanit-hatti/index.ts";
-import { type BaglayiciTuru, baglayiciAyari, baglayiciAyariGuncelle } from "./kurumlar.ts";
+import { type BaglayiciTuru, baglayiciAyari, baglayiciAyariGuncelle, kurumAlanAdi } from "./kurumlar.ts";
 
 export interface EsitlemeBaglami {
   hat: HatBaglami;
@@ -174,6 +175,32 @@ export async function baglayiciEsitle(e: EsitlemeBaglami, kurumId: string, tur: 
         for (const d of t.dosyalar) say(o, d);
       }
       ek.durum = s.durum;
+    } else if (tur === "site") {
+      const a = await baglayiciAyari(db, kurumId, "site");
+      if (!a) return { ...o, durum: "kapali" };
+      const alanAdi = await kurumAlanAdi(db, kurumId);
+      if (!alanAdi) throw new Error("Kurumun alan adı kayıtlı değil. Kurum ayarlarından alan adını girin.");
+      // Sayfa metni modele gitmez; belgeler kanıt hattına "güvenilmeyen" kaynak ayrıntısıyla girer.
+      const r = await siteTara(e.dis, {
+        baslangic: a.baslangic ?? `https://www.${alanAdi}/`,
+        alanAdi,
+        derinlik: a.derinlik,
+        enCokSayfa: a.enCokSayfa,
+        aralikMs: a.aralikMs,
+      });
+      for (const b of r.belgeler)
+        say(
+          o,
+          await kanitAl(e.hat, {
+            kurumId,
+            veri: b.veri,
+            dosyaAdi: b.dosyaAdi,
+            ...(b.mime ? { mime: b.mime } : {}),
+            kaynakTuru: "baglayici",
+            kaynakAyrinti: { baglayici: "site", ...b.kaynakAyrinti },
+          }),
+        );
+      if (r.atlanan.length) o.ileti = `${r.atlanan.length} adres alınmadı (robots.txt, tür, sınır ya da erişim).`;
     } else {
       const a = await baglayiciAyari(db, kurumId, "drive");
       if (!a) return { ...o, durum: "kapali" };
