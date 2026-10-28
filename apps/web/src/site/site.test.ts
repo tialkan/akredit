@@ -1,10 +1,27 @@
 // Site içeriğinin koddaki gerçekle tutarlılığı ve yapılandırılmış veri.
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { ROLLER } from "@akredit/yetki";
 import { describe, expect, it } from "vitest";
 import { yokakOzeti } from "./cerceve-ozeti.ts";
-import { DONEM_AKISI, EYLEM_ADI, ROL_ADI, ROL_ANLATIMLARI, ROL_KARARI, SAYFALAR, SSS } from "./icerik.ts";
+import {
+  DONEM_AKISI,
+  DORT_ROL,
+  DURUM_ADI,
+  depo,
+  EYLEM_ADI,
+  KONUM_TABLOSU,
+  MODUL_DURUMU_DAYANAGI,
+  MODULLER,
+  ROL_ADI,
+  ROL_ANLATIMLARI,
+  ROL_KARARI,
+  SAYFALAR,
+  SORUMLULUK,
+  SSS,
+  VAAT_CERCEVESI,
+  YOL_HARITASI,
+} from "./icerik.ts";
 import { sayfaUstVerisi, sssVerisi, yapisalVeri } from "./yapisal.ts";
 
 describe("çerçeve özeti", () => {
@@ -60,6 +77,99 @@ describe("üst veri", () => {
     expect(turler).toEqual(["Organization", "BreadcrumbList", "FAQPage"]);
     expect(j["@graph"][2].mainEntity).toHaveLength(SSS.length);
     expect(yapisalVeri({ ...SAYFALAR.sss, ad: "</script>" })).not.toContain("</script>");
+  });
+});
+
+describe("İP-42: vaat, roller, durum, depo yolları", () => {
+  /** Son kullanıcıya görünen metinde depo yolu biçimi: klasör yolu, kaynak dosya adı, CLAUDE.md. */
+  const DEPO_YOLU = /\b(?:packages|apps|docs|infra|plan)\/|\.(?:tsx?|sql|md)\b|CLAUDE\.md/u;
+
+  /** Nesnedeki bütün metinleri toplar; `adres` (bağlantı hedefi) ve kod içi gerekçeler hariç. */
+  function metinler(x: unknown, yol = ""): [string, string][] {
+    if (typeof x === "string") return [[yol, x]];
+    if (Array.isArray(x)) return x.flatMap((o, i) => metinler(o, `${yol}[${i}]`));
+    if (x && typeof x === "object")
+      return Object.entries(x).flatMap(([k, v]) => (k === "adres" || k === "yol" ? [] : metinler(v, `${yol}.${k}`)));
+    return [];
+  }
+
+  it("site içeriğinde son kullanıcıya depo yolu yazılmaz", async () => {
+    const icerik = await import("./icerik.ts");
+    const { MODUL_DURUMU_DAYANAGI: _gerekce, ...gorunen } = icerik;
+    const bulunan = metinler(gorunen).filter(([, m]) => DEPO_YOLU.test(m));
+    expect(bulunan).toEqual([]);
+  });
+
+  it("sayfa dayanak listelerinde depo yolu yalnız bağlantıda durur", () => {
+    const kok = join(import.meta.dirname, "../app/(site)");
+    for (const sayfa of ["page.tsx", "nasil-calisir/page.tsx", "yapay-zeka/page.tsx", "giris-ve-hesap/page.tsx"]) {
+      const metin = readFileSync(join(kok, sayfa), "utf8");
+      const liste = metin.slice(
+        metin.indexOf("const DAYANAKLAR"),
+        metin.indexOf("];", metin.indexOf("const DAYANAKLAR")),
+      );
+      const basliklar = [...liste.matchAll(/baslik:\s*"([^"]+)"/gu)].map((m) => m[1] ?? "");
+      expect(basliklar.length, sayfa).toBeGreaterThan(0);
+      expect(
+        basliklar.filter((b) => DEPO_YOLU.test(b)),
+        sayfa,
+      ).toEqual([]);
+      for (const m of liste.matchAll(/depo\("([^"]+)"\)/gu))
+        expect(existsSync(join(import.meta.dirname, "../../../..", m[1] ?? "")), m[1]).toBe(true);
+    }
+  });
+
+  it("depo bağlantısı açık kaynak deposuna gider", () => {
+    expect(depo("CLAUDE.md")).toBe("https://github.com/tialkan/akredit/blob/main/CLAUDE.md");
+    expect(depo("packages/olcme")).toBe("https://github.com/tialkan/akredit/tree/main/packages/olcme");
+  });
+
+  it("mutlak ifadeler doğru biçimde: 'silinemez' ve 'her cümlesine kaynak' kalmadı", async () => {
+    const icerik = await import("./icerik.ts");
+    const hepsi = metinler(icerik).map(([, m]) => m.toLocaleLowerCase("tr"));
+    expect(hepsi.filter((m) => /silinemez|silinemeyen|her cümlesine kaynak/u.test(m))).toEqual([]);
+    expect(SORUMLULUK).toContain("onaylayan kurum yetkilisindedir");
+    expect(VAAT_CERCEVESI).toBe("Sıfır evrak angaryası, tam akademik irade.");
+  });
+
+  it("ölçülmemiş yüzde iddiası yok", async () => {
+    const icerik = await import("./icerik.ts");
+    expect(metinler(icerik).filter(([, m]) => /%\s?\d|\d\s?%/u.test(m))).toEqual([]);
+  });
+
+  it("dört rol: ad, kimlik ve sistem rolleri geçerli", () => {
+    expect(DORT_ROL.map((r) => r.ad)).toEqual(["Rektörlük", "Kalite komisyonu", "Bölüm başkanı", "Öğretim elemanı"]);
+    for (const r of DORT_ROL) {
+      expect(r.maddeler.length).toBeGreaterThanOrEqual(3);
+      for (const x of r.roller) expect(ROLLER).toContain(x);
+    }
+  });
+
+  it("her modülün durumu ve koddaki gerekçesi var", () => {
+    for (const m of MODULLER) {
+      expect(DURUM_ADI[m.durum], m.kimlik).toBeTruthy();
+      expect(MODUL_DURUMU_DAYANAGI[m.kimlik], m.kimlik).toMatch(/İP-\d+/u);
+    }
+    expect(Object.keys(MODUL_DURUMU_DAYANAGI).sort()).toEqual(MODULLER.map((m) => m.kimlik).sort());
+    // İnceleme ya da devam durumundaki İP'ye dayanan rapor modülleri "Yayında" gösterilemez.
+    for (const k of ["odr", "kidr"]) expect(MODULLER.find((m) => m.kimlik === k)?.durum).toBe("yapimda");
+  });
+
+  it("yol haritası plan.md §8'deki İP-38…48'i sırayla kapsar", () => {
+    expect(YOL_HARITASI.map((y) => y.no)).toEqual([38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]);
+    const plan = readFileSync(join(import.meta.dirname, "../../../../plan.md"), "utf8");
+    for (const y of YOL_HARITASI) {
+      const satir = plan.split("\n").find((s) => new RegExp(`^\\| \\[?${y.no}\\b`, "u").test(s)) ?? "";
+      expect(satir, `İP-${y.no}`).not.toBe("");
+      expect(y.dalga === "simdi", `İP-${y.no}`).toBe(/\| devam \|/u.test(satir));
+    }
+  });
+
+  it("konum tablosunda karşılaştırmalı iddia yok", () => {
+    const metin = KONUM_TABLOSU.flatMap((k) => [k.baglanti, k.sinir])
+      .join(" ")
+      .toLocaleLowerCase("tr");
+    expect(metin).not.toMatch(/daha iyi|daha hızlı|üstün|yerine geçer\b/u);
   });
 });
 

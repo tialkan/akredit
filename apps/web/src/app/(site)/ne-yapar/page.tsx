@@ -1,10 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Bolum, SayfaBasi, Tanimlar, YapisalVeri } from "../../../site/bilesenler.tsx";
-import { BAGLAYICILAR, MODULLER, SAYFALAR } from "../../../site/icerik.ts";
+import { BAGLAYICILAR, DURUM_ADI, MODULLER, type ModulDurumu, SAYFALAR } from "../../../site/icerik.ts";
 import { sayfaUstVerisi } from "../../../site/yapisal.ts";
 
 export const metadata: Metadata = sayfaUstVerisi(SAYFALAR.neYapar);
+
+/** Durum yazısının rengi: petrol yalnız doğrulanmış durum içindir (docs/tasarim/README.md, Renk). */
+const DURUM_RENGI: Record<ModulDurumu, string> = {
+  yayinda: "text-petrol",
+  pilotta: "text-vurgu",
+  yapimda: "text-metin",
+};
 
 function Liste({ ogeler }: { ogeler: string[] }) {
   return (
@@ -83,6 +90,23 @@ export default function NeYapar() {
           Panelden bağlayıcı açma ekranı henüz yok.
         </p>
       </Bolum>
+      <Bolum id="durumlar" baslik="Modüllerin durumu" not="Her modülün altında bugünkü durumu yazar.">
+        <dl className="grid gap-x-6 gap-y-3 sm:grid-cols-[13rem_1fr]">
+          {(Object.keys(DURUM_ADI) as ModulDurumu[]).map((d) => (
+            <div key={d} className="contents">
+              <dt className={`font-semibold ${DURUM_RENGI[d]}`}>{DURUM_ADI[d].ad}</dt>
+              <dd>{DURUM_ADI[d].anlam}</dd>
+            </div>
+          ))}
+        </dl>
+        <p className="mt-5">
+          Sıradaki işler{" "}
+          <Link href="/yol-haritasi" className="font-semibold text-vurgu underline underline-offset-4">
+            Yol haritası
+          </Link>{" "}
+          sayfasında.
+        </p>
+      </Bolum>
       <div className="mx-auto max-w-6xl px-4 py-6">
         {MODULLER.map((m) => (
           <section
@@ -99,6 +123,10 @@ export default function NeYapar() {
                 {m.ad}
               </h2>
               <p className="mt-2 text-soluk">{m.ozet}</p>
+              <p className="mt-3 text-sm">
+                <span className="text-soluk">Durum: </span>
+                <span className={`font-semibold ${DURUM_RENGI[m.durum]}`}>{DURUM_ADI[m.durum].ad}</span>
+              </p>
             </div>
             <div className="min-w-0">
               <Tanimlar
