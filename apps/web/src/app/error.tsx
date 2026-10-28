@@ -1,9 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { dugmeSinifi } from "../bilesenler/dugme.tsx";
-
-/** Beklenmeyen hata ekranı. İç yapıyı (yığın izi, sorgu) göstermez; yalnız başvuru kodu verir. */
+/** Beklenmeyen hata ekranı. Her sayfanın betiğine eklendiği için bağımlılıksız tutulur. İç yapıyı (yığın izi, sorgu) göstermez; yalnız başvuru kodu verir. */
 export default function HataEkrani({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
     <main id="icerik" className="mx-auto w-full max-w-3xl px-4 py-14">
@@ -18,15 +15,16 @@ export default function HataEkrani({ error, reset }: { error: Error & { digest?:
         </p>
       ) : null}
       <p className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
-        <button type="button" onClick={reset} className={dugmeSinifi("birincil", "orta", "rounded-sm")}>
+        <button
+          type="button"
+          onClick={reset}
+          className="inline-flex min-h-11 items-center rounded bg-vurgu px-5 font-semibold text-vurgu-metin hover:opacity-90"
+        >
           Yeniden deneyin
         </button>
-        <Link
-          href="/"
-          className="inline-flex min-h-11 items-center font-semibold text-vurgu underline underline-offset-4"
-        >
+        <a href="/" className="inline-flex min-h-11 items-center font-semibold text-vurgu underline underline-offset-4">
           Ana sayfaya dönün
-        </Link>
+        </a>
       </p>
     </main>
   );
