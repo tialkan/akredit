@@ -166,6 +166,7 @@ Durumlar: **hazır** (başlanabilir), **devam**, **inceleme**, **tamam**, **bekl
 | [32](plan/ip/IP-32-kiyaslama.md) | Kurumlar arası kıyaslama | 6 | inceleme | 20, 21 |
 | [33](plan/ip/IP-33-mobil-onay.md) | Mobil onay ve bildirim | 6 | inceleme | 13 |
 | [34](plan/ip/IP-34-kurum-ici-kurulum.md) | Kurum içi kurulum ve yerel model | 6 | inceleme | 26 |
+| [35](plan/ip/IP-35-kurum-acilisi.md) | Kurum açılışı, kurulum sihirbazı, kurum anahtarı fabrikası | 6 | inceleme | 09, 12, 23 |
 
 ## 9. Alt ajan çalışma modeli
 
