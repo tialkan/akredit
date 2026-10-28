@@ -72,6 +72,7 @@ export const oneriTuru = pgEnum("oneri_turu", [
   "olgunluk_duzeyi",
   "yazma_plani",
   "dis_gonderim",
+  "dis_ornek",
 ]);
 export const ureticiTuru = pgEnum("uretici_turu", ["yz", "kural", "kisi"]);
 export const kararSonucu = pgEnum("karar_sonucu", ["onaylandi", "duzeltildi", "reddedildi"]);

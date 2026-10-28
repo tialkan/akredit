@@ -22,6 +22,7 @@ export const ONERI_TURU_ETIKETI: Readonly<Record<OneriTuru, string>> = {
   olgunluk_duzeyi: "Olgunluk düzeyi",
   yazma_plani: "Yazma planı",
   dis_gonderim: "Dış gönderim",
+  dis_ornek: "Başka kurumdan örnek (kanıt değildir)",
 };
 
 /** Arama için: Türkçe küçük harf, aksanlar sadeleşir ("Öğrenci" ve "ogrenci" eşleşir). */

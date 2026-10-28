@@ -86,6 +86,15 @@ function ornekIstek(ad: string, a: Ornek): { yol: string; govde?: unknown } {
     },
     bolognaYazmaBaslat: { yol: `/bologna/yazma-planlari/${a.oneriYuksek}/baslat`, govde: {} },
     bolognaYazmaBitir: { yol: `/bologna/yazma-planlari/${a.oneriYuksek}/bitir`, govde: { sonuc: "tamamlandi" } },
+    bolognaEksikGiderme: { yol: `/bologna/dersler/${a.dersId}/eksik-giderme`, govde: {} },
+    kanitAra: { yol: "/arastirma/kanit-ara", govde: { olcutId: a.kanitKurum, dersId: a.dersId } },
+    siteTaramasi: { yol: "/arastirma/site-tarama", govde: {} },
+    disOrnekleri: { yol: `/dersler/${a.dersId}/dis-ornekler` },
+    wordPaketi: { yol: `/dersler/${a.dersId}/word-paketi` },
+    wordYukle: {
+      yol: `/dersler/${a.dersId}/word-paketi`,
+      govde: { dosyaAdi: "paket.docx", icerikBase64: Buffer.from("PK").toString("base64") },
+    },
     dersinDosyalari: { yol: `/dersler/${a.dersId}/ders-dosyasi` },
     dokumAktar: {
       yol: "/ders-dosyasi/dokum",
@@ -170,9 +179,13 @@ describe("her uç için yetkisiz erişim", () => {
       u.ad === "topluKararVer" ||
       u.ad === "bolognaTaslagiUret" ||
       u.ad === "dokumAktar" ||
+      u.ad === "kanitAra" ||
       u.ad === "odrOlustur"
     ) {
       expect(y.status, govde).toBe(404);
+    } else if (u.ad === "siteTaramasi") {
+      // B'nin alan adı kayıtlı değil: kendi kurumunda istek hatası, A'ya dokunmaz.
+      expect(y.status, govde).toBe(400);
     } else if (u.ad === "yzBaglantiDene") {
       // B'nin kayıtlı anahtarı yok: kendi kurumunda kural hatası, A'ya dokunmaz.
       expect(y.status, govde).toBe(422);

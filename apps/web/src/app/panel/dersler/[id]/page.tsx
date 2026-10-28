@@ -6,6 +6,7 @@ import { OlcmeCubuklari } from "../../../../bilesenler/olcme-cubuklari.tsx";
 import { Kart, KirintiYolu, SayfaBasligi } from "../../../../bilesenler/temel.tsx";
 import { GERCEK_VERI, panelVeriKaynagi } from "../../../../veri/sunucu.ts";
 import { BolognaRozeti } from "../bologna-rozeti.tsx";
+import { ArastirmaPaneli } from "./arastirma/arastirma-paneli.tsx";
 import { DersDosyasiPaneli } from "./ders-dosyasi-paneli.tsx";
 
 export async function generateStaticParams() {
@@ -65,6 +66,9 @@ export default async function DersSayfasi({ params }: { params: Promise<{ id: st
           <div className="mt-4 border-t border-cizgi pt-4">
             <DersDosyasiPaneli dersId={ders.id} />
           </div>
+        </Kart>
+        <Kart baslik="Eksikleri gider, kanıt ara, Word paketi" className="lg:col-span-2">
+          <ArastirmaPaneli dersId={ders.id} />
         </Kart>
         <Kart baslik="Ders çıktılarının sağlanması" className="lg:col-span-2">
           <OlcmeCubuklari baslik="Ders çıktısı başına sağlanma oranı (örnek veri)" satirlar={ders.olcme} esik={0.6} />

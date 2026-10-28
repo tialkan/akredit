@@ -45,6 +45,7 @@ import {
   yazmaPlaniKur,
 } from "./saf.ts";
 
+export * from "./eksik-giderme.ts";
 export * from "./saf.ts";
 
 // ---------- Dış bağlantılar ----------
@@ -249,7 +250,7 @@ const metinBaytlari = (s: string) => new TextEncoder().encode(s);
 
 const OkumaAyrintisi = z.object({ tur: z.literal("bologna"), programId: z.string(), okundu: z.string() });
 
-interface Okuma {
+export interface Okuma {
   kanitId: string;
   ozet: string;
   okundu: string;
@@ -258,7 +259,7 @@ interface Okuma {
 }
 
 /** Programın okumaları (en yeni önce). */
-async function okumalar(tx: Islem, programId: string, sinir = 2): Promise<Okuma[]> {
+export async function okumalar(tx: Islem, programId: string, sinir = 2): Promise<Okuma[]> {
   const satirlar = await tx
     .select()
     .from(sema.kanit)
@@ -414,7 +415,7 @@ export async function programDenetimi(b: ServisBaglami, programId: string): Prom
 
 // ---------- 3. YZ taslağı ----------
 
-const TaslakIcerigi = z.object({
+export const TaslakIcerigi = z.object({
   baslik: z.string(),
   metin: z.string(),
   dersKodu: z.string(),
@@ -425,7 +426,10 @@ const TaslakIcerigi = z.object({
 });
 
 /** Önerinin geçerli taslağı: düzeltme kararında insanın JSON olarak verdiği taslak, yoksa önerinin kendisi. */
-function gecerliTaslak(icerik: z.infer<typeof TaslakIcerigi>, karar: { sonuc: string; duzeltme: unknown } | null) {
+export function gecerliTaslak(
+  icerik: z.infer<typeof TaslakIcerigi>,
+  karar: { sonuc: string; duzeltme: unknown } | null,
+) {
   if (karar?.sonuc !== "duzeltildi") return icerik.taslak;
   const metin = (karar.duzeltme as { metin?: string } | null)?.metin ?? "";
   try {
@@ -440,7 +444,7 @@ function gecerliTaslak(icerik: z.infer<typeof TaslakIcerigi>, karar: { sonuc: st
   );
 }
 
-async function dersTaslaklari(tx: Islem, dersId: string) {
+export async function dersTaslaklari(tx: Islem, dersId: string) {
   return tx
     .select({ o: sema.oneri, k: sema.karar })
     .from(sema.oneri)
@@ -502,7 +506,18 @@ async function kurumSaglayicisiCoz(b: ServisBaglami, maske: { adlar?: string[] }
  * Hocanın beyanı ve son Bologna okumasından atıflı tam taslak üretir; onay kutusuna öneri olarak düşer.
  * Kod, ad, AKTS, T+U+L ve yetkililer sistemden (ders kaydı ve oturumdaki hoca) gelir.
  */
-export async function taslakUret(b: ServisBaglami, girdi: unknown): Promise<TaslakSonucu> {
+/** Taslak üretimine başka akışların (İP-37 eksik giderme) eklediği girdi, içerik ve denetimler. */
+export interface TaslakEki {
+  giderilecek?: { bulgular: { kural: string; aciklama: string }[]; hesaplar: { ad: string; deger: string }[] };
+  /** Öneri içeriğine eklenecek alanlar (ör. kaynakça). */
+  icerik?: Record<string, unknown>;
+  /** Taslağa uygulanacak ek denetim (uyarı) bulguları. */
+  ekBulgular?: (t: BolognaTaslagi) => Bulgu[];
+  /** Günlük olayı; varsayılan `bologna.taslak_uretildi`. */
+  olay?: string;
+}
+
+export async function taslakUret(b: ServisBaglami, girdi: unknown, ek: TaslakEki = {}): Promise<TaslakSonucu> {
   const g = TaslakGirdisi.parse(girdi);
   await islem(b, async (tx, gerekli) => {
     await gerekli("olcme.veri_gir", { tur: "ders", id: (await dersYukle(tx, g.dersId)).id });
@@ -576,10 +591,18 @@ export async function taslakUret(b: ServisBaglami, girdi: unknown): Promise<Tasl
       },
       okuma: okumaKaynagi,
       beyan: beyanKaynagi,
+      ...(ek.giderilecek ? { giderilecek: ek.giderilecek } : {}),
     },
     saglayici,
   );
-  const denetim = tamDenetim(s.taslak, karsiDersler(okuma.veri, d.kod));
+  const temelDenetim = tamDenetim(s.taslak, karsiDersler(okuma.veri, d.kod));
+  const ekB = ek.ekBulgular?.(s.taslak) ?? [];
+  const denetim = {
+    ...temelDenetim,
+    bulgular: [...temelDenetim.bulgular, ...ekB],
+    hata: temelDenetim.hata + ekB.filter((x) => x.duzey === "hata").length,
+    uyari: temelDenetim.uyari + ekB.filter((x) => x.duzey === "uyari").length,
+  };
   const atifSorunlari = s.sorunlar.filter(
     (x) => !/^K\d|^Temel|^Değerlendirme|^Ders akışı|^Kaynaklar$|^Türkçe/u.test(x.alan),
   );
@@ -609,6 +632,7 @@ export async function taslakUret(b: ServisBaglami, girdi: unknown): Promise<Tasl
           okumaKanitId: okuma.kanitId,
           beyanKanitId: beyanKaniti?.id ?? null,
           dayanaklar: s.veri.dayanaklar,
+          ...(ek.icerik ?? {}),
         }),
         gerekce: ozetMetni,
         atiflar: json([
@@ -627,7 +651,7 @@ export async function taslakUret(b: ServisBaglami, girdi: unknown): Promise<Tasl
     await gunluge(
       tx,
       b,
-      "bologna.taslak_uretildi",
+      ek.olay ?? "bologna.taslak_uretildi",
       { tur: "oneri", id: o.id },
       { ders: d.id, hata: denetim.hata, uyari: denetim.uyari, tur: s.tur },
     );
