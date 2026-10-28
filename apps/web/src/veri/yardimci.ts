@@ -63,9 +63,9 @@ export function gunFarki(a: string, b: string): number {
   return Math.round((Date.parse(b.slice(0, 10)) - Date.parse(a.slice(0, 10))) / 86_400_000);
 }
 
-/** 0-1 güven → "%87"; yoksa "—". */
+/** 0-1 güven → "%87"; yoksa "Yok". */
 export function yuzdeYaz(oran: number | null): string {
-  if (oran === null || !Number.isFinite(oran)) return "—";
+  if (oran === null || !Number.isFinite(oran)) return "Yok";
   return `%${Math.round(oran * 100)}`;
 }
 

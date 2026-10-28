@@ -162,7 +162,7 @@ export const KILAVUZLAR: Kilavuz[] = [
       {
         baslik: "Taslak ve onaylı dosya farkı",
         paragraflar: [
-          "Onay verilmeden indirilen dosyanın başında “Taslak — onaylanmadı” yazar ve imza sayfası boş kalır. Onaydan sonra onaylayanın adı ve tarihi yazılır.",
+          "Onay verilmeden indirilen dosyanın başında taslak olduğu ve onaylanmadığı yazar ve imza sayfası boş kalır. Onaydan sonra onaylayanın adı ve tarihi yazılır.",
         ],
       },
     ],

@@ -31,10 +31,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f5f7fa" },
-    { media: "(prefers-color-scheme: dark)", color: "#0b1320" },
-  ],
+  themeColor: "#ffffff",
+  colorScheme: "light",
 };
 
 // G-27-1: CSP nonce'u istek başınadır (src/proxy.ts); Next yalnız dinamik işlenen sayfaya nonce
