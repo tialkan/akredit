@@ -102,6 +102,9 @@ importers:
       '@akredit/cekirdek':
         specifier: workspace:*
         version: link:../../packages/cekirdek
+      '@akredit/cerceveler':
+        specifier: workspace:*
+        version: link:../../packages/cerceveler
       '@akredit/gosterge':
         specifier: workspace:*
         version: link:../../packages/gosterge

@@ -3,7 +3,7 @@
 // ağ kesintisinde yeniden gönderilen onay iki kez kaydedilmez.
 
 import { veriKaynagi as bellekKaynagi } from "./bellek.ts";
-import type { Ayarlar, IslemSonucu, VeriKaynagi } from "./kaynak.ts";
+import type { Ayarlar, BaglantiSonucu, IslemSonucu, VeriKaynagi } from "./kaynak.ts";
 
 export const GERCEK_VERI = process.env.NEXT_PUBLIC_AKREDIT_VERI === "gercek";
 
@@ -151,6 +151,15 @@ export class ApiVeriKaynagi implements VeriKaynagi {
     const s = await this.#iste<Ayarlar>("PATCH", "/ayarlar", degisiklik);
     if (!s.tamam) throw new Error(s.hata);
     return s.deger;
+  }
+  yzAnahtariKaydet(anahtar: string, model?: string) {
+    return this.#iste<Ayarlar>("POST", "/ayarlar/yz-anahtari", { anahtar, ...(model ? { model } : {}) });
+  }
+  yzAnahtariKaldir() {
+    return this.#iste<Ayarlar>("POST", "/ayarlar/yz-anahtari/kaldir", {});
+  }
+  yzBaglantiDene() {
+    return this.#iste<BaglantiSonucu>("POST", "/ayarlar/yz-anahtari/dene", {});
   }
 }
 

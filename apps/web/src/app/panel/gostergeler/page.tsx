@@ -9,11 +9,16 @@ export const metadata: Metadata = { title: "Göstergeler" };
 const DURUM: Record<SapmaDurumu, string> = {
   hedefte: "✓ Hedefte",
   uyari: "Hedefe yakın",
-  sapma: "⚠ Hedefin gerisinde",
+  sapma: "Hedefin gerisinde",
   hedef_yok: "Hedef yok",
   EKSIK: "Veri eksik",
 };
-const EGILIM = { iyilesiyor: "↗ İyileşiyor", kotulesiyor: "↘ Kötüleşiyor", durgun: "→ Değişmiyor", yetersiz_veri: "—" };
+const EGILIM = {
+  iyilesiyor: "İyileşiyor",
+  kotulesiyor: "Kötüleşiyor",
+  durgun: "Değişmiyor",
+  yetersiz_veri: "Veri yetersiz",
+};
 
 const sayi = (x: number) => x.toLocaleString("tr-TR", { maximumFractionDigits: 2 });
 
@@ -95,7 +100,7 @@ export default async function GostergelerSayfasi() {
                   ];
                 }),
               ),
-              hedef: s.hedef === null ? "—" : `${sayi(s.hedef)} ${s.birim}`,
+              hedef: s.hedef === null ? "Yok" : `${sayi(s.hedef)} ${s.birim}`,
               durum: <Rozet vurgulu={s.sonDurum === "sapma"}>{DURUM[s.sonDurum]}</Rozet>,
               egilim: EGILIM[s.egilim.yorum],
             },

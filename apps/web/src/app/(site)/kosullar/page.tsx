@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { MetinSayfasi } from "../../../bilesenler/logo.tsx";
+import { SAYFALAR } from "../../../site/icerik.ts";
+import { sayfaUstVerisi } from "../../../site/yapisal.ts";
 
-export const metadata: Metadata = { title: "Kullanım koşulları" };
+export const metadata: Metadata = sayfaUstVerisi(SAYFALAR.kosullar);
 
 export default function Kosullar() {
   return (

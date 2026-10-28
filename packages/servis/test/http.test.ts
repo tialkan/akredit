@@ -10,6 +10,9 @@ import { UCLAR } from "../src/http/uclar.ts";
 import * as odr from "../src/odr/index.ts";
 import { type Ornek, ortam, SIMDI } from "./yardimci.ts";
 
+// Test ana anahtarı (gizli değil): anahtar kaydı uçlarının yetki davranışını sınamak için.
+process.env.AKREDIT_ANAHTAR_KASASI = Buffer.alloc(32, 5).toString("base64");
+
 let o: Awaited<ReturnType<typeof ortam>>;
 // Test için uydurma takma ad anahtarı (32 bayttan uzun).
 process.env.AKREDIT_TAKMA_AD_ANAHTARI ??= "deneme-anahtari-yalniz-test-icin-0123456789";
@@ -62,6 +65,9 @@ function ornekIstek(ad: string, a: Ornek): { yol: string; govde?: unknown } {
     surecler: { yol: "/surecler" },
     ayarlar: { yol: "/ayarlar" },
     ayarlariGuncelle: { yol: "/ayarlar", govde: { yurtDisiIzni: true } },
+    yzAnahtariKaydet: { yol: "/ayarlar/yz-anahtari", govde: { anahtar: "sk-or-v1-ornekornekornek0000" } },
+    yzAnahtariKaldir: { yol: "/ayarlar/yz-anahtari/kaldir", govde: {} },
+    yzBaglantiDene: { yol: "/ayarlar/yz-anahtari/dene", govde: {} },
     politikalar: { yol: "/politikalar" },
     politikaTaslagiOlustur: {
       yol: "/politikalar",
@@ -167,6 +173,9 @@ describe("her uç için yetkisiz erişim", () => {
       u.ad === "odrOlustur"
     ) {
       expect(y.status, govde).toBe(404);
+    } else if (u.ad === "yzBaglantiDene") {
+      // B'nin kayıtlı anahtarı yok: kendi kurumunda kural hatası, A'ya dokunmaz.
+      expect(y.status, govde).toBe(422);
     } else expect(y.status, govde).toBeLessThan(300);
     for (const id of [o.a.kurumId, o.a.kanitDers, o.a.oneriOrta, o.a.programId, o.a.dersId, o.a.raporId])
       expect(govde).not.toContain(id);

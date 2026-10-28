@@ -20,16 +20,13 @@ export function kontrastOrani(a: string, b: string): number {
   return (l1 + 0.05) / (l2 + 0.05);
 }
 
-/** globals.css'ten açık (:root) ve koyu (@media prefers-color-scheme: dark) belirteçlerini okur. */
-export function belirtecleriOku(css: string): { acik: Record<string, string>; koyu: Record<string, string> } {
-  const koyuBas = css.indexOf("@media (prefers-color-scheme: dark)");
+/** globals.css'teki :root belirteçlerini okur. Sitede yalnız açık tema vardır; koyu tema bloğu bulunursa hata verir. */
+export function belirtecleriOku(css: string): { acik: Record<string, string> } {
+  if (/prefers-color-scheme:\s*dark/u.test(css)) throw new Error("Koyu tema bloğu bulunmamalı");
   const temaBas = css.indexOf("@theme");
-  if (koyuBas < 0 || temaBas < 0) throw new Error("Tema blokları bulunamadı");
-  const oku = (parca: string) => {
-    const s: Record<string, string> = {};
-    for (const m of parca.matchAll(/--([a-z0-9-]+):\s*(#[0-9a-fA-F]{3,6})\s*;/g)) s[m[1] as string] = m[2] as string;
-    return s;
-  };
-  const acik = oku(css.slice(0, koyuBas));
-  return { acik, koyu: { ...acik, ...oku(css.slice(koyuBas, temaBas)) } };
+  if (temaBas < 0) throw new Error("Tema bloğu bulunamadı");
+  const acik: Record<string, string> = {};
+  for (const m of css.slice(0, temaBas).matchAll(/--([a-z0-9-]+):\s*(#[0-9a-fA-F]{3,6})\s*;/g))
+    acik[m[1] as string] = m[2] as string;
+  return { acik };
 }
