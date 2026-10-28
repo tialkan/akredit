@@ -22,6 +22,7 @@ const YALNIZ_EKLEME = [
   "kanit",
   "kanit_parcasi",
   "karar",
+  "kayit_duzeltmesi",
   "olcme_sonucu",
   "onay_baglantisi",
   "onay_baglantisi_kullanimi",

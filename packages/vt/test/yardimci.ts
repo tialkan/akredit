@@ -250,6 +250,14 @@ export async function kurumVerisiEkle(db: Vt, kurumId: string, ad: string): Prom
     await tx
       .insert(s.takmaAd)
       .values({ kurumId, takmaAd: "tk-1", numaraSifreli: new Uint8Array([1, 2, 3]), anahtarSurumu: "1" });
+    await tx.insert(s.kayitDuzeltmesi).values({
+      kurumId,
+      hedefTuru: "birim",
+      hedefId: kisi.id,
+      onceki: { ad: "Eski ad" },
+      yeni: { ad: "Yeni ad" },
+      duzeltenKisiId: kisi.id,
+    });
     await gunlugeYaz(tx, { aktor: { tur: "sistem", id: null }, eylem: "deneme.basladi" });
 
     return {
