@@ -18,6 +18,7 @@ import { type Vt, zinciriDogrula } from "@akredit/vt";
 import type { Saglayici } from "@akredit/yz";
 import type { PgBoss } from "pg-boss";
 import { z } from "zod";
+import { devirIscisi } from "../devir/index.ts";
 import {
   type HatBaglami,
   kanitHattiniBaslat,
@@ -25,7 +26,6 @@ import {
   pgBossKuyrugu,
   type VirusTarayici,
 } from "../kanit-hatti/index.ts";
-import { devirIscisi } from "../devir/index.ts";
 import { epostalariGonder, type SurecBaglami, tik } from "../surec/index.ts";
 import { baglayiciEsitle, type EsitlemeBaglami } from "./baglayici-isleri.ts";
 import { BAGLAYICI_TURLERI, type BaglayiciTuru, baglayiciAyari, kurumlariListele } from "./kurumlar.ts";
@@ -204,8 +204,7 @@ export async function isciKur(d: IsciBagimliliklari) {
     saat: () => d.saat.simdi(),
     ...(d.devirYazici ? { yazici: d.devirYazici } : {}),
     gercekYazmaIste: d.devirGercekYazma === true,
-    hata: (kurumId, e) =>
-      d.gunluk.error({ kurumId, hata: e instanceof Error ? e.message : String(e) }, "sessiz devir"),
+    hata: (kurumId, e) => d.gunluk.error({ kurumId, hata: e instanceof Error ? e.message : String(e) }, "sessiz devir"),
   });
   await kayit(
     ISCI_KUYRUK.bolognaDevir,

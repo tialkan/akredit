@@ -9,8 +9,8 @@
 //   - Her alan işlemi ve sonuç günlüğe girer. Değerlerin kendisi değil SHA-256 özeti yazılır (yetkili e-postası
 //     gibi alanlar günlükte açık durmasın). Giriş bilgisi yazıcıya servisten hiç verilmez (ilke 8).
 
-import { ozetHesapla } from "@akredit/cekirdek";
 import type { KaynakYazmaAlani, KaynakYazmaRaporu } from "@akredit/baglayicilar";
+import { ozetHesapla } from "@akredit/cekirdek";
 import { gunlugeYaz, type Islem, kiraciIslemi, sema, type Vt } from "@akredit/vt";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
@@ -36,7 +36,12 @@ const IzinKaydi = z.object({
 type IzinKaydi = z.infer<typeof IzinKaydi>;
 
 const KurumYazmaAyari = z
-  .object({ kaynagaYazma: z.object({ izinler: z.array(IzinKaydi) }).passthrough().optional() })
+  .object({
+    kaynagaYazma: z
+      .object({ izinler: z.array(IzinKaydi) })
+      .passthrough()
+      .optional(),
+  })
   .passthrough();
 
 export const YazmaIzniGirdisi = z
@@ -163,7 +168,13 @@ export async function devirKaynagaYaz(
     const [karar] = await tx.select().from(sema.karar).where(eq(sema.karar.oneriId, oneriId));
     const izin = await gecerliYazmaIzni(tx, kurumId);
     const yaz = (eylem: string, ayrinti: Record<string, string | number | boolean | null | string[]>) =>
-      gunlugeYaz(tx, { aktor: { tur: "sistem", id: null }, eylem, hedef: { tur: "oneri", id: oneriId }, ayrinti, zaman: simdi });
+      gunlugeYaz(tx, {
+        aktor: { tur: "sistem", id: null },
+        eylem,
+        hedef: { tur: "oneri", id: oneriId },
+        ayrinti,
+        zaman: simdi,
+      });
     if (!izin?.acik) {
       await yaz("bologna.kaynaga_yazma_izni_yok", { ileti: "Kurumun yazılı izni yok; kaynağa yazılmadı." });
       return null;

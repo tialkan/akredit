@@ -711,7 +711,12 @@ export async function kontrolListesi(tx: Islem, dersId: string): Promise<{ ad: s
 async function onayOku(tx: Islem, r: OneriKarar | null): Promise<DosyaOnayi | null> {
   if (!r?.k || r.k.sonuc === "reddedildi") return null;
   const [k] = await tx.select({ ad: sema.kisi.adSoyad }).from(sema.kisi).where(eq(sema.kisi.id, r.k.kararVerenKisiId));
-  return { onaylayan: k?.ad ?? r.k.kararVerenKisiId, zaman: r.k.zaman, sonuc: r.k.sonuc, dayanak: r.k.dayanak === "dogrudan" ? "dogrudan" : "politika" };
+  return {
+    onaylayan: k?.ad ?? r.k.kararVerenKisiId,
+    zaman: r.k.zaman,
+    sonuc: r.k.sonuc,
+    dayanak: r.k.dayanak === "dogrudan" ? "dogrudan" : "politika",
+  };
 }
 
 /** Belge girdisini kayıtlardan kurar (sayılar ölçme sonucundan). */

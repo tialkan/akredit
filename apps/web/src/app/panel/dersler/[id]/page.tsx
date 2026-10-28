@@ -8,6 +8,7 @@ import { GERCEK_VERI, panelVeriKaynagi } from "../../../../veri/sunucu.ts";
 import { BolognaRozeti } from "../bologna-rozeti.tsx";
 import { ArastirmaPaneli } from "./arastirma/arastirma-paneli.tsx";
 import { DersDosyasiPaneli } from "./ders-dosyasi-paneli.tsx";
+import { DevirKarti } from "./devir/devir-karti.tsx";
 
 export async function generateStaticParams() {
   // Gerçek veride sayfalar istek anında, oturumdaki kişinin yetkisiyle üretilir.
@@ -30,6 +31,9 @@ export default async function DersSayfasi({ params }: { params: Promise<{ id: st
       />
       <SayfaBasligi baslik={`${ders.kod} ${ders.ad}`} aciklama={`${ders.yariyil}. yarıyıl · ${ders.akts} AKTS`} />
       <div className="grid gap-6 lg:grid-cols-2">
+        <Kart baslik="Yeni dönem ders paketi" className="lg:col-span-2">
+          <DevirKarti dersId={ders.id} />
+        </Kart>
         <Kart baslik="Ders bilgi paketi" eylem={<BolognaRozeti durum={ders.bolognaDurumu} />}>
           <p>{ders.bolognaNotu}</p>
           <p className="mt-2">
@@ -67,7 +71,7 @@ export default async function DersSayfasi({ params }: { params: Promise<{ id: st
             <DersDosyasiPaneli dersId={ders.id} />
           </div>
         </Kart>
-        <Kart baslik="Eksikleri gider, kanıt ara, Word paketi" className="lg:col-span-2">
+        <Kart baslik="Eksikleri gider, kanıt ara, Word paketi (isteğe bağlı)" className="lg:col-span-2">
           <ArastirmaPaneli dersId={ders.id} />
         </Kart>
         <Kart baslik="Ders çıktılarının sağlanması" className="lg:col-span-2">
