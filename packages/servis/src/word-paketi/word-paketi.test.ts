@@ -7,10 +7,12 @@ import { bolognaOrnek, sahteSaglayici } from "@akredit/yz";
 import { and, eq } from "drizzle-orm";
 import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { ortam } from "../../test/yardimci.ts";
+import { ortam, SIMDI } from "../../test/yardimci.ts";
 import type { ServisBaglami } from "../baglam.ts";
 import * as bologna from "../bologna/index.ts";
+import * as dersDosyasi from "../ders-dosyasi/index.ts";
 import { ServisHatasi } from "../hata.ts";
+import { kararVer } from "../oneri.ts";
 import { alanUygula, paketAlanlari, wordPaketi, wordYukle } from "./index.ts";
 
 let o: Awaited<ReturnType<typeof ortam>>;
@@ -198,6 +200,58 @@ describe("Word paketi", () => {
     await expect(
       wordYukle(hoca, o.a.dersId, { dosyaAdi: "x.docx", icerikBase64: b64(strToU8("düz metin")) }),
     ).rejects.toBeInstanceOf(ServisHatasi);
+  });
+
+  it("ders dosyası üretilmişse paket .zip olur: iki .docx, özet zip baytlarından", async () => {
+    // İP-16 akışı (kurgu dönem): döküm → eşleme onayı → işçi ölçer → ders dosyası (rapor) oluşur.
+    const csv = ["Öğrenci No;Adı Soyadı;S1 (10);Toplam", "2026001;Deneme Bir;10;10", "2026002;Deneme İki;6;6"].join(
+      "\n",
+    );
+    const r = await dersDosyasi.dokumAktar(
+      hoca,
+      {
+        dersAcilisiId: o.a.dersAcilisiId,
+        araclar: [
+          {
+            ad: "Vize",
+            tur: "ara_sinav",
+            agirlik: 100,
+            dosyaAdi: "vize.csv",
+            icerikBase64: Buffer.from(csv, "utf8").toString("base64"),
+          },
+        ],
+        adaylar: [{ soruNo: "1", ckKodlari: ["ÖÇ1"] }],
+      },
+      "deneme-anahtari-yalniz-test-icin-0123456789",
+    );
+    await kararVer(hoca, { oneriId: r.eslemeOneriId, sonuc: "duzeltildi", duzeltme: "Vize · S1: ÖÇ1", sureMs: 1000 });
+    expect(await dersDosyasi.bekleyenleriUret(o.db, o.a.kurumId, SIMDI)).toEqual([o.a.dersAcilisiId]);
+
+    const p = await wordPaketi(hoca, o.a.dersId);
+    expect(p.mime).toBe("application/zip");
+    expect(p.dosyaAdi).toBe("BPA102-word-paketi.zip");
+    const zip = new Uint8Array(Buffer.from(p.icerikBase64, "base64"));
+    expect(p.ozet).toBe(ozetHesapla(zip));
+    const icerik = unzipSync(zip);
+    const adlar = Object.keys(icerik).sort();
+    expect(adlar).toHaveLength(2);
+    expect(adlar).toEqual([...p.belgeler].sort());
+    expect(adlar).toContain("BPA102-ders-bilgi-paketi.docx");
+    // Her biri geçerli bir Word belgesi; ders bilgi paketi Akredit önerilerini işaretli taşır.
+    for (const ad of adlar) {
+      expect(ad.endsWith(".docx")).toBe(true);
+      expect(unzipSync(icerik[ad] as Uint8Array)["word/document.xml"]).toBeDefined();
+    }
+    const bilgi = strFromU8(
+      unzipSync(icerik["BPA102-ders-bilgi-paketi.docx"] as Uint8Array)["word/document.xml"] as Uint8Array,
+    );
+    expect(bilgi).toContain("Akredit önerisi");
+    // Zip içindeki ders bilgi paketi geri yüklenebilir (değişiklik yoksa kayıt açılmaz).
+    const y = await wordYukle(hoca, o.a.dersId, {
+      dosyaAdi: "BPA102-ders-bilgi-paketi.docx",
+      icerikBase64: b64(icerik["BPA102-ders-bilgi-paketi.docx"] as Uint8Array),
+    });
+    expect(y).toMatchObject({ oneriId: null, kararId: null, degisen: [] });
   });
 
   it("alan uygulama: biçim denetimi", () => {
