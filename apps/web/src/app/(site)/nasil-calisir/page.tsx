@@ -10,17 +10,26 @@ import {
   SayfaBasi,
   YapisalVeri,
 } from "../../../site/bilesenler.tsx";
-import { AKIS, DONEM_AKISI, ILKELER, RISKLER, SAYFALAR } from "../../../site/icerik.ts";
+import { AKIS, type DayanakKaynagi, DONEM_AKISI, depo, ILKELER, RISKLER, SAYFALAR } from "../../../site/icerik.ts";
 import { sayfaUstVerisi } from "../../../site/yapisal.ts";
 
 export const metadata: Metadata = sayfaUstVerisi(SAYFALAR.nasil);
 
-const DAYANAKLAR = [
-  "Öneri ve karar akışı: packages/cekirdek/src/oneri.ts; değiştirilemez günlük: docs/adr/0002-veritabani-ve-degismezlik.md.",
-  "Risk sınıfları (ONERI_RISKI): packages/cekirdek/src/turler.ts; insan kararı: docs/adr/0004-sifir-is-yuku-ve-insan-karari.md.",
-  "Yetki devri politikası, imza ve iptal: packages/servis/src/politika.ts.",
-  "Bir dönemin adımları: docs/raporlar/IP-14, IP-15, IP-16, IP-17, IP-18, IP-19, IP-20.",
-  "Değişmez ilkeler: CLAUDE.md, Değişmez ilkeler bölümü.",
+const DAYANAKLAR: DayanakKaynagi[] = [
+  {
+    baslik: "Öneri ve karar akışı; yalnız ekleme yapılan, özet zinciriyle bağlı günlük: değişmezlik kararı.",
+    adres: depo("docs/adr/0002-veritabani-ve-degismezlik.md"),
+  },
+  {
+    baslik: "Risk sınıfları ve insan kararı: sıfır iş yükü kararı.",
+    adres: depo("docs/adr/0004-sifir-is-yuku-ve-insan-karari.md"),
+  },
+  { baslik: "Yetki devri politikası: imza ve iptal.", adres: depo("packages/servis/src/politika.ts") },
+  {
+    baslik: "Bir dönemin adımları: süreç, Bologna, ders dosyası, anket, toplantı ve rapor iş paketlerinin raporları.",
+    adres: depo("docs/raporlar"),
+  },
+  { baslik: "Değişmez ilkeler.", adres: depo("CLAUDE.md") },
 ];
 
 export default function NasilCalisir() {

@@ -2,18 +2,21 @@ import { ROLLER } from "@akredit/yetki";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Bolum, Dayanak, Dayanaklar, Metin, SayfaBasi, YapisalVeri } from "../../../site/bilesenler.tsx";
-import { ROL_ADI, ROL_KARARI, SAYFALAR } from "../../../site/icerik.ts";
+import { type DayanakKaynagi, depo, ROL_ADI, ROL_KARARI, SAYFALAR } from "../../../site/icerik.ts";
 import { sayfaUstVerisi } from "../../../site/yapisal.ts";
 
 export const metadata: Metadata = sayfaUstVerisi(SAYFALAR.giris);
 
 // Dayanak: docs/raporlar/IP-09.md, docs/raporlar/IP-35.md, apps/web/src/kimlik/, packages/yetki/src/csv.ts.
 
-const DAYANAKLAR = [
-  "Roller ve eylemler: packages/yetki/src (ROLLER, ROL_EYLEMLERI, KURUM_DUZEYI_EYLEMLER).",
-  "Kurum açılışı: apps/web/src/kimlik/kurum-acilisi.ts; docs/raporlar/IP-35.md.",
-  "Toplu aktarım tablosu: packages/yetki/src/csv.ts.",
-  "Değerlendirici süresi (DEGERLENDIRICI_AZAMI_SURE_MS) ve erişim günlüğü: packages/yetki/src; docs/raporlar/IP-22.md.",
+const DAYANAKLAR: DayanakKaynagi[] = [
+  { baslik: "Roller, yetkiler ve kurum düzeyindeki işlemler: yetki tanımı.", adres: depo("packages/yetki/src") },
+  { baslik: "Kurum açılışı: başvuru, doğrulama ve ilk yönetici.", adres: depo("docs/raporlar/IP-35.md") },
+  { baslik: "Toplu kişi aktarımı tablosunun biçimi.", adres: depo("packages/yetki/src/csv.ts") },
+  {
+    baslik: "Değerlendirici hesabının en uzun süresi ve erişim günlüğü: değerlendirici portalı raporu.",
+    adres: depo("docs/raporlar/IP-22.md"),
+  },
 ];
 
 export default function GirisVeHesap() {

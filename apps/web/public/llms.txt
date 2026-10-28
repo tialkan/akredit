@@ -1,19 +1,21 @@
 # Akredit
 
-> Akredit, Türk yükseköğretiminde kalite güvencesi ve akreditasyon işlerini kanıta dayalı, kayıtlı ve onaylı yürüten açık kaynak (Apache-2.0) bir platformdur. Sistem kanıtı toplar, sayıları belirlenimci olarak hesaplar ve raporu kanıta atıf vererek taslak hâlinde yazar. Kurum adına beyan, olgunluk düzeyi kararı ve dış kuruma son gönderim her zaman bir kişinin kararıdır. Akredit geliştirme aşamasındadır ve henüz kurumlara açık değildir.
+> Akredit, Türk yükseköğretiminde akreditasyon dosyasını kanıttan hazırlayan açık kaynak (Apache-2.0) bir platformdur. Sıfır evrak angaryası, tam akademik irade: veri toplama, hesap, yazım ve takip sistemde; pedagojik ve kurumsal karar insanda. Kanıtı olmayan olgusal cümle rapora girmez, EKSİK olarak işaretlenir. Sayılar belirlenimci hesaptan gelir. Resmî beyan ve sorumluluk onaylayan kurum yetkilisindedir; Akredit kurum adına beyanda bulunmaz. Akredit mevcut sistemlerin (OBS, EBYS, AVESİS) yerine geçmez, üstünde çalışır. Geliştirme sürüyor; pilot kurum başvurusu açıktır.
 
 Önemli sınırlar: Akredit akreditasyon sonucu için garanti vermez. YÖKAK, MÜDEK, YÖK ya da başka bir kuruluşla bağı yoktur. İlk etapta ücretsizdir; yapay zekâ kullanımı için kurum kendi OpenRouter anahtarını getirir ya da kurum içi model kullanır.
 
 ## Sayfalar
 
-- [Ne yapar](https://akredit.org/ne-yapar): modüller; her biri için ne girer, ne çıkar, öğretim elemanına ne kalır
-- [Nasıl çalışır](https://akredit.org/nasil-calisir): kanıt, hesap, atıflı taslak, denetim, onay, değiştirilemez günlük; risk düzeyleri ve yetki devri
-- [Kimler için](https://akredit.org/kimler-icin): roller ve yetki tablosu
+- [Ne yapar](https://akredit.org/ne-yapar): modüller ve her birinin bugünkü durumu; ne girer, ne çıkar, öğretim elemanına ne kalır
+- [Nasıl çalışır](https://akredit.org/nasil-calisir): kanıt, hesap, atıflı taslak, denetim, onay, günlük; risk düzeyleri ve yetki devri
+- [Kimler için](https://akredit.org/kimler-icin): rektörlük, kalite komisyonu, bölüm başkanı, öğretim elemanı; yetki tablosu
 - [Desteklenen çerçeveler](https://akredit.org/cerceveler): YÖKAK 3.3 (4 başlık, 14 ölçüt, 46 alt ölçüt) ve KİDR 3.2.1; MÜDEK henüz yok
 - [Yapay zekâ ve anahtar](https://akredit.org/yapay-zeka): OpenRouter anahtarının nerede girildiği ve nasıl şifreli saklandığı, modele giden veri, maskeleme, yurt dışı izni
 - [Giriş ve hesap](https://akredit.org/giris-ve-hesap): parolasız giriş, kurum tek oturumu, yalnız davetle hesap
-- [Güvenlik ve KVKK](https://akredit.org/guvenlik): değiştirilemez kayıt, kurum yalıtımı; hukuk metinleri taslaktır
+- [Güvenlik ve KVKK](https://akredit.org/guvenlik): iz bırakmadan değiştirilemeyen kayıt, kurum yalıtımı, KVKK silme hakkı; hukuk metinleri taslaktır
 - [Sınırlar](https://akredit.org/sinirlar): Akredit'in yapmadıkları
+- [Yol haritası](https://akredit.org/yol-haritasi): şimdi yapılan ve sıradaki işler
+- [Pilot başvurusu](https://akredit.org/pilot): Akredit'i kurumunuzda gerçek veriyle deneyin
 - [Sık sorulan sorular](https://akredit.org/sss)
 
 ## İsteğe bağlı

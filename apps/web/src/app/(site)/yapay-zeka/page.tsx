@@ -1,22 +1,50 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Bolum, Dayanak, Dayanaklar, Metin, SayfaBasi, YapisalVeri } from "../../../site/bilesenler.tsx";
-import { SAYFALAR } from "../../../site/icerik.ts";
+import { type DayanakKaynagi, depo, SAYFALAR } from "../../../site/icerik.ts";
 import { sayfaUstVerisi } from "../../../site/yapisal.ts";
 
 export const metadata: Metadata = sayfaUstVerisi(SAYFALAR.yz);
 
-const DAYANAKLAR = [
-  "Kurulum sihirbazının ilk adımı anahtardır: apps/web/src/app/kurulum/sihirbaz.tsx; docs/raporlar/IP-35.md.",
-  "Bütün yapay zekâ işleri kurum anahtarıyla, iş anında kasadan çözülerek yapılır: packages/servis/src/yz-fabrika.ts.",
-  "Şifreleme ve kuruma özgü anahtar türetme: packages/yz/src/anahtar-kasasi.ts.",
-  "Yalnız son dört karakter, model, kaydeden ve tarih gösterilir: apps/web/src/app/panel/ayarlar/yz-anahtari.tsx.",
-  "Model boşsa openrouter/auto: packages/servis/src/politika.ts (VARSAYILAN_OPENROUTER_MODELI).",
-  "Anahtar yoksa iş durur, bildirim yalnız kurum yöneticisine ve 24 saatte bir gider: docs/raporlar/IP-35.md.",
-  "Yurt dışı izni yoksa çağrı reddedilir, izin varsa maskeleme zorunludur: packages/yz/src/guvence/politika.ts ve kvkk.ts.",
-  "Kurum içi model ve yurt dışı izninin kapalı kalması: infra/kurum-ici/yz-ayari.ts.",
-  "Web araması, parametre adları ve fiyat OpenRouter belgesinden (openrouter.ai/docs/guides/features/server-tools/web-search, 28 Ekim 2026): packages/yz/src/web-arama/index.ts; docs/raporlar/IP-37.md.",
-  "Başka kurum örneğinin kanıt sayılamaması: packages/vt/src/gocler/0011_dis_ornek.sql ve packages/servis/src/arastirma/index.ts.",
+const DAYANAKLAR: DayanakKaynagi[] = [
+  { baslik: "Kurulum sihirbazının ilk adımı anahtardır: kurum açılışı raporu.", adres: depo("docs/raporlar/IP-35.md") },
+  {
+    baslik: "Bütün yapay zekâ işleri kurum anahtarıyla, iş anında kasadan çözülerek yapılır.",
+    adres: depo("packages/servis/src/yz-fabrika.ts"),
+  },
+  {
+    baslik: "Şifreleme ve kuruma özgü anahtar türetme: anahtar kasası.",
+    adres: depo("packages/yz/src/anahtar-kasasi.ts"),
+  },
+  {
+    baslik: "Ekranda yalnız son dört karakter, model, kaydeden ve tarih gösterilir: ayarlar ekranı.",
+    adres: depo("apps/web/src/app/panel/ayarlar/yz-anahtari.tsx"),
+  },
+  {
+    baslik: "Model boşsa openrouter/auto kullanılır: kurum politikası.",
+    adres: depo("packages/servis/src/politika.ts"),
+  },
+  {
+    baslik: "Anahtar yoksa iş durur, bildirim yalnız kurum yöneticisine ve 24 saatte bir gider.",
+    adres: depo("docs/raporlar/IP-35.md"),
+  },
+  {
+    baslik: "Yurt dışı izni yoksa çağrı reddedilir, izin varsa maskeleme zorunludur: yapay zekâ güvenceleri.",
+    adres: depo("packages/yz/src/guvence"),
+  },
+  {
+    baslik: "Kurum içi model ve yurt dışı izninin kapalı kalması: kurum içi kurulum paketi.",
+    adres: depo("infra/kurum-ici"),
+  },
+  {
+    baslik: "Web araması, parametre adları ve fiyat: OpenRouter belgesi, 28 Ekim 2026.",
+    adres: "https://openrouter.ai/docs/guides/features/server-tools/web-search",
+    bag: "Belgeyi açın",
+  },
+  {
+    baslik: "Başka kurum örneğinin kanıt sayılamaması: dış örnek kararı.",
+    adres: depo("docs/adr/0006-dis-ornek-kanit-degildir.md"),
+  },
 ];
 
 const ADIMLAR: { baslik: string; metin: string }[] = [
