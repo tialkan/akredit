@@ -129,7 +129,9 @@ export type OneriTuru =
   | "yazma_plani"
   | "dis_gonderim"
   /** Başka kurumdan örnek (İP-37): kanıt değildir, rapora kanıt olarak giremez. */
-  | "dis_ornek";
+  | "dis_ornek"
+  /** Geçen dönemden devreden ders paketi taslağı (İP-38): yalnız süre dolumuyla varsayılan onay alabilir. */
+  | "bologna_devri";
 
 /** Her öneri türünün varsayılan risk düzeyi. Yüksek risk hiçbir politikayla devredilemez. */
 export const ONERI_RISKI: Readonly<Record<OneriTuru, RiskDuzeyi>> = {
@@ -145,6 +147,7 @@ export const ONERI_RISKI: Readonly<Record<OneriTuru, RiskDuzeyi>> = {
   yazma_plani: "yuksek",
   dis_gonderim: "yuksek",
   dis_ornek: "orta",
+  bologna_devri: "dusuk",
 };
 
 /** Bir önerinin dayandığı kanıt yeri. Alıntı, parçada birebir (normalleştirilmiş) geçmelidir. */
@@ -183,7 +186,11 @@ export interface Oneri<T = unknown> {
 
 export type KararSonucu = "onaylandi" | "duzeltildi" | "reddedildi";
 
-export type KararDayanagi = { tur: "dogrudan" } | { tur: "politika"; politikaId: PolitikaId };
+export type KararDayanagi =
+  | { tur: "dogrudan" }
+  | { tur: "politika"; politikaId: PolitikaId }
+  /** Süreli varsayılan onay (İP-38): itiraz süresi doldu, imzalı politika dayanağıyla. */
+  | { tur: "sure_dolumu"; politikaId: PolitikaId };
 
 export interface Karar<T = unknown> {
   id: KararId;

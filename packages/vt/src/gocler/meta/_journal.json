@@ -90,18 +90,25 @@
       "idx": 12,
       "version": "7",
       "when": 1793048437894,
-      "tag": "0040_kriptografik_silme",
+      "tag": "0020_sessiz_devir",
       "breakpoints": true
     },
     {
       "idx": 13,
+      "version": "7",
+      "when": 1793048437894,
+      "tag": "0040_kriptografik_silme",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
       "version": "7",
       "when": 1793048486894,
       "tag": "0050_demo",
       "breakpoints": true
     },
     {
-      "idx": 14,
+      "idx": 15,
       "version": "7",
       "when": 1793048486894,
       "tag": "0060_pilot_basvurusu",

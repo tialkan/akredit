@@ -9,6 +9,7 @@ export * from "./avesis/istek.ts";
 export * from "./baglayici.ts";
 export * from "./bologna-proliz/ayristir.ts";
 export * from "./bologna-proliz/oku.ts";
+export * from "./bologna-proliz/yazma.ts";
 export * from "./bulut/belirtec.ts";
 export * from "./bulut/esitleme.ts";
 export * from "./ebys/ebys.ts";

@@ -87,6 +87,13 @@ function ornekIstek(ad: string, a: Ornek): { yol: string; govde?: unknown } {
     bolognaYazmaBaslat: { yol: `/bologna/yazma-planlari/${a.oneriYuksek}/baslat`, govde: {} },
     bolognaYazmaBitir: { yol: `/bologna/yazma-planlari/${a.oneriYuksek}/bitir`, govde: { sonuc: "tamamlandi" } },
     bolognaEksikGiderme: { yol: `/bologna/dersler/${a.dersId}/eksik-giderme`, govde: {} },
+    bolognaDevirDurumu: { yol: `/bologna/dersler/${a.dersId}/devir` },
+    bolognaDevirKarari: { yol: `/bologna/dersler/${a.dersId}/devir/karar`, govde: { sonuc: "onaylandi" } },
+    bolognaKaynagaYazmaIzni: { yol: "/bologna/kaynaga-yazma-izni" },
+    bolognaKaynagaYazmaIzniVer: {
+      yol: "/bologna/kaynaga-yazma-izni",
+      govde: { acik: true, yaziSayisi: "E-1", imzalayanAd: "Deneme Rolsüz A" },
+    },
     kanitAra: { yol: "/arastirma/kanit-ara", govde: { olcutId: a.kanitKurum, dersId: a.dersId } },
     siteTaramasi: { yol: "/arastirma/site-tarama", govde: {} },
     disOrnekleri: { yol: `/dersler/${a.dersId}/dis-ornekler` },
@@ -186,6 +193,9 @@ describe("her uç için yetkisiz erişim", () => {
     } else if (u.ad === "siteTaramasi") {
       // B'nin alan adı kayıtlı değil: kendi kurumunda istek hatası, A'ya dokunmaz.
       expect(y.status, govde).toBe(400);
+    } else if (u.ad === "bolognaKaynagaYazmaIzniVer") {
+      // Örnek istekteki ad B'nin yöneticisinin adı değil: kendi kurumunda kural hatası, A'ya dokunmaz.
+      expect(y.status, govde).toBe(422);
     } else if (u.ad === "yzBaglantiDene") {
       // B'nin kayıtlı anahtarı yok: kendi kurumunda kural hatası, A'ya dokunmaz.
       expect(y.status, govde).toBe(422);
