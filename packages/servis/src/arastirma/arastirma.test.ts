@@ -244,7 +244,7 @@ describe("kanıt avcısı", () => {
       { sonuTekrarla: true },
     );
     arastirma.arastirmaKoprusuAyarla({ saglayici: s });
-    const r = await arastirma.kanitAra(yonetici, { olcutId });
+    const r = await arastirma.kanitAra(yonetici, { olcutKod: "T.1" });
     expect(r.yontem).toBe("yz");
     expect(r.kurumIci).toEqual([]);
     const istem = JSON.stringify(s.istekler[0]?.mesajlar);
