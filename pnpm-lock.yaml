@@ -32,6 +32,9 @@ importers:
 
   apps/isci:
     dependencies:
+      '@akredit/baglayicilar':
+        specifier: workspace:*
+        version: link:../../packages/baglayicilar
       '@akredit/belge':
         specifier: workspace:*
         version: link:../../packages/belge

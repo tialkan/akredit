@@ -71,6 +71,13 @@
       "when": 1793048434894,
       "tag": "0009_kurum_acilisi",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793048435894,
+      "tag": "0010_isci",
+      "breakpoints": true
     }
   ]
 }
