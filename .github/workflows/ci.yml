@@ -65,7 +65,7 @@ jobs:
           NEXT_TELEMETRY_DISABLED: "1"
 
   postgres:
-    name: Gerçek PostgreSQL (göçler, eşzamanlı günlük)
+    name: Gerçek PostgreSQL (göçler, eşzamanlı günlük, işçi)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     services:
@@ -97,6 +97,9 @@ jobs:
         run: node infra/gelistirme/goc.ts
       - name: Eşzamanlı göç ve günlük sınaması
         run: node infra/gelistirme/vt-sinama.ts
+      # İşçi gerçek pg-boss ile: ZIP kanıt → hat → onay bekleyen öneri, süreç hatırlatması, SIGTERM (İP-36).
+      - name: İşçi uçtan uca
+        run: bash infra/gelistirme/isci-uctan-uca.sh
 
   imajlar:
     name: Docker imajları
