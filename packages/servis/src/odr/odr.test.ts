@@ -123,7 +123,7 @@ describe("ÖDR kurucu ve şablon (saf)", () => {
       "3. Paydaşlar ve mezunlar",
       ...EK_BASLIKLARI,
     ]);
-    expect(m.ustBilgi).toBe("Taslak — onaylanmadı");
+    expect(m.ustBilgi).toBe("Taslak: onaylanmadı");
   });
   it("şablonu olmayan resmî çerçeve: ölçüt ağacına düşer, ölçütü yoksa EKSİK ve DOĞRULANMADI", () => {
     const m = odrKur({ cerceve: MUDEK_TASLAK, programAd: "X", kanitlar: [], hesaplar: [], surecKayitlari: [] });

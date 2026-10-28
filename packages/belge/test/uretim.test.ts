@@ -8,7 +8,7 @@ const TR = "ı İ ğ Ğ ş Ş ç Ç ö Ö ü Ü";
 const model: DocxModeli = {
   baslik: "Program Öz Değerlendirme Raporu",
   altBaslik: "Taslak",
-  ustBilgi: "Örnek Üniversitesi — Taslak, onaylanmadı",
+  ustBilgi: "Örnek Üniversitesi · Taslak: onaylanmadı",
   altBilgi: "Akredit",
   bolumler: [
     {
@@ -83,7 +83,7 @@ describe("docxUret", () => {
     const ust = Object.keys(z).filter((a) => /word\/header\d*\.xml/.test(a));
     const alt = Object.keys(z).filter((a) => /word\/footer\d*\.xml/.test(a));
     expect(ust.map((a) => strFromU8(z[a] as Uint8Array)).join("")).toContain(
-      "Örnek Üniversitesi — Taslak, onaylanmadı",
+      "Örnek Üniversitesi · Taslak: onaylanmadı",
     );
     const altMetin = alt.map((a) => strFromU8(z[a] as Uint8Array)).join("");
     expect(altMetin).toContain("PAGE");
