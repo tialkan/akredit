@@ -1,0 +1,99 @@
+# Akredit: Coolify dağıtımı (yarenler-01, Hetzner CAX21 arm64).
+# İmajlar sunucuda depodan derlenir. Ters vekil ve TLS Coolify'ındır (Caddy yok).
+# Gizli değerler Coolify'ın SERVICE_PASSWORD_* / SERVICE_BASE64_* değişkenleriyle üretilir; depoya girmez.
+# Alan adı Coolify arayüzünde "web" hizmetine verilir (SERVICE_FQDN_WEB_3000).
+
+x-gunluk: &gunluk
+  logging:
+    driver: json-file
+    options: { max-size: "20m", max-file: "5" }
+
+services:
+  web:
+    <<: *gunluk
+    build:
+      context: .
+      dockerfile: infra/gelistirme/web.Dockerfile
+    restart: unless-stopped
+    environment:
+      SERVICE_FQDN_WEB_3000: null
+      NODE_ENV: production
+      PORT: "3000"
+      HOSTNAME: 0.0.0.0
+      AKREDIT_ADRES: ${SERVICE_FQDN_WEB}
+      AKREDIT_VT_ADRES: postgres://akredit_uyg:${SERVICE_PASSWORD_UYGULAMA}@vt:5432/akredit
+      AKREDIT_ONAY_GIZLI: ${SERVICE_BASE64_64_ONAY}
+      AKREDIT_ANKET_GIZLI: ${SERVICE_BASE64_64_ANKET}
+      AKREDIT_ANAHTAR_KASASI: ${SERVICE_BASE64_64_KASA}
+      AKREDIT_SMTP_SUNUCU: ${AKREDIT_SMTP_SUNUCU:-}
+      AKREDIT_SMTP_PORT: ${AKREDIT_SMTP_PORT:-587}
+      AKREDIT_SMTP_KULLANICI: ${AKREDIT_SMTP_KULLANICI:-}
+      AKREDIT_SMTP_PAROLA: ${AKREDIT_SMTP_PAROLA:-}
+      AKREDIT_EPOSTA_GONDEREN: ${AKREDIT_EPOSTA_GONDEREN:-}
+    depends_on:
+      vt: { condition: service_healthy }
+      goc: { condition: service_completed_successfully }
+
+  isci:
+    <<: *gunluk
+    build:
+      context: .
+      dockerfile: infra/uretim/isci.Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      AKREDIT_VT_ADRES: postgres://akredit_uyg:${SERVICE_PASSWORD_UYGULAMA}@vt:5432/akredit
+      AKREDIT_ANAHTAR_KASASI: ${SERVICE_BASE64_64_KASA}
+      AKREDIT_SMTP_SUNUCU: ${AKREDIT_SMTP_SUNUCU:-}
+      AKREDIT_SMTP_PORT: ${AKREDIT_SMTP_PORT:-587}
+      AKREDIT_SMTP_KULLANICI: ${AKREDIT_SMTP_KULLANICI:-}
+      AKREDIT_SMTP_PAROLA: ${AKREDIT_SMTP_PAROLA:-}
+      AKREDIT_EPOSTA_GONDEREN: ${AKREDIT_EPOSTA_GONDEREN:-}
+      AKREDIT_BAGLAYICI_ANAHTARI: ${SERVICE_BASE64_64_BAGLAYICI}
+    depends_on:
+      vt: { condition: service_healthy }
+      goc: { condition: service_completed_successfully }
+
+  # Göçleri süper kullanıcıyla bir kez uygular, sonra çıkar. Yeniden çalıştırmak güvenlidir.
+  goc:
+    <<: *gunluk
+    build:
+      context: .
+      dockerfile: infra/uretim/isci.Dockerfile
+    command: ["node", "infra/uretim/goc.ts"]
+    restart: "no"
+    environment:
+      DATABASE_URL: postgres://akredit:${SERVICE_PASSWORD_VT}@vt:5432/akredit
+    exclude_from_hc: true
+    depends_on:
+      vt: { condition: service_healthy }
+
+  vt:
+    <<: *gunluk
+    build:
+      context: .
+      dockerfile: infra/coolify/vt.Dockerfile
+    command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
+    restart: unless-stopped
+    shm_size: 1g
+    environment:
+      POSTGRES_USER: akredit
+      POSTGRES_PASSWORD: ${SERVICE_PASSWORD_VT}
+      POSTGRES_DB: akredit
+      POSTGRES_INITDB_ARGS: --data-checksums
+      YEDEK_KULLANICI: akredit_yedek
+      YEDEK_PAROLA: ${SERVICE_PASSWORD_YEDEK}
+      UYGULAMA_VT_KULLANICI: akredit_uyg
+      UYGULAMA_VT_PAROLA: ${SERVICE_PASSWORD_UYGULAMA}
+      IZLEME_VT_KULLANICI: akredit_izleme
+      IZLEME_VT_PAROLA: ${SERVICE_PASSWORD_IZLEME}
+    volumes:
+      - akredit-vt:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U akredit -d akredit"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+volumes:
+  akredit-vt:
