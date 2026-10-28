@@ -26,6 +26,10 @@ export interface EpostaGonderici {
   sihirliBaglanti(alici: string, baglanti: string): Promise<void>;
   /** Şüpheli giriş bildirimi (bağlantı içermez). */
   supheliGiris(alici: string, ayrinti: { zaman: Date; cihaz: string }): Promise<void>;
+  /** Kurum açılışı doğrulama bağlantısı (İP-35). Bağlantı gizlidir. */
+  kurumAcilisi(alici: string, ayrinti: { kurumAdi: string; baglanti: string }): Promise<void>;
+  /** Kuruma davet (İP-35). Bağlantı gizlidir. */
+  davet(alici: string, ayrinti: { kurumAdi: string; davetEden: string; baglanti: string }): Promise<void>;
 }
 
 export type Kayitci = (duzey: string, ileti: string, ayrinti?: unknown) => void;
@@ -242,7 +246,7 @@ export function kimlikSunucusuOlustur(s: KimlikSecenekleri) {
     ],
   });
 
-  return { auth, db, ayar, simdi };
+  return { auth, db, ayar, simdi, eposta: s.eposta };
 }
 
 export type KimlikSunucusu = ReturnType<typeof kimlikSunucusuOlustur>;

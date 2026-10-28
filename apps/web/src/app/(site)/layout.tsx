@@ -33,6 +33,12 @@ export default function SiteYerlesimi({ children }: { children: ReactNode }) {
             <MenuListesi sinif="flex flex-wrap justify-end gap-x-1" />
           </nav>
           <div className="ml-auto flex items-center gap-2 lg:ml-2">
+            <Link
+              href="/kurum-ac"
+              className="hidden min-h-11 items-center px-2 font-semibold text-vurgu underline underline-offset-4 sm:inline-flex"
+            >
+              Kurumunuzu açın
+            </Link>
             <Link href="/giris" className={dugmeSinifi("ikincil", "kucuk", "min-h-11 rounded-sm")}>
               Giriş
             </Link>

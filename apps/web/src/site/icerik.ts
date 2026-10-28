@@ -72,7 +72,7 @@ export const SAYFALAR = {
     baslik: "Giriş ve hesap",
     title: "Giriş ve hesap: parolasız bağlantı, kurum tek oturumu, davetle hesap",
     aciklama:
-      "Akredit'e parola olmadan girilir: kurumsal e-postaya tek kullanımlık bağlantı ya da kurumun tek oturum sistemi. Hesap yalnız davetle açılır.",
+      "Akredit'e parola olmadan girilir: kurumsal e-postaya tek kullanımlık bağlantı ya da kurumun tek oturum sistemi. İlk yönetici kurumu açar, diğerleri davetle katılır.",
   },
   guvenlik: {
     yol: "/guvenlik",
@@ -135,6 +135,14 @@ export const SAYFALAR = {
     title: "Kullanım koşulları (taslak)",
     aciklama: "akredit.org kullanım koşullarının taslağı. Avukat incelemesinden geçmemiştir.",
   },
+  kurumAc: {
+    yol: "/kurum-ac",
+    ad: "Kurumunuzu açın",
+    baslik: "Kurumunuzu açın",
+    title: "Kurumunuzu açın: kurumsal e-postayla doğrulama ve kurulum sihirbazı",
+    aciklama:
+      "Akredit'te kurumunuzu teknik yardım almadan açın: kurumsal e-posta doğrulaması, OpenRouter anahtarı, Bologna'dan program ve ders önerisi, hocaların daveti.",
+  },
   belgeler: {
     yol: "/belgeler",
     ad: "Kılavuzlar",
@@ -159,7 +167,10 @@ export const UST_MENU = [
 /** Alt menü: bütün sayfalar, gruplu. */
 export const ALT_MENU: { baslik: string; sayfalar: SayfaBilgisi[] }[] = [
   { baslik: "Ürün", sayfalar: [SAYFALAR.neYapar, SAYFALAR.nasil, SAYFALAR.kimler, SAYFALAR.cerceveler] },
-  { baslik: "Kullanım", sayfalar: [SAYFALAR.yz, SAYFALAR.giris, SAYFALAR.belgeler, SAYFALAR.sss] },
+  {
+    baslik: "Kullanım",
+    sayfalar: [SAYFALAR.kurumAc, SAYFALAR.yz, SAYFALAR.giris, SAYFALAR.belgeler, SAYFALAR.sss],
+  },
   {
     baslik: "Güven",
     sayfalar: [SAYFALAR.guvenlik, SAYFALAR.sinirlar, SAYFALAR.kvkk, SAYFALAR.gizlilik, SAYFALAR.kosullar],
@@ -167,8 +178,54 @@ export const ALT_MENU: { baslik: string; sayfalar: SayfaBilgisi[] }[] = [
   { baslik: "Proje", sayfalar: [SAYFALAR.acikKaynak, SAYFALAR.iletisim] },
 ];
 
+// Dayanak: İP-35 (kurum açılışı, kurulum sihirbazı, davet uçtan uca testli). Panel sayfaları örnek kipte derlenir.
 export const DURUM_NOTU =
-  "Akredit geliştirme aşamasındadır ve henüz kurumlara açık değildir. Sitedeki panel, kurgu örnek veriyle çalışan bir önizlemedir.";
+  "Akredit geliştirme aşamasındadır. Kurum açılışı, kurulum sihirbazı ve hoca daveti çalışır. Bu sitedeki panel ekranları kurgu örnek veriyle gösterilen bir önizlemedir.";
+
+/**
+ * "Kurumunuzu açın" adımları. Dayanak: apps/web/src/kimlik/kurum-acilisi.ts, packages/servis/src/kurum-acilisi.ts,
+ * packages/servis/src/kurulum/index.ts, apps/web/src/app/kurulum. Süreler koddaki sabitlerdir.
+ */
+export const KURUM_ACILIS_ADIMLARI: { baslik: string; metin: string }[] = [
+  {
+    baslik: "Başvuru",
+    metin:
+      "Kurumun adını, kurumsal e-posta alan adını (ör. ornek.edu.tr) ve ilk yöneticinin adıyla e-postasını yazın. E-posta bu alan adında olmalı. Genel e-posta hizmetleri kabul edilmez.",
+  },
+  {
+    baslik: "E-posta doğrulaması",
+    metin:
+      "Yöneticinin kurumsal e-postasına tek kullanımlık bir bağlantı gider. Bağlantı 30 dakika geçerlidir. Bir alan adına yalnız bir kurum açılır.",
+  },
+  {
+    baslik: "Giriş",
+    metin: "Bağlantıyı açınca kurum ve yönetici hesabı oluşur. Ardından parolasız giriş bağlantısı gönderilir.",
+  },
+  {
+    baslik: "Yapay zekâ anahtarı",
+    metin:
+      "Kurumun OpenRouter anahtarını girin ve OpenRouter hesabında bir harcama sınırı koyun. Anahtar şifreli saklanır, bütün yapay zekâ işleri bu anahtarla yapılır. Anahtar yoksa iş durur ve size bildirim düşer.",
+  },
+  {
+    baslik: "Yurt dışı aktarım kararı",
+    metin:
+      "Verinin maskelenerek yurt dışındaki yapay zekâ hizmetlerine gidip gitmeyeceğine karar verin. Karar metnini okuyup adınızla imzalarsınız, karar günlüğe yazılır.",
+  },
+  {
+    baslik: "Birim ve program",
+    metin:
+      "Programın Bologna sayfasının adresini yapıştırın. Program çıktıları ve dersler öneri olarak gelir. Siz onaylayınca kaydedilir.",
+  },
+  {
+    baslik: "Hocaların daveti",
+    metin:
+      "Bologna'daki dersi verenlerin adları öneri olarak gelir. E-posta adreslerini siz yazarsınız ya da CSV dosyasından yapıştırırsınız. Sistem addan e-posta üretmez.",
+  },
+  {
+    baslik: "Çerçeve",
+    metin: "Kurumunuzun izleyeceği çerçeveyi seçin, örneğin YÖKAK Değerlendirme Programları Kılavuzu 3.3.",
+  },
+];
 
 // ---------------------------------------------------------------- Ana sayfa
 
@@ -548,7 +605,8 @@ export const SSS: { soru: string; cevap: string }[] = [
   },
   {
     soru: "Şu an kullanabilir miyiz?",
-    cevap: "Henüz değil. Geliştirme sürüyor. Bu sitedeki panel kurgu örnek veriyle çalışan bir önizlemedir.",
+    cevap:
+      "Kurumunuzu Kurumunuzu açın sayfasından açabilir, kurulum sihirbazıyla birim, program ve hocaları tanımlayabilirsiniz. Geliştirme sürüyor. Bu sitedeki panel ekranları kurgu örnek veriyle gösterilir.",
   },
   {
     soru: "MÜDEK ya da başka program akreditasyonları destekleniyor mu?",
@@ -558,6 +616,6 @@ export const SSS: { soru: string; cevap: string }[] = [
   {
     soru: "Hesap nasıl açılır?",
     cevap:
-      "Yalnız davetle. Kurum yöneticisi ya da yetkili kişi sizi kurumsal e-posta adresinizle davet eder. Parola yoktur.",
+      "Kurumun ilk yöneticisi, kurumsal e-postasını doğrulayarak kurumu açar. Diğer herkes davetle katılır: yönetici sizi kurumsal e-posta adresinizle davet eder. Parola yoktur.",
   },
 ];

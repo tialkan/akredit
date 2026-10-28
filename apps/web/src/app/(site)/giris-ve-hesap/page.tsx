@@ -6,7 +6,7 @@ import { sayfaUstVerisi } from "../../../site/yapisal.ts";
 
 export const metadata: Metadata = sayfaUstVerisi(SAYFALAR.giris);
 
-// Dayanak: docs/raporlar/IP-09.md, apps/web/src/kimlik/, packages/yetki/src/csv.ts.
+// Dayanak: docs/raporlar/IP-09.md, docs/raporlar/IP-35.md, apps/web/src/kimlik/, packages/yetki/src/csv.ts.
 
 export default function GirisVeHesap() {
   return (
@@ -40,11 +40,12 @@ export default function GirisVeHesap() {
           </Link>
         </p>
       </Bolum>
-      <Bolum id="davet" baslik="Hesap yalnız davetle" zemin>
+      <Bolum id="davet" baslik="Hesap davetle açılır" zemin>
         <Metin>
           <p>
-            Kimse kendi kendine hesap açamaz. E-posta adresine açılmış bir üyelik ya da süresi geçmemiş bir davet yoksa
-            hesap oluşmaz. Bu kural e-posta bağlantısı ve tek oturum için aynıdır.
+            Kurumun ilk yöneticisi kurumu kendisi açar: kurumsal e-postasına gelen tek kullanımlık bağlantıyla alan
+            adını doğrular. Diğer herkes davetle katılır. E-posta adresine açılmış bir üyelik ya da süresi geçmemiş bir
+            davet yoksa hesap oluşmaz. Bu kural e-posta bağlantısı ve tek oturum için aynıdır.
           </p>
           <p>
             Davet eden kişi, davet ettiği kişinin rolünü ve kapsamını da belirler: kurum, birim, program ya da ders.
