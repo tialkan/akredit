@@ -15,6 +15,8 @@ const DAYANAKLAR = [
   "Anahtar yoksa iş durur, bildirim yalnız kurum yöneticisine ve 24 saatte bir gider: docs/raporlar/IP-35.md.",
   "Yurt dışı izni yoksa çağrı reddedilir, izin varsa maskeleme zorunludur: packages/yz/src/guvence/politika.ts ve kvkk.ts.",
   "Kurum içi model ve yurt dışı izninin kapalı kalması: infra/kurum-ici/yz-ayari.ts.",
+  "Web araması, parametre adları ve fiyat OpenRouter belgesinden (openrouter.ai/docs/guides/features/server-tools/web-search, 28 Ekim 2026): packages/yz/src/web-arama/index.ts; docs/raporlar/IP-37.md.",
+  "Başka kurum örneğinin kanıt sayılamaması: packages/vt/src/gocler/0011_dis_ornek.sql ve packages/servis/src/arastirma/index.ts.",
 ];
 
 const ADIMLAR: { baslik: string; metin: string }[] = [
@@ -208,6 +210,28 @@ export default function YapayZeka() {
             Güvenlik ve kişisel verileri okuyun
           </Link>
         </p>
+      </Bolum>
+      <Bolum no={7} id="web-aramasi" baslik="Web araması" not="Başka kurumların örneklerini bulmak için.">
+        <Metin>
+          <p>
+            Kanıt ararken isterseniz başka üniversitelerin örnek uygulamaları da aranır. Arama OpenRouter&apos;ın web
+            arama aracıyla yapılır. Motor varsayılan olarak modelin kendi aramasıdır, yoksa Exa kullanılır. OpenRouter
+            belgesine göre Exa ile istek başına 0,007 dolar ödenir ve 10 sonuca kadar dahildir; model kullanım ücreti
+            ayrıca yansır.
+            <Dayanak n={9} /> Akredit bir aramada en çok 10 sonuç ister. Kurum yöneticisi bu sınırı düşürebilir.
+          </p>
+          <p>
+            Yanıttan yalnız bağlantı, başlık ve kısa alıntı alınır; modelin yazdığı özet kullanılmaz. Kurumun yurt dışı
+            izni yoksa ya da yönetici web aramasını açmadıysa hiçbir arama yapılmaz.
+          </p>
+          <p>
+            Bulunan sayfalar kanıt değildir. Ayrı bir türde, kanıt değildir etiketiyle gösterilir; kanıt kaydına, ölçüt
+            bağlantısına ve rapora kanıt olarak giremez.
+            <Dayanak n={10} /> Kurumunuzun kendi sitesi ise ayrıca taranabilir: yalnız kendi alan adınız, robots.txt
+            kurallarına uyarak ve saniyede en çok bir istekle. Oradan bulunan belgeler adresi, erişim zamanı ve içerik
+            özetiyle kanıt havuzuna girer.
+          </p>
+        </Metin>
       </Bolum>
       <Dayanaklar ogeler={DAYANAKLAR} />
     </>

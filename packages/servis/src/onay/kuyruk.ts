@@ -22,6 +22,7 @@ const OneriSemasi = z.object({
     "olgunluk_duzeyi",
     "yazma_plani",
     "dis_gonderim",
+    "dis_ornek",
   ]),
   hedef: z.object({ tur: z.string().min(1).max(64), id: z.string().min(1).max(200) }),
   icerik: z.unknown(),

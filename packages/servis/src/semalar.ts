@@ -20,6 +20,7 @@ export const OneriTuru = z.enum([
   "olgunluk_duzeyi",
   "yazma_plani",
   "dis_gonderim",
+  "dis_ornek",
 ]);
 export const KararSonucu = z.enum(["onaylandi", "duzeltildi", "reddedildi"]);
 export const KanitKaynakTuru = z.enum(["yukleme", "baglayici", "eposta", "uretilen"]);

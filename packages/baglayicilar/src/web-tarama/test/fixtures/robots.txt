@@ -1,0 +1,8 @@
+# Kurgu kurum sitesi robots.txt
+User-agent: *
+Disallow: /yonetim/
+Disallow: /*.php$
+Allow: /yonetim/acik-belgeler/
+
+User-agent: KotuBot
+Disallow: /

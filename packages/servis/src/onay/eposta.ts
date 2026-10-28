@@ -275,6 +275,7 @@ const TUR_ADI: Record<string, string> = {
   olgunluk_duzeyi: "Olgunluk düzeyi",
   yazma_plani: "Yazma planı",
   dis_gonderim: "Dış gönderim",
+  dis_ornek: "Başka kurumdan örnek (kanıt değildir)",
 };
 
 /**

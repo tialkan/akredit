@@ -4,6 +4,7 @@
 import type { Eylem } from "@akredit/yetki";
 import { z } from "zod";
 import * as akademik from "../akademik.ts";
+import * as arastirma from "../arastirma/index.ts";
 import type { ServisBaglami } from "../baglam.ts";
 import * as bologna from "../bologna/index.ts";
 import * as dersDosyasi from "../ders-dosyasi/index.ts";
@@ -15,6 +16,7 @@ import * as panel from "../panel.ts";
 import * as politika from "../politika.ts";
 import * as rapor from "../rapor.ts";
 import * as s from "../semalar.ts";
+import * as wordPaketi from "../word-paketi/index.ts";
 
 export type Yontem = "GET" | "POST" | "PATCH";
 
@@ -447,6 +449,68 @@ export const UCLAR: Uc[] = [
     cikti: bologna.YazmaPlaniSonucu,
     basariDurumu: 201,
     isle: (b, g) => bologna.yazmaPlaniOner(b, g.yol.id as string, g.govde),
+  },
+  {
+    ad: "bolognaEksikGiderme",
+    yontem: "POST",
+    yol: "/bologna/dersler/{id}/eksik-giderme",
+    ozet: "Son Bologna okumasının bulgularından dersin düzeltme taslağını üret (onay kutusuna öneri düşer)",
+    eylem: "olcme.veri_gir",
+    govde: z.object({ beyan: z.string().trim().max(4000).optional() }).strict(),
+    cikti: bologna.EksikGidermeSonucu,
+    basariDurumu: 201,
+    isle: (b, g) => bologna.eksikleriGider(b, { ...(g.govde as object), dersId: g.yol.id }),
+  },
+  {
+    ad: "kanitAra",
+    yontem: "POST",
+    yol: "/arastirma/kanit-ara",
+    ozet: "Ölçüt için kurum içi kanıt adayı (onay bekler) ve istenirse başka kurum örneği (kanıt değildir) ara",
+    eylem: "kanit.oku",
+    govde: arastirma.KanitAramaGirdisi,
+    cikti: arastirma.KanitAramaSonucu,
+    basariDurumu: 201,
+    isle: (b, g) => arastirma.kanitAra(b, g.govde),
+  },
+  {
+    ad: "siteTaramasi",
+    yontem: "POST",
+    yol: "/arastirma/site-tarama",
+    ozet: "Kurumun kendi sitesini tara (robots.txt'ye uyar); bulunan belgeleri kanıt olarak ekle",
+    eylem: "kanit.yukle",
+    govde: arastirma.SiteTaramaGirdisi,
+    cikti: arastirma.SiteTaramaSonucu,
+    basariDurumu: 201,
+    isle: (b, g) => arastirma.siteTaramasi(b, g.govde),
+  },
+  {
+    ad: "disOrnekleri",
+    yontem: "GET",
+    yol: "/dersler/{id}/dis-ornekler",
+    ozet: "Dersin başka kurum örnekleri (kanıt değildir; yalnız kaynak)",
+    eylem: "oneri.oku",
+    cikti: z.array(arastirma.DisOrnekGorunumu),
+    isle: (b, g) => arastirma.disOrnekleri(b, g.yol.id as string),
+  },
+  {
+    ad: "wordPaketi",
+    yontem: "GET",
+    yol: "/dersler/{id}/word-paketi",
+    ozet: "Dersin Word paketi: düzeltilmiş ders bilgi paketi, bulgular, kaynakça (+ ders dosyası; birden çoksa zip)",
+    eylem: "oneri.oku",
+    cikti: wordPaketi.DosyaCiktisi,
+    isle: (b, g) => wordPaketi.wordPaketi(b, g.yol.id as string),
+  },
+  {
+    ad: "wordYukle",
+    yontem: "POST",
+    yol: "/dersler/{id}/word-paketi",
+    ozet: "Düzenlenmiş Word dosyasını yükle: alan farkı öğretim elemanının kararı olarak kaydedilir",
+    eylem: "olcme.veri_gir",
+    govde: wordPaketi.YuklemeGirdisi,
+    cikti: wordPaketi.YuklemeSonucu,
+    basariDurumu: 201,
+    isle: (b, g) => wordPaketi.wordYukle(b, g.yol.id as string, g.govde),
   },
   {
     ad: "bolognaYazmaBaslat",

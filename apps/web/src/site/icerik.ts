@@ -319,8 +319,43 @@ export const MODULLER: Modul[] = [
     ad: "Ders bilgi paketi (Bologna)",
     ozet: "Ders sayfasını okur, denetler ve eksiksiz bir taslak hazırlar.", // İP-15
     girer: ["Programın Bologna sayfaları", "Hocanın kısa beyanı (ör. projenin olup olmadığı)"],
-    cikar: ["Kurallardan geçmiş ders sayfası taslağı", "Hangi alana ne yazılacağını gösteren aktarım planı"],
+    cikar: [
+      "Kurallardan geçmiş ders sayfası taslağı",
+      "Hangi alana ne yazılacağını gösteren aktarım planı",
+      "Eksikleri gider: son okumadaki bulgulardan (boş alan, AKTS ile iş yükü uyumsuzluğu, eksik hafta, matris çelişkisi) düzeltme taslağı", // İP-37
+    ],
     hoca: "Taslağı onaylar. Sayfayı öğrenci bilgi sisteminde son kez kaydetmek insanda kalır.",
+    not: "Eksik gidermede saatler ve toplamlar sistemin hesabıdır (ör. 5 AKTS için 150 saat); model bu sayıları yazmaz, taslak kurallardan geçmezse hata olarak gösterilir.",
+  },
+  {
+    kimlik: "kanit-avcisi",
+    ad: "Kanıt arama",
+    ozet: "Bir ölçütün kanıtını kurumun kendi belgelerinde ve sitesinde arar.", // İP-37
+    girer: [
+      "Ölçüt kodu ve çerçevedeki kanıt gereksinimi",
+      "Kurumun kanıt havuzu",
+      "Kurumun kendi web sitesi (yalnız kendi alan adı, robots.txt'ye uyarak, saniyede en çok bir istekle)",
+      "İsteğe bağlı: web araması (OpenRouter)",
+    ],
+    cikar: [
+      "Kanıt adayı önerisi: belge adı, birebir alıntı ve sayfa adresi",
+      "Başka kurumlardan örnek uygulama bağlantıları, ayrı bir türde ve kanıt değildir etiketiyle",
+    ],
+    hoca: "Aday kanıtı onaylar ya da reddeder.",
+    not: "Başka kurumun sayfası kurumunuzun kanıtı yerine geçmez. Kanıt kaydına giremez, ölçüte bağlanamaz, rapora kanıt olarak giremez; bu kural veritabanında da uygulanır. Web araması yalnız kurum yurt dışı yapay zekâ iznini verdiyse ve yönetici web aramasını açtıysa yapılır. Site tarayıcısı kayıtlı örnek sayfalarla sınandı; sunucuda düzenli çalışması için arka plan işlerine bağlanması bekliyor.",
+  },
+  {
+    kimlik: "word-paketi",
+    ad: "Word paketi",
+    ozet: "Ders bilgi paketini, bulguları ve kaynakçayı düzenlenebilir Word dosyası olarak verir.", // İP-37
+    girer: ["Dersin son taslağı", "Bologna denetim bulguları", "Varsa ders dosyası"],
+    cikar: [
+      "Öğrenci bilgi sistemindeki alan sırasıyla ders bilgi paketi (.docx); birden çok belge varsa .zip",
+      "Akredit'in önerdiği her alan sarı zeminle ve Akredit önerisi yazısıyla işaretli",
+      "Bulgular ve kaynakça (kanıtlar özetleriyle, başka kurum örnekleri ayrı başlıkta)",
+    ],
+    hoca: "Word'de düzenler ve geri yükler. Sistem alan alan farkı çıkarır, hocanın kendi kararı olarak kaydeder.",
+    not: "Ders kodu, AKTS ve yetkililer Word'den değiştirilemez. Biçimi okunamayan değer (ör. değerlendirme yüzdesi) kaydedilmez ve hangi alan olduğu söylenir.",
   },
   {
     kimlik: "ders-dosyasi",
@@ -621,6 +656,16 @@ export const SSS: { soru: string; cevap: string }[] = [
     soru: "Şu an kullanabilir miyiz?",
     cevap:
       "Kurumunuzu Kurumunuzu açın sayfasından açabilir, kurulum sihirbazıyla birim, program ve hocaları tanımlayabilirsiniz. Belge işleme, süreç hatırlatmaları ve düzenli eşitlemeler arka planda kendiliğinden çalışır. Geliştirme sürüyor: bağlayıcıları açma ve toplu belge yükleme ekranları henüz yok, bağlayıcılar canlı kurum sistemlerinde pilotla denenmedi.",
+  },
+  {
+    soru: "Web araması nasıl çalışır, ne kadar tutar?",
+    cevap:
+      "Web araması OpenRouter'ın web arama aracıyla yapılır; arama motoru varsayılan olarak modelin kendi araması, yoksa Exa'dır. OpenRouter'ın belgesine göre (28 Ekim 2026) Exa ile istek başına 0,007 dolar ödenir, 10 sonuca kadar dahildir; model kullanım ücreti ayrıca yansır. Akredit bir aramada en çok 10 sonuç ister, kurum bu sınırı daha da düşürebilir. Ücret kurumun kendi OpenRouter hesabına yansır.",
+  },
+  {
+    soru: "Başka üniversitelerin örnekleri kanıt yerine geçer mi?",
+    cevap:
+      "Hayır. Web aramasıyla bulunan sayfalar ayrı bir türde, kanıt değildir etiketiyle gösterilir. Kanıt kaydına giremez, ölçüte bağlanamaz ve rapora kanıt olarak giremez. Eksik giderme taslağında bu sayfaların metni kullanılmaz; yalnız kaynakçada adresleriyle listelenir.",
   },
   {
     soru: "MÜDEK ya da başka program akreditasyonları destekleniyor mu?",
