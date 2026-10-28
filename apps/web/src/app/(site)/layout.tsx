@@ -34,6 +34,12 @@ export default function SiteYerlesimi({ children }: { children: ReactNode }) {
           </nav>
           <div className="ml-auto flex items-center gap-2 xl:ml-2">
             <Link
+              href="/deneyin"
+              className="inline-flex min-h-11 items-center px-2 font-semibold text-vurgu underline underline-offset-4"
+            >
+              Deneyin
+            </Link>
+            <Link
               href="/kurum-ac"
               className="hidden min-h-11 items-center px-2 font-semibold text-vurgu underline underline-offset-4 sm:inline-flex"
             >
