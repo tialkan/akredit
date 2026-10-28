@@ -37,6 +37,7 @@ const TUR_ADI: Record<OneriTuru, string> = {
   yazma_plani: "Yazma planı",
   dis_gonderim: "Dış gönderim",
   dis_ornek: "Başka kurumdan örnek (kanıt değildir)",
+  bologna_devri: "Dönem devri taslağı",
 };
 
 const insanKarari = (b: ServisBaglami) => {
@@ -109,7 +110,11 @@ function kararCiktisi(k: KararSatiri): KararCiktisi {
     duzeltme: (k.duzeltme as KararCiktisi["duzeltme"]) ?? null,
     kararVeren: k.kararVerenKisiId,
     dayanak:
-      k.dayanak === "politika" && k.politikaId ? { tur: "politika", politikaId: k.politikaId } : { tur: "dogrudan" },
+      k.dayanak === "politika" && k.politikaId
+        ? { tur: "politika", politikaId: k.politikaId }
+        : k.dayanak === "sure_dolumu" && k.politikaId
+          ? { tur: "sure_dolumu", politikaId: k.politikaId }
+          : { tur: "dogrudan" },
     gerekce: k.gerekce,
     zaman: k.zaman.toISOString(),
   };

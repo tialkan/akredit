@@ -48,6 +48,8 @@ export async function oneriyePolitikaUygula(
   simdi: Date,
 ): Promise<OtomatikKarar | null> {
   if (etkinRisk(o) === "yuksek") return null; // ilke 3: hiçbir politika yüksek riski karara bağlayamaz.
+  // Dönem devri taslağı (İP-38) hemen onaylanmaz: hocanın itiraz süresi dolunca `bologna/devir` karar verir.
+  if (o.tur === "bologna_devri") return null;
   const { hedef } = await hedefVeKonum(tx, kurumId, o);
   const uygun = await uygulanabilirPolitikalar(tx, kurumId, { tur: o.tur, risk: o.risk, guven: o.guven }, hedef, simdi);
   if (!uygun.length) return null;
