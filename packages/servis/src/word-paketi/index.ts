@@ -136,10 +136,16 @@ export function alanUygula(t: BolognaTaslagi, sekme: string, alan: string, deger
   if (sekme === "Genel") {
     const ing = alan.endsWith("(İngilizce)");
     const ad = alan.replace(/ \(İngilizce\)$/u, "");
-    if (ad === "Dersin Amacı") return iki(t.amac, ing);
-    if (ad === "Dersin İçeriği") return iki(t.icerik, ing);
-    if (ad === "Öğretim Yöntem ve Teknikleri") return iki(t.yontem, ing);
-    if (ad === "Ders Notları") return iki(t.notlar, ing);
+    const metinAlani = {
+      "Dersin Amacı": t.amac,
+      "Dersin İçeriği": t.icerik,
+      "Öğretim Yöntem ve Teknikleri": t.yontem,
+      "Ders Notları": t.notlar,
+    }[ad];
+    if (metinAlani) {
+      iki(metinAlani, ing);
+      return;
+    }
     if (ad === "Ön Koşul") {
       t.onKosul = v;
       return;

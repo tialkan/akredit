@@ -172,7 +172,7 @@ describe("eksik giderme uçtan uca", () => {
     // Model amaç metnini dış örneğe çok benzer yazdı: uyarı.
     expect(ic.denetim.bulgular.some((b) => b.kural === "Kaynak")).toBe(true);
     // İş yükü deterministik K8 ile denetlendi: hedef 150.
-    expect((oneri?.icerik as { denetim: { hedef: number } }).denetim.hedef).toBe(150);
+    expect((oneri?.icerik as { denetim?: { hedef: number } } | undefined)?.denetim?.hedef).toBe(150);
     // Atıflarda dış örnek yok.
     expect(JSON.stringify(oneri?.atiflar)).not.toContain("baska.edu.tr");
     const gunluk = await kiraciIslemi(o.db, o.a.kurumId, (tx) =>
