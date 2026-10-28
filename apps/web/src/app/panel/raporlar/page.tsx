@@ -24,7 +24,7 @@ export default async function RaporlarSayfasi() {
         {raporlar.map((r) => {
           const k = raporKapsamasi(r);
           return (
-            <li key={r.id} className="rounded-lg border border-cizgi bg-yuzey p-5">
+            <li key={r.id} className="rounded-sm border border-cizgi bg-yuzey p-5">
               <h2 className="text-lg font-semibold">
                 <Link href={`/panel/raporlar/${r.id}`} className="text-vurgu underline underline-offset-2">
                   {r.ad}

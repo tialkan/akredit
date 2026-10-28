@@ -38,6 +38,7 @@
 
 @theme inline {
   --font-sans: "Source Sans 3 Variable", "Source Sans 3", system-ui, sans-serif;
+  --font-serif: "Source Serif 4 Variable", "Source Serif 4", Georgia, "Times New Roman", serif;
   --color-zemin: var(--zemin);
   --color-yuzey: var(--yuzey);
   --color-yuzey-2: var(--yuzey-2);
@@ -72,6 +73,45 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Başlıklar: Source Serif 4. Yönetmelik, karar ve rapor dizgisinin ağırbaşlı sesi; gövde Source Sans 3. */
+h1,
+h2 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-optical-sizing: auto;
+  text-wrap: balance;
+}
+
+/* İmza öğesi: dayanak (dipnot) numaraları. Her olgusal iddia kod tabanındaki kaynağına numarayla bağlanır;
+   ürünün "kanıtsız iddia yok" ilkesinin sitedeki karşılığı. */
+.dayanak-imi {
+  font-family: var(--font-sans);
+  font-size: 0.72em;
+  font-weight: 600;
+  line-height: 0;
+  vertical-align: super;
+  margin-left: 0.1em;
+}
+.dayanak-imi a {
+  color: var(--petrol);
+  text-decoration: none;
+  padding: 0 0.1em;
+}
+.dayanak-imi a:hover {
+  text-decoration: underline;
+}
+.paragraf-no {
+  font-family: var(--font-serif);
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--petrol);
+}
+:target {
+  scroll-margin-top: 1.5rem;
+}
+li:target {
+  background: var(--petrol-zemin);
+}
+
 /* Klavye odağı her zaman görünür (WCAG 2.4.7, 2.4.11). */
 :focus-visible {
   outline: 3px solid var(--odak);
@@ -85,7 +125,7 @@ body {
 
 .metin-sayfa h2 {
   font-size: 1.5rem;
-  font-weight: 650;
+  font-weight: 600;
   margin-top: 2.5rem;
   margin-bottom: 0.75rem;
   letter-spacing: -0.01em;

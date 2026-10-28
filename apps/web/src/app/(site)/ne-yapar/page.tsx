@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { SayfaBasi, Tanimlar, YapisalVeri } from "../../../site/bilesenler.tsx";
-import { MODULLER, SAYFALAR } from "../../../site/icerik.ts";
+import { Bolum, SayfaBasi, Tanimlar, YapisalVeri } from "../../../site/bilesenler.tsx";
+import { BAGLAYICILAR, MODULLER, SAYFALAR } from "../../../site/icerik.ts";
 import { sayfaUstVerisi } from "../../../site/yapisal.ts";
 
 export const metadata: Metadata = sayfaUstVerisi(SAYFALAR.neYapar);
@@ -39,6 +39,46 @@ export default function NeYapar() {
           </ul>
         </nav>
       </SayfaBasi>
+      <Bolum
+        id="baglayici-tablosu"
+        baslik="Hangi sistemden ne okunur"
+        not="Kanıt kurumun zaten kullandığı sistemlerden gelir. Her bağlayıcının okuduğu ve okumadığı."
+        zemin
+      >
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[40rem] border-collapse text-left">
+            <caption className="sr-only">Bağlayıcılar, okudukları ve okumadıkları</caption>
+            <thead>
+              <tr className="border-b-2 border-cizgi-guclu">
+                <th scope="col" className="py-2 pr-4">
+                  Sistem
+                </th>
+                <th scope="col" className="py-2 pr-4">
+                  Okur
+                </th>
+                <th scope="col" className="py-2">
+                  Okumaz
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {BAGLAYICILAR.map((b) => (
+                <tr key={b.ad} className="border-b border-cizgi align-top">
+                  <th scope="row" className="py-3 pr-4 font-semibold">
+                    {b.ad}
+                  </th>
+                  <td className="py-3 pr-4">{b.okur}</td>
+                  <td className="py-3 text-soluk">{b.okumaz}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-4 text-sm text-soluk">
+          Bağlayıcılar yazıldı ve kayıtlı örneklerle sınandı. Canlı kurum sistemlerinde pilot denemesi henüz yapılmadı.
+          Panelden bağlayıcı açma ekranı henüz yok.
+        </p>
+      </Bolum>
       <div className="mx-auto max-w-6xl px-4 py-6">
         {MODULLER.map((m) => (
           <section
@@ -48,7 +88,7 @@ export default function NeYapar() {
             className="grid scroll-mt-6 gap-x-12 gap-y-4 border-b border-cizgi py-10 last:border-b-0 lg:grid-cols-[17rem_1fr]"
           >
             <div>
-              <h2 id={`${m.kimlik}-baslik`} className="text-2xl leading-tight font-bold tracking-[-0.01em]">
+              <h2 id={`${m.kimlik}-baslik`} className="text-[1.65rem] leading-tight tracking-[-0.01em] text-vurgu">
                 {m.ad}
               </h2>
               <p className="mt-2 text-soluk">{m.ozet}</p>

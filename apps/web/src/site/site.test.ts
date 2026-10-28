@@ -2,7 +2,7 @@
 import { ROLLER } from "@akredit/yetki";
 import { describe, expect, it } from "vitest";
 import { yokakOzeti } from "./cerceve-ozeti.ts";
-import { EYLEM_ADI, ROL_ADI, ROL_ANLATIMLARI, SAYFALAR, SSS } from "./icerik.ts";
+import { DONEM_AKISI, EYLEM_ADI, ROL_ADI, ROL_ANLATIMLARI, ROL_KARARI, SAYFALAR, SSS } from "./icerik.ts";
 import { sayfaUstVerisi, sssVerisi, yapisalVeri } from "./yapisal.ts";
 
 describe("çerçeve özeti", () => {
@@ -23,6 +23,21 @@ describe("roller ve eylemler", () => {
     for (const r of ROLLER) expect(ROL_ADI[r]).toBeTruthy();
     for (const e of EYLEMLER) expect(EYLEM_ADI[e]).toBeTruthy();
     for (const a of ROL_ANLATIMLARI) for (const r of a.roller) expect(ROLLER).toContain(r);
+  });
+});
+
+describe("rol kararı anlatımı", () => {
+  it("her rol için yazılı; 'karar veremez' diyen rol gerçekten karar.ver yetkisine sahip değil", async () => {
+    const { ROL_EYLEMLERI } = await import("@akredit/yetki");
+    for (const r of ROLLER) {
+      expect(ROL_KARARI[r]).toBeTruthy();
+      expect(ROL_KARARI[r]?.startsWith("Karar veremez")).toBe(!ROL_EYLEMLERI[r].has("karar.ver"));
+    }
+    expect(ROL_EYLEMLERI.kalite_komisyonu_baskani.has("politika.imzala")).toBe(true);
+    expect(ROL_EYLEMLERI.ogretim_elemani.has("rapor.gonder")).toBe(false);
+  });
+  it("dönem akışı: ders dosyası bir yükleme ve iki onaydır (İP-16)", () => {
+    expect(DONEM_AKISI.find((a) => a.zaman === "Notlardan sonra")?.dokunus).toBe(3);
   });
 });
 

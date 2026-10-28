@@ -8,7 +8,7 @@ export const metadata: Metadata = sayfaUstVerisi(SAYFALAR.kvkk);
 export default function Kvkk() {
   return (
     <MetinSayfasi baslik="Kişisel verilerin korunması">
-      <div role="note" className="mt-6 rounded-lg border-2 border-risk-orta bg-risk-orta-zemin p-4 text-risk-orta">
+      <div role="note" className="mt-6 rounded-sm border-2 border-risk-orta bg-risk-orta-zemin p-4 text-risk-orta">
         <p className="mt-0 font-bold">Bu sayfa taslaktır.</p>
         <p className="mt-1">
           Bu metin hukuki incelemeden geçmemiştir ve bağlayıcı değildir. Kesin metin bir avukatın incelemesinden sonra

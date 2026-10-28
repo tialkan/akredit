@@ -7,9 +7,8 @@ import type { AnketTanimi } from "@akredit/anket/temel";
 import { type ReactNode, useActionState } from "react";
 import { type GonderimDurumu, yanitGonder } from "./eylem.ts";
 
-const SECIM =
-  "flex min-h-11 cursor-pointer items-center gap-3 rounded-md border border-cizgi px-3 py-2 hover:bg-yuzey-2";
-const ALAN = "w-full rounded-md border border-cizgi-guclu bg-yuzey px-3 py-2 text-metin";
+const SECIM = "flex min-h-11 cursor-pointer items-center gap-3 rounded border border-cizgi px-3 py-2 hover:bg-yuzey-2";
+const ALAN = "w-full rounded border border-cizgi-guclu bg-yuzey px-3 py-2 text-metin";
 
 export function AnketFormu({
   tanim,
@@ -28,7 +27,7 @@ export function AnketFormu({
   const coklu = tanim.sorular.filter((s) => s.tur === "coklu_secim").map((s) => s.kod);
   if (durum.durum === "tamam")
     return (
-      <p role="status" className="rounded-lg border border-cizgi bg-yuzey p-5 text-lg font-semibold">
+      <p role="status" className="rounded-sm border border-cizgi bg-yuzey p-5 text-lg font-semibold">
         {durum.ileti}
       </p>
     );
@@ -103,7 +102,7 @@ export function AnketFormu({
           </fieldset>
         );
       })}
-      <div className="rounded-lg border border-cizgi bg-yuzey-2 p-4 text-sm">{aydinlatma}</div>
+      <div className="rounded-sm border border-cizgi bg-yuzey-2 p-4 text-sm">{aydinlatma}</div>
       <label className="flex items-start gap-3">
         <input type="checkbox" name="aydinlatma" value="evet" required className="mt-1 size-5 accent-[var(--vurgu)]" />
         <span>Aydınlatma metnini okudum.</span>
@@ -118,7 +117,7 @@ export function AnketFormu({
       <button
         type="submit"
         disabled={bekliyor}
-        className="inline-flex min-h-11 items-center rounded-md border border-vurgu bg-vurgu px-4 font-semibold text-vurgu-metin disabled:opacity-50"
+        className="inline-flex min-h-11 items-center rounded border border-vurgu bg-vurgu px-4 font-semibold text-vurgu-metin disabled:opacity-50"
       >
         {bekliyor ? "Gönderiliyor…" : "Yanıtları gönder"}
       </button>

@@ -48,7 +48,7 @@ export function Tablo({
     );
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-cizgi bg-yuzey">
+    <div className="overflow-x-auto rounded-sm border border-cizgi bg-yuzey">
       <table className="w-full border-collapse text-left">
         <caption className="px-4 pt-3 pb-2 text-left font-semibold">{baslik}</caption>
         <thead>

@@ -68,7 +68,7 @@ export function KenarCubugu({ bekleyenSayisi }: { bekleyenSayisi: number }) {
                 href={m.href}
                 aria-current={aktif ? "page" : undefined}
                 onClick={() => setAcik(false)}
-                className={`flex min-h-11 items-center gap-3 rounded-md px-3 ${
+                className={`flex min-h-11 items-center gap-3 rounded px-3 ${
                   aktif ? "bg-vurgu-zemin font-semibold text-vurgu" : "text-metin hover:bg-yuzey-2"
                 }`}
               >
