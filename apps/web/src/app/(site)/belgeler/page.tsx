@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { MetinSayfasi } from "../../../bilesenler/logo.tsx";
+import { SAYFALAR } from "../../../site/icerik.ts";
+import { sayfaUstVerisi } from "../../../site/yapisal.ts";
 import { KILAVUZLAR, OKUR_ADI, type Okur } from "./icerik.ts";
 
-export const metadata: Metadata = { title: "Kılavuzlar" };
+export const metadata: Metadata = sayfaUstVerisi(SAYFALAR.belgeler);
 
 const OKURLAR: Okur[] = ["hoca", "kalite", "bilgi-islem"];
 

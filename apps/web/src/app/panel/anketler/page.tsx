@@ -93,8 +93,9 @@ export default async function AnketlerSayfasi() {
 
         <Kart baslik="AKTS iş yükü denetimi (HUK101)">
           <p>
-            Ders sayfasında beyan edilen iş yükü <strong>{isyuku.beyan ?? "belirtilmemiş"} saat</strong>, öğrencilerin bildirdiği
-            (etkinlik başına ortanca) <strong>{sayi(isyuku.olculen)} saat</strong>, AKTS {isyuku.akts ?? "belirtilmemiş"}.
+            Ders sayfasında beyan edilen iş yükü <strong>{isyuku.beyan ?? "belirtilmemiş"} saat</strong>, öğrencilerin
+            bildirdiği (etkinlik başına ortanca) <strong>{sayi(isyuku.olculen)} saat</strong>, AKTS{" "}
+            {isyuku.akts ?? "belirtilmemiş"}.
           </p>
           {isyuku.bulgular.length ? (
             <ul className="mt-3 list-disc space-y-1 pl-6">

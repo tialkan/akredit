@@ -67,9 +67,7 @@ export function KenarCubugu({ bekleyenSayisi }: { bekleyenSayisi: number }) {
                 aria-current={aktif ? "page" : undefined}
                 onClick={() => setAcik(false)}
                 className={`flex min-h-11 items-center gap-3 rounded-md px-3 ${
-                  aktif
-                    ? "bg-vurgu-zemin font-semibold text-vurgu"
-                    : "text-metin hover:bg-yuzey-2"
+                  aktif ? "bg-vurgu-zemin font-semibold text-vurgu" : "text-metin hover:bg-yuzey-2"
                 }`}
               >
                 <Simge aria-hidden className="size-5" />

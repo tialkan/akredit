@@ -17,6 +17,7 @@
   "dependencies": {
     "@akredit/anket": "workspace:*",
     "@akredit/cekirdek": "workspace:*",
+    "@akredit/cerceveler": "workspace:*",
     "@akredit/gosterge": "workspace:*",
     "@akredit/servis": "workspace:*",
     "@akredit/surec": "workspace:*",

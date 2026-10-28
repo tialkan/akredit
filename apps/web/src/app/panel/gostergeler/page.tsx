@@ -13,7 +13,12 @@ const DURUM: Record<SapmaDurumu, string> = {
   hedef_yok: "Hedef yok",
   EKSIK: "Veri eksik",
 };
-const EGILIM = { iyilesiyor: "İyileşiyor", kotulesiyor: "Kötüleşiyor", durgun: "Değişmiyor", yetersiz_veri: "Veri yetersiz" };
+const EGILIM = {
+  iyilesiyor: "İyileşiyor",
+  kotulesiyor: "Kötüleşiyor",
+  durgun: "Değişmiyor",
+  yetersiz_veri: "Veri yetersiz",
+};
 
 const sayi = (x: number) => x.toLocaleString("tr-TR", { maximumFractionDigits: 2 });
 
