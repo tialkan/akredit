@@ -9,6 +9,7 @@ import { Kart, Rozet } from "../../../bilesenler/temel.tsx";
 import { istemciVeriKaynagi } from "../../../veri/istemci.ts";
 import type { Ayarlar, YzSaglayici } from "../../../veri/kaynak.ts";
 import { ONERI_TURU_ETIKETI, RISK_ETIKETI, tarihYaz } from "../../../veri/yardimci.ts";
+import { WebArama } from "./web-arama.tsx";
 import { YzAnahtari } from "./yz-anahtari.tsx";
 
 const SAGLAYICILAR: { deger: YzSaglayici; ad: string; aciklama: string }[] = [
@@ -46,8 +47,12 @@ export function AyarlarFormu({ ilk }: { ilk: Ayarlar }) {
   }, [kaynak]);
 
   const guncelle = async (d: Parameters<typeof kaynak.ayarlariGuncelle>[0], mesaj: string) => {
-    setAyarlar(await kaynak.ayarlariGuncelle(d));
-    bildir(mesaj, "basari");
+    try {
+      setAyarlar(await kaynak.ayarlariGuncelle(d));
+      bildir(mesaj, "basari");
+    } catch (e) {
+      bildir(e instanceof Error ? e.message : "Ayar kaydedilemedi. Yeniden deneyin.", "hata");
+    }
   };
 
   const politikaOlustur = async () => {
@@ -144,6 +149,8 @@ export function AyarlarFormu({ ilk }: { ilk: Ayarlar }) {
         </div>
         <YzAnahtari ayarlar={ayarlar} degisti={setAyarlar} />
       </Kart>
+
+      <WebArama ayarlar={ayarlar} guncelle={guncelle} />
 
       <Kart baslik="Yetki politikaları" className="xl:col-span-2">
         <p className="mb-4 max-w-prose text-soluk">

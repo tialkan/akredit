@@ -5506,6 +5506,21 @@
                     "yurtDisiIzni": {
                       "type": "boolean"
                     },
+                    "webArama": {
+                      "type": "object",
+                      "properties": {
+                        "acik": {
+                          "type": "boolean"
+                        },
+                        "enCokSonuc": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 10
+                        }
+                      },
+                      "required": ["acik", "enCokSonuc"],
+                      "additionalProperties": false
+                    },
                     "yzAnahtar": {
                       "anyOf": [
                         {
@@ -5634,7 +5649,15 @@
                       }
                     }
                   },
-                  "required": ["kurumAdi", "kurumKisaAdi", "yzSaglayici", "yurtDisiIzni", "yzAnahtar", "politikalar"],
+                  "required": [
+                    "kurumAdi",
+                    "kurumKisaAdi",
+                    "yzSaglayici",
+                    "yurtDisiIzni",
+                    "webArama",
+                    "yzAnahtar",
+                    "politikalar"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -5751,6 +5774,20 @@
                   },
                   "yurtDisiIzni": {
                     "type": "boolean"
+                  },
+                  "webArama": {
+                    "type": "object",
+                    "properties": {
+                      "acik": {
+                        "type": "boolean"
+                      },
+                      "enCokSonuc": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 10
+                      }
+                    },
+                    "additionalProperties": false
                   }
                 },
                 "additionalProperties": false
@@ -5778,6 +5815,21 @@
                     },
                     "yurtDisiIzni": {
                       "type": "boolean"
+                    },
+                    "webArama": {
+                      "type": "object",
+                      "properties": {
+                        "acik": {
+                          "type": "boolean"
+                        },
+                        "enCokSonuc": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 10
+                        }
+                      },
+                      "required": ["acik", "enCokSonuc"],
+                      "additionalProperties": false
                     },
                     "yzAnahtar": {
                       "anyOf": [
@@ -5907,7 +5959,15 @@
                       }
                     }
                   },
-                  "required": ["kurumAdi", "kurumKisaAdi", "yzSaglayici", "yurtDisiIzni", "yzAnahtar", "politikalar"],
+                  "required": [
+                    "kurumAdi",
+                    "kurumKisaAdi",
+                    "yzSaglayici",
+                    "yurtDisiIzni",
+                    "webArama",
+                    "yzAnahtar",
+                    "politikalar"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -6050,6 +6110,21 @@
                     "yurtDisiIzni": {
                       "type": "boolean"
                     },
+                    "webArama": {
+                      "type": "object",
+                      "properties": {
+                        "acik": {
+                          "type": "boolean"
+                        },
+                        "enCokSonuc": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 10
+                        }
+                      },
+                      "required": ["acik", "enCokSonuc"],
+                      "additionalProperties": false
+                    },
                     "yzAnahtar": {
                       "anyOf": [
                         {
@@ -6178,7 +6253,15 @@
                       }
                     }
                   },
-                  "required": ["kurumAdi", "kurumKisaAdi", "yzSaglayici", "yurtDisiIzni", "yzAnahtar", "politikalar"],
+                  "required": [
+                    "kurumAdi",
+                    "kurumKisaAdi",
+                    "yzSaglayici",
+                    "yurtDisiIzni",
+                    "webArama",
+                    "yzAnahtar",
+                    "politikalar"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -6308,6 +6391,21 @@
                     "yurtDisiIzni": {
                       "type": "boolean"
                     },
+                    "webArama": {
+                      "type": "object",
+                      "properties": {
+                        "acik": {
+                          "type": "boolean"
+                        },
+                        "enCokSonuc": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 10
+                        }
+                      },
+                      "required": ["acik", "enCokSonuc"],
+                      "additionalProperties": false
+                    },
                     "yzAnahtar": {
                       "anyOf": [
                         {
@@ -6436,7 +6534,15 @@
                       }
                     }
                   },
-                  "required": ["kurumAdi", "kurumKisaAdi", "yzSaglayici", "yurtDisiIzni", "yzAnahtar", "politikalar"],
+                  "required": [
+                    "kurumAdi",
+                    "kurumKisaAdi",
+                    "yzSaglayici",
+                    "yurtDisiIzni",
+                    "webArama",
+                    "yzAnahtar",
+                    "politikalar"
+                  ],
                   "additionalProperties": false
                 }
               }
