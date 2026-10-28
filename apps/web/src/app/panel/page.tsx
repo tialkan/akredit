@@ -7,9 +7,9 @@ import { panelVeriKaynagi } from "../../veri/sunucu.ts";
 import { gunFarki, RISK_ETIKETI, RISK_SIRASI, sureYaz, tarihYaz } from "../../veri/yardimci.ts";
 
 const RENK = {
-  dusuk: { kenar: "border-risk-dusuk", metin: "text-risk-dusuk" },
-  orta: { kenar: "border-risk-orta", metin: "text-risk-orta" },
-  yuksek: { kenar: "border-risk-yuksek", metin: "text-risk-yuksek" },
+  dusuk: { metin: "text-risk-dusuk" },
+  orta: { metin: "text-risk-orta" },
+  yuksek: { metin: "text-risk-yuksek" },
 } as const;
 
 export default async function PanelAnaSayfa() {
@@ -31,7 +31,7 @@ export default async function PanelAnaSayfa() {
         >
           <ul className="grid gap-3 sm:grid-cols-3">
             {RISK_SIRASI.map((r) => (
-              <li key={r} className={`rounded-md border-l-4 bg-yuzey-2 p-4 ${RENK[r].kenar}`}>
+              <li key={r} className="rounded-sm border border-cizgi bg-yuzey-2 p-4">
                 <p className={`flex items-center gap-1 font-semibold ${RENK[r].metin}`}>
                   <RiskSimgesi risk={r} />
                   {RISK_ETIKETI[r]}

@@ -4,8 +4,8 @@ import { ISARET_KUTUSU, ISARET_YOLLARI } from "../marka/isaret.ts";
 const KUTU = `${ISARET_KUTUSU.x} ${ISARET_KUTUSU.y} ${ISARET_KUTUSU.g} ${ISARET_KUTUSU.h}`;
 
 /**
- * Akredit işareti (A + onay imi). Renkler tema belirteçlerinden gelir; koyu temada kendiliğinden açık sürüme
- * döner. Süs öğesidir; erişilebilir ad, onu saran bağlantıda ya da yanındaki "Akredit" kelimesindedir.
+ * Akredit işareti (A + onay imi). Renkler tema belirteçlerinden gelir; sitede yalnız açık tema vardır; tek renk
+ * sürümler ayrı dosyalardadır. Süs öğesidir; erişilebilir ad, onu saran bağlantıda ya da yanındaki "Akredit" kelimesindedir.
  */
 export function Isaret({ className = "h-7 w-auto" }: { className?: string }) {
   return (

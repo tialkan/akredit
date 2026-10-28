@@ -4,8 +4,8 @@ import { SAYFALAR } from "./sayfalar.ts";
 
 const ETIKETLER = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22a", "wcag22aa"];
 
-for (const tema of ["light", "dark"] as const) {
-  test.describe(`axe (${tema === "light" ? "açık" : "koyu"} tema)`, () => {
+for (const tema of ["light"] as const) {
+  test.describe(`axe (${tema === "light" ? "açık" : tema} tema)`, () => {
     test.use({ colorScheme: tema });
     // axe büyük sayfalarda (onay kutusu ~5000 öğe) tek başına ~10 sn sürer; paralel koşuda pay bırakılır.
     test.describe.configure({ timeout: 90_000 });
