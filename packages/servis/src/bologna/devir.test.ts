@@ -124,7 +124,7 @@ async function hazirla(db: Vt, x: Ornek, secenek: { aktsFarki?: number; programl
           kaynak: {
             tur: "ders",
             id: d.id,
-            bolognaDuzeltmesi: { alan: "yontem", dil: "tr", metin: "Anlatım, uygulama ve haftalık proje." },
+            bolognaDuzeltmesi: { alan: "yontem", dil: "tr", metin: `${t.yontem.tr} Haftalık proje çalışması yapılır.` },
           },
           tanim: "Yönteme haftalık proje eklensin",
           pukoAsamasi: "onlem_al",
@@ -176,6 +176,7 @@ afterAll(async () => {
 });
 
 const gun = (n: number) => new Date(SIMDI.getTime() + n * 86_400_000);
+const nedeni = (d: RegExp) => (e: unknown) => d.test(String((e as { cause?: { message?: string } }).cause?.message ?? e));
 
 describe("iş günü hesabı", () => {
   it("hafta sonu ve tatil günlerini saymaz (elle doğrulanmış)", () => {
@@ -319,7 +320,7 @@ describe("sessiz devir: imzalı politika ve düşük risk", () => {
     expect(ic.itirazSuresiIsGunu).toBe(5);
     // SIMDI 27 Ekim 2026 salı 12:00 (İstanbul) + 5 iş günü: 28, 29, 30 Ekim, 2, 3 Kasım.
     expect(ic.sureSonu).toBe("2026-11-03T09:00:00.000Z");
-    expect(ic.taslak.yontem.tr).toBe("Anlatım, uygulama ve haftalık proje.");
+    expect(ic.taslak.yontem.tr).toBe(`${ornekTaslak().yontem.tr} Haftalık proje çalışması yapılır.`);
     expect(ic.fark.map((f) => f.alan)).toEqual(["yontem"]);
     expect(ic.onlemler.map((x) => [x.tanim, x.uygulandi])).toEqual([
       ["Yönteme haftalık proje eklensin", true],
@@ -351,8 +352,8 @@ describe("sessiz devir: imzalı politika ve düşük risk", () => {
           zaman,
         }),
       );
-    await expect(ekle("sure_dolumu", gun(2))).rejects.toThrow(/İtiraz süresi dolmadan|check/u);
-    await expect(ekle("politika", gun(30))).rejects.toThrow(/süre dolumuyla|check/u);
+    await expect(ekle("sure_dolumu", gun(2))).rejects.toSatisfy(nedeni(/İtiraz süresi dolmadan/u));
+    await expect(ekle("politika", gun(30))).rejects.toSatisfy(nedeni(/yalnız süre dolumuyla/u));
     // Başka türde süre dolumu dayanağı da reddedilir.
     await expect(
       kiraciIslemi(o.db, o.a.kurumId, (tx) =>
@@ -477,7 +478,7 @@ describe("kaynağa geri yazma", () => {
     expect(await kod(bologna.kaynagaYazmaIzniVer(anahtar, g))).toBe("yetki_yok");
     const i = await bologna.kaynagaYazmaIzniVer(yonetici, g);
     expect(i).toMatchObject({ acik: true, gercekYazma: false, veren: "Deneme Yönetici A" });
-    expect(await bologna.kaynagaYazmaIzni(hoca)).toMatchObject({ acik: true });
+    expect(await bologna.kaynagaYazmaIzni(yonetici)).toMatchObject({ acik: true });
   });
 
   it("gerçek yazma izni yokken kuru çalıştırma zorunlu", async () => {
