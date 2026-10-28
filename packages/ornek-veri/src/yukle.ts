@@ -91,17 +91,15 @@ async function yukle(
       ogretimTuru: "örgün",
     })),
   );
-  await tx
-    .insert(sema.donem)
-    .values(
-      u.donemler.map((d) => ({
-        id: ver(`donem:${d.anahtar}`),
-        kurumId,
-        ad: d.ad,
-        baslangic: d.baslangic,
-        bitis: d.bitis,
-      })),
-    );
+  await tx.insert(sema.donem).values(
+    u.donemler.map((d) => ({
+      id: ver(`donem:${d.anahtar}`),
+      kurumId,
+      ad: d.ad,
+      baslangic: d.baslangic,
+      bitis: d.bitis,
+    })),
+  );
   await tx
     .insert(sema.kisi)
     .values(u.kisiler.map((k) => ({ id: ver(`kisi:${k.anahtar}`), kurumId, adSoyad: k.adSoyad, unvan: k.unvan })));
