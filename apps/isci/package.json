@@ -6,11 +6,12 @@
   "license": "Apache-2.0",
   "description": "Arka plan işleri: kanıt hattı, bağlayıcı zamanlamaları, YZ işleri, rapor üretimi, hatırlatmalar (pg-boss).",
   "scripts": {
-    "start": "node src/index.ts",
+    "start": "node src/ana.ts",
     "typecheck": "tsc --noEmit -p .",
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
+    "@akredit/baglayicilar": "workspace:*",
     "@akredit/belge": "workspace:*",
     "@akredit/cekirdek": "workspace:*",
     "@akredit/depo": "workspace:*",
