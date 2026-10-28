@@ -141,8 +141,10 @@ export function DonemCizelgesi({ adimlar }: { adimlar: DonemAdimi[] }) {
 
 /** Dayanak imi: iddiayı sayfa sonundaki kaynağa bağlayan numara. */
 export function Dayanak({ n }: { n: number }) {
+  // Kelime birleştirici (U+2060): numara, önündeki kelimeden ya da noktadan ayrılıp alt satıra düşmez.
   return (
     <sup className="dayanak-imi">
+      {"\u2060"}
       <a href={`#dayanak-${n}`} id={`dayanak-imi-${n}`} aria-label={`Dayanak ${n}`}>
         [{n}]
       </a>

@@ -38,7 +38,7 @@
 
 @theme inline {
   --font-sans: "Source Sans 3 Variable", "Source Sans 3", system-ui, sans-serif;
-  --font-serif: "Source Serif 4 Variable", "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-serif: "Source Serif 4", Georgia, "Times New Roman", serif;
   --color-zemin: var(--zemin);
   --color-yuzey: var(--yuzey);
   --color-yuzey-2: var(--yuzey-2);
@@ -78,8 +78,12 @@ h1,
 h2 {
   font-family: var(--font-serif);
   font-weight: 600;
-  font-optical-sizing: auto;
   text-wrap: balance;
+}
+/* Başlığın içindeki rozet ve sayaçlar (ör. risk rozeti) arayüz yazı tipinde kalır. */
+h1 :where(span),
+h2 :where(span) {
+  font-family: var(--font-sans);
 }
 
 /* İmza öğesi: dayanak (dipnot) numaraları. Her olgusal iddia kod tabanındaki kaynağına numarayla bağlanır;

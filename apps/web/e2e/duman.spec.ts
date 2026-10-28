@@ -8,7 +8,7 @@ test.describe("tanıtım sitesi", () => {
     await page.goto("/");
     await expect(page).toHaveTitle(/Akredit/);
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Siz yalnız onaylarsınız");
-    await expect(page.getByRole("heading", { name: "İşin bölümü" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "İşi kim yapar" })).toBeVisible();
     const menu = page.getByRole("navigation", { name: "Site menüsü" });
     for (const [ad, baslik] of [
       ["Ne yapar", "Ne yapar"],

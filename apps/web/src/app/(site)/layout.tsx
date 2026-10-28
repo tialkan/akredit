@@ -11,7 +11,7 @@ function MenuListesi({ sinif }: { sinif: string }) {
         <li key={m.yol}>
           <Link
             href={m.yol}
-            className="inline-flex min-h-11 items-center rounded-sm px-2 text-metin hover:bg-yuzey-2 hover:text-vurgu"
+            className="inline-flex min-h-11 items-center rounded-sm px-2 whitespace-nowrap text-metin hover:bg-yuzey-2 hover:text-vurgu"
           >
             {m.ad}
           </Link>
@@ -25,14 +25,14 @@ export default function SiteYerlesimi({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col bg-yuzey">
       <header className="border-b border-cizgi bg-yuzey">
-        <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-2">
+        <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-2">
           <Link href="/" aria-label="Akredit ana sayfa" className="inline-flex min-h-11 items-center">
             <Logo />
           </Link>
-          <nav aria-label="Site menüsü" className="hidden flex-1 lg:block">
-            <MenuListesi sinif="flex flex-wrap justify-end gap-x-1" />
+          <nav aria-label="Site menüsü" className="hidden flex-1 xl:block">
+            <MenuListesi sinif="flex justify-end" />
           </nav>
-          <div className="ml-auto flex items-center gap-2 lg:ml-2">
+          <div className="ml-auto flex items-center gap-2 xl:ml-2">
             <Link
               href="/kurum-ac"
               className="hidden min-h-11 items-center px-2 font-semibold text-vurgu underline underline-offset-4 sm:inline-flex"
@@ -43,7 +43,7 @@ export default function SiteYerlesimi({ children }: { children: ReactNode }) {
               Giriş
             </Link>
             {/* Dar ekranda menü: betiksiz açılır kapanır öğe. */}
-            <details className="relative lg:hidden">
+            <details className="relative xl:hidden">
               <summary className="inline-flex min-h-11 cursor-pointer list-none items-center rounded-sm border border-cizgi-guclu px-3 font-semibold [&::-webkit-details-marker]:hidden">
                 Menü
               </summary>
