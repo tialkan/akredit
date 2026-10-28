@@ -1,6 +1,6 @@
 # İP-38: Sessiz devir ve kaynağa geri yazma
 
-- **Durum:** devam
+- **Durum:** inceleme
 - **Faz:** 7
 - **Bağımlılık:** İP-13, İP-14, İP-15, İP-37
 - **Sahip olduğu yollar:** `packages/servis/src/bologna/devir*`, `packages/baglayicilar/src/bologna-proliz/yazma*`, `packages/baglayicilar/src/bologna-proliz/test/yazma/**`, `apps/isci/src/devir/**`, `apps/web/src/app/panel/dersler/[id]/devir/**`, `apps/web/src/app/panel/dersler/_bologna/devir*`, `packages/vt/src/gocler/0020_sessiz_devir.sql` (bu İP 0020-0029 aralığını kullanır), `docs/hukuk/yetki-devri-yonergesi-taslagi.md`, `docs/adr/0007-sessiz-devir-ve-varsayilan-onay.md`, `docs/raporlar/IP-38.md`
@@ -34,15 +34,18 @@ Danışmanlık kararı (2026-10-28, `docs/danismanlik/2026-10-28-dis-incelemeler
 
 ## Kabul ölçütleri
 
-- [ ] Yeni dönem başlayınca her ders için tek `bologna_devri` önerisi açılır; içerik geçen dönemin onaylı taslağı + kapanmış PÜKÖ önlemi + bulgulardır; hocaya fark özeti bildirimi gider (PGlite testi).
-- [ ] İmzalı politika yokken, öneri orta riskliyken ya da süre dolmadan varsayılan onay verilmez; koşullar sağlanınca karar `sure_dolumu` dayanağı, politika kimliği ve imzalayan adıyla yazılır; veritabanı yanlış kullanımı reddeder (servis + tetikleyici testi).
-- [ ] Hoca süre içinde düzeltir ya da reddederse süre dolumuyla karar verilmez.
-- [ ] İş günü hesabı hafta sonu ve tatilleri atlar (elle doğrulanmış örnek).
-- [ ] Kaynağa yazma kurum izni yokken çalışmaz; kuru çalıştırma varsayılan; önce oku, yalnız onaylı alan, sonra geri oku; her alan günlükte; giriş bilgisi günlükte ve raporda yok (birim + Playwright uçtan uca testi).
-- [ ] Ders sayfasında devir durumu kartı, birincil eylem fark özeti → onayla/değiştir; Word isteğe bağlı.
-- [ ] Senato yönergesi taslağı `docs/hukuk/` altında, kaynaksız atıflar `DOĞRULANMADI`.
-- [ ] `pnpm verify` temiz, `pnpm --filter @akredit/web build` başarılı.
+- [x] Yeni dönem başlayınca her ders için tek `bologna_devri` önerisi açılır; içerik geçen dönemin onaylı taslağı + kapanmış PÜKÖ önlemi + bulgulardır; hocaya fark özeti bildirimi gider (PGlite testi).
+- [x] İmzalı politika yokken, öneri orta riskliyken ya da süre dolmadan varsayılan onay verilmez; koşullar sağlanınca karar `sure_dolumu` dayanağı, politika kimliği ve imzalayan adıyla yazılır; veritabanı yanlış kullanımı reddeder (servis + tetikleyici testi).
+- [x] Hoca süre içinde düzeltir ya da reddederse süre dolumuyla karar verilmez.
+- [x] İş günü hesabı hafta sonu ve tatilleri atlar (elle doğrulanmış örnek).
+- [x] Kaynağa yazma kurum izni yokken çalışmaz; kuru çalıştırma varsayılan; önce oku, yalnız onaylı alan, sonra geri oku; her alan günlükte; giriş bilgisi günlükte ve raporda yok (birim + Playwright uçtan uca testi).
+- [x] Ders sayfasında devir durumu kartı, birincil eylem fark özeti → onayla/değiştir; Word isteğe bağlı. (Kartın tarayıcı testi yok; web derlemesi başarılı.)
+- [x] Senato yönergesi taslağı `docs/hukuk/` altında, kaynaksız atıflar `DOĞRULANMADI`.
+- [x] `pnpm verify` temiz, `pnpm --filter @akredit/web build` başarılı.
 
 ## Günlük
 
 - 2026-10-28: İP tanımlandı (dış incelemeler ve Argon danışmanlığı sonrası). Göç aralığı 0020-0029.
+- 2026-10-28: Uygulandı (dal `ip/38-sessiz-devir`). Göç 0020 (`bologna_devri`, `sure_dolumu`, politikaya itiraz süresi, `karar_denetle`), saf devir ve iş günü hesabı, devir motoru, süre dolumuyla varsayılan onay, kurum yazılı izni ve kuru çalıştırmalı kaynağa yazma (servis + Playwright, kayıtlı sahte Proliz sayfasıyla uçtan uca), işçi kuyruğu `bologna.devir`, 4 REST ucu, ders sayfası devir kartı, Word "isteğe bağlı", yönerge TASLAĞI, ADR 0007. `pnpm check`/`typecheck` temiz, `pnpm -r --workspace-concurrency=1 test` temiz (Vitest 1281 + node --test 38), web derlemesi başarılı.
+- Karar: devir modelsiz; önlem yalnız yapılandırılmış `bolognaDuzeltmesi` taşıyorsa uygulanır. Hocanın yeni taslağı itirazdır. Kaynağa yazmada "Kaydet insanda" yerine kurumun adıyla kayıtlı yazılı izni (ADR 0007).
+- Kalan: üretimde işçiye Playwright yazıcısı ve kurum giriş bilgisinin kasadan bağlanması; yazma izni, tatil listesi ve politika itiraz süresi için ayarlar ekranı; gerçek Proliz seçicilerinin doğrulanması (DOĞRULANMADI); yönergenin hukuk incelemesi. Ayrıntı: `docs/raporlar/IP-38.md`.
