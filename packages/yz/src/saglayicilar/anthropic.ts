@@ -1,5 +1,6 @@
 // Anthropic Messages API bağdaştırıcısı (fetch ile, SDK'sız). Veri yurt dışına çıkar.
 import { z } from "zod";
+import { kapiDenetimi } from "../guvence/cikis-kapisi.ts";
 import { type HttpAyari, jsonIstek } from "../http.ts";
 import {
   type FetchIslevi,
@@ -61,6 +62,7 @@ export function anthropic(ayar: AnthropicAyari): Saglayici {
     yurtIci: false,
     yapilandirilmisCikti: false,
     async sohbet(istek: SohbetIstegi): Promise<SohbetYaniti> {
+      kapiDenetimi({ yurtIci: false });
       const { system, messages } = anthropicMesajlari(istek.mesajlar);
       const govde: Record<string, unknown> = {
         model: ayar.model,

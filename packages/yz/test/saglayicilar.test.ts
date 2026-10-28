@@ -2,12 +2,18 @@ import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { cikisKapisi } from "../src/guvence/cikis-kapisi.ts";
 import { retryAfterMs } from "../src/http.ts";
 import { type FetchIslevi, type Mesaj, YzHatasi } from "../src/saglayici.ts";
-import { anthropic, anthropicMesajlari } from "../src/saglayicilar/anthropic.ts";
+import { anthropicMesajlari, anthropic as hamAnthropic } from "../src/saglayicilar/anthropic.ts";
 import { kasetOku, kasetYaz, kaydeden, oynatan } from "../src/saglayicilar/kayit.ts";
-import { HAZIRLAR, openaiUyumlu } from "../src/saglayicilar/openai-uyumlu.ts";
+import { HAZIRLAR, openaiUyumlu as hamOpenai } from "../src/saglayicilar/openai-uyumlu.ts";
 import { sahteSaglayici } from "../src/saglayicilar/sahte.ts";
+
+// İP-40: bağdaştırıcılar çıkış kapısı dışında çağrılamaz. Bu dosyadaki biçim testleri onları kapıdan geçirir
+// (izinli kurum); kapı dışında çağrının reddi test/cikis-kapisi.test.ts'tedir.
+const openaiUyumlu = (a: Parameters<typeof hamOpenai>[0]) => cikisKapisi(hamOpenai(a), { yurtDisiIzin: true });
+const anthropic = (a: Parameters<typeof hamAnthropic>[0]) => cikisKapisi(hamAnthropic(a), { yurtDisiIzin: true });
 
 interface Cagri {
   adres: string;

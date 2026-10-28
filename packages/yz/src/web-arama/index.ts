@@ -15,7 +15,7 @@
 // native: sağlayıcının fiyatı. Hepsine model belirteç ücreti eklenir.
 
 import { z } from "zod";
-import { maskeleyici } from "../guvence/kvkk.ts";
+import { type CikisAyari, kapiDenetimi, tekMetinKapisi } from "../guvence/cikis-kapisi.ts";
 import { type HttpAyari, jsonIstek } from "../http.ts";
 import { type FetchIslevi, YzHatasi } from "../saglayici.ts";
 
@@ -237,6 +237,7 @@ export function openrouterWebArayici(ayar: OpenrouterWebAyari): WebArayici {
     yurtIci: false,
     motor,
     async ara(istek) {
+      kapiDenetimi({ yurtIci: false });
       const n = sonucSiniri(istek.enCokSonuc);
       const ham = await jsonIstek(
         `${adres}/chat/completions`,
@@ -262,6 +263,10 @@ export interface KurumWebAramaAyari {
   yurtDisiIzin: boolean;
   /** kurum.ayarlar.yz.webArama */
   webArama?: { acik?: boolean; enCokSonuc?: number } | undefined;
+  /** Çıkış kaydı için amaç ve kayıt işlevi, ek maske (İP-40). */
+  amac?: string;
+  kaydet?: CikisAyari["kaydet"];
+  maske?: CikisAyari["maske"];
 }
 
 const KAPALI =
@@ -287,9 +292,19 @@ export function webAramaPolitikasi(arayici: WebArayici, ayar: KurumWebAramaAyari
     yurtIci: arayici.yurtIci,
     motor: arayici.motor,
     async ara(istek) {
-      const soru = maskeleyici({}).maskele(istek.soru).slice(0, 500);
       const n = Math.min(sonucSiniri(istek.enCokSonuc), tavan);
-      const s = await arayici.ara({ ...istek, soru, enCokSonuc: n });
+      // Çıkış kapısı (İP-40): soru her zaman maskelenir (yurt dışı kip), şüpheli içerikte arama yapılmaz.
+      const kapi: CikisAyari = {
+        yurtDisiIzin: ayar.yurtDisiIzin,
+        kip: "yurt_disi",
+        amac: ayar.amac ?? "web_arama",
+        ...(ayar.kaydet ? { kaydet: ayar.kaydet } : {}),
+        ...(ayar.maske ? { maske: ayar.maske } : {}),
+      };
+      const hedef = { ad: arayici.ad, model: arayici.motor, yurtIci: arayici.yurtIci };
+      const s = await tekMetinKapisi(hedef, kapi, "web_arama", istek.soru, (soru) =>
+        arayici.ara({ ...istek, soru: soru.slice(0, 500), enCokSonuc: n }),
+      );
       return { ...s, kaynaklar: s.kaynaklar.slice(0, n) };
     },
   };
