@@ -1,4 +1,4 @@
-// Web kontrol listesinin (docs/tasarim/web-kontrol-listesi.md) otomatik denetimleri.
+// Web kontrol listesinin (docs/tasarim/kontrol-listesi.md) otomatik denetimleri.
 // Kullanıcıya görünen metnin tamamı src/ altındaki TS/TSX dosyalarında ve public/ altındaki metin
 // dosyalarındadır. Bu test o dosyaları okur:
 // - em dash (U+2014) yok (madde 33),
@@ -103,10 +103,8 @@ describe("görsel kurallar", () => {
   it("koyu tema yok, color-scheme yalnız light", () => {
     const css = readFileSync(join(KOK, "src/app/globals.css"), "utf8");
     expect(css).toMatch(/color-scheme:\s*light/u);
-    // Favicon tarayıcı sekmesinin koyu çubuğuna uyum sağlar; bu sitenin teması değildir ve izinlidir.
-    const bulunan = KAYNAK.filter((d) => !d.ad.endsWith("favicon.svg")).filter((d) =>
-      /prefers-color-scheme:\s*dark|color-scheme:\s*dark|\.dark\b/u.test(d.metin),
-    );
+    // Favicon dahil hiçbir dosyada koyu tema kuralı yoktur (kullanıcı kararı).
+    const bulunan = KAYNAK.filter((d) => /prefers-color-scheme:\s*dark|color-scheme:\s*dark|\.dark\b/u.test(d.metin));
     expect(bulunan.map((d) => d.ad)).toEqual([]);
   });
 });

@@ -192,7 +192,7 @@ export function OnayKutusu({
       {cevrimici ? null : (
         <p
           role="status"
-          className="mb-4 flex items-center gap-2 rounded-lg border-2 border-risk-orta bg-risk-orta-zemin px-3 py-2 font-semibold"
+          className="mb-4 flex items-center gap-2 rounded-sm border-2 border-risk-orta bg-risk-orta-zemin px-3 py-2 font-semibold"
         >
           <WifiOff aria-hidden className="size-5 shrink-0" />
           Bağlantı yok. Son kaydedilen liste gösteriliyor; karar vermek için bağlantı gerekir.
@@ -211,7 +211,7 @@ export function OnayKutusu({
         return (
           <section key={risk} aria-labelledby={`grup-${risk}`} className="mb-8">
             <div className="sticky top-0 z-10 -mx-2 mb-3 flex flex-wrap items-center gap-3 border-b border-cizgi bg-zemin/95 px-2 py-2 backdrop-blur">
-              <h2 id={`grup-${risk}`} className="flex items-center gap-2 text-xl font-bold">
+              <h2 id={`grup-${risk}`} className="flex items-center gap-2 text-xl font-semibold">
                 <RiskRozeti risk={risk} />
                 <span>{ogeler.length} öneri</span>
               </h2>
@@ -273,7 +273,7 @@ export function OnayKutusu({
                       tabIndex={-1}
                       aria-labelledby={`${o.id}-baslik`}
                       onFocus={() => setOdak(sira)}
-                      className={`rounded-lg border bg-yuzey p-4 ${
+                      className={`rounded-sm border bg-yuzey p-4 ${
                         odakta
                           ? "border-vurgu ring-2 ring-vurgu"
                           : risk === "yuksek"
@@ -409,7 +409,7 @@ export function OnayKutusu({
       ) : null}
 
       {secili.size > 0 ? (
-        <div className="sticky bottom-3 z-20 mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-vurgu bg-yuzey p-3 shadow-lg">
+        <div className="sticky bottom-3 z-20 mt-4 flex flex-wrap items-center justify-between gap-3 rounded-sm border border-vurgu bg-yuzey p-3">
           <span className="font-semibold">{secili.size} öneri seçili</span>
           <div className="flex gap-2">
             <Dugme boy="kucuk" onClick={() => setSecili(new Set())}>
@@ -525,7 +525,7 @@ function TekElCubugu({
       <section
         aria-label="Hızlı karar"
         data-tek-el
-        className="fixed inset-x-0 bottom-0 z-30 border-t border-cizgi-guclu bg-yuzey px-3 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-lg sm:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 border-t border-cizgi-guclu bg-yuzey px-3 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:hidden"
       >
         <p className="truncate text-sm" aria-live="polite">
           <span className="font-semibold">

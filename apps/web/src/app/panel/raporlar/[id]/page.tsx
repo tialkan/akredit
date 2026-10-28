@@ -34,7 +34,7 @@ export default async function RaporSayfasi({ params }: { params: Promise<{ id: s
       />
       <div className="grid gap-6 lg:grid-cols-[16rem_1fr]">
         <nav aria-label="Rapor bölümleri" className="lg:sticky lg:top-4 lg:self-start">
-          <ol className="space-y-1 rounded-lg border border-cizgi bg-yuzey p-3">
+          <ol className="space-y-1 rounded-sm border border-cizgi bg-yuzey p-3">
             {rapor.bolumler.map((b, i) => {
               const bk = bolumKapsamasi(b);
               return (
@@ -56,10 +56,10 @@ export default async function RaporSayfasi({ params }: { params: Promise<{ id: s
             })}
           </ol>
         </nav>
-        <article className="space-y-8 rounded-lg border border-cizgi bg-yuzey p-6">
+        <article className="space-y-8 rounded-sm border border-cizgi bg-yuzey p-6">
           {rapor.bolumler.map((b, i) => (
             <section key={b.id} id={b.id} aria-labelledby={`${b.id}-b`} className="scroll-mt-4">
-              <h2 id={`${b.id}-b`} className="flex flex-wrap items-center gap-2 text-xl font-bold">
+              <h2 id={`${b.id}-b`} className="flex flex-wrap items-center gap-2 text-xl font-semibold">
                 {i + 1}. {b.baslik} <Rozet>{b.olcut}</Rozet>
               </h2>
               <div className="mt-3 space-y-4">

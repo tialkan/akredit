@@ -115,7 +115,7 @@ export function OdrPaneli({ programlar }: { programlar: { id: string; ad: string
   }
 
   return (
-    <section aria-labelledby={`${kimlik}-baslik`} className="space-y-3 rounded-lg border border-cizgi bg-yuzey p-5">
+    <section aria-labelledby={`${kimlik}-baslik`} className="space-y-3 rounded-sm border border-cizgi bg-yuzey p-5">
       <h2 id={`${kimlik}-baslik`} className="text-lg font-semibold">
         Program öz değerlendirme raporu
       </h2>

@@ -96,7 +96,7 @@ export function AyarlarFormu({ ilk }: { ilk: Ayarlar }) {
             {SAGLAYICILAR.map((s) => (
               <label
                 key={s.deger}
-                className="flex cursor-pointer items-start gap-3 rounded-md border border-cizgi p-3 has-[:checked]:border-vurgu has-[:checked]:bg-vurgu-zemin"
+                className="flex cursor-pointer items-start gap-3 rounded border border-cizgi p-3 has-[:checked]:border-vurgu has-[:checked]:bg-vurgu-zemin"
               >
                 <input
                   type="radio"
@@ -113,7 +113,7 @@ export function AyarlarFormu({ ilk }: { ilk: Ayarlar }) {
             ))}
           </div>
         </fieldset>
-        <div className="mt-5 rounded-md border border-cizgi-guclu p-4">
+        <div className="mt-5 rounded border border-cizgi-guclu p-4">
           <div className="flex items-start gap-3">
             <input
               id="yurt-disi-izni"
@@ -152,7 +152,7 @@ export function AyarlarFormu({ ilk }: { ilk: Ayarlar }) {
         </p>
         <ul className="space-y-3">
           {ayarlar.politikalar.map((p) => (
-            <li key={p.id} className="rounded-md border border-cizgi p-4">
+            <li key={p.id} className="rounded border border-cizgi p-4">
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className="text-lg font-semibold">{p.ad}</h3>
                 <Rozet vurgulu={p.durum === "imzali"}>

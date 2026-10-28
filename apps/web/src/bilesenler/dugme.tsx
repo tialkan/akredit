@@ -19,7 +19,7 @@ const BOY_SINIFI: Record<DugmeBoyu, string> = {
 
 export function dugmeSinifi(tur: DugmeTuru = "ikincil", boy: DugmeBoyu = "orta", ek = ""): string {
   return [
-    "inline-flex items-center justify-center gap-2 rounded-md border font-semibold transition-colors",
+    "inline-flex items-center justify-center gap-2 rounded border font-semibold transition-colors",
     "disabled:cursor-not-allowed disabled:opacity-50",
     TUR_SINIFI[tur],
     BOY_SINIFI[boy],

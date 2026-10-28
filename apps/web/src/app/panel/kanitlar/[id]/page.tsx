@@ -26,7 +26,7 @@ export default async function KanitSayfasi({ params }: { params: Promise<{ id: s
       />
       <SayfaBasligi baslik={kanit.baslik} aciklama={kanit.dosyaAdi} />
       <div className="grid gap-6 lg:grid-cols-[1fr_18rem]">
-        <section aria-labelledby="metin-baslik" className="rounded-lg border border-cizgi bg-yuzey">
+        <section aria-labelledby="metin-baslik" className="rounded-sm border border-cizgi bg-yuzey">
           <h2 id="metin-baslik" className="border-b border-cizgi px-5 py-3 text-lg font-semibold">
             Belgenin metni
           </h2>
@@ -43,7 +43,7 @@ export default async function KanitSayfasi({ params }: { params: Promise<{ id: s
           </ol>
         </section>
         <aside aria-label="Kanıt bilgileri" className="space-y-4">
-          <div className="rounded-lg border border-cizgi bg-yuzey p-4">
+          <div className="rounded-sm border border-cizgi bg-yuzey p-4">
             <h2 className="font-semibold">Bağlı ölçütler</h2>
             <p className="mt-2 flex flex-wrap gap-1">
               {kanit.olcutler.map((o) => (
@@ -53,7 +53,7 @@ export default async function KanitSayfasi({ params }: { params: Promise<{ id: s
               ))}
             </p>
           </div>
-          <dl className="space-y-2 rounded-lg border border-cizgi bg-yuzey p-4 text-sm">
+          <dl className="space-y-2 rounded-sm border border-cizgi bg-yuzey p-4 text-sm">
             <div>
               <dt className="font-semibold">Belge tarihi</dt>
               <dd>{kanit.belgeTarihi ? tarihYaz(kanit.belgeTarihi) : "Bilinmiyor"}</dd>

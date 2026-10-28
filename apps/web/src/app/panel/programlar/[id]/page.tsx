@@ -30,7 +30,7 @@ export default async function ProgramSayfasi({ params }: { params: Promise<{ id:
   const dersler = (await kaynak.dersler()).filter((d) => program.dersIdleri.includes(d.id));
 
   const matris = (
-    <div className="overflow-x-auto rounded-lg border border-cizgi bg-yuzey">
+    <div className="overflow-x-auto rounded-sm border border-cizgi bg-yuzey">
       <table className="w-full border-collapse text-center">
         <caption className="px-4 pt-3 pb-2 text-left">
           <span className="font-semibold">Ders çıktısı × program çıktısı katkı matrisi.</span>{" "}
@@ -126,7 +126,7 @@ export default async function ProgramSayfasi({ params }: { params: Promise<{ id:
                   <li key={d.id}>
                     <Link
                       href={`/panel/dersler/${d.id}`}
-                      className="block rounded-lg border border-cizgi bg-yuzey p-4 hover:border-vurgu"
+                      className="block rounded-sm border border-cizgi bg-yuzey p-4 hover:border-vurgu"
                     >
                       <span className="font-semibold">
                         {d.kod} {d.ad}
