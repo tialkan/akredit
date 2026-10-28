@@ -12,7 +12,9 @@
     "typecheck": "tsc --noEmit -p .",
     "test": "vitest run --passWithNoTests",
     "e2e": "playwright test",
-    "marka": "node scripts/marka-uret.ts"
+    "marka": "node scripts/marka-uret.ts",
+    "envanter": "node scripts/veri-akis-envanteri.ts",
+    "hukuk-paketi": "node scripts/hukuk-paketi.ts"
   },
   "dependencies": {
     "@akredit/anket": "workspace:*",
