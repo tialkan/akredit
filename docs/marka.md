@@ -18,48 +18,50 @@ kuruluşunu çağrıştırmaz: ay-yıldız, mühür, arma, defne dalı, resmî r
 | Dosya | Kullanım |
 |---|---|
 | `isaret.svg` | Açık zeminde tam renkli işaret |
-| `isaret-acik.svg` | Koyu zeminde (lacivert ya da koyu tema) işaret |
+| `isaret-acik.svg` | Koyu zeminde (lacivert baskı, sunum) işaret; sitede kullanılmaz |
 | `isaret-tek-renk.svg` / `isaret-tek-renk-beyaz.svg` | Tek renk baskı, kabartma, faks, damga dışı her yer |
 | `logo-yatay.png` / `logo-yatay-acik.png` | İşaret + "Akredit" kelimesi (site dışı belgeler için) |
 | `favicon.svg`, `favicon-32.png`, `apple-touch-icon.png` (180), `simge-512.png`, `uygulama-simgesi.svg` | Tarayıcı ve uygulama simgeleri |
 | `og.png` (1200×630) | Paylaşım önizlemesi |
 
 Sitede yatay logo bir React bileşenidir (`apps/web/src/bilesenler/logo.tsx`: `Logo`, `Isaret`). Kelime gerçek metindir,
-yol değildir; yazı tipi SVG'ye gömülmez. Bileşen renklerini tema belirteçlerinden (`--isaret-a`, `--isaret-onay`)
-aldığı için koyu temada kendiliğinden açık sürüme döner.
+yol değildir; yazı tipi SVG'ye gömülmez. Renkler belirteçlerden (`--isaret-a`, `--isaret-onay`) gelir.
+
+**Tema kararı:** Sitede ve panelde yalnız açık tema vardır (`color-scheme: light`). Koyu tema bilinçli olarak
+yapılmadı. Yalnız favicon, tarayıcı sekmesi koyu olduğunda açık renklere döner.
 
 ## Renkler
 
 Temel renkler: **lacivert `#10325B`** (güven, ciddiyet; birincil eylem) ve **petrol `#157C80`** (onay, doğrulanmış
 durum; işaretin onay imi). Petrol, metin olarak açık zeminde kullanılacaksa bir ton koyusu `#12696D` kullanılır.
 
-| Belirteç | Açık tema | Koyu tema | Kullanım |
-|---|---|---|---|
-| `--zemin` | `#F5F7FA` | `#0B1320` | Sayfa zemini |
-| `--yuzey` | `#FFFFFF` | `#111C2C` | Kart, üst menü, kenar çubuğu |
-| `--yuzey-2` | `#E9EEF4` | `#1A2738` | Üzerine gelme, ikincil yüzey |
-| `--metin` | `#0E1A2B` | `#E8EDF3` | Gövde metni |
-| `--soluk` | `#4A5568` | `#A9B5C4` | Açıklama, ikincil metin |
-| `--cizgi` | `#D3DAE3` | `#2A3749` | Süs çizgisi |
-| `--cizgi-guclu` | `#7D8899` | `#6B7A8F` | Form alanı kenarı (3:1) |
-| `--vurgu` | `#10325B` | `#9CC2EE` | Birincil düğme, bağlantı, etkin menü |
-| `--vurgu-metin` | `#FFFFFF` | `#0B1320` | Vurgu zeminindeki metin |
-| `--vurgu-zemin` | `#E3EBF5` | `#17304F` | Etkin menü, seçili satır |
-| `--petrol` | `#12696D` | `#5CC6C6` | Onay/doğrulama işareti, etkin menü çizgisi |
-| `--petrol-zemin` | `#E1F1F1` | `#123437` | Onaylı durum zemini |
-| `--odak` | `#B5520A` | `#FFB067` | Klavye odağı (markadan bilerek ayrık turuncu) |
-| `--isaret-a` / `--isaret-onay` | `#10325B` / `#157C80` | `#E8EEF6` / `#5CC6C6` | Logo |
-| `--risk-dusuk` (+`-zemin`) | `#1C6634` / `#E4F1E8` | `#8BD8A2` / `#142A1B` | Düşük risk (yeşil) |
-| `--risk-orta` (+`-zemin`) | `#84470A` / `#FBEFDC` | `#F2BB6B` / `#2F2210` | Orta risk (amber) |
-| `--risk-yuksek` (+`-zemin`) | `#A1221A` / `#FBE6E3` | `#FFA196` / `#36161A` | Yüksek risk (kırmızı) |
-| `--isi-0`…`--isi-5` | `#EEF1F5` → `#157C80` → `#10325B` | `#172233` → `#9CC2EE` | Matris ısı ölçeği |
+| Belirteç | Değer | Kullanım |
+|---|---|---|
+| `--zemin` | `#F5F7FA` | Sayfa zemini |
+| `--yuzey` | `#FFFFFF` | Kart, üst menü, kenar çubuğu |
+| `--yuzey-2` | `#E9EEF4` | Üzerine gelme, ikincil yüzey |
+| `--metin` | `#0E1A2B` | Gövde metni |
+| `--soluk` | `#4A5568` | Açıklama, ikincil metin |
+| `--cizgi` | `#D3DAE3` | Süs çizgisi |
+| `--cizgi-guclu` | `#7D8899` | Form alanı kenarı (3:1) |
+| `--vurgu` | `#10325B` | Birincil düğme, bağlantı, etkin menü |
+| `--vurgu-metin` | `#FFFFFF` | Vurgu zeminindeki metin |
+| `--vurgu-zemin` | `#E3EBF5` | Etkin menü, seçili satır |
+| `--petrol` | `#12696D` | Yalnız onay ve doğrulanmış durum (tek anlamlı ikinci renk) |
+| `--petrol-zemin` | `#E1F1F1` | Onaylı durum zemini |
+| `--odak` | `#B5520A` | Klavye odağı (markadan bilerek ayrık turuncu) |
+| `--isaret-a` / `--isaret-onay` | `#10325B` / `#157C80` | Logo |
+| `--risk-dusuk` (+`-zemin`) | `#1C6634` / `#E4F1E8` | Düşük risk (yeşil) |
+| `--risk-orta` (+`-zemin`) | `#84470A` / `#FBEFDC` | Orta risk (amber) |
+| `--risk-yuksek` (+`-zemin`) | `#A1221A` / `#FBE6E3` | Yüksek risk (kırmızı) |
+| `--isi-0`…`--isi-5` | `#EEF1F5` → `#157C80` → `#10325B` | Matris ısı ölçeği |
 
 Risk renkleri anlamını korur ve markadan ayrıdır: yeşil-amber-kırmızı, lacivert/petrol ile karışmaz. Risk her zaman
 renkle birlikte simge ve sözcükle de gösterilir.
 
 Erişilebilirlik: her metin/zemin çifti WCAG 2.2 AA'yı (metin 4.5:1, metin dışı öğe 3:1) geçer.
-`apps/web/src/marka/kontrast.test.ts` `globals.css` dosyasını okur ve her iki temada bütün çiftleri hesaplar; palet
-değişirse test kendiliğinden yeniden ölçer.
+`apps/web/src/marka/kontrast.test.ts` `globals.css` dosyasını okur ve açık temadaki bütün çiftleri hesaplar; koyu tema
+bloğu bulunursa hata verir. Palet değişirse test kendiliğinden yeniden ölçer.
 
 ## Koruma alanı
 
@@ -89,7 +91,16 @@ yüksekliğine göre alınır. Bu alana metin, çizgi ya da başka logo girmez.
 ağırlık, harf aralığı −0,015 em; başlıklar 650–700; gövde 400, satır yüksekliği 1,6. Türkçe karakterlerin tamamı
 latin ve latin-ext alt kümelerindedir. Yazı tipi yüklenemezse sistem yazı tipi (`system-ui`) kullanılır.
 
+## Kurallar (kullanıcı kararı)
+
+- Kutuların, kartların ve menü öğelerinin solunda renkli dikey vurgu şeridi yoktur. Etkin menü öğesi zemin rengi ve
+  yazı ağırlığıyla gösterilir. `apps/web/src/site/kurallar.test.ts` `border-l`, `border-left`, `border-s` ve içe gölge
+  şeritlerini yakalar.
+- Em dash, yasak kelimeler ve emoji aynı testle denetlenir.
+- Köşeler küçüktür (2-4 px) ve gölge kullanılmaz. Ayrım ince çizgi ve zeminle yapılır.
+
 ## Ekran görüntüleri
 
-`docs/marka/` altında: `ana-sayfa-acik.png`, `ana-sayfa-koyu.png`, `panel-acik.png`, `panel-koyu.png`,
-`giris-acik.png`, `giris-koyu.png`.
+`docs/marka/` altında, yalnız açık tema, 375, 768 ve 1440 px genişlikte: `ana-sayfa-*.png`, `nasil-calisir-*.png`,
+`yapay-zeka-*.png`, `panel-*.png`, `panel-ayarlar-*.png`, `giris-*.png`. Yeniden üretmek için
+`apps/web/scripts/ekran-goruntusu.ts` (dosyanın başındaki kullanım notu).

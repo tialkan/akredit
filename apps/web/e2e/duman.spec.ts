@@ -8,18 +8,51 @@ test.describe("tanıtım sitesi", () => {
     await page.goto("/");
     await expect(page).toHaveTitle(/Akredit/);
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Siz yalnız onaylarsınız");
-    await expect(page.getByRole("heading", { name: "Sık sorulan sorular" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "İşin bölümü" })).toBeVisible();
     const menu = page.getByRole("navigation", { name: "Site menüsü" });
     for (const [ad, baslik] of [
+      ["Ne yapar", "Ne yapar"],
       ["Nasıl çalışır", "Nasıl çalışır"],
-      ["Güvenlik", "Güvenlik yaklaşımı"],
-      ["KVKK", "Kişisel verilerin korunması"],
+      ["Kimler için", "Kimler için"],
+      ["Çerçeveler", "Desteklenen çerçeveler"],
+      ["Yapay zekâ ve anahtar", "Yapay zekâ ve kendi anahtarınız"],
+      ["Güvenlik ve KVKK", "Güvenlik ve kişisel veriler"],
+      ["SSS", "Sık sorulan sorular"],
+    ] as const) {
+      await menu.getByRole("link", { name: ad, exact: true }).click();
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText(baslik);
+    }
+    const alt = page.getByRole("navigation", { name: "Alt menü" });
+    for (const [ad, baslik] of [
+      ["Sınırlar", "Akredit neyi yapmaz"],
+      ["Giriş ve hesap", "Giriş ve hesap"],
       ["Açık kaynak", "Açık kaynak"],
       ["İletişim", "İletişim"],
     ] as const) {
-      await menu.getByRole("link", { name: ad }).click();
+      await alt.getByRole("link", { name: ad, exact: true }).click();
       await expect(page.getByRole("heading", { level: 1 })).toHaveText(baslik);
     }
+  });
+
+  test("SEO dosyaları ve yapılandırılmış veri", async ({ page, request }) => {
+    const robots = await (await request.get("/robots.txt")).text();
+    expect(robots).toContain("Sitemap: https://akredit.org/sitemap.xml");
+    expect(robots).toMatch(/Disallow: \/panel/);
+    const harita = await (await request.get("/sitemap.xml")).text();
+    expect(harita).toContain("https://akredit.org/yapay-zeka");
+    expect((await request.get("/llms.txt")).status()).toBe(200);
+    await page.goto("/sss");
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://akredit.org/sss");
+    const ld = await page.locator('script[type="application/ld+json"]').textContent();
+    expect(ld).toContain('"FAQPage"');
+  });
+
+  test("dar ekranda menü açılır", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 800 });
+    await page.goto("/");
+    await page.getByText("Menü", { exact: true }).click();
+    await page.getByRole("navigation", { name: "Kısa menü" }).getByRole("link", { name: "Ne yapar" }).click();
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Ne yapar");
   });
 
   test("KVKK sayfası taslak olduğunu söyler", async ({ page }) => {

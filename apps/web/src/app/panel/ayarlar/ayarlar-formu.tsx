@@ -101,7 +101,7 @@ export function AyarlarFormu({ ilk }: { ilk: Ayarlar }) {
                 <input
                   type="radio"
                   name="saglayici"
-                  className="mt-1 size-5 accent-[var(--vurgu)]"
+                  className="mt-1 size-5 shrink-0 accent-[var(--vurgu)]"
                   checked={ayarlar.yzSaglayici === s.deger}
                   onChange={() => void guncelle({ yzSaglayici: s.deger }, `Yapay zekâ hizmeti: ${s.ad}`)}
                 />
@@ -121,7 +121,7 @@ export function AyarlarFormu({ ilk }: { ilk: Ayarlar }) {
               role="switch"
               aria-checked={ayarlar.yurtDisiIzni}
               aria-describedby="yurt-disi-aciklama"
-              className="mt-1 size-5 accent-[var(--vurgu)]"
+              className="mt-1 size-5 shrink-0 accent-[var(--vurgu)]"
               checked={ayarlar.yurtDisiIzni}
               onChange={(e) =>
                 void guncelle(
