@@ -17,6 +17,8 @@ export const SAYFALAR = [
   "/acik-kaynak",
   "/iletisim",
   "/giris",
+  "/kurum-ac",
+  "/kurum-ac/dogrula",
   "/davet",
   "/panel",
   "/panel/onaylar",
