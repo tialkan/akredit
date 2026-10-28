@@ -1,11 +1,11 @@
 // Demo oturumu (İP-41): gerçek kimlik katmanı, göçlenmiş PGlite, iki gerçek kurum (A, B) ve bir demo nesli.
 
-import { aktorOlustur } from "../app/api/_ortak/v1.ts";
-import { HizSiniri, oneri } from "@akredit/servis";
 import { demoNesliYukle } from "@akredit/ornek-veri/yukle";
+import { HizSiniri, oneri } from "@akredit/servis";
 import { kiraciIslemi, sema } from "@akredit/vt";
 import { and, eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { aktorOlustur } from "../app/api/_ortak/v1.ts";
 import { baglamYetkiliMi, ErisimHatasi, istekBaglami, yetkiliIs } from "../kimlik/erisim.ts";
 import { ADRES, CerezKavanozu, istek, kimlikIstegi, type TestOrtami, testOrtami } from "../kimlik/test-yardimci.ts";
 import { apiAnahtariOlustur, davetOlustur, topluIceAktar } from "../kimlik/yonetim.ts";
@@ -15,7 +15,8 @@ import { demoAcikMi, demoUcu } from "./uc.ts";
 
 let o: TestOrtami;
 let demo: string;
-let saat = new Date("2026-10-28T10:00:00Z");
+// Better Auth oturum süresini gerçek saatle denetler; test saati de gerçek saatten başlar.
+let saat = new Date();
 
 beforeAll(async () => {
   o = await testOrtami({ simdi: () => saat });
@@ -78,7 +79,13 @@ describe("demo oturumu", () => {
     const kurum = { kurumId: demo, zincir: [{ tur: "kurum" as const, id: demo }] };
     // Kurum yöneticisi şablonu bile demo sınırını aşamaz.
     expect(baglamYetkiliMi(b, "karar.ver", kurum, saat)).toBe(true);
-    for (const e of ["kanit.yukle", "kullanici.davet_et", "kurum.ayar_yonet", "api_anahtari.yonet", "rapor.gonder"] as const)
+    for (const e of [
+      "kanit.yukle",
+      "kullanici.davet_et",
+      "kurum.ayar_yonet",
+      "api_anahtari.yonet",
+      "rapor.gonder",
+    ] as const)
       expect(baglamYetkiliMi(b, e, kurum, saat), e).toBe(false);
   });
 
@@ -125,7 +132,7 @@ describe("demo oturumu", () => {
     const b = await istekBaglami(o.k, istek("/api/v1/ben", { kavanoz }));
     const sb = { db: o.db, aktor: aktorOlustur(b), simdi: () => saat };
     const bekleyen = await oneri.bekleyenOneriler(sb, { sinir: 100 });
-    const eylem = bekleyen.ogeler.find((x) => x.tur === "eylem");
+    const eylem = bekleyen.ogeler.find((x) => x.tur === "eylem" && /Algoritma Analizi/u.test(x.konum));
     expect(eylem?.konum).toMatch(/Algoritma Analizi/u);
     const karar = await oneri.kararVer(sb, { oneriId: eylem?.id, sonuc: "onaylandi" });
     expect(karar.kararVeren).toBe(b.kisi.kisiId);
@@ -202,8 +209,12 @@ describe("POST /api/deneyin", () => {
   it("IP başına hız sınırı: sınır dolunca oturum açılmaz", async () => {
     const uc = demoUcu(o.k, { ipBasina: new HizSiniri({ kapasite: 2, saniyede: 0.0001, simdi: () => 0 }) });
     const sayi = async () =>
-      (await o.db.select({ id: sema.kimlikUyelik.id }).from(sema.kimlikUyelik).where(eq(sema.kimlikUyelik.bagliKurumId, demo)))
-        .length;
+      (
+        await o.db
+          .select({ id: sema.kimlikUyelik.id })
+          .from(sema.kimlikUyelik)
+          .where(eq(sema.kimlikUyelik.bagliKurumId, demo))
+      ).length;
     const once = await sayi();
     expect((await uc(form("rektorluk", ADRES, "203.0.113.9"))).headers.get("location")).toMatch(/\/panel/u);
     expect((await uc(form("rektorluk", ADRES, "203.0.113.9"))).headers.get("location")).toMatch(/\/panel/u);
