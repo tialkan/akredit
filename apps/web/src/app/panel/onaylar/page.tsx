@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { SayfaBasligi } from "../../../bilesenler/temel.tsx";
 import { panelVeriKaynagi } from "../../../veri/sunucu.ts";
 import { MobilKurulum } from "./mobil-kurulum.tsx";
@@ -20,6 +21,9 @@ export default async function OnaylarSayfasi() {
         baslik="Onay kutusu"
         aciklama="Sistemin hazırladığı öneriler. Her birini kanıtıyla görün; onaylayın, düzeltin ya da reddedin."
       />
+      <p className="mb-4">
+        Eşik altı sonuçlar için önlem kararları <Link href="/panel/kararlar">karar kartlarında</Link> verilir.
+      </p>
       <MobilKurulum />
       <OnayKutusu ilkOneriler={oneriler} kanitAdlari={kanitAdlari} />
     </>
