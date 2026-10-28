@@ -13,6 +13,7 @@ const config: NextConfig = {
     "@akredit/depo",
     "@akredit/gosterge",
     "@akredit/olcme",
+    "@akredit/ornek-veri",
     "@akredit/servis",
     "@akredit/surec",
     "@akredit/vt",
