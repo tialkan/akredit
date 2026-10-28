@@ -3,7 +3,7 @@
 //
 // Kuyruklar
 //   kanit.cikar | kanit.ocr | kanit.zenginlestir | kanit.sinifla   kanıt hattı (İP-10), ölü mektup `.olu`
-//   baglayici.planla {tur}            zamanlayıcı tetikler; bağlayıcısı açık kurumlara eşitleme işi koyar
+//   baglayici.planla {tur}            (tur: bologna|avesis|yokatlas|eposta|drive|site) zamanlayıcı tetikler; bağlayıcısı açık kurumlara eşitleme işi koyar
 //   baglayici.esitle {kurumId, tur}   tek kurumun tek bağlayıcısı (elle de konabilir: YÖK Atlas)
 //   surec.tik {}                      bütün kurumlarda süreç motoru turu: takvim, hatırlatma, yükseltme, e-posta
 //   bildirim.eposta {kurumId}         bekleyen bildirim e-postalarını hemen gönderir (web görev kapatınca koyar)
@@ -47,6 +47,8 @@ export const ZAMANLAMA: { kuyruk: string; anahtar: string; cron: string; veri: o
   { kuyruk: ISCI_KUYRUK.baglayiciPlanla, anahtar: "yokatlas", cron: "47 4 15 9 *", veri: { tur: "yokatlas" } },
   { kuyruk: ISCI_KUYRUK.baglayiciPlanla, anahtar: "eposta", cron: "*/15 * * * *", veri: { tur: "eposta" } },
   { kuyruk: ISCI_KUYRUK.baglayiciPlanla, anahtar: "drive", cron: "7-59/15 * * * *", veri: { tur: "drive" } },
+  // Kurum sitesi: haftada bir, gece; yalnız ayarı açık kurumlar (tarayıcı istekler arası ≥1 sn bekler).
+  { kuyruk: ISCI_KUYRUK.baglayiciPlanla, anahtar: "site", cron: "41 1 * * 6", veri: { tur: "site" } },
   { kuyruk: ISCI_KUYRUK.surecTik, anahtar: "tik", cron: "*/5 * * * *", veri: {} },
   { kuyruk: ISCI_KUYRUK.gunlukDogrula, anahtar: "gunluk", cron: "23 2 * * *", veri: {} },
 ];

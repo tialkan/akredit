@@ -131,6 +131,78 @@ describe("bağlayıcı eşitleme", { timeout: 60_000 }, () => {
   });
 });
 
+describe("kurum sitesi taraması (İP-37)", { timeout: 60_000 }, () => {
+  const W = "https://www.uydurma.edu.tr";
+  function siteDis(): DisBaglam & { istekler: string[]; beklemeler: number[] } {
+    let simdi = Date.UTC(2026, 9, 27, 9, 0, 0);
+    const istekler: string[] = [];
+    const beklemeler: number[] = [];
+    const sayfalar: Record<string, { govde: string; tur: string; durum?: number }> = {
+      [`${W}/robots.txt`]: { govde: "User-agent: *\nDisallow: /gizli/\n", tur: "text/plain" },
+      [`${W}/`]: {
+        govde:
+          '<html><body><a href="/kalite.html">Kalite</a><a href="/gizli/a.html">x</a><a href="https://baska.edu.tr/">y</a><a href="/c.html">c</a><a href="/d.html">d</a></body></html>',
+        tur: "text/html",
+      },
+      [`${W}/kalite.html`]: { govde: "<html><body><p>Kalite komisyonu sayfası</p></body></html>", tur: "text/html" },
+      [`${W}/c.html`]: { govde: "<p>c</p>", tur: "text/html" },
+      [`${W}/d.html`]: { govde: "<p>d</p>", tur: "text/html" },
+    };
+    return {
+      istekler,
+      beklemeler,
+      simdi: () => new Date(simdi),
+      bekle: async (ms) => {
+        beklemeler.push(ms);
+        simdi += ms;
+      },
+      fetch: (async (adres: string | URL | Request) => {
+        const a = String(adres);
+        istekler.push(a);
+        const y = sayfalar[a];
+        if (!y) return new Response("yok", { status: 404 });
+        return new Response(y.govde, { status: y.durum ?? 200, headers: { "content-type": y.tur } });
+      }) as typeof fetch,
+    };
+  }
+
+  it("ayarı açık kurumda yalnız alan içi, robots'a uyarak ve sayfa sınırıyla tarar; sonuç kanıt olur", async () => {
+    const { db } = await kur({ baglayicilar: { site: { acik: true, derinlik: 1, enCokSayfa: 3 } } });
+    await db.update(sema.kurum).set({ alanAdi: "uydurma.edu.tr" }).where(eq(sema.kurum.id, A));
+    const dis = siteDis();
+    const e = esitleme(db, dis);
+    const o = await baglayiciEsitle(e, A, "site");
+    // Sayfa sınırı 3: ana sayfa + ilk iki alan içi bağlantı; /gizli/ robots ile, baska.edu.tr alan dışı.
+    expect(o).toMatchObject({ durum: "tamam", eklenen: 3, zatenVar: 0 });
+    expect(dis.istekler.some((a) => a.includes("/gizli/"))).toBe(false);
+    expect(dis.istekler.some((a) => a.includes("baska.edu.tr"))).toBe(false);
+    // Ayardaki aralık (varsayılan 2 sn) uygulanır; hiçbir bekleme 1 sn'den kısa değildir.
+    expect(dis.beklemeler.every((m) => m >= 1000)).toBe(true);
+    const kanitlar = await kiraciIslemi(db, A, (tx) =>
+      tx.select({ ayrinti: sema.kanit.kaynakAyrinti }).from(sema.kanit),
+    );
+    expect(kanitlar).toHaveLength(3);
+    expect(kanitlar[0]?.ayrinti).toMatchObject({ baglayici: "site", tur: "web_tarama", guvenilmeyen: true });
+    // İkinci tur: aynı içerik yeni kanıt üretmez.
+    expect(await baglayiciEsitle(e, A, "site")).toMatchObject({ eklenen: 0, zatenVar: 3 });
+  });
+
+  it("alan adı kayıtlı değilse açık iletiyle durur; ayarı kapalı kurumda ağa istek gitmez", async () => {
+    const { db } = await kur({ baglayicilar: { site: { acik: true } } }, { baglayicilar: { site: { acik: false } } });
+    const dis = siteDis();
+    const o = await baglayiciEsitle(esitleme(db, dis), A, "site");
+    expect(o).toMatchObject({ durum: "hata", ileti: expect.stringContaining("alan adı kayıtlı değil") });
+    expect(await baglayiciEsitle(esitleme(db, dis), B, "site")).toMatchObject({ durum: "kapali" });
+    expect(dis.istekler).toHaveLength(0);
+  });
+
+  it("geçersiz sınır (sayfa > 500, aralık < 1 sn) ayarı geçersiz sayar; tarama çalışmaz", async () => {
+    const { db } = await kur({ baglayicilar: { site: { acik: true, enCokSayfa: 5000 } } });
+    expect(await baglayiciAyari(db, A, "site")).toBeNull();
+    expect(ZAMANLAMA.find((z) => z.anahtar === "site")).toMatchObject({ veri: { tur: "site" } });
+  });
+});
+
 describe("pg-boss kayıtları (PGlite)", { timeout: 120_000 }, () => {
   it("zamanlamalar kurulur; planla işi yalnız bağlayıcısı açık kuruma eşitleme koyar; süreç turu çalışır", async () => {
     const { db, istemci } = await kur(YOKATLAS);
