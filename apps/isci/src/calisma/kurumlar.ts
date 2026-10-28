@@ -24,7 +24,7 @@ export const BaglayiciAyarSemasi = z.object({
   /** AVESİS: adresler kişi kaydındaki `avesis_adresi` sütunundan okunur. */
   avesis: z.object({ acik: z.boolean(), son: Son }).optional(),
   yokatlas: z
-    .object({ acik: z.boolean(), programKodlari: z.array(z.string().regex(/^\d{6,12}$/u)).min(1), son: Son })
+    .object({ acik: z.boolean(), programKodlari: z.array(z.string().regex(/^\d{9}$/u)).min(1), son: Son })
     .optional(),
   eposta: z
     .object({
