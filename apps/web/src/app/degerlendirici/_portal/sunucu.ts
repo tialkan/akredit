@@ -3,9 +3,10 @@
 
 import type { ServisBaglami } from "@akredit/servis";
 import type { Saglayici } from "@akredit/yz";
+import { GERCEK_VERI } from "../../../veri/kip.ts";
 import { aktorOlustur } from "../../api/_ortak/v1.ts";
 
-export const GERCEK_VERI = process.env.NEXT_PUBLIC_AKREDIT_VERI === "gercek";
+export { GERCEK_VERI };
 
 /** Oturum yoksa giriş sayfasına yönlendirir. */
 export async function servisBaglami(): Promise<ServisBaglami | null> {

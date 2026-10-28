@@ -2,7 +2,8 @@
 // (rota işleyicileri ve sunucu bileşenleri) kullanılır.
 //
 // Ortam değişkenleri:
-// - NEXT_PUBLIC_AKREDIT_VERI=gercek: panel gerçek veritabanıyla çalışır (yoksa örnek veri).
+// - Panel varsayılan olarak gerçek veritabanıyla çalışır; örnek veri yalnız derlemede AKREDIT_ORNEK_VERI=1 ile
+//   (`veri/kip.ts`).
 // - AKREDIT_VT_ADRES: PostgreSQL bağlantı adresi; yoksa AKREDIT_VT_DIZIN (PGlite, geliştirme).
 // - AKREDIT_ADRES, AKREDIT_KIMLIK_GIZLI, AKREDIT_SSO: kimlik ayarı (`kimlik/ayar.ts`).
 // - AKREDIT_GELISTIRME_EPOSTA=konsol: geliştirmede giriş bağlantısını sunucu konsoluna yazar (üretimde kapalı).
@@ -20,8 +21,9 @@ import { type EpostaTasiyici, kimlikEpostaGondericisi, ortamdanEpostaAyari, smtp
 import { pgliteBaglantisi, postgresBaglantisi, type Vt } from "@akredit/vt";
 import { ortamdanAyar } from "../../../kimlik/ayar.ts";
 import { type EpostaGonderici, type KimlikSunucusu, kimlikSunucusuOlustur } from "../../../kimlik/sunucu.ts";
+import { GERCEK_VERI } from "../../../veri/kip.ts";
 
-export const gercekVeriMi = (): boolean => process.env.NEXT_PUBLIC_AKREDIT_VERI === "gercek";
+export const gercekVeriMi = (): boolean => GERCEK_VERI;
 
 /** Uçtan uca test taşıyıcısı: iletileri dizine yazar. Yalnız açıkça test kipi açıkken kurulur. */
 function testTasiyicisi(): EpostaTasiyici | null {

@@ -2,8 +2,7 @@ import { CalendarDays, Clock } from "lucide-react";
 import Link from "next/link";
 import { dugmeSinifi } from "../../bilesenler/dugme.tsx";
 import { Kart, RiskSimgesi, SayfaBasligi } from "../../bilesenler/temel.tsx";
-import { ORNEK_SIMDI } from "../../veri/ornek.ts";
-import { panelVeriKaynagi } from "../../veri/sunucu.ts";
+import { panelSimdi, panelVeriKaynagi } from "../../veri/sunucu.ts";
 import { gunFarki, RISK_ETIKETI, RISK_SIRASI, sureYaz, tarihYaz } from "../../veri/yardimci.ts";
 
 const RENK = {
@@ -54,7 +53,7 @@ export default async function PanelAnaSayfa() {
         <Kart baslik="Yaklaşan son tarihler" className="lg:col-span-2">
           <ul className="divide-y divide-cizgi">
             {ozet.yaklasanlar.map((g) => {
-              const kalan = gunFarki(ORNEK_SIMDI, g.sonTarih);
+              const kalan = gunFarki(panelSimdi(), g.sonTarih);
               return (
                 <li key={g.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 py-2">
                   <CalendarDays aria-hidden className="size-5 text-soluk" />

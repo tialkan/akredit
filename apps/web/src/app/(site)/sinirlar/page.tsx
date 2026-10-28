@@ -44,7 +44,9 @@ export default function Sinirlar() {
         <Metin>
           <ul>
             <li>Platform geliştirme aşamasındadır ve kurumlara açık değildir. Pilot uygulama başlamadı.</li>
-            <li>Sitedeki panel, kurgu örnek veriyle çalışan bir önizlemedir.</li>
+            <li>
+              Panel kurumun kendi kayıtlarıyla çalışır. Bağlayıcıları açma ve toplu belge yükleme ekranları henüz yok.
+            </li>
             <li>Hukuk metinleri taslaktır. Bağımsız güvenlik denetimi yapılmadı.</li>
             <li>Hedeflenen zaman kazancı henüz ölçülmedi.</li>
           </ul>

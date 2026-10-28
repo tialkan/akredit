@@ -53,7 +53,8 @@ export default async function KilavuzSayfasi({ params }: Parametre) {
       </section>
       {k.panel ? (
         <p>
-          İlgili sayfa: <Link href={k.panel}>panelde aç</Link>. Tanıtım sitesindeki panel örnek veriyle çalışır.
+          İlgili sayfa: <Link href={k.panel}>panelde aç</Link>. Panel, giriş yaptığınızda kurumunuzun kayıtlarıyla
+          açılır.
         </p>
       ) : null}
     </MetinSayfasi>
