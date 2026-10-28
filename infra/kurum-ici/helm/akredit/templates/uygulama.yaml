@@ -94,13 +94,28 @@ spec:
         {{- include "akredit.etiketler" . | nindent 8 }}
     spec:
       securityContext: { runAsNonRoot: true }
+      terminationGracePeriodSeconds: 50
       containers:
         - name: isci
           image: {{ include "akredit.imaj" (dict "kok" . "ad" .Values.imajlar.isci) }}:{{ $surum }}
           imagePullPolicy: {{ .Values.imajlar.cekmePolitikasi }}
+          # Giriş noktası (İP-36): kuyruklar, zamanlanmış işler, SIGTERM'de zarif kapanış.
+          command: ["node", "apps/isci/src/ana.ts"]
           securityContext: { readOnlyRootFilesystem: true, allowPrivilegeEscalation: false }
+          ports:
+            - { name: saglik, containerPort: 8080 }
+          readinessProbe:
+            httpGet: { path: /saglik, port: saglik }
+            periodSeconds: 15
+          livenessProbe:
+            httpGet: { path: /saglik, port: saglik }
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 4
           env:
             {{- include "akredit.uygulamaOrtami" . | nindent 12 }}
+            - name: AKREDIT_SMTP_SUNUCU
+              value: {{ .Values.isci.smtpSunucu | default "" | quote }}
           volumeMounts:
             - { name: tmp, mountPath: /tmp }
       volumes:

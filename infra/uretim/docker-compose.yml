@@ -74,9 +74,13 @@ services:
     image: ${ISCI_IMAJ_ADI:?}:${AKREDIT_SURUM:?}
     read_only: true
     tmpfs: [/tmp]
+    # Giriş noktası (İP-36): kuyruklar, zamanlanmış işler, /saglik (8080, yalnız kapsayıcı içi denetim).
+    command: ["node", "apps/isci/src/ana.ts"]
+    stop_grace_period: 50s
     environment:
       NODE_ENV: production
       # Süper kullanıcı değil: akredit_oturum üyesi (İP-27, postgres/02-uygulama-kullanicilari.sh).
+      # İşçi süper kullanıcıyla bağlanırsa üretimde başlamaz.
       AKREDIT_VT_ADRES: postgres://${UYGULAMA_VT_KULLANICI:?}:${UYGULAMA_VT_PAROLA:?}@vt:5432/${POSTGRES_DB:?}
       S3_UC_NOKTASI: ${S3_UC_NOKTASI:-}
       S3_BOLGE: ${S3_BOLGE:-}
@@ -84,6 +88,20 @@ services:
       S3_ERISIM_ANAHTARI: ${S3_ERISIM_ANAHTARI:-}
       S3_GIZLI_ANAHTAR: ${S3_GIZLI_ANAHTAR:-}
       SMTP_ADRESI: ${SMTP_ADRESI:-}
+      # Bildirim e-postaları (@akredit/surec ortamdanEpostaAyari).
+      AKREDIT_SMTP_SUNUCU: ${AKREDIT_SMTP_SUNUCU:-}
+      AKREDIT_SMTP_PORT: ${AKREDIT_SMTP_PORT:-587}
+      AKREDIT_SMTP_KULLANICI: ${AKREDIT_SMTP_KULLANICI:-}
+      AKREDIT_SMTP_PAROLA: ${AKREDIT_SMTP_PAROLA:-}
+      AKREDIT_EPOSTA_GONDEREN: ${AKREDIT_EPOSTA_GONDEREN:-}
+      # Kurum YZ anahtarlarının kasası (İP-35); işte anahtar iş anında çözülür.
+      AKREDIT_ANAHTAR_KASASI: ${AKREDIT_ANAHTAR_KASASI:-}
+      # E-posta (IMAP) ve Drive bağlayıcıları: OAuth belirteç kasası ve uygulama istemcileri.
+      AKREDIT_BAGLAYICI_ANAHTARI: ${AKREDIT_BAGLAYICI_ANAHTARI:-}
+      AKREDIT_GOOGLE_ISTEMCI_KIMLIGI: ${AKREDIT_GOOGLE_ISTEMCI_KIMLIGI:-}
+      AKREDIT_GOOGLE_ISTEMCI_SIRRI: ${AKREDIT_GOOGLE_ISTEMCI_SIRRI:-}
+      AKREDIT_MICROSOFT_ISTEMCI_KIMLIGI: ${AKREDIT_MICROSOFT_ISTEMCI_KIMLIGI:-}
+      AKREDIT_MICROSOFT_ISTEMCI_SIRRI: ${AKREDIT_MICROSOFT_ISTEMCI_SIRRI:-}
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel:4318
       OTEL_SERVICE_NAME: akredit-isci
       OTEL_RESOURCE_ATTRIBUTES: deployment.environment=${AKREDIT_ORTAM},service.version=${AKREDIT_SURUM}

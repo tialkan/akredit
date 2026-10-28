@@ -78,8 +78,16 @@ services:
     image: ${ISCI_IMAJ_ADI:?}:${AKREDIT_SURUM:?}
     read_only: true
     tmpfs: [/tmp]
+    # Giriş noktası (İP-36): kuyruklar, zamanlanmış işler, /saglik (8080, yalnız kapsayıcı içi denetim).
+    command: ["node", "apps/isci/src/ana.ts"]
+    stop_grace_period: 50s
     environment:
       <<: *uygulama-ortami
+      AKREDIT_SMTP_SUNUCU: ${AKREDIT_SMTP_SUNUCU:-}
+      AKREDIT_SMTP_PORT: ${AKREDIT_SMTP_PORT:-587}
+      AKREDIT_SMTP_KULLANICI: ${AKREDIT_SMTP_KULLANICI:-}
+      AKREDIT_SMTP_PAROLA: ${AKREDIT_SMTP_PAROLA:-}
+      AKREDIT_EPOSTA_GONDEREN: ${AKREDIT_EPOSTA_GONDEREN:-}
     depends_on:
       vt:
         condition: service_healthy
