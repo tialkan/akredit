@@ -327,6 +327,10 @@ importers:
       drizzle-orm:
         specifier: ^0.45.4
         version: 0.45.4(@electric-sql/pglite@0.5.11)(@opentelemetry/api@1.10.0)(kysely@0.29.7)(pg@8.23.1)(postgres@3.4.9)
+    devDependencies:
+      '@akredit/servis':
+        specifier: workspace:*
+        version: link:../servis
 
   packages/servis:
     dependencies:

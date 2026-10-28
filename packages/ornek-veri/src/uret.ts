@@ -623,7 +623,7 @@ function onerileriUret(g: OneriGirdisi): OrnekOneri[] {
     baslik: `${vt.kod} ders bilgi paketi: önceki dönemden devir`,
     metin: "Ders bilgi paketi 2026-2027 Güz için önceki dönemden değişmeden devredildi. Fark yok.",
     gerekce: KURAL_GEREKCESI,
-    risk: "dusuk",
+    risk: "orta",
     atiflar: [{ belge: `bologna-${vt.anahtar}`, bolum: 0, alinti: `${vt.kod} ${vt.ad}.` }],
   });
 
