@@ -88,13 +88,16 @@ const Kimlik = z.string().uuid("Geçersiz kimlik.");
 
 export const KanitAramaGirdisi = z
   .object({
-    olcutId: Kimlik,
+    olcutId: Kimlik.optional(),
+    /** Kimlik yerine ölçüt kodu (ör. "B.1.5"); birden çok çerçevede varsa ilk çerçevedeki alınır. */
+    olcutKod: z.string().trim().min(1).max(40).optional(),
     /** Ders sayfasından çağrıldıysa: öneriler ve dış örnekler bu dersin onay kutusuna düşer. */
     dersId: Kimlik.optional(),
     /** Başka kurumların örneklerini de ara (kurum ayarı açıksa). */
     webArama: z.boolean().optional(),
   })
-  .strict();
+  .strict()
+  .refine((g) => g.olcutId || g.olcutKod, { message: "Ölçüt seçin.", path: ["olcutKod"] });
 
 export const SiteTaramaGirdisi = z
   .object({
@@ -245,8 +248,17 @@ async function havuzAra(tx: Islem, kelimeler: string[], enCokKanit = 12): Promis
   return [...harita.values()];
 }
 
-async function olcutYukle(tx: Islem, olcutId: string) {
-  const [o] = await tx.select().from(sema.olcut).where(eq(sema.olcut.id, olcutId));
+async function olcutYukle(tx: Islem, g: { olcutId?: string | undefined; olcutKod?: string | undefined }) {
+  const [o] = g.olcutId
+    ? await tx.select().from(sema.olcut).where(eq(sema.olcut.id, g.olcutId))
+    : await tx
+        .select({ olcut: sema.olcut })
+        .from(sema.olcut)
+        .innerJoin(sema.cerceve, eq(sema.cerceve.id, sema.olcut.cerceveId))
+        .where(eq(sema.olcut.kod, g.olcutKod ?? ""))
+        .orderBy(sema.cerceve.kod)
+        .limit(1)
+        .then((r) => r.map((x) => x.olcut));
   if (!o) throw bulunamadi();
   return o;
 }
@@ -336,7 +348,7 @@ export async function kanitAra(b: ServisBaglami, girdi: unknown): Promise<KanitA
       const [d] = await tx.select({ id: sema.ders.id }).from(sema.ders).where(eq(sema.ders.id, g.dersId));
       if (!d) throw bulunamadi();
     }
-    const o = await olcutYukle(tx, g.olcutId);
+    const o = await olcutYukle(tx, g);
     const olcut: OlcutBilgisi = { kod: o.kod, baslik: o.baslik, gereksinimler: gereksinimler(o.kod) };
     const adaylar = await havuzAra(tx, aramaKelimeleri(olcut));
     return { o, olcut, adaylar };
