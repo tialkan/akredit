@@ -64,6 +64,13 @@
       "when": 1793048433894,
       "tag": "0008_oturum_rolu",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793048434894,
+      "tag": "0009_kurum_acilisi",
+      "breakpoints": true
     }
   ]
 }
