@@ -17,6 +17,7 @@ ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000 HOSTNAME=0.0.0.0
 WORKDIR /uygulama
 COPY --from=derleme --chown=node:node /depo/apps/web/.next/standalone ./
 COPY --from=derleme --chown=node:node /depo/apps/web/.next/static ./apps/web/.next/static
+COPY --from=derleme --chown=node:node /depo/apps/web/public ./apps/web/public
 USER node
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
