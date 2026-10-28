@@ -18,4 +18,5 @@ export * from "./eposta/mime.ts";
 export * from "./not-aktarimi/aktar.ts";
 export * from "./not-aktarimi/profil.ts";
 export * from "./ubys/ubys.ts";
+export * from "./web-tarama/index.ts";
 export * from "./yokatlas/yokatlas.ts";
