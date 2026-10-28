@@ -120,6 +120,9 @@ importers:
       '@akredit/gosterge':
         specifier: workspace:*
         version: link:../../packages/gosterge
+      '@akredit/ornek-veri':
+        specifier: workspace:*
+        version: link:../../packages/ornek-veri
       '@akredit/servis':
         specifier: workspace:*
         version: link:../../packages/servis

@@ -22,6 +22,7 @@
     "@akredit/cerceveler": "workspace:*",
     "@akredit/depo": "workspace:*",
     "@akredit/gosterge": "workspace:*",
+    "@akredit/ornek-veri": "workspace:*",
     "@akredit/servis": "workspace:*",
     "@akredit/surec": "workspace:*",
     "@akredit/vt": "workspace:*",
