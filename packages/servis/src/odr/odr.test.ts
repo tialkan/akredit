@@ -229,7 +229,8 @@ describe("kurgu programla uçtan uca ÖDR", () => {
     // Program PÇ1 = tek dersin değeri 62,5 (eşit ağırlık, 1 ders); 5 öğrenci kaydı.
     expect(metin).toMatch(/PÇ1 program düzeyi sağlanma: 62,5 \(1 ders, 5 öğrenci kaydı\) \[H:[0-9a-f]{8}\]/u);
     expect(metin).toContain("Çıktılar yayımlandı");
-    expect(metin).not.toContain("85");
+    // Atıf kimlikleri (özet önekleri) rastgele "85" içerebilir; sayı denetimi yalnız metin üzerinde yapılır.
+    expect(metin.replace(/\[[KH]:[0-9a-f]{8}\]/gu, "")).not.toMatch(/\b85\b/u);
     expect(metin).toContain("Süreç kaydı (uygula): Danışma kurulu önerileri programa yansıtılacak");
     expect(metin).toContain("[EKSİK: Bu ölçüt için onaylı kanıt yok.");
   });
