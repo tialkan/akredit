@@ -73,6 +73,34 @@ services:
       S3_KOVA: ${S3_KOVA:-akredit-kanit}
     restart: "no"
 
+  # Arka plan işçisi (İP-36): `--profile isci` ile açılır. Geliştirmede süper kullanıcıyla bağlanır (uyarı
+  # verir); üretim ayrıcalıksız uygulama kullanıcısı ister. Sağlık: http://127.0.0.1:8080/saglik
+  isci:
+    image: node:22-alpine
+    profiles: [isci]
+    working_dir: /depo
+    command: ["node", "apps/isci/src/ana.ts"]
+    environment:
+      AKREDIT_VT_ADRES: postgres://${POSTGRES_USER:-akredit}:${POSTGRES_PASSWORD:-yerel-gelistirme}@vt:5432/${POSTGRES_DB:-akredit}
+      S3_UC_NOKTASI: http://depo:9000
+      S3_BOLGE: us-east-1
+      S3_KOVA: ${S3_KOVA:-akredit-kanit}
+      S3_ERISIM_ANAHTARI: ${S3_ERISIM_ANAHTARI:-akredit}
+      S3_GIZLI_ANAHTAR: ${S3_GIZLI_ANAHTAR:-yerel-gelistirme}
+      AKREDIT_SMTP_SUNUCU: posta
+      AKREDIT_SMTP_PORT: "1025"
+      AKREDIT_ANAHTAR_KASASI: ${AKREDIT_ANAHTAR_KASASI:-}
+    ports:
+      - "127.0.0.1:${ISCI_SAGLIK_PORT:-8080}:8080"
+    volumes:
+      - ../..:/depo:ro
+    depends_on:
+      goc:
+        condition: service_completed_successfully
+      depo-kova:
+        condition: service_completed_successfully
+    stop_grace_period: 50s
+
   posta:
     image: axllent/mailpit:latest
     ports:

@@ -1,25 +1,28 @@
 # syntax=docker/dockerfile:1.7
-# apps/isci için çok aşamalı imaj. Depo kökünden derlenir:
+# apps/isci için imaj (CI ve yerel deneme). Depo kökünden derlenir:
 #   docker build -f infra/gelistirme/isci.Dockerfile -t akredit-isci .
-# Node TypeScript'i doğrudan çalıştırır; derleme adımı yoktur. `pnpm deploy` yalnız üretim bağımlılıklarını taşır.
+# Node TypeScript'i doğrudan çalıştırır; derleme adımı yoktur. Eskiden `pnpm deploy` kullanılıyordu; o yol iç
+# paketleri node_modules altına kopyaladığı için Node .ts dosyalarının tiplerini ayıklamıyordu
+# (ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING, İP-26 raporu). İP-36'dan beri infra/uretim/isci.Dockerfile ile
+# aynı düzen: çalışma alanı korunur, iç paketler packages/ altında kalır.
 
 ARG NODE_SURUMU=22-alpine
 
 FROM node:${NODE_SURUMU} AS derleme
 ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
 RUN corepack enable
-WORKDIR /depo
+WORKDIR /uygulama
 COPY . .
-RUN pnpm install --frozen-lockfile --filter "@akredit/isci..." \
-  && pnpm --filter @akredit/isci deploy --prod --legacy /cikti
+RUN pnpm install --frozen-lockfile --prod --filter "@akredit/isci..." \
+  && rm -rf apps/web apps/cli docs plan .github
 
 FROM node:${NODE_SURUMU} AS calisma
 ENV NODE_ENV=production
 WORKDIR /uygulama
-COPY --from=derleme --chown=node:node /cikti ./
+COPY --from=derleme --chown=node:node /uygulama ./
 USER node
-# İşçi HTTP sunmaz; sağlık denetimi giriş modülünün yüklenebildiğini sınar. İP-10/14 işçiyi
-# kalıcı sürece çevirdiğinde kuyruk bağlantısını sınayan bir denetimle değiştirilmeli.
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-  CMD node -e "import('/uygulama/src/index.ts').then(()=>process.exit(0),()=>process.exit(1))"
-CMD ["node", "src/index.ts"]
+# Sağlık: /saglik (veritabanı, iş kuyruğu, yapılandırma). 503 ise kapsayıcı sağlıksız sayılır.
+HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:'+(process.env.AKREDIT_ISCI_PORT||8080)+'/saglik').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"
+# Giriş noktası (İP-36): kuyruklar, zamanlanmış işler, SIGTERM'de zarif kapanış.
+CMD ["node", "apps/isci/src/ana.ts"]

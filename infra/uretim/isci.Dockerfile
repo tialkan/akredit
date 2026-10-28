@@ -25,6 +25,8 @@ ENV NODE_ENV=production
 WORKDIR /uygulama
 COPY --from=derleme --chown=node:node /uygulama ./
 USER node
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-  CMD node -e "import('/uygulama/apps/isci/src/index.ts').then(()=>process.exit(0),()=>process.exit(1))"
-CMD ["node", "apps/isci/src/index.ts"]
+# Sağlık: /saglik (veritabanı, iş kuyruğu, yapılandırma). 503 ise kapsayıcı sağlıksız sayılır.
+HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:'+(process.env.AKREDIT_ISCI_PORT||8080)+'/saglik').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"
+# Giriş noktası (İP-36): kuyruklar, zamanlanmış işler, SIGTERM'de zarif kapanış.
+CMD ["node", "apps/isci/src/ana.ts"]

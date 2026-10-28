@@ -54,7 +54,10 @@ yz:
 web:
   kopya: 2
 isci:
+  # Birden çok kopya güvenlidir: zamanlanmış işleri pg-boss küme genelinde bir kez çalıştırır.
   kopya: 1
+  # Bildirim e-postaları için kurum içi SMTP sunucusu (boşsa e-postalar bekletilir).
+  smtpSunucu: ""
 
 # Ağ ilkesi: uygulama, veritabanı ve model ad alanı dışına çıkamaz (yalnız küme DNS'i).
 # Kapatmak (false) veri yerleşimi güvencesini kaldırır; denetle.sh false değerini reddeder.
