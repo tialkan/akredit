@@ -4,7 +4,7 @@
 // - Açık anahtar yalnız sağlayıcı çağrısı anında, sunucuda çözülür. İstemciye yalnız son dört karakteri gider.
 // - Anahtar, şifreli metni dışında hiçbir yere (günlük, hata iletisi) yazılmaz.
 
-import { createCipheriv, createDecipheriv, hkdfSync, randomBytes } from "node:crypto";
+import { createCipheriv, createDecipheriv, createHash, hkdfSync, randomBytes } from "node:crypto";
 import { YzHatasi } from "./saglayici.ts";
 
 export interface SaglayiciAnahtarKasasi {
@@ -55,9 +55,24 @@ export function saglayiciAnahtarKasasi(
 export function ortamdanAnahtarKasasi(ortam: Record<string, string | undefined>): SaglayiciAnahtarKasasi | null {
   const ham = ortam.AKREDIT_ANAHTAR_KASASI;
   if (!ham) return null;
-  const bayt = new Uint8Array(Buffer.from(ham, "base64"));
-  if (bayt.length !== 32) return null;
+  const bayt = anahtarBaytlari(ham);
+  if (!bayt) return null;
   return saglayiciAnahtarKasasi(bayt);
+}
+
+/**
+ * Ortamdan gelen gizli değeri 32 baytlık anahtara çevirir. 32 baytlık base64 ise olduğu gibi kullanılır.
+ * Değilse ve en az 32 karakterse (ör. Coolify'ın ürettiği rastgele değer) SHA-256 ile 32 bayta indirgenir.
+ * Daha kısa değer reddedilir (null).
+ */
+export function anahtarBaytlari(ham: string): Uint8Array | null {
+  const deger = ham.trim();
+  if (/^[A-Za-z0-9+/]{43}=$/.test(deger)) {
+    const b = Buffer.from(deger, "base64");
+    if (b.length === 32) return new Uint8Array(b);
+  }
+  if (deger.length < 32) return null;
+  return new Uint8Array(createHash("sha256").update(deger, "utf8").digest());
 }
 
 /** Ekranda gösterilecek kısa iz: yalnız son dört karakter. */

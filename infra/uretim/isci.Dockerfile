@@ -24,6 +24,7 @@ FROM node:${NODE_SURUMU} AS calisma
 ENV NODE_ENV=production
 WORKDIR /uygulama
 COPY --from=derleme --chown=node:node /uygulama ./
+RUN mkdir -p /veri/kanit && chown node:node /veri/kanit
 USER node
 # Sağlık: /saglik (veritabanı, iş kuyruğu, yapılandırma). 503 ise kapsayıcı sağlıksız sayılır.
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
