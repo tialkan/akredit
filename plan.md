@@ -168,6 +168,18 @@ Durumlar: **hazır** (başlanabilir), **devam**, **inceleme**, **tamam**, **bekl
 | [34](plan/ip/IP-34-kurum-ici-kurulum.md) | Kurum içi kurulum ve yerel model | 6 | inceleme | 26 |
 | [35](plan/ip/IP-35-kurum-acilisi.md) | Kurum açılışı, kurulum sihirbazı, kurum anahtarı fabrikası | 6 | inceleme | 09, 12, 23 |
 | [36](plan/ip/IP-36-isci-calisma.md) | İşçi giriş noktası, zamanlanmış işler, gerçek veri kipi | 6 | inceleme | 10, 14, 35 |
+| [37](plan/ip/IP-37-arastirma-ve-paket.md) | Web araştırma, Bologna eksik giderme, Word paketi | 7 | inceleme | 03, 10, 15, 16 |
+| [38](plan/ip/IP-38-sessiz-devir.md) | Sessiz devir ve kaynağa geri yazma | 7 | devam | 15, 37 |
+| [39](plan/ip/IP-39-karar-katmanlari.md) | Üç katmanlı karar modeli, karar kartları, kendini kapatan PÜKÖ | 7 | devam | 13, 14 |
+| [40](plan/ip/IP-40-sifir-kisisel-veri.md) | Sıfır kişisel veri çıkışı, KVKK envanteri, hukuk paketi | 7 | devam | 03, 28 |
+| [41](plan/ip/IP-41-ornek-universite.md) | Sentetik Örnek Üniversitesi demosu | 7 | devam | 12 |
+| [42](plan/ip/IP-42-site-metni.md) | Site metni: güçlü vaat, dört rol, pilot başvurusu | 7 | devam | 07 |
+| 43 | Toplu sınav kağıdı taraması (yerel model) | 8 | bekliyor | 10, 06 |
+| 44 | Cümleden kanıta tek tık, rapor dil denetimi | 8 | bekliyor | 19, 20 |
+| 45 | İdari birimlerden hesapsız belge isteme | 8 | bekliyor | 10, 14 |
+| 46 | Toplantıdan tutanağa ve EBYS taslağına akış | 8 | bekliyor | 18, 23 |
+| 47 | Program akreditasyonu tablo dönüştürücüsü | 8 | bekliyor | 11, 19 |
+| 48 | Saha ziyareti hazırlık simülatörü | 8 | bekliyor | 22 |
 
 ## 9. Alt ajan çalışma modeli
 
