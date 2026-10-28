@@ -22,7 +22,7 @@ export default async function KanitlarSayfasi() {
   return (
     <>
       <SayfaBasligi baslik="Kanıtlar" aciklama="Bütün belgeler tek yerde. Her dosya içerik özetiyle saklanır." />
-      <section aria-labelledby="hat-baslik" className="mb-6 rounded-lg border border-cizgi bg-yuzey p-4">
+      <section aria-labelledby="hat-baslik" className="mb-6 rounded-sm border border-cizgi bg-yuzey p-4">
         <h2 id="hat-baslik" className="font-semibold">
           Belge işleme durumu
         </h2>

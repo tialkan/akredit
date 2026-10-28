@@ -1,11 +1,27 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AkisCizimi } from "../../../site/akis-cizimi.tsx";
-import { Bolum, Metin, SayfaBasi, YapisalVeri } from "../../../site/bilesenler.tsx";
-import { AKIS, ILKELER, RISKLER, SAYFALAR } from "../../../site/icerik.ts";
+import {
+  Bolum,
+  Dayanak,
+  Dayanaklar,
+  DonemCizelgesi,
+  Metin,
+  SayfaBasi,
+  YapisalVeri,
+} from "../../../site/bilesenler.tsx";
+import { AKIS, DONEM_AKISI, ILKELER, RISKLER, SAYFALAR } from "../../../site/icerik.ts";
 import { sayfaUstVerisi } from "../../../site/yapisal.ts";
 
 export const metadata: Metadata = sayfaUstVerisi(SAYFALAR.nasil);
+
+const DAYANAKLAR = [
+  "Öneri ve karar akışı: packages/cekirdek/src/oneri.ts; değiştirilemez günlük: docs/adr/0002-veritabani-ve-degismezlik.md.",
+  "Risk sınıfları (ONERI_RISKI): packages/cekirdek/src/turler.ts; insan kararı: docs/adr/0004-sifir-is-yuku-ve-insan-karari.md.",
+  "Yetki devri politikası, imza ve iptal: packages/servis/src/politika.ts.",
+  "Bir dönemin adımları: docs/raporlar/IP-14, IP-15, IP-16, IP-17, IP-18, IP-19, IP-20.",
+  "Değişmez ilkeler: CLAUDE.md, Değişmez ilkeler bölümü.",
+];
 
 export default function NasilCalisir() {
   return (
@@ -15,13 +31,17 @@ export default function NasilCalisir() {
         sayfa={SAYFALAR.nasil}
         ozet="Akredit işi ikiye böler. Hazırlığı sistem yapar, kararı yetkili kişi verir. Aradaki her adım kayıt altındadır."
       />
-      <Bolum id="akis" baslik="Kanıttan günlüğe" not="Her öneri bu sırayla ilerler.">
+      <Bolum no={1} id="akis" baslik="Kanıttan günlüğe" not="Her öneri bu sırayla ilerler.">
+        <p className="mb-6 max-w-[62ch]">
+          Bir öneri altı adımdan geçer. Her adımın çıktısı bir sonrakinin girdisidir ve kayıtlıdır.
+          <Dayanak n={1} />
+        </p>
         <AkisCizimi />
         <ol className="mt-8 divide-y divide-cizgi border-y border-cizgi">
           {AKIS.map((a, i) => (
             <li key={a.ad} className="grid gap-1 py-4 sm:grid-cols-[10rem_1fr] sm:gap-6">
               <p className="font-semibold">
-                {i + 1}. {a.ad}
+                <span className="paragraf-no">{i + 1}.</span> {a.ad}
               </p>
               <p className="text-soluk">{a.metin}</p>
             </li>
@@ -29,7 +49,25 @@ export default function NasilCalisir() {
         </ol>
       </Bolum>
 
-      <Bolum id="riskler" baslik="Risk düzeyleri" not="Önerinin türü, nasıl onaylanacağını belirler." zemin>
+      <Bolum
+        no={2}
+        id="donem"
+        baslik="Bir dönemi baştan sona izleyin"
+        not="Sistemin yaptığı ve hocaya kalan, zaman sırasıyla."
+        zemin
+      >
+        <p className="mb-6 max-w-[62ch]">
+          Aşağıdaki çizelge bir öğretim elemanının bir dönemini gösterir. Sağ sütun hocanın bütün işidir.
+          <Dayanak n={4} />
+        </p>
+        <DonemCizelgesi adimlar={DONEM_AKISI} />
+      </Bolum>
+
+      <Bolum no={3} id="riskler" baslik="Risk düzeyleri" not="Önerinin türü, nasıl onaylanacağını belirler.">
+        <p className="mb-4 max-w-[62ch]">
+          Her öneri türünün sabit bir risk düzeyi vardır. Düzey, onayın biçimini belirler.
+          <Dayanak n={2} />
+        </p>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[34rem] border-collapse text-left">
             <caption className="sr-only">Öneri risk düzeyleri ve onay kuralları</caption>
@@ -61,11 +99,12 @@ export default function NasilCalisir() {
         </div>
       </Bolum>
 
-      <Bolum id="yetki-devri" baslik="Yetki devri" not="Sık tekrarlanan işi otomatiğe bağlamak.">
+      <Bolum no={4} id="yetki-devri" baslik="Yetki devri" not="Sık tekrarlanan işi otomatiğe bağlamak." zemin>
         <Metin>
           <p>
             Kalite komisyonu başkanı ya da kurum yöneticisi, belirli türdeki düşük ve orta riskli önerilerin otomatik
             onaylanması için bir politika hazırlar. Politika önce taslaktır ve hiçbir şeye yetki vermez.
+            <Dayanak n={3} />
           </p>
           <p>
             Politika, yetkili kişi adını yazarak imzaladığında yürürlüğe girer. Kapsamı (öneri türleri, en yüksek risk,
@@ -80,10 +119,15 @@ export default function NasilCalisir() {
       </Bolum>
 
       <Bolum
+        no={5}
         id="ilkeler"
         baslik="Değişmez ilkeler"
-        not="Kodla uygulanır. Kullanıcı ya da belge istese de esnemez."
-        zemin
+        not={
+          <>
+            Kodla uygulanır. Kullanıcı ya da belge istese de esnemez.
+            <Dayanak n={5} />
+          </>
+        }
       >
         <dl className="grid gap-x-10 gap-y-6 sm:grid-cols-2">
           {ILKELER.map((i) => (
@@ -99,6 +143,7 @@ export default function NasilCalisir() {
           </Link>
         </p>
       </Bolum>
+      <Dayanaklar ogeler={DAYANAKLAR} />
     </>
   );
 }

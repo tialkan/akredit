@@ -65,7 +65,7 @@ export default async function AnketSayfasi({
         {acik ? (
           <AnketFormu tanim={tanim} kurum={kurum} anket={anket} belirtec={b ?? null} aydinlatma={<Aydinlatma />} />
         ) : (
-          <p role="status" className="rounded-lg border border-cizgi bg-yuzey p-5">
+          <p role="status" className="rounded-sm border border-cizgi bg-yuzey p-5">
             Bu anket şu anda yanıt kabul etmiyor.
           </p>
         )}

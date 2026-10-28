@@ -132,7 +132,7 @@ export function IletisimKutusu({
         e.preventDefault();
         kapat();
       }}
-      className="m-auto w-[min(36rem,calc(100vw-2rem))] rounded-lg border border-cizgi bg-yuzey p-0 text-metin shadow-xl"
+      className="m-auto w-[min(36rem,calc(100vw-2rem))] rounded-sm border border-cizgi bg-yuzey p-0 text-metin"
     >
       <div className="flex items-start justify-between gap-4 border-b border-cizgi px-5 py-4">
         <div>
@@ -222,9 +222,7 @@ function BildirimKutusu({ kayit, kaldir }: { kayit: BildirimKaydi; kaldir: (id: 
         ? "border-risk-dusuk bg-risk-dusuk-zemin text-risk-dusuk"
         : "border-cizgi-guclu bg-yuzey text-metin";
   return (
-    <div
-      className={`pointer-events-auto flex w-full max-w-md items-start gap-3 rounded-md border px-4 py-3 shadow-lg ${renk}`}
-    >
+    <div className={`pointer-events-auto flex w-full max-w-md items-start gap-3 rounded border px-4 py-3 ${renk}`}>
       <p className="flex-1 font-semibold">{kayit.metin}</p>
       <button type="button" onClick={() => kaldir(kayit.id)} aria-label="Bildirimi kapat" className="rounded p-1">
         <X aria-hidden className="size-4" />

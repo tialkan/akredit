@@ -67,7 +67,7 @@ export function Kart({
 }) {
   const B = baslikDuzeyi === 2 ? "h2" : "h3";
   return (
-    <section className={`rounded-lg border border-cizgi bg-yuzey p-5 ${className}`}>
+    <section className={`rounded-sm border border-cizgi bg-yuzey p-5 ${className}`}>
       {baslik || eylem ? (
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           {baslik ? <B className="text-lg font-semibold">{baslik}</B> : <span />}
@@ -81,7 +81,7 @@ export function Kart({
 
 export function BosDurum({ baslik, aciklama, eylem }: { baslik: string; aciklama?: string; eylem?: ReactNode }) {
   return (
-    <div className="flex flex-col items-center rounded-lg border border-dashed border-cizgi-guclu px-6 py-10 text-center">
+    <div className="flex flex-col items-center rounded-sm border border-dashed border-cizgi-guclu px-6 py-10 text-center">
       <Inbox aria-hidden className="mb-3 size-8 text-soluk" />
       <p className="text-lg font-semibold">{baslik}</p>
       {aciklama ? <p className="mt-1 max-w-prose text-soluk">{aciklama}</p> : null}
@@ -143,7 +143,7 @@ export function SayfaBasligi({ baslik, aciklama, eylem }: { baslik: string; acik
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{baslik}</h1>
+        <h1 className="text-2xl font-semibold tracking-[-0.01em] text-vurgu sm:text-3xl">{baslik}</h1>
         {aciklama ? <p className="mt-1 max-w-prose text-soluk">{aciklama}</p> : null}
       </div>
       {eylem}

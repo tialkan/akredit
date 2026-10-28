@@ -122,7 +122,7 @@ export function Sihirbaz() {
                 type="button"
                 onClick={() => adimaGit(a.kod)}
                 aria-current={a.kod === adim ? "step" : undefined}
-                className={`flex min-h-11 w-full items-center gap-3 rounded-md px-3 text-left ${
+                className={`flex min-h-11 w-full items-center gap-3 rounded px-3 text-left ${
                   a.kod === adim ? "bg-vurgu-zemin font-semibold text-vurgu" : "hover:bg-yuzey-2"
                 }`}
               >
@@ -141,11 +141,16 @@ export function Sihirbaz() {
           ))}
         </ol>
       </nav>
-      <section aria-labelledby="adim-basligi" className="min-w-0 rounded-lg border border-cizgi bg-yuzey p-5 sm:p-7">
+      <section aria-labelledby="adim-basligi" className="min-w-0 rounded-sm border border-cizgi bg-yuzey p-5 sm:p-7">
         <p className="text-sm text-soluk">
           Adım {sira + 1} / {ADIMLAR.length}
         </p>
-        <h2 id="adim-basligi" ref={baslik} tabIndex={-1} className="mt-1 text-2xl font-bold tracking-tight">
+        <h2
+          id="adim-basligi"
+          ref={baslik}
+          tabIndex={-1}
+          className="mt-1 text-2xl font-semibold tracking-[-0.01em] text-vurgu"
+        >
           {ADIMLAR[sira]?.ad}
         </h2>
         <div className="mt-5">
@@ -684,7 +689,7 @@ function DavetAdimi({
                       id={`davet-eposta-${i}`}
                       type="email"
                       autoComplete="off"
-                      className="w-full rounded-md border border-cizgi-guclu bg-yuzey px-3 py-2"
+                      className="w-full rounded border border-cizgi-guclu bg-yuzey px-3 py-2"
                       value={s.eposta}
                       onChange={(e) =>
                         setSatirlar(satirlar.map((x, j) => (j === i ? { ...x, eposta: e.target.value } : x)))

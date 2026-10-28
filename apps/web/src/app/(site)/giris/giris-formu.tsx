@@ -69,7 +69,7 @@ export function GirisFormu() {
       {ACIK ? null : (
         <p
           role="note"
-          className="mt-4 rounded-md border border-risk-orta bg-risk-orta-zemin px-3 py-2 text-sm text-risk-orta"
+          className="mt-4 rounded border border-risk-orta bg-risk-orta-zemin px-3 py-2 text-sm text-risk-orta"
         >
           Giriş bu kurulumda açık değil. Bu ekran önizlemedir.
         </p>

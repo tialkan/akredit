@@ -87,7 +87,7 @@ export function MobilKurulum() {
     <section
       aria-label="Bildirimler"
       data-bildirim-yolu={yol.yol}
-      className="mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-cizgi bg-yuzey p-3 text-sm"
+      className="mb-4 flex flex-wrap items-center gap-3 rounded-sm border border-cizgi bg-yuzey p-3 text-sm"
     >
       {simge}
       <p className="min-w-0 flex-1" role="status">

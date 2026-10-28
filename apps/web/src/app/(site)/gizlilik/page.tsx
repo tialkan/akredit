@@ -8,7 +8,7 @@ export const metadata: Metadata = sayfaUstVerisi(SAYFALAR.gizlilik);
 export default function Gizlilik() {
   return (
     <MetinSayfasi baslik="Gizlilik politikası">
-      <div role="note" className="mt-6 rounded-lg border-2 border-risk-orta bg-risk-orta-zemin p-4 text-risk-orta">
+      <div role="note" className="mt-6 rounded-sm border-2 border-risk-orta bg-risk-orta-zemin p-4 text-risk-orta">
         <p className="mt-0 font-bold">Bu sayfa taslaktır.</p>
         <p className="mt-1">Hukuki incelemeden geçmemiştir ve bağlayıcı değildir.</p>
       </div>

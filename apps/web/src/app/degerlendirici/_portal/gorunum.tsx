@@ -44,7 +44,7 @@ export function KanitOdasiGorunumu({ erisimBitis, program, filtre, gruplar }: Ka
         }
       />
       {program.length > 0 && (
-        <section aria-labelledby="program-baslik" className="mb-6 rounded-lg border border-cizgi bg-yuzey p-4">
+        <section aria-labelledby="program-baslik" className="mb-6 rounded-sm border border-cizgi bg-yuzey p-4">
           <h2 id="program-baslik" className="font-semibold">
             Ziyaret programı
           </h2>
@@ -176,7 +176,7 @@ export function ErisimGunluguGorunumu({ kayitlar }: { kayitlar: ErisimSatiri[] }
       {kayitlar.length === 0 ? (
         <p>Henüz kayıt yok.</p>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-cizgi">
+        <div className="overflow-x-auto rounded-sm border border-cizgi">
           <table className="w-full text-sm">
             <caption className="sr-only">Değerlendirici erişim kayıtları, en yeni önce</caption>
             <thead className="bg-yuzey-2">

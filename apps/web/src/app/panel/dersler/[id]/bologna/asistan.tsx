@@ -115,7 +115,7 @@ export function BolognaAsistani({
         <textarea
           id={`${kimlik}-beyan`}
           aria-describedby={`${kimlik}-ipucu`}
-          className="mt-2 w-full rounded-md border border-cizgi-guclu bg-zemin p-2"
+          className="mt-2 w-full rounded border border-cizgi-guclu bg-zemin p-2"
           rows={4}
           maxLength={4000}
           value={beyan}
@@ -170,7 +170,7 @@ export function BolognaAsistani({
             <input
               id={`${kimlik}-adres`}
               type="url"
-              className="mt-1 w-full rounded-md border border-cizgi-guclu bg-zemin p-2"
+              className="mt-1 w-full rounded border border-cizgi-guclu bg-zemin p-2"
               value={adres}
               onChange={(e) => setAdres(e.target.value)}
             />
@@ -202,7 +202,7 @@ export function BolognaAsistani({
               id={`${kimlik}-cikti`}
               readOnly
               rows={14}
-              className="mt-1 w-full rounded-md border border-cizgi-guclu bg-zemin p-2 font-mono text-sm"
+              className="mt-1 w-full rounded border border-cizgi-guclu bg-zemin p-2 font-mono text-sm"
               value={plan.kopyalanabilir}
             />
             <Dugme className="mt-2" onClick={() => navigator.clipboard?.writeText(plan.kopyalanabilir)}>

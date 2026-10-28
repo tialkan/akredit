@@ -10,7 +10,7 @@ import {
 } from "react";
 
 const ALAN_SINIFI =
-  "w-full rounded-md border border-cizgi-guclu bg-yuzey px-3 py-2 text-metin placeholder:text-soluk aria-[invalid=true]:border-risk-yuksek";
+  "w-full rounded border border-cizgi-guclu bg-yuzey px-3 py-2 text-metin placeholder:text-soluk aria-[invalid=true]:border-risk-yuksek";
 
 interface AlanCercevesi {
   etiket: ReactNode;

@@ -136,7 +136,7 @@ function YuklemeAlani() {
         }}
         onDragLeave={() => setUstunde(false)}
         onDrop={birak}
-        className={`flex flex-col items-center gap-2 rounded-lg border-2 border-dashed px-4 py-8 text-center ${
+        className={`flex flex-col items-center gap-2 rounded-sm border-2 border-dashed px-4 py-8 text-center ${
           ustunde ? "border-vurgu bg-vurgu-zemin" : "border-cizgi-guclu bg-yuzey"
         }`}
       >
@@ -145,7 +145,7 @@ function YuklemeAlani() {
         <p className="text-sm text-soluk">ya da</p>
         <label
           htmlFor={`${id}-girdi`}
-          className="inline-flex min-h-11 cursor-pointer items-center rounded-md border border-cizgi-guclu bg-yuzey px-4 font-semibold hover:bg-yuzey-2 has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-[var(--odak)]"
+          className="inline-flex min-h-11 cursor-pointer items-center rounded border border-cizgi-guclu bg-yuzey px-4 font-semibold hover:bg-yuzey-2 has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-[var(--odak)]"
         >
           Bilgisayardan dosya seçin
           <input
@@ -160,7 +160,7 @@ function YuklemeAlani() {
         <p className="text-sm text-soluk">Yüklenen dosyalar silinmez ve değiştirilmez; yeni sürüm yeni kayıt olur.</p>
       </div>
       {dosyalar.length > 0 ? (
-        <div className="mt-3 rounded-md border border-risk-orta bg-risk-orta-zemin p-3 text-risk-orta" role="status">
+        <div className="mt-3 rounded border border-risk-orta bg-risk-orta-zemin p-3 text-risk-orta" role="status">
           <p className="font-semibold">Önizleme: yükleme henüz sunucuya bağlı değil, dosyalar kaydedilmedi.</p>
           <ul className="mt-1 list-disc pl-5">
             {dosyalar.map((d, i) => (

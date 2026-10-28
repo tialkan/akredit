@@ -545,6 +545,20 @@ export const ROL_ADI: Record<string, string> = {
   gozlemci: "Gözlemci",
 };
 
+/** Rol başına karar yetkisi; ROL_EYLEMLERI ile aynıdır (site.test.ts denetler). */
+export const ROL_KARARI: Record<string, string> = {
+  kurum_yoneticisi:
+    "Her şey: ayarlar, yapay zekâ anahtarı, kullanıcılar, roller, öneri kararı, dış gönderim, politika imzası.",
+  kalite_komisyonu_baskani:
+    "Öneriye karar verir, dış kuruma gönderir, yetki devri politikasını imzalar, kişi davet eder, rol atar.",
+  kalite_komisyonu_uyesi: "Öneriye karar verir, rapor düzenler, kanıt yükler.",
+  birim_kalite_sorumlusu: "Öneriye karar verir, süreç takvimini yönetir, birimine kişi davet eder.",
+  program_sorumlusu: "Programındaki önerilere karar verir, rapor düzenler, not verisi girer.",
+  ogretim_elemani: "Kendi dersindeki önerilere karar verir, belge yükler, not verisi girer.",
+  degerlendirici: "Karar veremez. Açılan kapsamda kanıt, rapor ve ölçme sonucunu okur, soru sorar.",
+  gozlemci: "Karar veremez. Kanıt ve raporu okur.",
+};
+
 export const EYLEM_ADI: Record<string, string> = {
   "kanit.oku": "Kanıt okumak",
   "oneri.oku": "Öneri görmek",
@@ -617,5 +631,118 @@ export const SSS: { soru: string; cevap: string }[] = [
     soru: "Hesap nasıl açılır?",
     cevap:
       "Kurumun ilk yöneticisi, kurumsal e-postasını doğrulayarak kurumu açar. Diğer herkes davetle katılır: yönetici sizi kurumsal e-posta adresinizle davet eder. Parola yoktur.",
+  },
+];
+
+// ---------------------------------------------------------------- Bir dönem (örnek akış)
+
+export interface DonemAdimi {
+  zaman: string;
+  sistem: string;
+  hoca: string;
+  /** Hocanın bu adımdaki dokunuş sayısı (yükleme ya da onay). */
+  dokunus: number;
+}
+
+/**
+ * Bir öğretim elemanının bir dönemi. Dayanak: docs/raporlar/IP-14 (süreç takvimi), IP-15 (Bologna),
+ * IP-16 (ders dosyası: bir yükleme, iki onay), IP-17 (anket), IP-18 (toplantı), IP-19 ve IP-20 (ÖDR, KİDR).
+ * Zamanlar örnektir; kurumun süreç takvimi belirler.
+ */
+export const DONEM_AKISI: DonemAdimi[] = [
+  {
+    zaman: "Dönem başı",
+    sistem:
+      "Dersin Bologna sayfasını okur ve kurallardan geçirir. Eksik ya da çelişkili alanları işaretler, düzeltilmiş taslak hazırlar.",
+    hoca: "Taslağı onaylar. Sayfayı öğrenci bilgi sisteminde son kez kendisi kaydeder.",
+    dokunus: 1,
+  },
+  {
+    zaman: "Dönem içi",
+    sistem:
+      "Süreç takvimindeki son tarihleri izler ve hatırlatma gönderir. Gelen belgeleri kanıt olarak saklar, ölçüt etiketi önerir.",
+    hoca: "Etiket önerilerini toplu onaylar ya da imzalı bir politikaya bırakır.",
+    dokunus: 1,
+  },
+  {
+    zaman: "Son haftalar",
+    sistem: "Ders değerlendirme ve AKTS iş yükü anketlerini gönderir, hatırlatır, yanıtları analiz eder.",
+    hoca: "Bir şey yapmaz.",
+    dokunus: 0,
+  },
+  {
+    zaman: "Notlardan sonra",
+    sistem:
+      "Soru bazlı not dökümünden ÇK ve PÇ sağlanma düzeyini hesaplar. Ders dosyasını Word biçiminde, atıflı olarak hazırlar.",
+    hoca: "Not dökümünü bir kez yükler, ders dosyasını iki adımda onaylar.",
+    dokunus: 3,
+  },
+  {
+    zaman: "Komisyon toplantısı",
+    sistem: "Gündemi geciken işler önde olacak biçimde kurar, daveti gönderir, notlardan tutanak taslağı yazar.",
+    hoca: "Toplantıya katılır, tutanağı onaylar.",
+    dokunus: 1,
+  },
+  {
+    zaman: "Yıl sonu",
+    sistem:
+      "ÖDR ve KİDR bölümlerini onaylı kanıttan derler. Kanıtı olmayan alt ölçüte EKSİK yazar, olgunluk düzeyi önerir.",
+    hoca: "Olgunluk düzeyine yetkili kişi tek tek karar verir. Bu karar devredilemez.",
+    dokunus: 0,
+  },
+];
+
+// ---------------------------------------------------------------- Bağlayıcılar
+
+/** Her bağlayıcının okuduğu ve okumadığı. Dayanak: packages/baglayicilar/src/<ad>, docs/raporlar/IP-05.md, IP-23.md. */
+export const BAGLAYICILAR: { ad: string; kaynak: string; okur: string; okumaz: string }[] = [
+  {
+    ad: "Bologna (Proliz)",
+    kaynak: "bologna-proliz",
+    okur: "Ders bilgi paketi sayfaları: program çıktıları, dersler, ders çıktıları, AKTS, dersi verenlerin adları.",
+    okumaz: "Giriş gerektiren sayfalar. Yalnız herkese açık sayfa okunur.",
+  },
+  {
+    ad: "OBS not aktarımı",
+    kaynak: "not-aktarimi",
+    okur: "Soru bazlı not dökümü (CSV ya da Excel). Öğrenci numarası takma ada çevrilir.",
+    okumaz: "Ad, T.C. kimlik numarası ve e-posta sütunları.",
+  },
+  {
+    ad: "UBYS ve diğer öğrenci bilgi sistemleri",
+    kaynak: "ubys",
+    okur: "Ders not listeleri, aynı takma ad kuralıyla.",
+    okumaz: "Öğrencinin kimlik bilgileri.",
+  },
+  {
+    ad: "YÖK Atlas",
+    kaynak: "yokatlas",
+    okur: "Program bilgileri: kontenjan, yerleşen sayısı, taban puan.",
+    okumaz: "Kişiye ait bilgi.",
+  },
+  {
+    ad: "AVESİS",
+    kaynak: "avesis",
+    okur: "Öğretim elemanlarının açık profil sayfalarındaki yayın ve proje bilgileri.",
+    okumaz:
+      "Parola, doğrulama kodu ya da çerez. Girişli alanlar yalnız kullanıcının kendi tarayıcısında açtığı oturumla okunur.",
+  },
+  {
+    ad: "EBYS",
+    kaynak: "ebys",
+    okur: "e-Yazışma paketleri (.eyp): üst veri ve ekler.",
+    okumaz: "Gizlilik dereceli paketler. Bunlar reddedilir.",
+  },
+  {
+    ad: "E-posta",
+    kaynak: "eposta",
+    okur: "Kurumun bu iş için açtığı kutuya iletilen e-postaların ekleri.",
+    okumaz: "E-postanın gövde metni.",
+  },
+  {
+    ad: "Google Drive ve OneDrive",
+    kaynak: "bulut",
+    okur: "Yetki verilen klasördeki dosyalar. Erişim belirteci şifreli saklanır.",
+    okumaz: "Parola. Bağlantı yalnız hesabın kendi yetkilendirme ekranıyla kurulur.",
   },
 ];

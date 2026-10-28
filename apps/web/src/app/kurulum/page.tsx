@@ -18,7 +18,7 @@ export default function KurulumSayfasi() {
         </div>
       </header>
       <main id="icerik" className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
-        <h1 className="text-3xl font-bold tracking-tight">Kurumunuzu hazırlayın</h1>
+        <h1 className="text-3xl font-semibold tracking-[-0.01em] text-vurgu">Kurumunuzu hazırlayın</h1>
         <p className="mt-2 max-w-prose text-soluk">
           Beş adım. Her adım ayrı kaydedilir; istediğiniz adıma dönebilirsiniz. Hocalara yalnız davet e-postası gider.
         </p>

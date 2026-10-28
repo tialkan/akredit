@@ -31,7 +31,7 @@ yaz("isaret-acik.svg", isaretSvg(MARKA_RENK.acikA, MARKA_RENK.acikOnay));
 yaz("isaret-tek-renk.svg", isaretSvg(MARKA_RENK.lacivert, MARKA_RENK.lacivert));
 yaz("isaret-tek-renk-beyaz.svg", isaretSvg("#FFFFFF", "#FFFFFF"));
 
-// Favicon: kare tuval; tarayıcı koyu temadaysa açık renkler kullanılır.
+// Favicon: kare tuval. Koyu tema yoktur; favicon da her zaman marka renklerindedir.
 const kare = 74.7;
 const ox = x - (kare - g) / 2;
 const oy = ISARET_KUTUSU.y - (kare - ISARET_KUTUSU.h) / 2;
@@ -39,7 +39,7 @@ yaz(
   "favicon.svg",
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${ox.toFixed(2)} ${oy.toFixed(2)} ${kare} ${kare}"><title>Akredit</title>` +
     `<style>.a{fill:${MARKA_RENK.lacivert}}.o{fill:${MARKA_RENK.petrol}}` +
-    `@media (prefers-color-scheme:dark){.a{fill:${MARKA_RENK.acikA}}.o{fill:${MARKA_RENK.acikOnay}}}</style>` +
+    `</style>` +
     `<path class="a" d="${ISARET_YOLLARI.solKol}"/><path class="a" d="${ISARET_YOLLARI.sagKol}"/>` +
     `<path class="o" d="${ISARET_YOLLARI.onay}"/></svg>\n`,
 );
