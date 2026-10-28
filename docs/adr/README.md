@@ -9,3 +9,4 @@ Her önemli teknik ya da ürün kararı kısa bir kayıtla yazılır: bağlam, k
 | [0003](0003-yz-saglayici-bagimsizligi-ve-guvenceler.md) | YZ sağlayıcısından bağımsızlık ve kodla uygulanan güvenceler |
 | [0004](0004-sifir-is-yuku-ve-insan-karari.md) | "Sıfır iş yükü" ile insan kararının birlikte tasarlanması |
 | [0005](0005-turkce-alan-adlandirmasi.md) | Alan modelinde Türkçe (ASCII) adlandırma |
+| [0006](0006-dis-ornek-kanit-degildir.md) | Başka kurumdan örnek ayrı bir türdür ve kanıt değildir |
