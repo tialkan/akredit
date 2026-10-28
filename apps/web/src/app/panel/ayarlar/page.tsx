@@ -10,6 +10,11 @@ export default async function AyarlarSayfasi() {
   return (
     <>
       <SayfaBasligi baslik="Ayarlar" aciklama="Kurum bilgisi, yapay zekâ hizmeti ve yetki politikaları." />
+      <p className="mt-4">
+        <a className="underline" href="/panel/ayarlar/veri-akisi">
+          Kişisel verilerin nereye gittiğini görün (veri akışı)
+        </a>
+      </p>
       <AyarlarFormu ilk={ayarlar} />
     </>
   );
