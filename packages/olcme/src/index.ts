@@ -5,5 +5,6 @@ export const PAKET = "@akredit/olcme";
 
 export { dersiOlc, ORNEK_HARF_TABLOSU } from "./ders.ts";
 export * from "./istatistik.ts";
+export * from "./kok-neden.ts";
 export * from "./program.ts";
 export * from "./turler.ts";
