@@ -28,7 +28,7 @@ Sitede yatay logo bir React bileşenidir (`apps/web/src/bilesenler/logo.tsx`: `L
 yol değildir; yazı tipi SVG'ye gömülmez. Renkler belirteçlerden (`--isaret-a`, `--isaret-onay`) gelir.
 
 **Tema kararı:** Sitede ve panelde yalnız açık tema vardır (`color-scheme: light`). Koyu tema bilinçli olarak
-yapılmadı. Yalnız favicon, tarayıcı sekmesi koyu olduğunda açık renklere döner.
+yapılmadı. Favicon dahil hiçbir dosyada `prefers-color-scheme: dark` kuralı yoktur.
 
 ## Renkler
 
@@ -87,8 +87,10 @@ yüksekliğine göre alınır. Bu alana metin, çizgi ya da başka logo girmez.
 
 ## Yazı tipi
 
-**Source Sans 3** (değişken, SIL Open Font License 1.1; `@fontsource-variable/source-sans-3`). Logo kelimesi 700
-ağırlık, harf aralığı −0,015 em; başlıklar 650–700; gövde 400, satır yüksekliği 1,6. Türkçe karakterlerin tamamı
+**Source Sans 3** (değişken, SIL Open Font License 1.1; `@fontsource-variable/source-sans-3`): metin ve arayüz.
+Logo kelimesi 700 ağırlık, harf aralığı −0,015 em; gövde 400, satır yüksekliği 1,6.
+**Source Serif 4** 600 (OFL 1.1): yalnız h1 ve h2; Türkçe alt kümesi `apps/web/src/app/yazi/`. Gerekçe:
+`docs/tasarim/README.md`. Türkçe karakterlerin tamamı
 latin ve latin-ext alt kümelerindedir. Yazı tipi yüklenemezse sistem yazı tipi (`system-ui`) kullanılır.
 
 ## Kurallar (kullanıcı kararı)
@@ -101,6 +103,7 @@ latin ve latin-ext alt kümelerindedir. Yazı tipi yüklenemezse sistem yazı ti
 
 ## Ekran görüntüleri
 
-`docs/marka/` altında, yalnız açık tema, 375, 768 ve 1440 px genişlikte: `ana-sayfa-*.png`, `nasil-calisir-*.png`,
-`yapay-zeka-*.png`, `panel-*.png`, `panel-ayarlar-*.png`, `giris-*.png`. Yeniden üretmek için
-`apps/web/scripts/ekran-goruntusu.ts` (dosyanın başındaki kullanım notu).
+Güncel görüntüler `docs/tasarim/ekranlar/` altındadır (yalnız açık tema; 375, 768, 1440 px): ana sayfa, ne yapar,
+nasıl çalışır, panel, onay kutusu. Yeniden üretmek için `apps/web/scripts/ekran-goruntusu.ts`. `docs/marka/`
+altındaki `ana-sayfa`, `nasil-calisir`, `yapay-zeka`, `panel`, `panel-ayarlar`, `giris` görüntüleri yeniden tasarımdan
+öncesine aittir; kurulum ve kurum açılışı görüntüleri e2e testiyle yenilenir.
