@@ -42,6 +42,7 @@ const Taslak = z.object({
   enDusukGuven: z.number(),
   birimIdleri: z.array(z.string()).optional(),
   programIdleri: z.array(z.string()).optional(),
+  itirazSuresiIsGunu: z.number().int().optional(),
   olusturanAd: z.string(),
   olusturma: z.string(),
 });
@@ -110,6 +111,7 @@ async function politikaKayitlari(tx: Islem, kurumId: string): Promise<Kayit[]> {
         enDusukGuven: p.enDusukGuven,
         ...(p.birimIdleri?.length ? { birimIdleri: p.birimIdleri } : {}),
         ...(p.programIdleri?.length ? { programIdleri: p.programIdleri } : {}),
+        ...(p.itirazSuresiIsGunu ? { itirazSuresiIsGunu: p.itirazSuresiIsGunu } : {}),
       },
       durum: iptalEdilen.has(p.id) ? "iptal" : "imzali",
       olusturan: t?.olusturanAd ?? (await ad(p.imzalayanKisiId)),
@@ -129,6 +131,7 @@ async function politikaKayitlari(tx: Islem, kurumId: string): Promise<Kayit[]> {
         enDusukGuven: t.enDusukGuven,
         ...(t.birimIdleri?.length ? { birimIdleri: t.birimIdleri } : {}),
         ...(t.programIdleri?.length ? { programIdleri: t.programIdleri } : {}),
+        ...(t.itirazSuresiIsGunu ? { itirazSuresiIsGunu: t.itirazSuresiIsGunu } : {}),
       },
       durum: "imza_bekliyor",
       olusturan: t.olusturanAd,
@@ -178,6 +181,7 @@ export async function politikaTaslagiOlustur(b: ServisBaglami, girdi: unknown): 
       enDusukGuven: g.enDusukGuven,
       ...(g.birimIdleri?.length ? { birimIdleri: g.birimIdleri } : {}),
       ...(g.programIdleri?.length ? { programIdleri: g.programIdleri } : {}),
+      ...(g.itirazSuresiIsGunu ? { itirazSuresiIsGunu: g.itirazSuresiIsGunu } : {}),
       olusturanAd: await kisiAdi(tx, b.aktor.kisiId),
       olusturma: b.simdi().toISOString(),
     };
@@ -218,6 +222,7 @@ export async function politikaImzala(b: ServisBaglami, id: string, girdi: unknow
       enDusukGuven: t.enDusukGuven,
       ...(t.birimIdleri ? { birimIdleri: t.birimIdleri } : {}),
       ...(t.programIdleri ? { programIdleri: t.programIdleri } : {}),
+      ...(t.itirazSuresiIsGunu ? { itirazSuresiIsGunu: t.itirazSuresiIsGunu } : {}),
     });
     await kapsamDenetle(tx, b.aktor.kurumId, p);
     await tx.insert(sema.yetkiPolitikasi).values({
@@ -229,6 +234,7 @@ export async function politikaImzala(b: ServisBaglami, id: string, girdi: unknow
       enDusukGuven: p.enDusukGuven,
       birimIdleri: p.birimIdleri ?? null,
       programIdleri: p.programIdleri ?? null,
+      itirazSuresiIsGunu: p.itirazSuresiIsGunu ?? null,
       imzalayanKisiId: b.aktor.kisiId,
       baslangic: b.simdi(),
     });
@@ -243,6 +249,7 @@ export async function politikaImzala(b: ServisBaglami, id: string, girdi: unknow
         oneriTurleri: p.oneriTurleri,
         enYuksekRisk: p.enYuksekRisk,
         enDusukGuven: p.enDusukGuven,
+        ...(p.itirazSuresiIsGunu ? { itirazSuresiIsGunu: p.itirazSuresiIsGunu } : {}),
       },
     );
     return (await politikaKayitlari(tx, b.aktor.kurumId)).find((x) => x.id === id) as Kayit;
@@ -271,6 +278,7 @@ export async function politikaIptal(b: ServisBaglami, id: string): Promise<Kayit
       oneriTurleri: p.oneriTurleri,
       enYuksekRisk: p.enYuksekRisk,
       enDusukGuven: p.enDusukGuven,
+      itirazSuresiIsGunu: p.itirazSuresiIsGunu,
       imzalayanKisiId: b.aktor.kisiId,
       baslangic: simdi,
       bitis: simdi,

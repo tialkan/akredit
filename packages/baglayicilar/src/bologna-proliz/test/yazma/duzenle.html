@@ -1,0 +1,44 @@
+<!doctype html>
+<!--
+  Kayıtlı SAHTE Proliz ders düzenleme sayfası (İP-38 uçtan uca testi). Gerçek Proliz düzenleme ekranı görülmedi;
+  yapı ASP.NET WebForms adlandırmasıyla tahmin edildi: DOĞRULANMADI. Ders ve kişi adları uydurmadır.
+  {{...}} yer tutucularını test sunucusu kayıtlı değerlerle doldurur.
+-->
+<html lang="tr">
+<head><meta charset="utf-8"><title>Ders Bilgi Paketi Düzenle - {{KOD}}</title>
+<style>.sekme-paneli[hidden]{display:none}</style>
+</head>
+<body>
+<form id="frmDersDuzenle" method="post" action="/oibs/bologna/dersDuzenle.aspx?kod={{KOD}}">
+  <input type="hidden" name="__VIEWSTATE" value="sahte">
+  <h1>{{KOD}} Ders Bilgi Paketi</h1>
+  <nav>
+    <button type="button" data-sekme="Genel">Genel</button>
+    <button type="button" data-sekme="Öğrenme Çıktıları">Öğrenme Çıktıları</button>
+    <button type="button" data-sekme="Ders Akışı">Ders Akışı</button>
+  </nav>
+  <div class="sekme-paneli" data-panel="Genel">
+    <label for="txtDersAmaci">Dersin Amacı</label><textarea id="txtDersAmaci" name="txtDersAmaci">{{txtDersAmaci}}</textarea>
+    <label for="txtDersAmaciEn">Dersin Amacı (İngilizce)</label><textarea id="txtDersAmaciEn" name="txtDersAmaciEn">{{txtDersAmaciEn}}</textarea>
+    <label for="txtDersIcerigi">Dersin İçeriği</label><textarea id="txtDersIcerigi" name="txtDersIcerigi">{{txtDersIcerigi}}</textarea>
+    <label for="txtOnKosul">Ön Koşul</label><input id="txtOnKosul" name="txtOnKosul" value="{{txtOnKosul}}">
+    <label for="txtKoordinator">Dersin Koordinatörü</label><input id="txtKoordinator" name="txtKoordinator" value="{{txtKoordinator}}">
+  </div>
+  <div class="sekme-paneli" data-panel="Öğrenme Çıktıları" hidden>
+    <label for="txtCikti_Ö1">Ö1</label><textarea id="txtCikti_Ö1" name="txtCikti_Ö1">{{txtCikti_Ö1}}</textarea>
+    <label for="txtCikti_Ö2">Ö2</label><textarea id="txtCikti_Ö2" name="txtCikti_Ö2">{{txtCikti_Ö2}}</textarea>
+  </div>
+  <div class="sekme-paneli" data-panel="Ders Akışı" hidden>
+    <label for="txtHafta1Konu">1. Hafta Konu</label><input id="txtHafta1Konu" name="txtHafta1Konu" value="{{txtHafta1Konu}}">
+  </div>
+  <button id="btnKaydet" type="submit">Kaydet</button>
+  {{SONUC}}
+</form>
+<script>
+  for (const d of document.querySelectorAll("[data-sekme]"))
+    d.addEventListener("click", () => {
+      for (const p of document.querySelectorAll(".sekme-paneli")) p.hidden = p.dataset.panel !== d.dataset.sekme;
+    });
+</script>
+</body>
+</html>

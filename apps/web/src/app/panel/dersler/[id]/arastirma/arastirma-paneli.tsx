@@ -152,7 +152,7 @@ export function ArastirmaPaneli({ dersId }: { dersId: string }) {
           Son Bologna okumasındaki eksiklerden düzeltme taslağı hazırlanır. Saatler ve toplamlar sistemin hesabıdır;
           taslak onayınızı bekler.
         </p>
-        <Dugme tur="birincil" onClick={eksikleriGider} disabled={mesgul !== ""}>
+        <Dugme onClick={eksikleriGider} disabled={mesgul !== ""}>
           {mesgul === "eksik" ? "Hazırlanıyor…" : "Eksikleri gider"}
         </Dugme>
         {eksik && (
@@ -250,11 +250,12 @@ export function ArastirmaPaneli({ dersId }: { dersId: string }) {
 
       <section aria-labelledby={`${kimlik}-word`} className="space-y-2">
         <h3 id={`${kimlik}-word`} className="font-semibold">
-          Word paketi
+          Word paketi (isteğe bağlı)
         </h3>
         <p className="text-sm">
-          Düzeltilmiş ders bilgi paketi, bulgular ve kaynakça; varsa ders dosyası da (birden çok belge zip olur).
-          Akredit önerileri belgede sarı zeminle işaretlidir.
+          Birincil yol yukarıdaki fark özetidir; Word yalnız çevrimdışı çalışmak isteyenler için. Düzeltilmiş ders bilgi
+          paketi, bulgular ve kaynakça; varsa ders dosyası da (birden çok belge zip olur). Akredit önerileri belgede
+          sarı zeminle işaretlidir.
         </p>
         <Dugme onClick={indir} disabled={mesgul !== ""}>
           {mesgul === "indir" ? "Hazırlanıyor…" : "Word olarak indir"}

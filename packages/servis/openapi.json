@@ -1050,7 +1050,8 @@
                               "olgunluk_duzeyi",
                               "yazma_plani",
                               "dis_gonderim",
-                              "dis_ornek"
+                              "dis_ornek",
+                              "bologna_devri"
                             ]
                           },
                           "hedef": {
@@ -1688,6 +1689,20 @@
                                 },
                                 "required": ["tur", "politikaId"],
                                 "additionalProperties": false
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "tur": {
+                                    "type": "string",
+                                    "const": "sure_dolumu"
+                                  },
+                                  "politikaId": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": ["tur", "politikaId"],
+                                "additionalProperties": false
                               }
                             ]
                           },
@@ -1910,6 +1925,20 @@
                           },
                           "required": ["tur", "politikaId"],
                           "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "tur": {
+                              "type": "string",
+                              "const": "sure_dolumu"
+                            },
+                            "politikaId": {
+                              "type": "string"
+                            }
+                          },
+                          "required": ["tur", "politikaId"],
+                          "additionalProperties": false
                         }
                       ]
                     },
@@ -2109,6 +2138,20 @@
                               "tur": {
                                 "type": "string",
                                 "const": "politika"
+                              },
+                              "politikaId": {
+                                "type": "string"
+                              }
+                            },
+                            "required": ["tur", "politikaId"],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "tur": {
+                                "type": "string",
+                                "const": "sure_dolumu"
                               },
                               "politikaId": {
                                 "type": "string"
@@ -5582,7 +5625,8 @@
                                     "olgunluk_duzeyi",
                                     "yazma_plani",
                                     "dis_gonderim",
-                                    "dis_ornek"
+                                    "dis_ornek",
+                                    "bologna_devri"
                                   ]
                                 }
                               },
@@ -5604,6 +5648,11 @@
                                 "items": {
                                   "type": "string"
                                 }
+                              },
+                              "itirazSuresiIsGunu": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
                               }
                             },
                             "required": ["oneriTurleri", "enYuksekRisk", "enDusukGuven"],
@@ -5892,7 +5941,8 @@
                                     "olgunluk_duzeyi",
                                     "yazma_plani",
                                     "dis_gonderim",
-                                    "dis_ornek"
+                                    "dis_ornek",
+                                    "bologna_devri"
                                   ]
                                 }
                               },
@@ -5914,6 +5964,11 @@
                                 "items": {
                                   "type": "string"
                                 }
+                              },
+                              "itirazSuresiIsGunu": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
                               }
                             },
                             "required": ["oneriTurleri", "enYuksekRisk", "enDusukGuven"],
@@ -6186,7 +6241,8 @@
                                     "olgunluk_duzeyi",
                                     "yazma_plani",
                                     "dis_gonderim",
-                                    "dis_ornek"
+                                    "dis_ornek",
+                                    "bologna_devri"
                                   ]
                                 }
                               },
@@ -6208,6 +6264,11 @@
                                 "items": {
                                   "type": "string"
                                 }
+                              },
+                              "itirazSuresiIsGunu": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
                               }
                             },
                             "required": ["oneriTurleri", "enYuksekRisk", "enDusukGuven"],
@@ -6467,7 +6528,8 @@
                                     "olgunluk_duzeyi",
                                     "yazma_plani",
                                     "dis_gonderim",
-                                    "dis_ornek"
+                                    "dis_ornek",
+                                    "bologna_devri"
                                   ]
                                 }
                               },
@@ -6489,6 +6551,11 @@
                                 "items": {
                                   "type": "string"
                                 }
+                              },
+                              "itirazSuresiIsGunu": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
                               }
                             },
                             "required": ["oneriTurleri", "enYuksekRisk", "enDusukGuven"],
@@ -6788,7 +6855,8 @@
                                 "olgunluk_duzeyi",
                                 "yazma_plani",
                                 "dis_gonderim",
-                                "dis_ornek"
+                                "dis_ornek",
+                                "bologna_devri"
                               ]
                             }
                           },
@@ -6810,6 +6878,11 @@
                             "items": {
                               "type": "string"
                             }
+                          },
+                          "itirazSuresiIsGunu": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
                           }
                         },
                         "required": ["oneriTurleri", "enYuksekRisk", "enDusukGuven"],
@@ -6966,7 +7039,8 @@
                         "olgunluk_duzeyi",
                         "yazma_plani",
                         "dis_gonderim",
-                        "dis_ornek"
+                        "dis_ornek",
+                        "bologna_devri"
                       ]
                     }
                   },
@@ -6996,6 +7070,11 @@
                       "format": "uuid",
                       "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                     }
+                  },
+                  "itirazSuresiIsGunu": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 30
                   }
                 },
                 "required": ["ad", "oneriTurleri", "enYuksekRisk", "enDusukGuven"],
@@ -7037,7 +7116,8 @@
                               "olgunluk_duzeyi",
                               "yazma_plani",
                               "dis_gonderim",
-                              "dis_ornek"
+                              "dis_ornek",
+                              "bologna_devri"
                             ]
                           }
                         },
@@ -7059,6 +7139,11 @@
                           "items": {
                             "type": "string"
                           }
+                        },
+                        "itirazSuresiIsGunu": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
                         }
                       },
                       "required": ["oneriTurleri", "enYuksekRisk", "enDusukGuven"],
@@ -7248,7 +7333,8 @@
                               "olgunluk_duzeyi",
                               "yazma_plani",
                               "dis_gonderim",
-                              "dis_ornek"
+                              "dis_ornek",
+                              "bologna_devri"
                             ]
                           }
                         },
@@ -7270,6 +7356,11 @@
                           "items": {
                             "type": "string"
                           }
+                        },
+                        "itirazSuresiIsGunu": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
                         }
                       },
                       "required": ["oneriTurleri", "enYuksekRisk", "enDusukGuven"],
@@ -7452,7 +7543,8 @@
                               "olgunluk_duzeyi",
                               "yazma_plani",
                               "dis_gonderim",
-                              "dis_ornek"
+                              "dis_ornek",
+                              "bologna_devri"
                             ]
                           }
                         },
@@ -7474,6 +7566,11 @@
                           "items": {
                             "type": "string"
                           }
+                        },
+                        "itirazSuresiIsGunu": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
                         }
                       },
                       "required": ["oneriTurleri", "enYuksekRisk", "enDusukGuven"],
@@ -8677,6 +8774,782 @@
                   },
                   "required": ["oneriId", "alanSayisi"],
                   "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Girdi geçersiz",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Oturum ya da API anahtarı yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Yetki yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Kayıt yok ya da başka kuruma ait",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Çakışma (ör. öneriye zaten karar verilmiş)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Kural ihlali (ör. yüksek riskli öneri toplu onaylanamaz)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Çok fazla istek",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bologna/dersler/{id}/devir": {
+      "get": {
+        "operationId": "bolognaDevirDurumu",
+        "summary": "Dersin dönem devri: fark özeti, itiraz süresi, karar ve kaynağa yazma durumu (İP-38)",
+        "x-akredit-yetki": "oneri.oku",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Başarılı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "oneriId": {
+                          "type": "string"
+                        },
+                        "dersKodu": {
+                          "type": "string"
+                        },
+                        "donemAdi": {
+                          "type": "string"
+                        },
+                        "durum": {
+                          "type": "string",
+                          "enum": [
+                            "taslak_hazir",
+                            "hoca_degistiriyor",
+                            "onaylandi",
+                            "duzeltildi",
+                            "reddedildi",
+                            "varsayilan_onaylandi"
+                          ]
+                        },
+                        "ozet": {
+                          "type": "string"
+                        },
+                        "risk": {
+                          "type": "string",
+                          "enum": ["dusuk", "orta", "yuksek"]
+                        },
+                        "riskNedenleri": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "fark": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "alan": {
+                                "type": "string"
+                              },
+                              "onceki": {
+                                "type": "string"
+                              },
+                              "yeni": {
+                                "type": "string"
+                              },
+                              "neden": {
+                                "type": "string"
+                              }
+                            },
+                            "required": ["alan", "onceki", "yeni", "neden"],
+                            "additionalProperties": false
+                          }
+                        },
+                        "onlemler": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "eylemId": {
+                                "type": "string"
+                              },
+                              "tanim": {
+                                "type": "string"
+                              },
+                              "uygulandi": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": ["eylemId", "tanim", "uygulandi"],
+                            "additionalProperties": false
+                          }
+                        },
+                        "bulgular": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "duzey": {
+                                "type": "string"
+                              },
+                              "kural": {
+                                "type": "string"
+                              },
+                              "aciklama": {
+                                "type": "string"
+                              }
+                            },
+                            "required": ["duzey", "kural", "aciklama"],
+                            "additionalProperties": false
+                          }
+                        },
+                        "sureSonu": {
+                          "type": ["string", "null"]
+                        },
+                        "kalanIsGunu": {
+                          "type": ["number", "null"]
+                        },
+                        "politikaAdi": {
+                          "type": ["string", "null"]
+                        },
+                        "karar": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "sonuc": {
+                                  "type": "string"
+                                },
+                                "dayanak": {
+                                  "type": "string"
+                                },
+                                "kararVeren": {
+                                  "type": "string"
+                                },
+                                "zaman": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": ["sonuc", "dayanak", "kararVeren", "zaman"],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "yazma": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "durum": {
+                                  "type": "string",
+                                  "enum": ["bekliyor", "kuru", "yazildi", "hata", "izin_yok"]
+                                },
+                                "zaman": {
+                                  "type": ["string", "null"]
+                                },
+                                "ileti": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": ["durum", "zaman", "ileti"],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "oneriId",
+                        "dersKodu",
+                        "donemAdi",
+                        "durum",
+                        "ozet",
+                        "risk",
+                        "riskNedenleri",
+                        "fark",
+                        "onlemler",
+                        "bulgular",
+                        "sureSonu",
+                        "kalanIsGunu",
+                        "politikaAdi",
+                        "karar",
+                        "yazma"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Girdi geçersiz",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Oturum ya da API anahtarı yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Yetki yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Kayıt yok ya da başka kuruma ait",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Çakışma (ör. öneriye zaten karar verilmiş)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Kural ihlali (ör. yüksek riskli öneri toplu onaylanamaz)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Çok fazla istek",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bologna/dersler/{id}/devir/karar": {
+      "post": {
+        "operationId": "bolognaDevirKarari",
+        "summary": "Dönem devri taslağını onayla ya da reddet (yalnız oturumla; öğretim elemanının kararı süre dolumunun önüne geçer)",
+        "x-akredit-yetki": "karar.ver",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Aynı anahtarla tekrarlanan istek yeniden işlenmez, ilk yanıt döner.",
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 200
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sonuc": {
+                    "type": "string",
+                    "enum": ["onaylandi", "reddedildi"]
+                  },
+                  "gerekce": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "sureMs": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3600000
+                  }
+                },
+                "required": ["sonuc"],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Başarılı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "oneriId": {
+                      "type": "string"
+                    },
+                    "sonuc": {
+                      "type": "string",
+                      "enum": ["onaylandi", "duzeltildi", "reddedildi"]
+                    },
+                    "duzeltme": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "baslik": {
+                              "type": "string"
+                            },
+                            "metin": {
+                              "type": "string"
+                            }
+                          },
+                          "required": ["baslik", "metin"],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "kararVeren": {
+                      "type": "string"
+                    },
+                    "dayanak": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "tur": {
+                              "type": "string",
+                              "const": "dogrudan"
+                            }
+                          },
+                          "required": ["tur"],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "tur": {
+                              "type": "string",
+                              "const": "politika"
+                            },
+                            "politikaId": {
+                              "type": "string"
+                            }
+                          },
+                          "required": ["tur", "politikaId"],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "tur": {
+                              "type": "string",
+                              "const": "sure_dolumu"
+                            },
+                            "politikaId": {
+                              "type": "string"
+                            }
+                          },
+                          "required": ["tur", "politikaId"],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "gerekce": {
+                      "type": ["string", "null"]
+                    },
+                    "zaman": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": ["id", "oneriId", "sonuc", "duzeltme", "kararVeren", "dayanak", "gerekce", "zaman"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Girdi geçersiz",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Oturum ya da API anahtarı yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Yetki yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Kayıt yok ya da başka kuruma ait",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Çakışma (ör. öneriye zaten karar verilmiş)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Kural ihlali (ör. yüksek riskli öneri toplu onaylanamaz)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Çok fazla istek",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bologna/kaynaga-yazma-izni": {
+      "get": {
+        "operationId": "bolognaKaynagaYazmaIzni",
+        "summary": "Kurumun Bologna/OBS'ye geri yazma için yazılı izni",
+        "x-akredit-yetki": "oneri.oku",
+        "responses": {
+          "200": {
+            "description": "Başarılı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "acik": {
+                          "type": "boolean"
+                        },
+                        "gercekYazma": {
+                          "type": "boolean"
+                        },
+                        "yaziSayisi": {
+                          "type": "string"
+                        },
+                        "veren": {
+                          "type": "string"
+                        },
+                        "zaman": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["acik", "gercekYazma", "yaziSayisi", "veren", "zaman"],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Girdi geçersiz",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Oturum ya da API anahtarı yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Yetki yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Kayıt yok ya da başka kuruma ait",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Çakışma (ör. öneriye zaten karar verilmiş)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Kural ihlali (ör. yüksek riskli öneri toplu onaylanamaz)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Çok fazla istek",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "bolognaKaynagaYazmaIzniVer",
+        "summary": "Kurumun yazılı iznini kaydet ya da geri al (yeni kayıtla; yalnız oturumdaki kurum yöneticisi)",
+        "x-akredit-yetki": "kurum.ayar_yonet",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Aynı anahtarla tekrarlanan istek yeniden işlenmez, ilk yanıt döner.",
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 200
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "acik": {
+                    "type": "boolean"
+                  },
+                  "gercekYazma": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "yaziSayisi": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "imzalayanAd": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                },
+                "required": ["acik", "yaziSayisi", "imzalayanAd"],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Başarılı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "acik": {
+                          "type": "boolean"
+                        },
+                        "gercekYazma": {
+                          "type": "boolean"
+                        },
+                        "yaziSayisi": {
+                          "type": "string"
+                        },
+                        "veren": {
+                          "type": "string"
+                        },
+                        "zaman": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["acik", "gercekYazma", "yaziSayisi", "veren", "zaman"],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
                 }
               }
             }

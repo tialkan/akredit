@@ -50,12 +50,19 @@ export function kararDogrula(
     hatalar.push("Düzeltme kararında düzeltilmiş içerik verilmeli.");
   if (karar.sonuc !== "duzeltildi" && karar.duzeltme !== null && karar.duzeltme !== undefined)
     hatalar.push("Düzeltilmiş içerik yalnız düzeltme kararında verilir.");
-  if (karar.dayanak.tur === "politika") {
+  if (karar.dayanak.tur === "politika" || karar.dayanak.tur === "sure_dolumu") {
     if (!String(karar.dayanak.politikaId ?? "").trim())
       hatalar.push("Politikaya dayanan kararda politika belirtilmeli.");
     if (etkinRisk(oneri) === "yuksek")
       hatalar.push("Yüksek riskli öneri politikayla karara bağlanamaz; kişi karar vermeli.");
   }
+  if (karar.dayanak.tur === "sure_dolumu") {
+    if (oneri.tur !== "bologna_devri") hatalar.push("Süre dolumuyla onay yalnız dönem devri taslağında kullanılır.");
+    if (etkinRisk(oneri) !== "dusuk") hatalar.push("Yalnız düşük riskli taslak süre dolumuyla onaylanır.");
+    if (karar.sonuc !== "onaylandi") hatalar.push("Süre dolumuyla yalnız onay verilir.");
+  }
+  if (karar.dayanak.tur === "politika" && oneri.tur === "bologna_devri")
+    hatalar.push("Dönem devri taslağı yalnız süre dolumuyla varsayılan onay alabilir.");
   return { gecerli: hatalar.length === 0, hatalar };
 }
 
