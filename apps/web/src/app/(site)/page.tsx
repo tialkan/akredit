@@ -71,6 +71,12 @@ export default function AnaSayfa() {
                 Nasıl çalıştığını okuyun
               </Link>
               <Link
+                href="/deneyin"
+                className="inline-flex min-h-11 items-center font-semibold text-vurgu underline underline-offset-4"
+              >
+                Hesap açmadan deneyin
+              </Link>
+              <Link
                 href="/kurum-ac"
                 className="inline-flex min-h-11 items-center font-semibold text-vurgu underline underline-offset-4"
               >
