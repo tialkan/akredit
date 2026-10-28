@@ -1,0 +1,22 @@
+{
+  "name": "@akredit/ornek-veri",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Sentetik, tohumlu Örnek Üniversitesi verisi ve demo kiracısının yüklenmesi (İP-41). Gerçek kurum ya da kişi verisi içermez.",
+  "license": "Apache-2.0",
+  "exports": {
+    ".": "./src/index.ts",
+    "./yukle": "./src/yukle.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@akredit/cekirdek": "workspace:*",
+    "@akredit/olcme": "workspace:*",
+    "@akredit/vt": "workspace:*",
+    "drizzle-orm": "^0.45.4"
+  }
+}
