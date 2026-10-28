@@ -592,17 +592,15 @@ export async function siteTaramasi(b: ServisBaglami, girdi: unknown): Promise<Si
         .returning({ id: sema.kanit.id });
       if (!kn) throw new Error("Kanıt eklenemedi.");
       if (h.parcalar.length)
-        await tx
-          .insert(sema.kanitParcasi)
-          .values(
-            h.parcalar.map((p, i) => ({
-              kurumId: b.aktor.kurumId,
-              kanitId: kn.id,
-              sira: i,
-              capa: p.capa,
-              metin: p.metin,
-            })),
-          );
+        await tx.insert(sema.kanitParcasi).values(
+          h.parcalar.map((p, i) => ({
+            kurumId: b.aktor.kurumId,
+            kanitId: kn.id,
+            sira: i,
+            capa: p.capa,
+            metin: p.metin,
+          })),
+        );
       await tx.insert(sema.kanitIsleme).values({
         kurumId: b.aktor.kurumId,
         kanitId: kn.id,

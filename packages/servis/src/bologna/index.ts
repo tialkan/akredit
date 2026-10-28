@@ -415,7 +415,7 @@ export async function programDenetimi(b: ServisBaglami, programId: string): Prom
 
 // ---------- 3. YZ taslağı ----------
 
-const TaslakIcerigi = z.object({
+export const TaslakIcerigi = z.object({
   baslik: z.string(),
   metin: z.string(),
   dersKodu: z.string(),
@@ -426,7 +426,10 @@ const TaslakIcerigi = z.object({
 });
 
 /** Önerinin geçerli taslağı: düzeltme kararında insanın JSON olarak verdiği taslak, yoksa önerinin kendisi. */
-function gecerliTaslak(icerik: z.infer<typeof TaslakIcerigi>, karar: { sonuc: string; duzeltme: unknown } | null) {
+export function gecerliTaslak(
+  icerik: z.infer<typeof TaslakIcerigi>,
+  karar: { sonuc: string; duzeltme: unknown } | null,
+) {
   if (karar?.sonuc !== "duzeltildi") return icerik.taslak;
   const metin = (karar.duzeltme as { metin?: string } | null)?.metin ?? "";
   try {
@@ -441,7 +444,7 @@ function gecerliTaslak(icerik: z.infer<typeof TaslakIcerigi>, karar: { sonuc: st
   );
 }
 
-async function dersTaslaklari(tx: Islem, dersId: string) {
+export async function dersTaslaklari(tx: Islem, dersId: string) {
   return tx
     .select({ o: sema.oneri, k: sema.karar })
     .from(sema.oneri)
