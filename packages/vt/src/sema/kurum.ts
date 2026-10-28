@@ -21,6 +21,8 @@ export const kurum = pgTable("kurum", {
   alanAdi: text("alan_adi").unique(),
   /** YZ sağlayıcısı, yurt dışı YZ izni, AKTS saat aralığı, eşikler. */
   ayarlar: jsonb("ayarlar").notNull().default({}),
+  /** Sentetik demo kurumu (İP-41, 0050). Yalnız `demo_kurumu_ac()` true verir; sonradan değiştirilemez. */
+  demo: boolean("demo").notNull().default(false),
   olusturma: olusturma(),
 });
 
