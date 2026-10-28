@@ -73,10 +73,11 @@ export const oneriTuru = pgEnum("oneri_turu", [
   "yazma_plani",
   "dis_gonderim",
   "dis_ornek",
+  "bologna_devri",
 ]);
 export const ureticiTuru = pgEnum("uretici_turu", ["yz", "kural", "kisi"]);
 export const kararSonucu = pgEnum("karar_sonucu", ["onaylandi", "duzeltildi", "reddedildi"]);
-export const kararDayanagi = pgEnum("karar_dayanagi", ["dogrudan", "politika"]);
+export const kararDayanagi = pgEnum("karar_dayanagi", ["dogrudan", "politika", "sure_dolumu"]);
 export const raporTuru = pgEnum("rapor_turu", [
   "kidr",
   "bidr",

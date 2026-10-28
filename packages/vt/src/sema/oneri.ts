@@ -2,7 +2,7 @@
 // Kurallar (tekil karar, politika dayanağı, yüksek risk yasağı) hem CHECK hem tetikleyiciyle uygulanır.
 
 import { sql } from "drizzle-orm";
-import { check, jsonb, pgTable, real, text, uuid } from "drizzle-orm/pg-core";
+import { check, jsonb, pgTable, real, smallint, text, uuid } from "drizzle-orm/pg-core";
 import { kisi, kurumIdSutunu } from "./kurum.ts";
 import { kararDayanagi, kararSonucu, kimlik, olusturma, oneriTuru, riskDuzeyi, ureticiTuru, zaman } from "./ortak.ts";
 
@@ -46,6 +46,8 @@ export const yetkiPolitikasi = pgTable(
     bitis: zaman("bitis"),
     /** İptal yeni kayıtla yapılır: iptal eden politika eskisini gösterir. */
     iptalEttigiId: uuid("iptal_ettigi_id"),
+    /** Süreli varsayılan onayda itiraz süresi (iş günü, İP-38); boşsa 5. */
+    itirazSuresiIsGunu: smallint("itiraz_suresi_is_gunu"),
     olusturma: olusturma(),
   },
   (t) => [
@@ -76,7 +78,7 @@ export const karar = pgTable(
   (t) => [
     check(
       "karar_politika_dayanagi",
-      sql`(${t.dayanak} = 'politika' and ${t.politikaId} is not null) or (${t.dayanak} = 'dogrudan' and ${t.politikaId} is null)`,
+      sql`(${t.dayanak}::text in ('politika', 'sure_dolumu') and ${t.politikaId} is not null) or (${t.dayanak}::text = 'dogrudan' and ${t.politikaId} is null)`,
     ),
     check("karar_duzeltme", sql`(${t.sonuc} = 'duzeltildi') = (${t.duzeltme} is not null)`),
   ],

@@ -21,6 +21,7 @@ export const OneriTuru = z.enum([
   "yazma_plani",
   "dis_gonderim",
   "dis_ornek",
+  "bologna_devri",
 ]);
 export const KararSonucu = z.enum(["onaylandi", "duzeltildi", "reddedildi"]);
 export const KanitKaynakTuru = z.enum(["yukleme", "baglayici", "eposta", "uretilen"]);
@@ -148,6 +149,8 @@ export const Karar = z.object({
   dayanak: z.union([
     z.object({ tur: z.literal("dogrudan") }),
     z.object({ tur: z.literal("politika"), politikaId: z.string() }),
+    /** Süreli varsayılan onay (İP-38). */
+    z.object({ tur: z.literal("sure_dolumu"), politikaId: z.string() }),
   ]),
   gerekce: z.string().nullable(),
   zaman: IsoZaman,
@@ -244,6 +247,8 @@ export const PolitikaKaydi = z.object({
     enDusukGuven: z.number(),
     birimIdleri: z.array(z.string()).optional(),
     programIdleri: z.array(z.string()).optional(),
+    /** Süreli varsayılan onayda itiraz süresi (iş günü, İP-38). */
+    itirazSuresiIsGunu: z.number().int().optional(),
   }),
   durum: z.enum(["imza_bekliyor", "imzali", "iptal"]),
   olusturan: z.string(),
@@ -325,6 +330,13 @@ export const PolitikaGirdisi = z
       .max(1, "Güven eşiği 0 ile 100 arasında olmalı."),
     birimIdleri: z.array(Kimlik).max(100).optional(),
     programIdleri: z.array(Kimlik).max(100).optional(),
+    /** Süreli varsayılan onayda (dönem devri, İP-38) itiraz süresi; verilmezse 5 iş günü. */
+    itirazSuresiIsGunu: z
+      .number()
+      .int("İtiraz süresi tam gün olmalı.")
+      .min(1, "İtiraz süresi en az 1 iş günü olmalı.")
+      .max(30, "İtiraz süresi en çok 30 iş günü olabilir.")
+      .optional(),
   })
   .strict()
   .superRefine((g, c) => {
