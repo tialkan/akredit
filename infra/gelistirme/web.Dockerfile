@@ -18,6 +18,8 @@ WORKDIR /uygulama
 COPY --from=derleme --chown=node:node /depo/apps/web/.next/standalone ./
 COPY --from=derleme --chown=node:node /depo/apps/web/.next/static ./apps/web/.next/static
 COPY --from=derleme --chown=node:node /depo/apps/web/public ./apps/web/public
+# Yerel nesne deposu (Coolify: işçiyle aynı `akredit-kanit` birimi /veri/kanit'e bağlanır).
+RUN mkdir -p /veri/kanit && chown node:node /veri/kanit
 USER node
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
