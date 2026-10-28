@@ -127,7 +127,9 @@ export type OneriTuru =
   | "eylem"
   | "olgunluk_duzeyi"
   | "yazma_plani"
-  | "dis_gonderim";
+  | "dis_gonderim"
+  /** Başka kurumdan örnek (İP-37): kanıt değildir, rapora kanıt olarak giremez. */
+  | "dis_ornek";
 
 /** Her öneri türünün varsayılan risk düzeyi. Yüksek risk hiçbir politikayla devredilemez. */
 export const ONERI_RISKI: Readonly<Record<OneriTuru, RiskDuzeyi>> = {
@@ -142,6 +144,7 @@ export const ONERI_RISKI: Readonly<Record<OneriTuru, RiskDuzeyi>> = {
   olgunluk_duzeyi: "yuksek",
   yazma_plani: "yuksek",
   dis_gonderim: "yuksek",
+  dis_ornek: "orta",
 };
 
 /** Bir önerinin dayandığı kanıt yeri. Alıntı, parçada birebir (normalleştirilmiş) geçmelidir. */
