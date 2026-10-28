@@ -2,6 +2,7 @@
 // bildirilir; isteğe bağlı ama önemli eksikler (anahtar kasası, SMTP, nesne deposu geliştirmede) uyarı olur ve
 // sağlık ucunda görünür. Gizli değerler hiçbir iletiye yazılmaz.
 
+import { anahtarBaytlari } from "@akredit/yz";
 import { z } from "zod";
 
 const bos = (v: unknown) => (typeof v === "string" && v.trim() === "" ? undefined : v);
@@ -114,9 +115,10 @@ export function yapilandirmaOku(env: Record<string, string | undefined>): Yapila
 
   let baglayiciAnahtari: Uint8Array | null = null;
   if (o.AKREDIT_BAGLAYICI_ANAHTARI) {
-    const b = Buffer.from(o.AKREDIT_BAGLAYICI_ANAHTARI, "base64");
-    if (b.length !== 32) hatalar.push("AKREDIT_BAGLAYICI_ANAHTARI 32 baytlık base64 olmalı.");
-    else baglayiciAnahtari = new Uint8Array(b);
+    const b = anahtarBaytlari(o.AKREDIT_BAGLAYICI_ANAHTARI);
+    if (!b)
+      hatalar.push("AKREDIT_BAGLAYICI_ANAHTARI 32 baytlık base64 ya da en az 32 karakterlik rastgele değer olmalı.");
+    else baglayiciAnahtari = b;
   } else uyarilar.push("AKREDIT_BAGLAYICI_ANAHTARI tanımlı değil: e-posta ve Drive eşitlemesi çalışmaz.");
 
   if (hatalar.length) return { tamam: false, hatalar, uyarilar };

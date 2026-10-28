@@ -1,6 +1,9 @@
 // Kurum anahtar kasası: şifreleme gidiş-dönüş, kurum bağı, bozuk metin, ortam değişkeni, biçim denetimi.
+
+import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import {
+  anahtarBaytlari,
   anahtarIzi,
   openrouterAnahtariBicimi,
   ortamdanAnahtarKasasi,
@@ -41,5 +44,21 @@ describe("sağlayıcı anahtar kasası", () => {
     expect(anahtarIzi(ORNEK)).toBe("abcd");
     expect(openrouterAnahtariBicimi(ORNEK)).toBe(true);
     expect(openrouterAnahtariBicimi("sk-proj-abc")).toBe(false);
+  });
+});
+
+describe("anahtarBaytlari", () => {
+  it("32 baytlık base64 değeri olduğu gibi kullanır", () => {
+    const ham = Buffer.alloc(32, 9).toString("base64");
+    expect(Buffer.from(anahtarBaytlari(ham) ?? []).equals(Buffer.alloc(32, 9))).toBe(true);
+  });
+  it("uzun rastgele değeri SHA-256 ile 32 bayta indirger", () => {
+    // Beklenen: sha256("a" × 64) — node:crypto ile aynı hesap.
+    const ham = "a".repeat(64);
+    const beklenen = createHash("sha256").update(ham, "utf8").digest();
+    expect(Buffer.from(anahtarBaytlari(ham) ?? []).equals(beklenen)).toBe(true);
+  });
+  it("32 karakterden kısa değeri reddeder", () => {
+    expect(anahtarBaytlari("kisa")).toBeNull();
   });
 });
