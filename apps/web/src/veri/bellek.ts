@@ -11,6 +11,7 @@ import {
   type PolitikaId,
 } from "@akredit/cekirdek";
 import type {
+  AyarDegisikligi,
   Ayarlar,
   BaglantiSonucu,
   IslemSonucu,
@@ -226,10 +227,19 @@ export class BellekVeriKaynagi implements VeriKaynagi {
     return { tamam: true, deger: structuredClone(p) };
   }
 
-  async ayarlariGuncelle(
-    degisiklik: Partial<Pick<Ayarlar, "yzSaglayici" | "yurtDisiIzni" | "kurumAdi" | "kurumKisaAdi">>,
-  ) {
-    this.#ayarlar = { ...this.#ayarlar, ...degisiklik };
+  async ayarlariGuncelle(degisiklik: AyarDegisikligi) {
+    const { webArama, ...digerleri } = degisiklik;
+    const izin = digerleri.yurtDisiIzni ?? this.#ayarlar.yurtDisiIzni;
+    // Sunucudaki kuralın aynısı (`@akredit/servis` politika.ts): izin yokken web araması açılamaz.
+    if (webArama?.acik === true && !izin)
+      throw new Error("Web araması yurt dışındaki hizmeti kullanır. Önce yurt dışı yapay zekâ hizmetine izin verin.");
+    if (webArama?.enCokSonuc !== undefined && !(webArama.enCokSonuc >= 1 && webArama.enCokSonuc <= 10))
+      throw new Error("İstek başına en çok 10 sonuç alınabilir.");
+    this.#ayarlar = {
+      ...this.#ayarlar,
+      ...digerleri,
+      ...(webArama ? { webArama: { ...this.#ayarlar.webArama, ...webArama } } : {}),
+    };
     return this.ayarlar();
   }
 

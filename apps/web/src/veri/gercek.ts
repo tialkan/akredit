@@ -131,6 +131,7 @@ export class ServisVeriKaynagi implements VeriKaynagi {
         kurumKisaAdi: "",
         yzSaglayici: "kurum_sunucusu",
         yurtDisiIzni: false,
+        webArama: { acik: false, enCokSonuc: 5 },
         yzAnahtar: null,
         politikalar: [],
       },

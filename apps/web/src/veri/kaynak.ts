@@ -159,11 +159,17 @@ export interface PolitikaKaydi {
   imzaZamani: IsoZaman | null;
 }
 
+export type AyarDegisikligi = Partial<Pick<Ayarlar, "yzSaglayici" | "yurtDisiIzni" | "kurumAdi" | "kurumKisaAdi">> & {
+  webArama?: Partial<Ayarlar["webArama"]>;
+};
+
 export interface Ayarlar {
   kurumAdi: string;
   kurumKisaAdi: string;
   yzSaglayici: YzSaglayici;
   yurtDisiIzni: boolean;
+  /** Web araması (başka kurumlardan örnek): yalnız yurt dışı izni varken açılabilir. */
+  webArama: { acik: boolean; enCokSonuc: number };
   yzAnahtar: YzAnahtarOzeti | null;
   politikalar: PolitikaKaydi[];
 }
@@ -219,9 +225,7 @@ export interface VeriKaynagi {
   /** İmza bekleyen politika taslağı oluşturur. Yüksek risk için politika oluşturulamaz. */
   politikaTaslagiOlustur(girdi: PolitikaGirdisi): Promise<IslemSonucu<PolitikaKaydi>>;
   politikaImzala(id: string, imzalayanAd: string): Promise<IslemSonucu<PolitikaKaydi>>;
-  ayarlariGuncelle(
-    degisiklik: Partial<Pick<Ayarlar, "yzSaglayici" | "yurtDisiIzni" | "kurumAdi" | "kurumKisaAdi">>,
-  ): Promise<Ayarlar>;
+  ayarlariGuncelle(degisiklik: AyarDegisikligi): Promise<Ayarlar>;
   /** Anahtar sunucuda şifrelenir; dönen ayarlarda yalnız son dört karakteri vardır. */
   yzAnahtariKaydet(anahtar: string, model?: string): Promise<IslemSonucu<Ayarlar>>;
   yzAnahtariKaldir(): Promise<IslemSonucu<Ayarlar>>;

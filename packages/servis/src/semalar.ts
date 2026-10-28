@@ -256,6 +256,8 @@ export const Ayarlar = z.object({
   kurumKisaAdi: z.string(),
   yzSaglayici: YzSaglayici,
   yurtDisiIzni: z.boolean(),
+  /** Web araması (İP-37): yalnız yurt dışı izni varken açılabilir; istek başına en çok 1-10 sonuç. */
+  webArama: z.object({ acik: z.boolean(), enCokSonuc: z.number().int().min(1).max(10) }),
   yzAnahtar: YzAnahtarOzeti.nullable(),
   politikalar: z.array(PolitikaKaydi),
 });
@@ -349,6 +351,18 @@ export const AyarDegisikligi = z
     kurumKisaAdi: z.string().trim().max(50).optional(),
     yzSaglayici: YzSaglayici.optional(),
     yurtDisiIzni: z.boolean().optional(),
+    webArama: z
+      .object({
+        acik: z.boolean().optional(),
+        enCokSonuc: z
+          .number()
+          .int("Sonuç sayısı tam sayı olmalı.")
+          .min(1, "En az 1 sonuç seçin.")
+          .max(10, "İstek başına en çok 10 sonuç alınabilir.")
+          .optional(),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 export type AyarDegisikligi = z.infer<typeof AyarDegisikligi>;

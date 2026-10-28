@@ -779,6 +779,7 @@ export function ornekAyarlar(): Ayarlar {
     kurumKisaAdi: "ÖÜ",
     yzSaglayici: "kurum_sunucusu",
     yurtDisiIzni: false,
+    webArama: { acik: false, enCokSonuc: 5 },
     yzAnahtar: null,
     politikalar: [
       {

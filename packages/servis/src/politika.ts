@@ -48,7 +48,16 @@ type Taslak = z.infer<typeof Taslak>;
 
 const KurumAyarlari = z
   .object({
-    yz: z.object({ yurtDisiIzin: z.boolean().optional() }).passthrough().optional(),
+    yz: z
+      .object({
+        yurtDisiIzin: z.boolean().optional(),
+        webArama: z
+          .object({ acik: z.boolean().optional(), enCokSonuc: z.number().int().min(1).max(10).optional() })
+          .passthrough()
+          .optional(),
+      })
+      .passthrough()
+      .optional(),
     yzSaglayici: YzSaglayici.optional(),
     yzAnahtar: z
       .object({
@@ -347,6 +356,11 @@ export async function ayarlar(b: ServisBaglami): Promise<z.infer<typeof Ayarlar>
       kurumKisaAdi: kurum.kisaAd ?? "",
       yzSaglayici: ayar.yzSaglayici ?? "kurum_sunucusu",
       yurtDisiIzni: ayar.yz?.yurtDisiIzin === true,
+      // Web araması (İP-37): varsayılan kapalı, istek başına 5 sonuç (`@akredit/yz` webAramaPolitikasi ile aynı).
+      webArama: {
+        acik: ayar.yz?.webArama?.acik === true,
+        enCokSonuc: ayar.yz?.webArama?.enCokSonuc ?? 5,
+      },
       yzAnahtar: ayar.yzAnahtar
         ? {
             saglayici: ayar.yzAnahtar.saglayici,
@@ -365,12 +379,26 @@ export async function ayarlariGuncelle(b: ServisBaglami, girdi: unknown): Promis
   const g = AyarDegisikligi.parse(girdi);
   await islem(b, async (tx, gerekli) => {
     await gerekli("kurum.ayar_yonet", kurumHedefi(b));
-    const { kurum } = await kurumOku(tx, b.aktor.kurumId);
+    const { kurum, ayar } = await kurumOku(tx, b.aktor.kurumId);
     const eski = (kurum.ayarlar ?? {}) as Record<string, unknown>;
     const yeni: Record<string, unknown> = { ...eski };
     if (g.yzSaglayici !== undefined) yeni.yzSaglayici = g.yzSaglayici;
     if (g.yurtDisiIzni !== undefined)
       yeni.yz = { ...((eski.yz as Record<string, unknown>) ?? {}), yurtDisiIzin: g.yurtDisiIzni };
+    if (g.webArama !== undefined) {
+      // Web araması soruyu yurt dışındaki sağlayıcıya gönderir: izin yokken açılamaz (kapatmak her zaman serbest).
+      const izin = g.yurtDisiIzni ?? ayar.yz?.yurtDisiIzin === true;
+      if (g.webArama.acik === true && !izin)
+        throw new ServisHatasi(
+          "kural_ihlali",
+          "Web araması yurt dışındaki hizmeti kullanır. Önce yurt dışı yapay zekâ hizmetine izin verin.",
+        );
+      const yz = (yeni.yz as Record<string, unknown>) ?? {};
+      yeni.yz = {
+        ...yz,
+        webArama: { ...((yz.webArama as Record<string, unknown>) ?? {}), ...g.webArama },
+      };
+    }
     await tx
       .update(sema.kurum)
       .set({
@@ -389,6 +417,8 @@ export async function ayarlariGuncelle(b: ServisBaglami, girdi: unknown): Promis
         alanlar: degisen,
         ...(g.yurtDisiIzni !== undefined ? { yurtDisiIzni: g.yurtDisiIzni } : {}),
         ...(g.yzSaglayici !== undefined ? { yzSaglayici: g.yzSaglayici } : {}),
+        ...(g.webArama?.acik !== undefined ? { webAramaAcik: g.webArama.acik } : {}),
+        ...(g.webArama?.enCokSonuc !== undefined ? { webAramaEnCokSonuc: g.webArama.enCokSonuc } : {}),
       },
     );
   });

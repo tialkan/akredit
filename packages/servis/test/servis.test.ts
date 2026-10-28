@@ -248,6 +248,23 @@ describe("politika ve ayarlar", () => {
     expect(await hataKodu(politika.ayarlariGuncelle(y, { bilinmeyen: 1 }))).toBe("zod");
   });
 
+  it("web araması ayarı: izin yokken açılamaz; tavan 1-10; araştırma servisi aynı ayarı okur (İP-37)", async () => {
+    const y = await o.baglam(o.a, o.a.yonetici);
+    await politika.ayarlariGuncelle(y, { yurtDisiIzni: false });
+    expect((await politika.ayarlar(y)).webArama).toEqual({ acik: false, enCokSonuc: 5 });
+    expect(await hataKodu(politika.ayarlariGuncelle(y, { webArama: { acik: true } }))).toBe("kural_ihlali");
+    expect(await hataKodu(politika.ayarlariGuncelle(y, { webArama: { enCokSonuc: 11 } }))).toBe("zod");
+    expect(await hataKodu(politika.ayarlariGuncelle(y, { webArama: { enCokSonuc: 0 } }))).toBe("zod");
+    // İzin ve açma aynı istekte verilebilir; kapatmak izinsiz de serbesttir.
+    const a = await politika.ayarlariGuncelle(y, { yurtDisiIzni: true, webArama: { acik: true, enCokSonuc: 3 } });
+    expect(a.webArama).toEqual({ acik: true, enCokSonuc: 3 });
+    expect(await sonGunluk(o.a.kurumId)).toMatchObject({ eylem: "kurum.ayar_guncellendi" });
+    const b = await politika.ayarlariGuncelle(y, { webArama: { enCokSonuc: 10 } });
+    expect(b.webArama).toEqual({ acik: true, enCokSonuc: 10 });
+    await politika.ayarlariGuncelle(y, { yurtDisiIzni: false });
+    expect((await politika.ayarlariGuncelle(y, { webArama: { acik: false } })).webArama.acik).toBe(false);
+  });
+
   it("yz anahtarı: şifreli saklanır, yanıtta ve günlükte görünmez; bağlantı denemesi sahte ağla", async () => {
     const { saglayiciAnahtarKasasi } = await import("@akredit/yz");
     const kasa = saglayiciAnahtarKasasi(new Uint8Array(32).fill(3));
