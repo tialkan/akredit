@@ -5,7 +5,9 @@
 import { veriKaynagi as bellekKaynagi } from "./bellek.ts";
 import type { Ayarlar, BaglantiSonucu, IslemSonucu, VeriKaynagi } from "./kaynak.ts";
 
-export const GERCEK_VERI = process.env.NEXT_PUBLIC_AKREDIT_VERI === "gercek";
+import { GERCEK_VERI } from "./kip.ts";
+
+export { GERCEK_VERI };
 
 type Getir = typeof fetch;
 

@@ -57,6 +57,8 @@ jobs:
         run: pnpm --filter @akredit/web build
         env:
           NEXT_TELEMETRY_DISABLED: "1"
+          # Panel sayfaları örnek veriyle sınanır; üretim derlemesi (dogrula işi) gerçek veri kipindedir.
+          AKREDIT_ORNEK_VERI: "1"
       # Erişilebilirlik (axe, klavye) ve performans bütçeleri (e2e/butceler.ts) burada denetlenir; aşım işi kırar.
       - name: Uçtan uca testler
         if: hashFiles('apps/web/e2e/**/*.ts') != ''

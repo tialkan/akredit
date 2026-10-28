@@ -7,8 +7,9 @@ import { Building2, Mail } from "lucide-react";
 import { type FormEvent, useState } from "react";
 import { Dugme } from "../../../bilesenler/dugme.tsx";
 import { MetinAlani } from "../../../bilesenler/form.tsx";
+import { GERCEK_VERI } from "../../../veri/kip.ts";
 
-const ACIK = process.env.NEXT_PUBLIC_AKREDIT_VERI === "gercek";
+const ACIK = GERCEK_VERI;
 
 type Durum = { tur: "bos" } | { tur: "gonderiliyor" } | { tur: "gonderildi" } | { tur: "hata"; ileti: string };
 
