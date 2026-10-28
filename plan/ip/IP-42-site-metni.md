@@ -1,6 +1,6 @@
 # İP-42: Site metni: güçlü vaat, dört rol, pilot başvurusu
 
-- **Durum:** devam
+- **Durum:** inceleme
 - **Faz:** 7
 - **Bağımlılık:** İP-07
 - **Sahip olduğu yollar:** `apps/web/src/site/**`, `apps/web/src/app/(site)/**`, `apps/web/src/app/api/pilot/**`, `apps/web/src/pilot/**`, `apps/web/e2e/sayfalar.ts`, `apps/web/e2e/pilot.spec.ts`, `apps/web/public/llms.txt`, `apps/web/src/app/sitemap.ts`, `packages/vt/src/gocler/0060_pilot_basvurusu.sql`, `packages/vt/src/gocler/meta/_journal.json` (tek satır), `infra/coolify/docker-compose.yml` (tek değişken), `docs/tasarim/ekranlar/*-ip42-*.png`, `docs/raporlar/IP-42.md`
@@ -22,15 +22,19 @@ Dış incelemelerden sonra (docs/danismanlik/2026-10-28-dis-incelemeler.md) site
 
 ## Kabul ölçütleri
 
-- [ ] Ana vaat korunur; mutlak ifadeler doğru biçimde yazılır; sorumluluk kutusu ana sayfada.
-- [ ] `/kimler-icin` dört rolle; ana sayfada dört rol bağlantısı.
-- [ ] Konum bölümü ve bağlantı tablosu.
-- [ ] Her modülde durum; durumlar testle denetlenir; `/yol-haritasi` yayında.
-- [ ] Son kullanıcı metninde depo yolu yok (test).
-- [ ] `/pilot` formu; sunucu denetimleri testli; göç 0060; Coolify ortam değişkeni.
-- [ ] 375 px'te "§" kırılmaz.
-- [ ] `pnpm verify` temiz, web derlemesi başarılı, e2e (axe) geçer; 375/1440 ekran görüntüleri.
+- [x] Ana vaat korunur; mutlak ifadeler doğru biçimde yazılır; sorumluluk kutusu ana sayfada.
+- [x] `/kimler-icin` dört rolle; ana sayfada dört rol bağlantısı.
+- [x] Konum bölümü ve bağlantı tablosu.
+- [x] Her modülde durum; durumlar testle denetlenir; `/yol-haritasi` yayında.
+- [x] Son kullanıcı metninde depo yolu yok (test).
+- [x] `/pilot` formu; sunucu denetimleri testli; göç 0060; Coolify ortam değişkeni.
+- [x] 375 px'te "§" kırılmaz.
+- [x] `pnpm verify` temiz, web derlemesi başarılı, e2e (axe) geçer; 375/1440 ekran görüntüleri.
 
 ## Günlük
 
 - 2026-10-28: İP dosyası yazıldı, iş başladı (dal `ip/42-site-metni`).
+- 2026-10-29: Uygulandı. Vaat çerçevesi, iş bölümü, sorumluluk kutusu; dört rol; konum tablosu; modül durumları ve /yol-haritasi; dayanaklar GitHub bağlantısıyla; /pilot formu, 0060 göçü, Coolify değişkeni; 375 px § düzeltmesi. Bütün kabul ölçütleri karşılandı. `pnpm check`, typecheck, bütün testler temiz; web build başarılı; e2e (pilot, duman, axe, klavye) 142 geçti. Ayrıntı: `docs/raporlar/IP-42.md`.
+- Karar: göç idx 60 (başka dalların 0012+ göçleriyle çakışmasın diye); başvuru tablosu kiracısız ve yalnız eklemeli.
+- Karar: pilot kurumun adı yazılı onay olmadan sitede yazılmaz (kurucu notu).
+- Kalan: başvuruları görüntüleyen yönetim ekranı; CDN hız sınırı kuralı.
