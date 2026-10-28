@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { dugmeSinifi } from "../../bilesenler/dugme.tsx";
-import { Bolum, Dayanak, Dayanaklar, DonemCizelgesi, YapisalVeri } from "../../site/bilesenler.tsx";
+import { Bolum, Dayanak, Dayanaklar, DonemCizelgesi, Olculer, YapisalVeri } from "../../site/bilesenler.tsx";
+import { yokakOzeti } from "../../site/cerceve-ozeti.ts";
 import { AKIS, DONEM_AKISI, DURUM_NOTU, INSANIN_ISI, SAYFALAR, SISTEMIN_ISI } from "../../site/icerik.ts";
+import { OnayOnizleme } from "../../site/onay-onizleme.tsx";
 import { sayfaUstVerisi } from "../../site/yapisal.ts";
 
 export const metadata: Metadata = sayfaUstVerisi(SAYFALAR.ana);
@@ -13,39 +15,25 @@ const DAYANAKLAR = [
   "Yapay zekâ anahtarı: packages/servis/src/politika.ts (VARSAYILAN_OPENROUTER_MODELI), packages/yz/src/anahtar-kasasi.ts.",
   "Değiştirilemez günlük: packages/vt (yalnız ekleme tetikleyicileri), docs/adr/0002-veritabani-ve-degismezlik.md.",
   "Bir dönemin adımları: docs/raporlar/IP-14, IP-15, IP-16, IP-17, IP-18, IP-19, IP-20.",
+  "Ölçüt sayıları çerçeve verisinden sayılır, elle yazılmaz: packages/cerceveler (YOKAK_KURUMSAL_3_3), apps/web/src/site/cerceve-ozeti.ts.",
 ];
 
-/** Değiştirilemez günlükteki bir onay kaydının görünümü (kurgu veri). */
-function OrnekKayit() {
+const yokak = yokakOzeti();
+const DOKUNUS = DONEM_AKISI.reduce((t, a) => t + a.dokunus, 0);
+
+/** İlk ekranın arkasındaki on iki sütunluk ince ızgara: yönetmelik ve rapor sayfasının dizgi ızgarası. Süstür. */
+function BelgeIzgarasi() {
   return (
-    <figure className="rounded-sm border border-cizgi-guclu bg-yuzey">
-      <figcaption className="flex items-center justify-between gap-4 border-b border-cizgi px-4 py-2 text-sm text-soluk">
-        <span>Günlük kaydı</span>
-        <span>Örnek, kurgu veri</span>
-      </figcaption>
-      <dl className="grid grid-cols-[6.5rem_1fr] gap-x-4 gap-y-2 px-4 py-4 text-[0.95rem] sm:grid-cols-[7.5rem_1fr]">
-        <dt className="text-soluk">Öneri</dt>
-        <dd>BP101 ders dosyası, 2026 Güz</dd>
-        <dt className="text-soluk">Dayanak</dt>
-        <dd>
-          Not dökümü, sayfa 1<span className="block text-sm text-soluk">özet 3f9a…c21e</span>
-        </dd>
-        <dt className="text-soluk">Hesap</dt>
-        <dd>ÇK1 sağlanma düzeyi ölçme motorundan</dd>
-        <dt className="text-soluk">Karar</dt>
-        <dd className="font-semibold text-petrol">
-          <svg aria-hidden viewBox="0 0 16 16" className="mr-1 inline size-4 align-[-2px]">
-            <path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" strokeWidth="2" />
-          </svg>
-          Onaylandı
-        </dd>
-        <dt className="text-soluk">Onaylayan</dt>
-        <dd>Dr. Öğr. Üyesi Deniz Örnek</dd>
-        <dt className="text-soluk">Zaman</dt>
-        <dd>12.01.2027 14:32</dd>
-      </dl>
-      <p className="border-t border-cizgi px-4 py-2 text-sm text-soluk">Bu kayıt silinemez ve değiştirilemez.</p>
-    </figure>
+    <div aria-hidden className="belge-izgara hidden lg:block">
+      <div className="mx-auto h-full max-w-6xl px-4">
+        <div className="grid h-full grid-cols-12 gap-x-8">
+          {Array.from({ length: 12 }, (_, i) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: sabit, sırası değişmeyen süs çizgileri
+            <span key={i} className="border-x border-cizgi/45" />
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -53,23 +41,27 @@ export default function AnaSayfa() {
   return (
     <>
       <YapisalVeri sayfa={SAYFALAR.ana} />
-      <section className="border-b border-cizgi bg-yuzey">
-        <div className="mx-auto grid max-w-6xl items-start gap-10 px-4 pt-10 pb-14 sm:pt-16 lg:grid-cols-[1.3fr_1fr] lg:gap-16">
-          <div>
-            <p className="text-lg text-soluk">
-              Üniversiteler için açık kaynak kalite güvencesi ve akreditasyon yazılımı.
+      <section className="relative border-b border-cizgi bg-yuzey">
+        <BelgeIzgarasi />
+        <div className="relative mx-auto grid max-w-6xl gap-x-8 gap-y-12 px-4 pt-10 pb-12 sm:pt-14 lg:grid-cols-12 lg:pt-14">
+          <div className="lg:col-span-7">
+            <p className="sayilar flex items-baseline gap-3 text-soluk">
+              <span className="paragraf-no text-lg" aria-hidden>
+                § 0
+              </span>
+              <span className="text-lg">Üniversiteler için açık kaynak kalite güvencesi ve akreditasyon yazılımı.</span>
             </p>
-            <h1 className="mt-4 text-[2.3rem] leading-[1.1] tracking-[-0.02em] text-vurgu sm:text-[3.5rem]">
+            <h1 className="mt-6 text-[2.6rem] leading-[1.03] tracking-[-0.03em] text-vurgu sm:text-[3.9rem] xl:text-[4.35rem]">
               {SAYFALAR.ana.baslik}
             </h1>
-            <p className="mt-6 max-w-[58ch] text-lg">
+            <p className="mt-6 max-w-[56ch] text-lg">
               Akredit kanıtı kurumun sistemlerinden toplar, sayıları hesaplar ve raporu her cümlesine kaynak göstererek
               yazar.
               <Dayanak n={1} /> Öğretim elemanına kalan iş, önüne gelen önerileri kanıtıyla görüp onaylamaktır. Olgunluk
               düzeyi ve dış kuruma gönderim gibi kararlar hiçbir zaman otomatik verilmez.
               <Dayanak n={2} />
             </p>
-            <p className="mt-4 max-w-[58ch] text-soluk">
+            <p className="mt-4 max-w-[56ch] text-soluk">
               İlk etapta ücretsizdir. Yapay zekâ için kurum kendi OpenRouter anahtarını bir kez girer; kullanım ücreti
               kurumun hesabına yansır.
               <Dayanak n={3} />
@@ -92,13 +84,22 @@ export default function AnaSayfa() {
               </Link>
             </div>
           </div>
-          <div>
-            <OrnekKayit />
+          <div className="lg:col-span-5 lg:mt-20">
+            <OnayOnizleme />
             <p className="mt-3 text-sm text-soluk">
-              Her karar adla, zamanla ve dayanağıyla bu biçimde günlüğe eklenir.
+              Her karar adla, zamanla ve dayanağıyla günlüğe eklenir; kayıt silinemez ve değiştirilemez.
               <Dayanak n={4} />
             </p>
           </div>
+          <Olculer
+            className="lg:col-span-12"
+            ogeler={[
+              { deger: yokak.olcutSayisi, ad: "YÖKAK ölçütü, resmî metinden", dayanak: 6 },
+              { deger: yokak.altOlcutSayisi, ad: "alt ölçüt, resmî metinden", dayanak: 6, tekrar: true },
+              { deger: AKIS.length, ad: "adım: kanıttan günlüğe", dayanak: 1, tekrar: true },
+              { deger: DOKUNUS, ad: "dokunuş: örnek bir dönemde hocaya kalan", dayanak: 5 },
+            ]}
+          />
         </div>
       </section>
 
@@ -141,7 +142,7 @@ export default function AnaSayfa() {
         <DonemCizelgesi adimlar={DONEM_AKISI} />
         <p className="mt-2 text-sm text-soluk">
           Adımların kaynağı:
-          <Dayanak n={5} />
+          <Dayanak n={5} tekrar />
         </p>
       </Bolum>
 
@@ -149,8 +150,10 @@ export default function AnaSayfa() {
         <ol className="grid gap-px overflow-hidden rounded-sm border border-cizgi bg-cizgi sm:grid-cols-2 lg:grid-cols-3">
           {AKIS.map((a, i) => (
             <li key={a.ad} className="bg-yuzey p-5">
-              <p className="paragraf-no">{i + 1}</p>
-              <p className={`mt-1 text-lg font-semibold ${a.ad === "Onay" ? "text-petrol" : ""}`}>{a.ad}</p>
+              <p className="paragraf-no text-[2rem] leading-none" aria-hidden>
+                {i + 1}
+              </p>
+              <p className={`mt-3 text-lg font-semibold ${a.ad === "Onay" ? "text-petrol" : ""}`}>{a.ad}</p>
               <p className="mt-1 text-soluk">{a.metin}</p>
             </li>
           ))}

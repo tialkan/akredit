@@ -13,7 +13,18 @@ export function YapisalVeri({ sayfa, ek }: { sayfa: SayfaBilgisi; ek?: object[] 
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: yapisalVeri(sayfa, ek) }} />;
 }
 
-export function SayfaBasi({ sayfa, ozet, children }: { sayfa: SayfaBilgisi; ozet: ReactNode; children?: ReactNode }) {
+export function SayfaBasi({
+  sayfa,
+  ozet,
+  kunye,
+  children,
+}: {
+  sayfa: SayfaBilgisi;
+  ozet: ReactNode;
+  /** Sayfanın künyesi: koddaki veriden sayılmış birkaç ölçü (elle yazılmaz). */
+  kunye?: Olcu[];
+  children?: ReactNode;
+}) {
   return (
     <header className="border-b border-cizgi bg-yuzey">
       <div className="mx-auto max-w-6xl px-4 pt-8 pb-10 sm:pt-10 sm:pb-14">
@@ -28,10 +39,11 @@ export function SayfaBasi({ sayfa, ozet, children }: { sayfa: SayfaBilgisi; ozet
             <li aria-current="page">{sayfa.ad}</li>
           </ol>
         </nav>
-        <h1 className="mt-6 max-w-4xl text-[2.1rem] leading-[1.12] tracking-[-0.015em] text-vurgu sm:text-[3.1rem]">
+        <h1 className="mt-8 max-w-4xl text-[2.5rem] leading-[1.04] tracking-[-0.025em] text-vurgu sm:text-[3.75rem]">
           {sayfa.baslik}
         </h1>
-        <div className="mt-5 max-w-[62ch] text-lg text-metin">{ozet}</div>
+        <div className="mt-6 max-w-[62ch] text-lg text-metin">{ozet}</div>
+        {kunye ? <Olculer ogeler={kunye} className="mt-10" /> : null}
         {children}
       </div>
     </header>
@@ -58,20 +70,52 @@ export function Bolum({
   return (
     <section aria-labelledby={id} className={zemin ? "bg-zemin" : "bg-yuzey"}>
       <div className="mx-auto grid max-w-6xl gap-x-12 gap-y-4 px-4 py-12 sm:py-16 lg:grid-cols-[17rem_1fr]">
-        <div>
+        <div className="lg:sticky lg:top-6 lg:self-start">
           {no ? (
-            <p className="paragraf-no text-lg" aria-hidden>
+            <p className="paragraf-no border-t border-cizgi-guclu pt-2 text-xl" aria-hidden>
               § {no}
             </p>
           ) : null}
-          <h2 id={id} className="text-[1.65rem] leading-tight tracking-[-0.01em] text-vurgu">
+          <h2 id={id} className="mt-1 text-[1.85rem] leading-[1.1] tracking-[-0.015em] text-vurgu sm:text-[2.1rem]">
             {baslik}
           </h2>
-          {not ? <p className="mt-2 text-soluk">{not}</p> : null}
+          {not ? <p className="mt-3 text-soluk">{not}</p> : null}
         </div>
         <div className="min-w-0">{children}</div>
       </div>
     </section>
+  );
+}
+
+export interface Olcu {
+  deger: number;
+  ad: string;
+  /** İsteğe bağlı dayanak numarası: sayının kaynağı sayfa sonundaki listede. */
+  dayanak?: number;
+  /** Dayanak numarası sayfada daha önce geçtiyse true (yinelenen kimlik olmasın). */
+  tekrar?: boolean;
+}
+
+const SUTUN: Record<number, string> = { 2: "max-w-xl", 3: "sm:grid-cols-3", 4: "sm:grid-cols-4" };
+
+/** Ölçü şeridi: büyük serif rakam (eşit genişlikli) ve altında ne olduğu. Sayılar koddaki veriden gelir. */
+export function Olculer({ ogeler, className = "" }: { ogeler: Olcu[]; className?: string }) {
+  return (
+    <dl
+      className={`sayilar grid grid-cols-2 gap-px overflow-hidden border-y border-cizgi-guclu bg-cizgi ${SUTUN[ogeler.length] ?? "sm:grid-cols-4"} ${className}`}
+    >
+      {ogeler.map((o) => (
+        <div key={o.ad} className="flex flex-col-reverse justify-end bg-yuzey px-4 py-4">
+          <dt className="mt-1 text-sm text-soluk">
+            {o.ad}
+            {o.dayanak ? <Dayanak n={o.dayanak} tekrar={o.tekrar} /> : null}
+          </dt>
+          <dd className="font-serif text-[2.6rem] leading-none font-semibold tracking-[-0.02em] text-vurgu sm:text-[3.25rem]">
+            {o.deger}
+          </dd>
+        </div>
+      ))}
+    </dl>
   );
 }
 
@@ -140,12 +184,18 @@ export function DonemCizelgesi({ adimlar }: { adimlar: DonemAdimi[] }) {
 }
 
 /** Dayanak imi: iddiayı sayfa sonundaki kaynağa bağlayan numara. */
-export function Dayanak({ n }: { n: number }) {
+export function Dayanak({
+  n,
+  tekrar = false,
+}: {
+  n: number /** Aynı numara sayfada ikinci kez: kimlik verilmez. */;
+  tekrar?: boolean;
+}) {
   // Kelime birleştirici (U+2060): numara, önündeki kelimeden ya da noktadan ayrılıp alt satıra düşmez.
   return (
     <sup className="dayanak-imi">
       {"\u2060"}
-      <a href={`#dayanak-${n}`} id={`dayanak-imi-${n}`} aria-label={`Dayanak ${n}`}>
+      <a href={`#dayanak-${n}`} id={tekrar ? undefined : `dayanak-imi-${n}`} aria-label={`Dayanak ${n}`}>
         [{n}]
       </a>
     </sup>
@@ -163,7 +213,7 @@ export function Dayanaklar({ ogeler }: { ogeler: string[] }) {
           </h2>
           <p className="mt-2 text-sm text-soluk">Sayfadaki numaralı iddiaların depodaki kaynağı.</p>
         </div>
-        <ol className="grid gap-2 text-sm text-soluk">
+        <ol className="dayanaklar-listesi grid gap-2 text-sm text-soluk">
           {ogeler.map((o, i) => (
             <li key={o} id={`dayanak-${i + 1}`} className="grid grid-cols-[2.5rem_1fr] gap-2 rounded-sm px-1 py-0.5">
               <a

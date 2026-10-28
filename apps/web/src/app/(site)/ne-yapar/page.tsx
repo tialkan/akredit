@@ -23,6 +23,10 @@ export default function NeYapar() {
       <SayfaBasi
         sayfa={SAYFALAR.neYapar}
         ozet="Akredit birbirine bağlı modüllerden oluşur. Her modül için neyin girdiği, neyin çıktığı ve öğretim elemanına ne kaldığı aşağıda yazılı."
+        kunye={[
+          { deger: MODULLER.length, ad: "modül, her biri aşağıda" },
+          { deger: BAGLAYICILAR.length, ad: "bağlayıcı: kanıtın geldiği sistem" },
+        ]}
       >
         <nav aria-label="Modüller" className="mt-8">
           <ul className="flex flex-wrap gap-2 text-sm">
@@ -30,7 +34,7 @@ export default function NeYapar() {
               <li key={m.kimlik}>
                 <a
                   href={`#${m.kimlik}`}
-                  className="inline-flex min-h-9 items-center rounded-sm border border-cizgi px-3 hover:bg-yuzey-2"
+                  className="inline-flex min-h-11 items-center rounded-sm border border-cizgi px-3 transition-colors duration-150 hover:border-vurgu hover:text-vurgu"
                 >
                   {m.ad}
                 </a>
@@ -87,8 +91,11 @@ export default function NeYapar() {
             aria-labelledby={`${m.kimlik}-baslik`}
             className="grid scroll-mt-6 gap-x-12 gap-y-4 border-b border-cizgi py-10 last:border-b-0 lg:grid-cols-[17rem_1fr]"
           >
-            <div>
-              <h2 id={`${m.kimlik}-baslik`} className="text-[1.65rem] leading-tight tracking-[-0.01em] text-vurgu">
+            <div className="lg:sticky lg:top-6 lg:self-start">
+              <h2
+                id={`${m.kimlik}-baslik`}
+                className="text-[1.85rem] leading-[1.1] tracking-[-0.015em] text-vurgu sm:text-[2.1rem]"
+              >
                 {m.ad}
               </h2>
               <p className="mt-2 text-soluk">{m.ozet}</p>
