@@ -90,8 +90,8 @@ export interface CikarmaSecenekleri {
 export interface DocxParagraf {
   tur: "paragraf";
   metin: string;
-  /** "eksik": eksik bilgi vurgusu; "not": açıklama kutusu. */
-  vurgu?: "eksik" | "not";
+  /** "eksik": eksik bilgi vurgusu; "not": açıklama kutusu; "oneri": Akredit önerisi (onay bekler) işareti. */
+  vurgu?: "eksik" | "not" | "oneri";
 }
 
 export interface DocxTablo {
@@ -99,6 +99,8 @@ export interface DocxTablo {
   basliklar: string[];
   satirlar: string[][];
   aciklama?: string;
+  /** Akredit önerisi olarak işaretlenecek satırların sırası (0'dan; başlık hariç). Sarı zemin ve kalın yazı. */
+  oneriSatirlari?: number[];
 }
 
 export interface DocxMadde {

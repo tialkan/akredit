@@ -21,6 +21,8 @@ import {
 import type { DocxIcerik, DocxModeli } from "./turler.ts";
 
 const DIL = { value: "tr-TR" } as const;
+/** Akredit önerisi işareti: açık sarı zemin (siyah metinle yüksek kontrast). */
+const ONERI_ZEMINI = "FFF4C2";
 const BASLIKLAR = [HeadingLevel.HEADING_1, HeadingLevel.HEADING_2, HeadingLevel.HEADING_3] as const;
 
 function baslikStili(id: string, ad: string, boyut: number) {
@@ -44,6 +46,17 @@ function icerikOgeleri(i: DocxIcerik, listeNo: { n: number }): (Paragraph | Tabl
             children: [new TextRun({ text: i.metin, bold: true, color: "B00020", language: DIL })],
             shading: { type: ShadingType.CLEAR, fill: "FDECEA", color: "auto" },
             border: { left: { style: BorderStyle.SINGLE, size: 18, color: "B00020", space: 6 } },
+          }),
+        ];
+      }
+      if (i.vurgu === "oneri") {
+        return [
+          new Paragraph({
+            children: [
+              new TextRun({ text: "Akredit önerisi: ", bold: true, language: DIL }),
+              new TextRun({ text: i.metin, language: DIL }),
+            ],
+            shading: { type: ShadingType.CLEAR, fill: ONERI_ZEMINI, color: "auto" },
           }),
         ];
       }
@@ -73,16 +86,23 @@ function icerikOgeleri(i: DocxIcerik, listeNo: { n: number }): (Paragraph | Tabl
       );
     }
     case "tablo": {
-      const hucre = (metin: string, baslik: boolean) =>
+      const oneriler = new Set(i.oneriSatirlari ?? []);
+      const hucre = (metin: string, baslik: boolean, oneri = false) =>
         new TableCell({
-          children: [new Paragraph({ children: [new TextRun({ text: metin, bold: baslik, language: DIL })] })],
-          ...(baslik ? { shading: { type: ShadingType.CLEAR, fill: "D9E2F3", color: "auto" } } : {}),
+          children: [new Paragraph({ children: [new TextRun({ text: metin, bold: baslik || oneri, language: DIL })] })],
+          ...(baslik
+            ? { shading: { type: ShadingType.CLEAR, fill: "D9E2F3", color: "auto" } }
+            : oneri
+              ? { shading: { type: ShadingType.CLEAR, fill: ONERI_ZEMINI, color: "auto" } }
+              : {}),
         });
       const tablo = new Table({
         width: { size: 100, type: WidthType.PERCENTAGE },
         rows: [
           new TableRow({ tableHeader: true, children: i.basliklar.map((b) => hucre(b, true)) }),
-          ...i.satirlar.map((s) => new TableRow({ children: i.basliklar.map((_, k) => hucre(s[k] ?? "", false)) })),
+          ...i.satirlar.map(
+            (s, n) => new TableRow({ children: i.basliklar.map((_, k) => hucre(s[k] ?? "", false, oneriler.has(n))) }),
+          ),
         ],
       });
       const sonuc: (Paragraph | Table)[] = [tablo];
