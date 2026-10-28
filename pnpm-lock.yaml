@@ -44,6 +44,9 @@ importers:
       '@akredit/depo':
         specifier: workspace:*
         version: link:../../packages/depo
+      '@akredit/ornek-veri':
+        specifier: workspace:*
+        version: link:../../packages/ornek-veri
       '@akredit/servis':
         specifier: workspace:*
         version: link:../../packages/servis

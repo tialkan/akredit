@@ -23,6 +23,8 @@ services:
       AKREDIT_ADRES: ${SERVICE_FQDN_WEB}
       AKREDIT_VT_ADRES: postgres://akredit_uyg:${SERVICE_PASSWORD_UYGULAMA}@vt:5432/akredit
       AKREDIT_ONAY_GIZLI: ${SERVICE_BASE64_64_ONAY}
+      # İP-41: hesapsız deneme (/deneyin) ve sentetik Örnek Üniversitesi. Kapatmak için 0.
+      AKREDIT_DEMO: ${AKREDIT_DEMO:-1}
       AKREDIT_ANKET_GIZLI: ${SERVICE_BASE64_64_ANKET}
       AKREDIT_ANAHTAR_KASASI: ${SERVICE_BASE64_64_KASA}
       AKREDIT_SMTP_SUNUCU: ${AKREDIT_SMTP_SUNUCU:-}
@@ -55,6 +57,8 @@ services:
       AKREDIT_SMTP_PAROLA: ${AKREDIT_SMTP_PAROLA:-}
       AKREDIT_EPOSTA_GONDEREN: ${AKREDIT_EPOSTA_GONDEREN:-}
       AKREDIT_BAGLAYICI_ANAHTARI: ${SERVICE_BASE64_64_BAGLAYICI}
+      # İP-41: demo kiracısının gece yenilemesi (web ile aynı değer olmalı).
+      AKREDIT_DEMO: ${AKREDIT_DEMO:-1}
       AKREDIT_DEPO_DIZINI: /veri/kanit
       AKREDIT_DEPO_IMZA_GIZLISI: ${SERVICE_BASE64_64_DEPO}
     volumes:

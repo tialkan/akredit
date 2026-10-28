@@ -157,6 +157,7 @@ async function baslat(y: Yapilandirma, uyarilar: string[]) {
     kurumFabrikasi: kurumIci ? { kurumIci } : {},
     esitleme: { dis: gercekBaglam(), kasa, istemciler },
     zamanlama: o.AKREDIT_ISCI_ZAMANLAMA === "1",
+    demo: process.env.AKREDIT_DEMO === "1",
     saatDilimi: o.AKREDIT_SAAT_DILIMI,
     gunluk,
   });
