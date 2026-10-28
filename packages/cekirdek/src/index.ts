@@ -5,6 +5,8 @@ export * from "./atif.ts";
 export * from "./bologna/denetim.ts";
 export * from "./bologna/taslak.ts";
 export * from "./bologna/turler.ts";
+export * from "./karar/kart.ts";
+export * from "./karar/katman.ts";
 export * from "./kimlik.ts";
 export * from "./matris.ts";
 export * from "./olcme-turleri.ts";
