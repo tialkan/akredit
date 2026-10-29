@@ -286,13 +286,15 @@ export async function devirBaslat(
           programCiktilari: okuma ? okuma.veri.programCiktilari.map((p) => p.kod) : null,
           onlemler,
         });
-        const p = s.risk === "dusuk" ? await devirPolitikasi(tx, kurumId, ders.id, simdi) : null;
-        const sureGun = p ? (p.itirazSuresiIsGunu ?? VARSAYILAN_ITIRAZ_IS_GUNU) : null;
-        const sureSonu = sureGun ? isGunuEkle(simdi, sureGun, ayar) : null;
-        const metin = farkOzetiMetni(s, bulgular, { son: sureSonu, saatDilimi: ayar.saatDilimi });
         const bildirilen = [
           ...new Set(acilislar.filter((a) => a.dersId === ders.id).flatMap((a) => a.sorumluKisiIdleri)),
         ];
+        // Fark özeti kimseye gitmiyorsa itiraz edecek kimse yoktur: süreli varsayılan onay açılmaz (ilke 3).
+        const p =
+          s.risk === "dusuk" && bildirilen.length > 0 ? await devirPolitikasi(tx, kurumId, ders.id, simdi) : null;
+        const sureGun = p ? (p.itirazSuresiIsGunu ?? VARSAYILAN_ITIRAZ_IS_GUNU) : null;
+        const sureSonu = sureGun ? isGunuEkle(simdi, sureGun, ayar) : null;
+        const metin = farkOzetiMetni(s, bulgular, { son: sureSonu, saatDilimi: ayar.saatDilimi });
         const icerik: DevirIcerigi = {
           baslik: `${donem.ad} ders paketi: ${ders.kod} ${ders.ad}`,
           metin,
@@ -406,7 +408,7 @@ export async function varsayilanOnaylariUygula(db: Vt, kurumId: string, simdi: D
       const ic = DevirIcerigi.safeParse(o.icerik);
       if (!ic.success) continue;
       const bekle = (neden: string) => sonuc.bekleyen.push({ oneriId: o.id, neden });
-      if (!ic.data.sureSonu || !ic.data.politikaId) {
+      if (!ic.data.sureSonu || !ic.data.politikaId || ic.data.bildirilen.length === 0) {
         bekle("Süreli onay yok; kararı öğretim elemanı verir.");
         continue;
       }
