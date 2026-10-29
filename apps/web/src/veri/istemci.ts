@@ -3,7 +3,7 @@
 // ağ kesintisinde yeniden gönderilen onay iki kez kaydedilmez.
 
 import { veriKaynagi as bellekKaynagi } from "./bellek.ts";
-import type { Ayarlar, BaglantiSonucu, IslemSonucu, VeriKaynagi } from "./kaynak.ts";
+import type { Ayarlar, BaglantiSonucu, IslemSonucu, VeriKaynagi, YurtDisiMetni } from "./kaynak.ts";
 
 import { GERCEK_VERI } from "./kip.ts";
 
@@ -162,6 +162,14 @@ export class ApiVeriKaynagi implements VeriKaynagi {
   }
   yzBaglantiDene() {
     return this.#iste<BaglantiSonucu>("POST", "/ayarlar/yz-anahtari/dene", {});
+  }
+  async yurtDisiMetni() {
+    const s = await this.#iste<YurtDisiMetni>("GET", "/ayarlar/yurt-disi-metni");
+    if (!s.tamam) throw new Error(s.hata);
+    return s.deger;
+  }
+  yurtDisiIzniImzala(imzaAdi: string, metinOzeti: string) {
+    return this.#iste<Ayarlar>("POST", "/ayarlar/yurt-disi-karari", { imzaAdi, metinOzeti });
   }
 }
 

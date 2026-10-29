@@ -117,8 +117,8 @@ describe("panel gerçek veritabanıyla uçtan uca", () => {
     const tek = await k.kararVer({ oneriId: oneriler.yuksek as never, sonuc: "duzeltildi", duzeltme: "Düzeltildi." });
     expect(tek).toMatchObject({ tamam: true, deger: { kararVeren: o.a.yoneticiKisiId, sonuc: "duzeltildi" } });
     expect(await k.bekleyenOneriler()).toEqual([]);
-    const a = await k.ayarlariGuncelle({ yurtDisiIzni: true });
-    expect(a.yurtDisiIzni).toBe(true);
+    const a = await k.ayarlariGuncelle({ yurtDisiIzni: false });
+    expect(a.yurtDisiIzni).toBe(false);
     const hat = await k.kanitHattiOzeti();
     expect(hat.sayac.hata).toBe(1);
     expect((await k.kanitlar())[0]?.isleme).toMatchObject({ durum: "hata", ileti: "Dosya okunamadı." });

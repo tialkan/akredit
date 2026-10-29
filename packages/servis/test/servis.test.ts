@@ -10,7 +10,7 @@ import * as oneri from "../src/oneri.ts";
 import * as panel from "../src/panel.ts";
 import * as politika from "../src/politika.ts";
 import * as rapor from "../src/rapor.ts";
-import { ortam, SIMDI } from "./yardimci.ts";
+import { ortam, SIMDI, yurtDisiIzniVer } from "./yardimci.ts";
 
 let o: Awaited<ReturnType<typeof ortam>>;
 beforeAll(async () => {
@@ -240,12 +240,26 @@ describe("politika ve ayarlar", () => {
 
   it("ayarlar: yönetici günceller, günlüğe girer; gözlemci güncelleyemez", async () => {
     const y = await o.baglam(o.a, o.a.yonetici);
-    const a = await politika.ayarlariGuncelle(y, { yurtDisiIzni: true, kurumKisaAdi: "ÖAÜ-2" });
-    expect(a).toMatchObject({ yurtDisiIzni: true, kurumKisaAdi: "ÖAÜ-2", kurumAdi: "Örnek A Üniversitesi" });
+    const a = await politika.ayarlariGuncelle(y, { yurtDisiIzni: false, kurumKisaAdi: "ÖAÜ-2" });
+    expect(a).toMatchObject({ yurtDisiIzni: false, kurumKisaAdi: "ÖAÜ-2", kurumAdi: "Örnek A Üniversitesi" });
     expect(await sonGunluk(o.a.kurumId)).toMatchObject({ eylem: "kurum.ayar_guncellendi", aktorId: o.a.yonetici });
     const g = await o.baglam(o.a, o.a.gozlemci);
     expect(await hataKodu(politika.ayarlariGuncelle(g, { yurtDisiIzni: false }))).toBe("yetki_yok");
     expect(await hataKodu(politika.ayarlariGuncelle(y, { bilinmeyen: 1 }))).toBe("zod");
+  });
+
+  it("yurt dışı izni ayarlardan açılamaz, yalnız imzalı kararla açılır; ayarlardan kapatılabilir (ilke 3, 7)", async () => {
+    const y = await o.baglam(o.a, o.a.yonetici);
+    await politika.ayarlariGuncelle(y, { yurtDisiIzni: false });
+    expect(await hataKodu(politika.ayarlariGuncelle(y, { yurtDisiIzni: true }))).toBe("kural_ihlali");
+    expect((await politika.ayarlar(y)).yurtDisiIzni).toBe(false);
+    // Aynı istekte izin verip web aramasını açma yolu da kapalı.
+    expect(await hataKodu(politika.ayarlariGuncelle(y, { yurtDisiIzni: true, webArama: { acik: true } }))).toBe(
+      "kural_ihlali",
+    );
+    await yurtDisiIzniVer(y);
+    expect((await politika.ayarlar(y)).yurtDisiIzni).toBe(true);
+    expect((await politika.ayarlariGuncelle(y, { yurtDisiIzni: false })).yurtDisiIzni).toBe(false);
   });
 
   it("web araması ayarı: izin yokken açılamaz; tavan 1-10; araştırma servisi aynı ayarı okur (İP-37)", async () => {
@@ -255,8 +269,9 @@ describe("politika ve ayarlar", () => {
     expect(await hataKodu(politika.ayarlariGuncelle(y, { webArama: { acik: true } }))).toBe("kural_ihlali");
     expect(await hataKodu(politika.ayarlariGuncelle(y, { webArama: { enCokSonuc: 11 } }))).toBe("zod");
     expect(await hataKodu(politika.ayarlariGuncelle(y, { webArama: { enCokSonuc: 0 } }))).toBe("zod");
-    // İzin ve açma aynı istekte verilebilir; kapatmak izinsiz de serbesttir.
-    const a = await politika.ayarlariGuncelle(y, { yurtDisiIzni: true, webArama: { acik: true, enCokSonuc: 3 } });
+    // İzin imzalı kararla verilir; sonra web araması açılabilir. Kapatmak izinsiz de serbesttir.
+    await yurtDisiIzniVer(y);
+    const a = await politika.ayarlariGuncelle(y, { webArama: { acik: true, enCokSonuc: 3 } });
     expect(a.webArama).toEqual({ acik: true, enCokSonuc: 3 });
     expect(await sonGunluk(o.a.kurumId)).toMatchObject({ eylem: "kurum.ayar_guncellendi" });
     const b = await politika.ayarlariGuncelle(y, { webArama: { enCokSonuc: 10 } });

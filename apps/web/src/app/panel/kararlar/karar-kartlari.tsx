@@ -143,7 +143,7 @@ export function KararKartlari({ ilkKartlar }: { ilkKartlar: puko.KararKarti[] })
 
                   <h3 className="mt-3 font-semibold">Durum</h3>
                   <table className="mt-1 w-full text-left text-sm">
-                    <caption className="sr-only">Eşik altı ölçümler ve kaynakları</caption>
+                    <caption className="sr-only">Eşik altı ya da ölçülemeyen sonuçlar ve kaynakları</caption>
                     <thead>
                       <tr>
                         <th scope="col">Ders</th>
@@ -156,8 +156,8 @@ export function KararKartlari({ ilkKartlar }: { ilkKartlar: puko.KararKarti[] })
                       {k.olcumler.map((o) => (
                         <tr key={o.dersKodu}>
                           <th scope="row">{o.dersKodu}</th>
-                          <td>{yuzde(o.deger)}</td>
-                          <td>{yuzde(o.esik - o.deger)}</td>
+                          <td>{o.deger === null ? "Ölçülemedi" : yuzde(o.deger)}</td>
+                          <td>{o.deger === null ? "Hesaplanamadı" : yuzde(o.esik - o.deger)}</td>
                           <td>Ölçme hesabı {o.kaynak.hesapSurumu}</td>
                         </tr>
                       ))}

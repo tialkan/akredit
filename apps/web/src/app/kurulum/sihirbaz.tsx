@@ -67,6 +67,12 @@ export function Sihirbaz() {
   const [durum, setDurum] = useState<Durum | null>(null);
   const [yukHatasi, setYukHatasi] = useState<{ ileti: string; oturum: boolean } | null>(null);
   const [adim, setAdim] = useState<AdimKodu>("anahtar");
+  // Panelden gelen bağlantı (?adim=yurt-disi) doğrudan ilgili adımı açar.
+  useEffect(() => {
+    const istenen = new URLSearchParams(window.location.search).get("adim");
+    const bulunan = ADIMLAR.find((a) => a.kod === istenen);
+    if (bulunan) setAdim(bulunan.kod);
+  }, []);
   const [onizleme, setOnizleme] = useState<Onizleme | null>(null);
   const [programId, setProgramId] = useState<string | null>(null);
   const baslik = useRef<HTMLHeadingElement>(null);

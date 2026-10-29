@@ -203,3 +203,17 @@ describe("okuma", () => {
     expect(await k.rapor("yok")).toBeNull();
   });
 });
+
+describe("yurt dışı izni (örnek kip, sunucu kuralının aynısı)", () => {
+  it("ayarlardan açılamaz; yalnız doğru adla imzalanan kararla açılır; ayarlardan kapatılır", async () => {
+    const k = new BellekVeriKaynagi();
+    await expect(k.ayarlariGuncelle({ yurtDisiIzni: true })).rejects.toThrow(/imzalayın/u);
+    expect((await k.ayarlar()).yurtDisiIzni).toBe(false);
+    const m = await k.yurtDisiMetni();
+    expect((await k.yurtDisiIzniImzala("Başka Biri", m.ozet)).tamam).toBe(false);
+    expect((await k.yurtDisiIzniImzala("Dr. Öğr. Üyesi Deniz Örnek", "eski")).tamam).toBe(false);
+    const s = await k.yurtDisiIzniImzala("  dr. öğr. üyesi  deniz örnek ", m.ozet);
+    expect(s.tamam && s.deger.yurtDisiIzni).toBe(true);
+    expect((await k.ayarlariGuncelle({ yurtDisiIzni: false })).yurtDisiIzni).toBe(false);
+  });
+});

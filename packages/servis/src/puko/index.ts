@@ -19,6 +19,7 @@ import {
 import type { KokNeden } from "@akredit/olcme";
 import { type GunlukGirdisi, gunlugeYaz, type Islem } from "@akredit/vt";
 import { z } from "zod";
+import type { Aktor } from "../baglam.ts";
 import type {
   KararKarti,
   OnlemSecenegi,
@@ -39,7 +40,8 @@ export const PukoOlcumu = z
     kod: z.string().min(1),
     dersKodu: z.string().min(1),
     donem: z.string().min(1),
-    deger: z.number().finite(),
+    /** `null`: bu dönem hesaplanamadı. Değer modelden değil, ölçme hesabından gelir; yoksa yoktur. */
+    deger: z.number().finite().nullable(),
     esik: z.number().finite(),
     kaynak: z.object({
       kanitId: z.string().optional(),
@@ -135,7 +137,13 @@ export async function kartlariUret(olcumlerGirdi: unknown, baglam: KartUretmeBag
       id: baglam.kimlik(),
       pukoId: baglam.kimlik(),
       kume,
-      katman: katmanBelirle({ tur: "olcum", olcumTuru: kume.olcumTuru, deger: kume.enDusuk, esik: kume.esik }),
+      // Kümede ölçülemeyen ders varsa kart K2-olculemedi olur: kişi ölçmenin neden yapılamadığına bakar.
+      katman: katmanBelirle({
+        tur: "olcum",
+        olcumTuru: kume.olcumTuru,
+        deger: kume.olculemeyenVar ? null : kume.enDusuk,
+        esik: kume.esik,
+      }),
       kokNedenler,
       secenekler,
       oncekiPukoId: baglam.oncekiler?.get(kume.anahtar) ?? null,
@@ -178,7 +186,6 @@ export const OnlemSecimi = z
       z.object({ secenekId: z.string().min(1) }).strict(),
       z.object({ kendiMetni: z.string().min(1).max(280) }).strict(),
     ]),
-    kararVeren: z.string().min(1),
     dayanak: z.enum(["dogrudan", "politika", "sure"]).default("dogrudan"),
     toplu: z.boolean().optional(),
     hedefDonem: z.string().min(1),
@@ -198,9 +205,12 @@ export class PukoHatasi extends Error {
 export async function onlemSec(
   depo: PukoDeposu,
   girdi: unknown,
-  baglam: { kimlik: () => string; zaman: string },
+  baglam: { kimlik: () => string; zaman: string; aktor: Pick<Aktor, "tur" | "kisiId"> },
 ): Promise<{ devir: SessizDevirGirdisi[]; eylem: SurecEylemi }> {
-  const g = OnlemSecimi.parse(girdi);
+  // Karar veren istekten değil, oturumdaki kişiden gelir (ilke 3; inceleme 4-7 #2). Katman 2 kararı
+  // devredilemez: API anahtarıyla gelen istek önlem seçemez. Girdide `kararVeren` alanı `strict` ile reddedilir.
+  if (baglam.aktor.tur !== "oturum") throw new PukoHatasi("Önlem kararını yalnız oturum açmış kişi verebilir.");
+  const g = { ...OnlemSecimi.parse(girdi), kararVeren: baglam.aktor.kisiId };
   const kayit = (await pukoKayitlari(depo)).find((k) => k.kart.id === g.kartId);
   if (!kayit) throw new PukoHatasi("Karar kartı bulunamadı. Sayfayı yenileyip yeniden deneyin.");
   if (kayit.durum !== "acik") throw new PukoHatasi("Bu kart için zaten karar verildi.");
@@ -278,9 +288,22 @@ export async function sonrakiDonemiIsle(
     await depo.ekle(olay);
     if (r.durum === "kapandi_iyilesmedi") {
       const dersler = new Set(k.kart.kume.olcumler.map((o) => o.dersKodu));
-      const altta = ilgili.filter((o) => dersler.has(o.dersKodu) && o.deger < o.esik);
-      // Ölçülemeyen ders sonraki kartta önceki değeriyle kalmaz; ölçülmedi bilgisi karşılaştırmada durur.
+      const altta = ilgili.filter((o) => dersler.has(o.dersKodu) && (o.deger === null || o.deger < o.esik));
       yeniden.push(...altta);
+      // Ölçülemeyen ders sonraki kartta önceki değeriyle kalmaz (uydurma olur) ve sessizce düşmez: değeri
+      // `null` olan ölçümle yeni karta girer, kart K2-olculemedi olur (inceleme 4-7 #3).
+      const olculen = new Set(ilgili.map((o) => o.dersKodu));
+      for (const o of k.kart.kume.olcumler)
+        if (!olculen.has(o.dersKodu))
+          yeniden.push({
+            olcumTuru: o.olcumTuru,
+            kod: o.kod,
+            dersKodu: o.dersKodu,
+            donem: hedef,
+            deger: null,
+            esik: o.esik,
+            kaynak: { kanitId: baglam.kanitId, hesapSurumu: "olculemedi" },
+          });
       const anahtar =
         k.kart.kume.olcumTuru === "pc"
           ? `pc|${k.kart.kume.kod}|${hedef}`

@@ -25,6 +25,7 @@ import type {
   PolitikaGirdisi,
   PolitikaKaydi,
   VeriKaynagi,
+  YurtDisiMetni,
 } from "./kaynak.ts";
 import {
   DERSLER,
@@ -48,6 +49,14 @@ export interface BellekSecenekleri {
 }
 
 const hata = <T>(mesaj: string): IslemSonucu<T> => ({ tamam: false, hata: mesaj });
+
+/** Örnek kipin karar metni. Gerçek metin ve özeti sunucudadır (`@akredit/servis` kurulum). */
+const ORNEK_YURT_DISI_METNI: YurtDisiMetni = {
+  metin:
+    "Örnek kip: bu bir gösterimdir, hiçbir yere istek gitmez.\nGerçek kurumda bu kutuda kurumun yurt dışı aktarım karar metni yer alır ve imza adınızla, zamanıyla günlüğe yazılır.",
+  surum: "ornek",
+  ozet: "ornek",
+};
 
 export class BellekVeriKaynagi implements VeriKaynagi {
   #oneriler: OneriGorunumu[];
@@ -229,7 +238,12 @@ export class BellekVeriKaynagi implements VeriKaynagi {
 
   async ayarlariGuncelle(degisiklik: AyarDegisikligi) {
     const { webArama, ...digerleri } = degisiklik;
-    const izin = digerleri.yurtDisiIzni ?? this.#ayarlar.yurtDisiIzni;
+    // Sunucudaki kuralın aynısı: yurt dışı izni ayarlardan açılamaz, yalnız imzalı kararla (yurtDisiIzniImzala).
+    if (digerleri.yurtDisiIzni === true)
+      throw new Error(
+        "Yurt dışı izni ayarlardan açılamaz. Kurulum sayfasındaki yurt dışı aktarım kararını adınızla imzalayın.",
+      );
+    const izin = digerleri.yurtDisiIzni === false ? false : this.#ayarlar.yurtDisiIzni;
     // Sunucudaki kuralın aynısı (`@akredit/servis` politika.ts): izin yokken web araması açılamaz.
     if (webArama?.acik === true && !izin)
       throw new Error("Web araması yurt dışındaki hizmeti kullanır. Önce yurt dışı yapay zekâ hizmetine izin verin.");
@@ -263,6 +277,18 @@ export class BellekVeriKaynagi implements VeriKaynagi {
   }
   async yzAnahtariKaldir(): Promise<IslemSonucu<Ayarlar>> {
     this.#ayarlar = { ...this.#ayarlar, yzAnahtar: null };
+    return { tamam: true, deger: await this.ayarlar() };
+  }
+  async yurtDisiMetni(): Promise<YurtDisiMetni> {
+    return ORNEK_YURT_DISI_METNI;
+  }
+  async yurtDisiIzniImzala(imzaAdi: string, metinOzeti: string): Promise<IslemSonucu<Ayarlar>> {
+    if (metinOzeti !== ORNEK_YURT_DISI_METNI.ozet)
+      return hata("Karar metni değişti. Sayfayı yenileyip güncel metni okuyun.");
+    const sade = (s: string) => s.trim().replace(/\s+/gu, " ").toLocaleLowerCase("tr");
+    if (sade(imzaAdi) !== sade(ORNEK_KULLANICI.ad))
+      return hata(`İmza için adınızı hesabınızdaki gibi yazın. Hesabınızdaki ad: ${ORNEK_KULLANICI.ad}`);
+    this.#ayarlar = { ...this.#ayarlar, yurtDisiIzni: true };
     return { tamam: true, deger: await this.ayarlar() };
   }
   async yzBaglantiDene(): Promise<IslemSonucu<BaglantiSonucu>> {
