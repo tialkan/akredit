@@ -22,8 +22,13 @@ export interface DemoUcSecenekleri {
 const Govde = z.object({ rol: z.enum(DEMO_ROLLERI) });
 
 function istemciIp(istek: Request): string {
-  const x = istek.headers.get("x-forwarded-for");
-  return x?.split(",")[0]?.trim() || istek.headers.get("x-real-ip") || "bilinmiyor";
+  // Güvenilir vekil (Coolify) `x-real-ip` yazar ve gerçek adresi `x-forwarded-for` sonuna ekler; ilk değeri
+  // istemci yazabilir, ona göre sınırlamak hız sınırını boşa çıkarır (kurum açılışı ve pilot formuyla aynı kural).
+  return (
+    istek.headers.get("x-real-ip")?.trim() ||
+    istek.headers.get("x-forwarded-for")?.split(",").at(-1)?.trim() ||
+    "bilinmiyor"
+  );
 }
 
 async function govdeOku(istek: Request): Promise<unknown> {

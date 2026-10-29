@@ -567,3 +567,81 @@ describe("kaynağa geri yazma", () => {
     );
   });
 });
+
+describe("sessiz devir: bildirilecek kimse yoksa süreli onay yok (inceleme dalga 4-7)", () => {
+  it("ders açılışında sorumlu yoksa süre sonu yazılmaz ve süre dolumuyla onay verilmez", async () => {
+    // Politika (kurum A, bologna_devri, düşük risk) yukarıdaki testte imzalandı. Fark özeti kimseye gitmediyse
+    // itiraz edecek kimse yoktur: varsayılan onay ilke 3'e göre verilemez, karar kişide kalır.
+    const t = ornekTaslak();
+    const [teorik, uygulama, lab] = t.tul.split("+").map(Number);
+    const { donemId, dersId } = await kiraciIslemi(o.db, o.a.kurumId, async (tx) => {
+      const [p] = await tx
+        .insert(sema.program)
+        .values({ kurumId: o.a.kurumId, birimId: o.a.birimId, ad: "Sorumlusuz Program", duzey: "onlisans" })
+        .returning();
+      const [donem] = await tx
+        .insert(sema.donem)
+        .values({ kurumId: o.a.kurumId, ad: "2027-2028 Güz", baslangic: "2027-09-27", bitis: "2028-01-21" })
+        .returning();
+      const [d] = await tx
+        .insert(sema.ders)
+        .values({
+          kurumId: o.a.kurumId,
+          programId: p?.id as string,
+          kod: t.kod,
+          ad: t.ad,
+          akts: t.akts,
+          teorik: teorik ?? 0,
+          uygulama: uygulama ?? 0,
+          laboratuvar: lab ?? 0,
+          yariyil: 3,
+        })
+        .returning();
+      await tx
+        .insert(sema.dersAcilisi)
+        .values({ kurumId: o.a.kurumId, dersId: d?.id as string, donemId: donem?.id as string, sorumluKisiIdleri: [] });
+      const [taslak] = await tx
+        .insert(sema.oneri)
+        .values({
+          kurumId: o.a.kurumId,
+          tur: "bologna_taslagi",
+          hedefTuru: "ders",
+          hedefId: d?.id as string,
+          icerik: JSON.parse(JSON.stringify({ baslik: "B", metin: "M", dersKodu: t.kod, taslak: t, fark: [] })),
+          gerekce: "Geçen dönem.",
+          guven: 0.9,
+          ureticiTuru: "kural",
+          uretici: { kural: "ornek", surum: "1" },
+          risk: "orta",
+          olusturma: new Date("2026-02-20T09:00:00Z"),
+        })
+        .returning();
+      await tx.insert(sema.karar).values({
+        kurumId: o.a.kurumId,
+        oneriId: taslak?.id as string,
+        sonuc: "onaylandi",
+        kararVerenKisiId: o.a.ogretim,
+        dayanak: "dogrudan",
+        zaman: GECEN_DONEM_KARARI,
+      });
+      return { donemId: donem?.id as string, dersId: d?.id as string };
+    });
+    const s = await bologna.devirBaslat(o.db, o.a.kurumId, SIMDI, { donemId });
+    expect(s.acilan).toHaveLength(1);
+    const oneriId = s.acilan[0]?.oneriId as string;
+    const [r] = await kiraciIslemi(o.db, o.a.kurumId, (tx) =>
+      tx.select().from(sema.oneri).where(eq(sema.oneri.id, oneriId)),
+    );
+    const ic = bologna.DevirIcerigi.parse(r?.icerik);
+    expect(ic.bildirilen).toEqual([]);
+    expect(ic.sureSonu).toBeNull();
+    expect(ic.politikaId).toBeNull();
+    const v = await bologna.varsayilanOnaylariUygula(o.db, o.a.kurumId, gun(60));
+    expect(v.onaylanan.map((x) => x.oneriId)).not.toContain(oneriId);
+    const k = await kiraciIslemi(o.db, o.a.kurumId, (tx) =>
+      tx.select().from(sema.karar).where(eq(sema.karar.oneriId, oneriId)),
+    );
+    expect(k).toEqual([]);
+    expect(dersId).toBeTruthy();
+  });
+});
