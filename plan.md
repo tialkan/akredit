@@ -174,12 +174,12 @@ Durumlar: **hazır** (başlanabilir), **devam**, **inceleme**, **tamam**, **bekl
 | [40](plan/ip/IP-40-sifir-kisisel-veri.md) | Sıfır kişisel veri çıkışı, KVKK envanteri, hukuk paketi | 7 | inceleme | 03, 28 |
 | [41](plan/ip/IP-41-ornek-universite.md) | Sentetik Örnek Üniversitesi demosu | 7 | inceleme | 12 |
 | [42](plan/ip/IP-42-site-metni.md) | Site metni: güçlü vaat, dört rol, pilot başvurusu | 7 | inceleme | 07 |
-| 43 | Toplu sınav kağıdı taraması (yerel model) | 8 | bekliyor | 10, 06 |
-| 44 | Cümleden kanıta tek tık, rapor dil denetimi | 8 | bekliyor | 19, 20 |
-| 45 | İdari birimlerden hesapsız belge isteme | 8 | bekliyor | 10, 14 |
-| 46 | Toplantıdan tutanağa ve EBYS taslağına akış | 8 | bekliyor | 18, 23 |
-| 47 | Program akreditasyonu tablo dönüştürücüsü | 8 | bekliyor | 11, 19 |
-| 48 | Saha ziyareti hazırlık simülatörü | 8 | bekliyor | 22 |
+| [43](plan/ip/IP-43-sinav-kagidi-taramasi.md) | Toplu sınav kağıdı taraması (yerel model) | 8 | hazır | 10, 06 |
+| [44](plan/ip/IP-44-cumleden-kanita.md) | Cümleden kanıta tek tık, rapor dil denetimi | 8 | bekliyor | 19, 20 |
+| [45](plan/ip/IP-45-hesapsiz-belge-isteme.md) | İdari birimlerden hesapsız belge isteme | 8 | hazır | 10, 14 |
+| [46](plan/ip/IP-46-toplantidan-tutanaga.md) | Toplantıdan tutanağa ve EBYS taslağına akış | 8 | bekliyor | 18, 23 |
+| [47](plan/ip/IP-47-program-akreditasyonu-tablolari.md) | Program akreditasyonu tablo dönüştürücüsü | 8 | bekliyor | 11, 19 |
+| [48](plan/ip/IP-48-saha-ziyareti-hazirligi.md) | Saha ziyareti hazırlık simülatörü | 8 | hazır | 22 |
 
 ## 9. Alt ajan çalışma modeli
 
@@ -190,6 +190,7 @@ Durumlar: **hazır** (başlanabilir), **devam**, **inceleme**, **tamam**, **bekl
 - 1. dalga (başladı): İP-01 … İP-07 (+ İP-08 CI, orkestratör).
 - 2. dalga: İP-08 kalan, İP-09, İP-10, İP-11 (araştırmadan sonra), İP-12.
 - 3. dalga: İP-13, İP-14, İP-15, İP-16.
+- 8. dalga: hazır olanlar İP-43, İP-45, İP-48; İP-44, İP-46, İP-47 bağımlılıkları incelemeden çıkınca.
 - Sonrası tabloya göre.
 
 **Dal ve birleştirme.** Her ajan kendi çalışma ağacında (git worktree) `ip/<no>-<kisa-ad>` dalında çalışır, işini commit eder. Orkestratör dalları sırayla `main`'e birleştirir; `pnpm-lock.yaml` çakışmasında kilit dosyası `pnpm install` ile yeniden üretilir.
