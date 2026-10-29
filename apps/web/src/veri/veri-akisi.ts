@@ -57,6 +57,7 @@ export const TABLO_SINIFI: Record<string, string | null> = {
   birim: null,
   cerceve: null,
   cikti: null,
+  demo_nesli: null,
   ders: null,
   ders_acilisi: null,
   donem: null,
