@@ -225,4 +225,24 @@ describe("POST /api/deneyin", () => {
     expect((await uc(form("rektorluk", ADRES, "203.0.113.10"))).headers.get("location")).toMatch(/\/panel/u);
     expect(await sayi()).toBe(once + 3);
   });
+
+  it("istemcinin yazdığı x-forwarded-for ilk değeri hız sınırını aşmaz (inceleme dalga 4-7)", async () => {
+    // Vekil gerçek adresi x-real-ip'e ve x-forwarded-for sonuna yazar; ilk değeri istemci seçer.
+    const uc = demoUcu(o.k, { ipBasina: new HizSiniri({ kapasite: 1, saniyede: 0.0001, simdi: () => 0 }) });
+    const sahte = (n: number) =>
+      new Request(`${ADRES}/api/deneyin`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/x-www-form-urlencoded",
+          "x-forwarded-for": `10.0.0.${n}, 203.0.113.50`,
+          "x-real-ip": "203.0.113.50",
+          origin: ADRES,
+        },
+        body: new URLSearchParams({ rol: "rektorluk" }).toString(),
+      });
+    expect((await uc(sahte(1))).headers.get("location")).toMatch(/\/panel/u);
+    const ikinci = await uc(sahte(2));
+    expect(ikinci.headers.get("location")).toBe(`${ADRES}/deneyin?hata=cok`);
+    expect(ikinci.headers.get("set-cookie")).toBeNull();
+  });
 });
