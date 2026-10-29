@@ -21,6 +21,7 @@ function baglam(onerici?: puko.OnlemOnericisi) {
   return {
     kimlik: () => `k${++n}`,
     zaman: "2027-02-01T09:00:00.000Z",
+    aktor: { tur: "oturum" as const, kisiId: "kisi-ayse" },
     kokNeden: (o: { dersKodu: string }) => [
       { tur: "zor_soru" as const, soruNo: "S3", deger: 0.3, aciklama: `${o.dersKodu} S3 zor.` },
     ],
@@ -91,7 +92,7 @@ describe("PÜKÖ döngüsü", () => {
     const kart = kartlar[0] as puko.KararKarti;
 
     // Katman 2: politika ya da toplu karar reddedilir.
-    const temel = { kartId: kart.id, kararVeren: "Ayşe Örnek", hedefDonem: SONRAKI, sureMs: 9000 };
+    const temel = { kartId: kart.id, hedefDonem: SONRAKI, sureMs: 9000 };
     await expect(
       puko.onlemSec(depo, { ...temel, secim: { secenekId: kart.secenekler[0]?.id }, dayanak: "politika" }, b),
     ).rejects.toThrow(/devredilemez/);
@@ -100,7 +101,22 @@ describe("PÜKÖ döngüsü", () => {
     ).rejects.toThrow(/toplu/);
     await expect(puko.onlemSec(depo, { ...temel, secim: { secenekId: "yok" } }, b)).rejects.toThrow(/yok/);
 
+    // Karar veren istekten gelemez; API anahtarı karar veremez (inceleme 4-7 #2).
+    await expect(
+      puko.onlemSec(depo, { ...temel, kararVeren: "Sahte Ad", secim: { secenekId: kart.secenekler[1]?.id } }, b),
+    ).rejects.toThrow();
+    await expect(
+      puko.onlemSec(
+        depo,
+        { ...temel, secim: { secenekId: kart.secenekler[1]?.id } },
+        {
+          ...b,
+          aktor: { tur: "anahtar", kisiId: "kisi-ayse" },
+        },
+      ),
+    ).rejects.toThrow(/oturum/);
     const r = await puko.onlemSec(depo, { ...temel, secim: { secenekId: kart.secenekler[1]?.id } }, b);
+    expect(r.devir[0]?.dayanak.kararVeren).toBe("kisi-ayse");
     expect(r.devir.map((d) => [d.dersKodu, d.hedefDonem, d.dayanak.pukoId])).toEqual([
       ["BP101", SONRAKI, kart.pukoId],
       ["BP102", SONRAKI, kart.pukoId],
@@ -132,7 +148,6 @@ describe("PÜKÖ döngüsü", () => {
       {
         kartId: yeni.id,
         secim: { kendiMetni: "Laboratuvar oturumu ekle" },
-        kararVeren: "Ayşe Örnek",
         hedefDonem: "2028-2029 Güz",
         sureMs: 1200,
       },
@@ -156,6 +171,37 @@ describe("PÜKÖ döngüsü", () => {
     ]);
     // İki karar: küme küçük, gösterge gizli.
     expect((await puko.pukoYorgunlugu(depo)).gizli).toBe(true);
+  });
+
+  it("sonraki dönemde ölçülemeyen ders sessizce düşmez: yeni K2-olculemedi kartına girer (inceleme 4-7 #3)", async () => {
+    const depo = puko.bellekPukoDeposu();
+    const b = baglam();
+    const { kartlar } = await puko.kartlariUret(ilk, b);
+    await puko.kartlariAc(depo, kartlar);
+    const kart = kartlar[0] as puko.KararKarti;
+    await puko.onlemSec(
+      depo,
+      { kartId: kart.id, secim: { secenekId: kart.secenekler[0]?.id }, hedefDonem: SONRAKI, sureMs: 5000 },
+      b,
+    );
+    // Sonraki dönem: BP101 eşiği geçti (61 ≥ 60), BP102 ve BP103 hiç ölçülmedi.
+    const sonuc = await puko.sonrakiDonemiIsle(depo, [olc("BP101", "PÇ3", 61, SONRAKI)], {
+      ...b,
+      kanitId: "kanit-olcme-2027",
+    });
+    expect(sonuc.kapananlar[0]?.durum).toBe("kapandi_iyilesmedi");
+    expect(sonuc.yeniKartlar).toHaveLength(1);
+    const yeni = sonuc.yeniKartlar[0] as puko.KararKarti;
+    expect(yeni.katman.kural).toBe("K2-olculemedi");
+    expect(yeni.katman.devredilemez).toBe(true);
+    // Ölçülmeyen derslerin değeri önceki dönemden taşınmaz (uydurma olurdu): null.
+    expect(yeni.kume.olcumler.map((o) => [o.dersKodu, o.deger])).toEqual([
+      ["BP102", null],
+      ["BP103", null],
+    ]);
+    expect(yeni.kume.enDusuk).toBeNull();
+    expect(yeni.kume.olculemeyenVar).toBe(true);
+    expect(yeni.oncekiPukoId).toBe(kart.pukoId);
   });
 
   it("zod: geçersiz ölçüm reddedilir", async () => {

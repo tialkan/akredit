@@ -76,7 +76,7 @@ describe("katmanBelirle", () => {
   });
 });
 
-const olc = (dersKodu: string, kod: string, deger: number, olcumTuru: "ck" | "pc" = "pc"): EsikAltiOlcum => ({
+const olc = (dersKodu: string, kod: string, deger: number | null, olcumTuru: "ck" | "pc" = "pc"): EsikAltiOlcum => ({
   olcumTuru,
   kod,
   dersKodu,
@@ -106,6 +106,20 @@ describe("istisnalariKumele", () => {
     expect(pc3?.enDusuk).toBe(40);
     // Açıklar: 20, 5, 8 → ortalama 33/3 = 11
     expect(pc3?.ortalamaAcik).toBe(11);
+    expect(pc3?.olculemeyenVar).toBe(false);
+  });
+
+  it("ölçülemeyen (null) ders de istisnadır; en düşük ve açık yalnız ölçülenlerden", () => {
+    const k = istisnalariKumele([olc("BP101", "PÇ3", 40), olc("BP102", "PÇ3", null), olc("BP103", "PÇ3", 70)]);
+    expect(k).toHaveLength(1);
+    expect(k[0]?.olcumler.map((o) => o.dersKodu)).toEqual(["BP101", "BP102"]);
+    expect(k[0]?.olculemeyenVar).toBe(true);
+    // Yalnız BP101 ölçüldü: en düşük 40, açık 60 − 40 = 20.
+    expect(k[0]?.enDusuk).toBe(40);
+    expect(k[0]?.ortalamaAcik).toBe(20);
+    const yalniz = istisnalariKumele([olc("BP102", "PÇ3", null)]);
+    expect(yalniz[0]?.enDusuk).toBeNull();
+    expect(yalniz[0]?.ortalamaAcik).toBeNull();
   });
 });
 

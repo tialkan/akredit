@@ -388,6 +388,13 @@ export async function ayarlariGuncelle(b: ServisBaglami, girdi: unknown): Promis
   const g = AyarDegisikligi.parse(girdi);
   await islem(b, async (tx, gerekli) => {
     await gerekli("kurum.ayar_yonet", kurumHedefi(b));
+    // Yurt dışı izni yalnız adıyla imzalanan karar ile açılır (kurulum/yurtDisiKarariImzala, ilke 3 ve 7).
+    // Bu yol yalnız kapatabilir: kapatmak her zaman güvenli yöndedir.
+    if (g.yurtDisiIzni === true)
+      throw new ServisHatasi(
+        "kural_ihlali",
+        "Yurt dışı izni ayarlardan açılamaz. Kurulum sayfasındaki yurt dışı aktarım kararını adınızla imzalayın.",
+      );
     const { kurum, ayar } = await kurumOku(tx, b.aktor.kurumId);
     const eski = (kurum.ayarlar ?? {}) as Record<string, unknown>;
     const yeni: Record<string, unknown> = { ...eski };
@@ -396,7 +403,7 @@ export async function ayarlariGuncelle(b: ServisBaglami, girdi: unknown): Promis
       yeni.yz = { ...((eski.yz as Record<string, unknown>) ?? {}), yurtDisiIzin: g.yurtDisiIzni };
     if (g.webArama !== undefined) {
       // Web araması soruyu yurt dışındaki sağlayıcıya gönderir: izin yokken açılamaz (kapatmak her zaman serbest).
-      const izin = g.yurtDisiIzni ?? ayar.yz?.yurtDisiIzin === true;
+      const izin = g.yurtDisiIzni === false ? false : ayar.yz?.yurtDisiIzin === true;
       if (g.webArama.acik === true && !izin)
         throw new ServisHatasi(
           "kural_ihlali",

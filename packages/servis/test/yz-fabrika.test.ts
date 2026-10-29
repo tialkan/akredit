@@ -11,7 +11,7 @@ import {
   kurumSaglayicisi,
   YzAnahtariYokHatasi,
 } from "../src/yz-fabrika.ts";
-import { ortam } from "./yardimci.ts";
+import { ortam, yurtDisiIzniVer } from "./yardimci.ts";
 
 const ANAHTAR = "sk-or-v1-uydurmafabrika0000000001";
 const kasa = saglayiciAnahtarKasasi(new Uint8Array(32).fill(7));
@@ -57,7 +57,7 @@ describe("kurumSaglayicisi", () => {
     expect(red.tur).toBe("politika");
     expect(adres).toBe("");
 
-    await politika.ayarlariGuncelle(y, { yurtDisiIzni: true });
+    await yurtDisiIzniVer(y);
     const k = await kurumSaglayicisi(o.db, o.a.kurumId, {
       kasa,
       fetch: sahte as never,

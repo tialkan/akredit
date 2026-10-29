@@ -8,8 +8,8 @@ export interface EsikAltiOlcum {
   kod: string;
   dersKodu: string;
   donem: string;
-  /** 0-100, hesaptan. */
-  deger: number;
+  /** 0-100, hesaptan. `null`: bu dönem hesaplanamadı (ölçülmedi); kişiye gider (K2-olculemedi). */
+  deger: number | null;
   esik: number;
   /** Değerin dayandığı kayıt (ölçme sonucu kanıtı, hesap sürümü). */
   kaynak: { kanitId?: string; hesapSurumu: string; girdiOzeti?: string };
@@ -23,9 +23,12 @@ export interface IstisnaKumesi {
   donem: string;
   esik: number;
   olcumler: EsikAltiOlcum[];
-  /** Kümedeki en düşük değer ve ortalama açık (eşik − değer), hesaptan. */
-  enDusuk: number;
-  ortalamaAcik: number;
+  /** Kümedeki en düşük değer ve ortalama açık (eşik − değer), hesaptan. Ölçülmeyenler hesaba girmez;
+   * kümede hiç ölçülen yoksa `null`. */
+  enDusuk: number | null;
+  ortalamaAcik: number | null;
+  /** Kümede bu dönem ölçülemeyen ders var mı? Varsa kart K2-olculemedi katmanındadır. */
+  olculemeyenVar: boolean;
 }
 
 const karsilastir = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
@@ -37,7 +40,8 @@ const karsilastir = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 export function istisnalariKumele(olcumler: readonly EsikAltiOlcum[]): IstisnaKumesi[] {
   const kumeler = new Map<string, EsikAltiOlcum[]>();
   for (const o of olcumler) {
-    if (!(o.deger < o.esik)) continue;
+    // Ölçülemeyen sonuç da istisnadır: sessizce düşmez, kişiye gider.
+    if (o.deger !== null && !(o.deger < o.esik)) continue;
     const anahtar = o.olcumTuru === "pc" ? `pc|${o.kod}|${o.donem}` : `ck|${o.dersKodu}|${o.kod}|${o.donem}`;
     const k = kumeler.get(anahtar) ?? [];
     k.push(o);
@@ -49,6 +53,7 @@ export function istisnalariKumele(olcumler: readonly EsikAltiOlcum[]): IstisnaKu
       const sirali = [...liste].sort((a, b) => karsilastir(a.dersKodu, b.dersKodu));
       const ilk = sirali[0] as EsikAltiOlcum;
       const esik = Math.max(...sirali.map((o) => o.esik));
+      const olculen = sirali.flatMap((o) => (o.deger === null ? [] : [{ deger: o.deger, esik: o.esik }]));
       return {
         anahtar,
         olcumTuru: ilk.olcumTuru,
@@ -56,8 +61,9 @@ export function istisnalariKumele(olcumler: readonly EsikAltiOlcum[]): IstisnaKu
         donem: ilk.donem,
         esik,
         olcumler: sirali,
-        enDusuk: Math.min(...sirali.map((o) => o.deger)),
-        ortalamaAcik: sirali.reduce((t, o) => t + (o.esik - o.deger), 0) / sirali.length,
+        enDusuk: olculen.length ? Math.min(...olculen.map((o) => o.deger)) : null,
+        ortalamaAcik: olculen.length ? olculen.reduce((t, o) => t + (o.esik - o.deger), 0) / olculen.length : null,
+        olculemeyenVar: olculen.length < sirali.length,
       };
     });
 }
@@ -78,7 +84,8 @@ export type PukoDurumu = "acik" | "onlem_secildi" | "kapandi_iyilesti" | "kapand
 
 export interface PukoKarsilastirmasi {
   dersKodu: string;
-  once: number;
+  /** Önceki dönem değeri; o dönem ölçülemediyse `null`. */
+  once: number | null;
   sonra: number | null;
   fark: number | null;
   esik: number;
@@ -101,7 +108,7 @@ export function pukoKapanisi(
       dersKodu: o.dersKodu,
       once: o.deger,
       sonra,
-      fark: sonra === null ? null : sonra - o.deger,
+      fark: sonra === null || o.deger === null ? null : sonra - o.deger,
       esik: o.esik,
       esigiGecti: sonra !== null && sonra >= o.esik,
     };

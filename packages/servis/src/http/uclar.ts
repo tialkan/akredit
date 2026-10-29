@@ -9,6 +9,7 @@ import type { ServisBaglami } from "../baglam.ts";
 import * as bologna from "../bologna/index.ts";
 import * as dersDosyasi from "../ders-dosyasi/index.ts";
 import * as kanit from "../kanit.ts";
+import * as kurulum from "../kurulum/index.ts";
 import * as odr from "../odr/index.ts";
 import * as onay from "../onay/index.ts";
 import * as oneri from "../oneri.ts";
@@ -328,6 +329,32 @@ export const UCLAR: Uc[] = [
     govde: s.AyarDegisikligi,
     cikti: s.Ayarlar,
     isle: (b, g) => politika.ayarlariGuncelle(b, g.govde),
+  },
+  {
+    ad: "yurtDisiMetni",
+    yontem: "GET",
+    yol: "/ayarlar/yurt-disi-metni",
+    ozet: "Yurt dışı aktarım kararının güncel metni, sürümü ve özeti",
+    eylem: "kurum.ayar_yonet",
+    cikti: z.object({ metin: z.string(), surum: z.string(), ozet: z.string() }),
+    isle: async () => ({
+      metin: kurulum.YURT_DISI_METNI,
+      surum: kurulum.YURT_DISI_METNI_SURUMU,
+      ozet: kurulum.YURT_DISI_METNI_OZETI,
+    }),
+  },
+  {
+    ad: "yurtDisiIzniImzala",
+    yontem: "POST",
+    yol: "/ayarlar/yurt-disi-karari",
+    ozet: "Yurt dışı yapay zekâ iznini yöneticinin adıyla imzalanan kararla ver (tek açma yolu)",
+    eylem: "kurum.ayar_yonet",
+    govde: kurulum.YurtDisiKarariGirdisi.omit({ izin: true }),
+    cikti: s.Ayarlar,
+    isle: async (b, g) => {
+      await kurulum.yurtDisiKarariImzala(b, { ...(g.govde as object), izin: true });
+      return politika.ayarlar(b);
+    },
   },
   {
     ad: "yzAnahtariKaydet",

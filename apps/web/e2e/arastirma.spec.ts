@@ -29,8 +29,17 @@ test.describe("web araması ayarı", () => {
     const ihlaller = await new AxeBuilder({ page }).withTags(ETIKETLER).analyze();
     expect(ihlaller.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(", ")}`)).toEqual([]);
 
-    // 2. Yurt dışı izni verilir: bölüm etkinleşir, neden kaybolur.
-    await page.getByRole("switch", { name: "Yurt dışındaki yapay zekâ hizmetine izin ver" }).check();
+    // 2. Yurt dışı izni yalnız imzalı kararla verilir: metin okunur, ad yazılır, imzalanır; bölüm etkinleşir.
+    await page.getByRole("button", { name: "İzin kararını oku ve imzala" }).click();
+    await expect(page.getByText(/Örnek kip: bu bir gösterimdir/u)).toBeVisible();
+    const imza = page.getByLabel("İmza: adınız ve soyadınız");
+    await imza.fill("Başka Biri");
+    await page.getByRole("button", { name: "İmzala ve izin ver" }).click();
+    await expect(page.getByText(/adınızı hesabınızdaki gibi yazın/u)).toBeVisible();
+    await expect(anahtar).toBeDisabled();
+    await imza.fill("Dr. Öğr. Üyesi Deniz Örnek");
+    await page.getByRole("button", { name: "İmzala ve izin ver" }).click();
+    await expect(page.getByText("Şu an: İzin var")).toBeVisible();
     await expect(anahtar).toBeEnabled();
     await expect(b.getByText(/Devre dışı:/u)).toHaveCount(0);
 
@@ -53,7 +62,8 @@ test.describe("web araması ayarı", () => {
     await expect(sonuc).toHaveValue("3");
 
     // 5. İzin kaldırılınca web araması yine devre dışı görünür (açık olsa da istek gitmez).
-    await page.getByRole("switch", { name: "Yurt dışındaki yapay zekâ hizmetine izin ver" }).uncheck();
+    await page.getByRole("button", { name: "İzni kaldır" }).click();
+    await expect(page.getByText("Şu an: İzin yok")).toBeVisible();
     await expect(anahtar).toBeDisabled();
     await expect(anahtar).not.toBeChecked();
     await expect(b.getByText("Şu an: Kapalı")).toBeVisible();

@@ -1,13 +1,13 @@
 "use client";
 
 import { ONERI_RISKI, type OneriTuru } from "@akredit/cekirdek";
-import { useEffect, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { Dugme } from "../../../bilesenler/dugme.tsx";
 import { useBildirim } from "../../../bilesenler/etkilesimli.tsx";
 import { IsaretKutusu, MetinAlani, Secim } from "../../../bilesenler/form.tsx";
 import { Kart, Rozet } from "../../../bilesenler/temel.tsx";
 import { istemciVeriKaynagi } from "../../../veri/istemci.ts";
-import type { Ayarlar, YzSaglayici } from "../../../veri/kaynak.ts";
+import type { Ayarlar, YurtDisiMetni, YzSaglayici } from "../../../veri/kaynak.ts";
 import { ONERI_TURU_ETIKETI, RISK_ETIKETI, tarihYaz } from "../../../veri/yardimci.ts";
 import { WebArama } from "./web-arama.tsx";
 import { YzAnahtari } from "./yz-anahtari.tsx";
@@ -118,35 +118,11 @@ export function AyarlarFormu({ ilk }: { ilk: Ayarlar }) {
             ))}
           </div>
         </fieldset>
-        <div className="mt-5 rounded border border-cizgi-guclu p-4">
-          <div className="flex items-start gap-3">
-            <input
-              id="yurt-disi-izni"
-              type="checkbox"
-              role="switch"
-              aria-checked={ayarlar.yurtDisiIzni}
-              aria-describedby="yurt-disi-aciklama"
-              className="mt-1 size-5 shrink-0 accent-[var(--vurgu)]"
-              checked={ayarlar.yurtDisiIzni}
-              onChange={(e) =>
-                void guncelle(
-                  { yurtDisiIzni: e.target.checked },
-                  e.target.checked ? "Yurt dışı hizmete izin verildi." : "Yurt dışı hizmete izin kaldırıldı.",
-                )
-              }
-            />
-            <div>
-              <label htmlFor="yurt-disi-izni" className="font-semibold">
-                Yurt dışındaki yapay zekâ hizmetine izin ver
-              </label>
-              <p id="yurt-disi-aciklama" className="text-sm text-soluk">
-                Kapalıyken kişisel veri içeren belgeler yurt dışındaki bir hizmete gönderilmez. Açıkken bile öğrenci
-                kimlikleri takma adla gider. Bu kararı kurumunuzun veri sorumlusuyla birlikte verin.
-              </p>
-              <p className="mt-1 text-sm font-semibold">Şu an: {ayarlar.yurtDisiIzni ? "İzin var" : "İzin yok"}</p>
-            </div>
-          </div>
-        </div>
+        <YurtDisiIzni
+          ayarlar={ayarlar}
+          degisti={setAyarlar}
+          kaldir={() => void guncelle({ yurtDisiIzni: false }, "Yurt dışı hizmete izin kaldırıldı.")}
+        />
         <YzAnahtari ayarlar={ayarlar} degisti={setAyarlar} />
       </Kart>
 
@@ -264,6 +240,113 @@ export function AyarlarFormu({ ilk }: { ilk: Ayarlar }) {
           </Dugme>
         </form>
       </Kart>
+    </div>
+  );
+}
+
+/** Yurt dışı izni: açmak yalnız adıyla imzalanan kararla (ilke 3, 7); kapatmak tek düğme. */
+function YurtDisiIzni({
+  ayarlar,
+  degisti,
+  kaldir,
+}: {
+  ayarlar: Ayarlar;
+  degisti: (a: Ayarlar) => void;
+  kaldir: () => void;
+}) {
+  const [metin, setMetin] = useState<YurtDisiMetni | null>(null);
+  const [imza, setImza] = useState("");
+  const [hata, setHata] = useState<string | null>(null);
+  const [acik, setAcik] = useState(false);
+  const kaynak = istemciVeriKaynagi();
+  const bildir = useBildirim();
+  const ac = async () => {
+    setAcik(true);
+    if (!metin) {
+      try {
+        setMetin(await kaynak.yurtDisiMetni());
+      } catch {
+        setHata("Karar metni yüklenemedi. Sayfayı yenileyin.");
+      }
+    }
+  };
+  const imzala = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!metin) return;
+    const s = await kaynak.yurtDisiIzniImzala(imza, metin.ozet);
+    if (!s.tamam) return setHata(s.hata);
+    setHata(null);
+    setAcik(false);
+    setImza("");
+    degisti(s.deger);
+    bildir("Yurt dışı aktarım kararı imzalandı. İzin verildi.", "basari");
+  };
+  return (
+    <div className="mt-5 rounded border border-cizgi-guclu p-4">
+      <h3 className="font-semibold">Yurt dışındaki yapay zekâ hizmeti</h3>
+      <p id="yurt-disi-aciklama" className="text-sm text-soluk">
+        Kapalıyken kişisel veri içeren belgeler yurt dışındaki bir hizmete gönderilmez. Açıkken bile öğrenci kimlikleri
+        takma adla gider. İzin, kurum adına adınızla imzaladığınız kararla verilir.
+      </p>
+      <p className="mt-1 text-sm font-semibold">Şu an: {ayarlar.yurtDisiIzni ? "İzin var" : "İzin yok"}</p>
+      {ayarlar.yurtDisiIzni ? (
+        <button
+          type="button"
+          aria-describedby="yurt-disi-aciklama"
+          className="mt-3 inline-flex min-h-11 items-center rounded border border-cizgi-guclu px-4 font-semibold hover:bg-yuzey-2"
+          onClick={kaldir}
+        >
+          İzni kaldır
+        </button>
+      ) : !acik ? (
+        <button
+          type="button"
+          aria-describedby="yurt-disi-aciklama"
+          className="mt-3 inline-flex min-h-11 items-center rounded border border-cizgi-guclu px-4 font-semibold hover:bg-yuzey-2"
+          onClick={() => void ac()}
+        >
+          İzin kararını oku ve imzala
+        </button>
+      ) : (
+        <form className="mt-3 space-y-3" onSubmit={(e) => void imzala(e)}>
+          <div className="rounded-sm border border-cizgi bg-zemin px-4 py-3 text-sm">
+            {metin ? (
+              metin.metin.split("\n").map((satir) => (
+                <p key={satir} className="mt-2 first:mt-0">
+                  {satir}
+                </p>
+              ))
+            ) : (
+              <p>Yükleniyor…</p>
+            )}
+          </div>
+          <MetinAlani
+            etiket="İmza: adınız ve soyadınız"
+            ipucu="Hesabınızdaki adla aynı yazılmalı."
+            autoComplete="name"
+            hata={hata}
+            value={imza}
+            onChange={(e) => setImza(e.target.value)}
+            required
+          />
+          <div className="flex gap-3">
+            <button
+              type="submit"
+              disabled={!metin || imza.trim().length < 3}
+              className="inline-flex min-h-11 items-center rounded bg-vurgu px-4 font-semibold text-white disabled:opacity-50"
+            >
+              İmzala ve izin ver
+            </button>
+            <button
+              type="button"
+              className="inline-flex min-h-11 items-center rounded border border-cizgi-guclu px-4"
+              onClick={() => setAcik(false)}
+            >
+              Vazgeç
+            </button>
+          </div>
+        </form>
+      )}
     </div>
   );
 }

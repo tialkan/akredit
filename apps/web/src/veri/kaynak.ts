@@ -230,4 +230,14 @@ export interface VeriKaynagi {
   yzAnahtariKaydet(anahtar: string, model?: string): Promise<IslemSonucu<Ayarlar>>;
   yzAnahtariKaldir(): Promise<IslemSonucu<Ayarlar>>;
   yzBaglantiDene(): Promise<IslemSonucu<BaglantiSonucu>>;
+  /** Yurt dışı aktarım kararının güncel metni; imza bu metnin özetine bağlanır. */
+  yurtDisiMetni(): Promise<YurtDisiMetni>;
+  /** Yurt dışı iznini açmanın tek yolu: yönetici adını yazarak kararı imzalar (ilke 3). Kapatmak ayarlardan. */
+  yurtDisiIzniImzala(imzaAdi: string, metinOzeti: string): Promise<IslemSonucu<Ayarlar>>;
+}
+
+export interface YurtDisiMetni {
+  metin: string;
+  surum: string;
+  ozet: string;
 }

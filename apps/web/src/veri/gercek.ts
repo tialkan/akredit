@@ -5,6 +5,7 @@
 import {
   akademik,
   kanit,
+  kurulum,
   oneri,
   panel,
   politika,
@@ -167,5 +168,18 @@ export class ServisVeriKaynagi implements VeriKaynagi {
   }
   yzBaglantiDene() {
     return sonuc(() => politika.yzBaglantiDene(this.#b)) as Promise<IslemSonucu<BaglantiSonucu>>;
+  }
+  async yurtDisiMetni() {
+    return {
+      metin: kurulum.YURT_DISI_METNI,
+      surum: kurulum.YURT_DISI_METNI_SURUMU,
+      ozet: kurulum.YURT_DISI_METNI_OZETI,
+    };
+  }
+  yurtDisiIzniImzala(imzaAdi: string, metinOzeti: string) {
+    return sonuc(async () => {
+      await kurulum.yurtDisiKarariImzala(this.#b, { izin: true, imzaAdi, metinOzeti });
+      return politika.ayarlar(this.#b);
+    }) as Promise<IslemSonucu<Ayarlar>>;
   }
 }

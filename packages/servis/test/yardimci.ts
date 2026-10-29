@@ -231,3 +231,13 @@ export async function ortam() {
   });
   return { db: b.db, a, b: bb, baglam, kapat: b.kapat };
 }
+
+/** Yurt dışı iznini tek geçerli yoldan, yöneticinin adıyla imzalanan kararla açar (İP-35). */
+export async function yurtDisiIzniVer(b: ServisBaglami, harf: "A" | "B" = "A"): Promise<void> {
+  const kurulum = await import("../src/kurulum/index.ts");
+  await kurulum.yurtDisiKarariImzala(b, {
+    izin: true,
+    imzaAdi: `Deneme Yönetici ${harf}`,
+    metinOzeti: kurulum.YURT_DISI_METNI_OZETI,
+  });
+}

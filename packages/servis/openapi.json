@@ -6101,6 +6101,406 @@
         }
       }
     },
+    "/api/v1/ayarlar/yurt-disi-metni": {
+      "get": {
+        "operationId": "yurtDisiMetni",
+        "summary": "Yurt dışı aktarım kararının güncel metni, sürümü ve özeti",
+        "x-akredit-yetki": "kurum.ayar_yonet",
+        "responses": {
+          "200": {
+            "description": "Başarılı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "metin": {
+                      "type": "string"
+                    },
+                    "surum": {
+                      "type": "string"
+                    },
+                    "ozet": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["metin", "surum", "ozet"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Girdi geçersiz",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Oturum ya da API anahtarı yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Yetki yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Kayıt yok ya da başka kuruma ait",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Çakışma (ör. öneriye zaten karar verilmiş)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Kural ihlali (ör. yüksek riskli öneri toplu onaylanamaz)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Çok fazla istek",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ayarlar/yurt-disi-karari": {
+      "post": {
+        "operationId": "yurtDisiIzniImzala",
+        "summary": "Yurt dışı yapay zekâ iznini yöneticinin adıyla imzalanan kararla ver (tek açma yolu)",
+        "x-akredit-yetki": "kurum.ayar_yonet",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Aynı anahtarla tekrarlanan istek yeniden işlenmez, ilk yanıt döner.",
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 200
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "imzaAdi": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 200
+                  },
+                  "metinOzeti": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  }
+                },
+                "required": ["imzaAdi", "metinOzeti"],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Başarılı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "kurumAdi": {
+                      "type": "string"
+                    },
+                    "kurumKisaAdi": {
+                      "type": "string"
+                    },
+                    "yzSaglayici": {
+                      "type": "string",
+                      "enum": ["evren", "openrouter", "kurum_sunucusu", "ollama", "diger"]
+                    },
+                    "yurtDisiIzni": {
+                      "type": "boolean"
+                    },
+                    "webArama": {
+                      "type": "object",
+                      "properties": {
+                        "acik": {
+                          "type": "boolean"
+                        },
+                        "enCokSonuc": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 10
+                        }
+                      },
+                      "required": ["acik", "enCokSonuc"],
+                      "additionalProperties": false
+                    },
+                    "yzAnahtar": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "saglayici": {
+                              "type": "string",
+                              "const": "openrouter"
+                            },
+                            "son4": {
+                              "type": "string"
+                            },
+                            "model": {
+                              "type": "string"
+                            },
+                            "kayitZamani": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "kaydeden": {
+                              "type": "string"
+                            }
+                          },
+                          "required": ["saglayici", "son4", "model", "kayitZamani", "kaydeden"],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "politikalar": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "ad": {
+                            "type": "string"
+                          },
+                          "kapsam": {
+                            "type": "object",
+                            "properties": {
+                              "oneriTurleri": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "enum": [
+                                    "kanit_etiketi",
+                                    "toplanti_tutanagi",
+                                    "anket_ozeti",
+                                    "matris_katkisi",
+                                    "soru_cikti_eslemesi",
+                                    "bologna_taslagi",
+                                    "rapor_bolumu",
+                                    "eylem",
+                                    "olgunluk_duzeyi",
+                                    "yazma_plani",
+                                    "dis_gonderim",
+                                    "dis_ornek",
+                                    "bologna_devri"
+                                  ]
+                                }
+                              },
+                              "enYuksekRisk": {
+                                "type": "string",
+                                "enum": ["dusuk", "orta"]
+                              },
+                              "enDusukGuven": {
+                                "type": "number"
+                              },
+                              "birimIdleri": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "programIdleri": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "itirazSuresiIsGunu": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "required": ["oneriTurleri", "enYuksekRisk", "enDusukGuven"],
+                            "additionalProperties": false
+                          },
+                          "durum": {
+                            "type": "string",
+                            "enum": ["imza_bekliyor", "imzali", "iptal"]
+                          },
+                          "olusturan": {
+                            "type": "string"
+                          },
+                          "olusturma": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "imzalayan": {
+                            "type": ["string", "null"]
+                          },
+                          "imzaZamani": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "ad",
+                          "kapsam",
+                          "durum",
+                          "olusturan",
+                          "olusturma",
+                          "imzalayan",
+                          "imzaZamani"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "kurumAdi",
+                    "kurumKisaAdi",
+                    "yzSaglayici",
+                    "yurtDisiIzni",
+                    "webArama",
+                    "yzAnahtar",
+                    "politikalar"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Girdi geçersiz",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Oturum ya da API anahtarı yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Yetki yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Kayıt yok ya da başka kuruma ait",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Çakışma (ör. öneriye zaten karar verilmiş)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Kural ihlali (ör. yüksek riskli öneri toplu onaylanamaz)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Çok fazla istek",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/ayarlar/yz-anahtari": {
       "post": {
         "operationId": "yzAnahtariKaydet",

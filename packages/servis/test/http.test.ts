@@ -7,6 +7,7 @@ import { HizSiniri } from "../src/http/hiz.ts";
 import { apiIsleyici } from "../src/http/isleyici.ts";
 import { vtTekrarDeposu } from "../src/http/tekrar.ts";
 import { UCLAR } from "../src/http/uclar.ts";
+import * as kurulum from "../src/kurulum/index.ts";
 import * as odr from "../src/odr/index.ts";
 import { type Ornek, ortam, SIMDI } from "./yardimci.ts";
 
@@ -64,7 +65,12 @@ function ornekIstek(ad: string, a: Ornek): { yol: string; govde?: unknown } {
     rapor: { yol: `/raporlar/${a.raporId}` },
     surecler: { yol: "/surecler" },
     ayarlar: { yol: "/ayarlar" },
-    ayarlariGuncelle: { yol: "/ayarlar", govde: { yurtDisiIzni: true } },
+    ayarlariGuncelle: { yol: "/ayarlar", govde: { yurtDisiIzni: false } },
+    yurtDisiMetni: { yol: "/ayarlar/yurt-disi-metni" },
+    yurtDisiIzniImzala: {
+      yol: "/ayarlar/yurt-disi-karari",
+      govde: { imzaAdi: "Deneme Yönetici A", metinOzeti: kurulum.YURT_DISI_METNI_OZETI },
+    },
     yzAnahtariKaydet: { yol: "/ayarlar/yz-anahtari", govde: { anahtar: "sk-or-v1-ornekornekornek0000" } },
     yzAnahtariKaldir: { yol: "/ayarlar/yz-anahtari/kaldir", govde: {} },
     yzBaglantiDene: { yol: "/ayarlar/yz-anahtari/dene", govde: {} },
@@ -135,6 +141,7 @@ function ornekIstek(ad: string, a: Ornek): { yol: string; govde?: unknown } {
 /** Rolsüz kişinin beklenen yanıtı: kayda ya da kurum düzeyi işleme 403; listeler 200 ama boş. */
 const ROLSUZ_200 = new Set([
   "ben",
+  "yurtDisiMetni", // sabit karar metni; kurum verisi taşımaz
   "panelOzeti",
   "kanitlar",
   "kanitHatti",
@@ -193,7 +200,7 @@ describe("her uç için yetkisiz erişim", () => {
     } else if (u.ad === "siteTaramasi") {
       // B'nin alan adı kayıtlı değil: kendi kurumunda istek hatası, A'ya dokunmaz.
       expect(y.status, govde).toBe(400);
-    } else if (u.ad === "bolognaKaynagaYazmaIzniVer") {
+    } else if (u.ad === "bolognaKaynagaYazmaIzniVer" || u.ad === "yurtDisiIzniImzala") {
       // Örnek istekteki ad B'nin yöneticisinin adı değil: kendi kurumunda kural hatası, A'ya dokunmaz.
       expect(y.status, govde).toBe(422);
     } else if (u.ad === "yzBaglantiDene") {
@@ -285,5 +292,23 @@ describe("istek kuralları", () => {
     expect(await y.json()).toMatchObject({ kod: "kural_ihlali", hata: expect.stringContaining("Yüksek riskli") });
     const k = (await (await isle(istek("GET", "/kararlar"), a)).json()) as { ogeler: { oneriId: string }[] };
     expect(k.ogeler.map((x) => x.oneriId)).not.toContain(o.a.oneriOrta);
+  });
+});
+
+describe("yurt dışı izni HTTP yolu (inceleme 4-7 #1)", () => {
+  it("PATCH /ayarlar izni açamaz; imzalı karar ucu açar; API anahtarı imzalayamaz", async () => {
+    const isle = apiIsleyici({ db: o.db, simdi: () => SIMDI });
+    const y = await aktor(o.a, o.a.yonetici);
+    const ac = await isle(istek("PATCH", "/ayarlar", { yurtDisiIzni: true }), y);
+    expect(ac.status).toBe(422);
+    const metin = (await (await isle(istek("GET", "/ayarlar/yurt-disi-metni"), y)).json()) as { ozet: string };
+    const govde = { imzaAdi: "Deneme Yönetici A", metinOzeti: metin.ozet };
+    const anahtarla = await aktor(o.a, o.a.yonetici, "anahtar", ["kurum.ayar_yonet"]);
+    expect((await isle(istek("POST", "/ayarlar/yurt-disi-karari", govde), anahtarla)).status).toBe(403);
+    const imza = await isle(istek("POST", "/ayarlar/yurt-disi-karari", govde), y);
+    expect(imza.status, await imza.clone().text()).toBe(200);
+    expect(await imza.json()).toMatchObject({ yurtDisiIzni: true });
+    const kapat = await isle(istek("PATCH", "/ayarlar", { yurtDisiIzni: false }), y);
+    expect(await kapat.json()).toMatchObject({ yurtDisiIzni: false });
   });
 });
