@@ -14,7 +14,7 @@ Dış sızma testi bulguları geldiğinde bu tabloya `D-xx` kimliğiyle eklenir.
 | G-27-4 | Düşük | Hız sınırı süreç içi bellek; çok örnekli dağıtımda örnek başına. | Caddy `rate_limit` ya da paylaşılan sayaç |
 | D8-3 | Orta | Sınav taramasında otomatik hücreler kişi görmeden ölçme aracına aktarılıyor; model doğruluğu ve 0,9 eşiği DOĞRULANMADI. | Aktarım öncesi özet onayı; pilotta ölçüm |
 | D8-4 | Orta | Sınav taraması yükleme ucu yok; numara kırpıntısı kanıt deposu yetkisiyle erişilebilir. | Uç `amac: sinav_taramasi` vermeli; kırpıntı erişimini ayrıca sınırla |
-| D8-8 | Düşük | Saha hazırlık oranının paydası model önerisi sayısına bağlı; model önerisine prova işareti konamıyor. | Oranı yalnız kurallı listeden hesapla |
+| D8-8 | Düşük | Model önerisine prova işareti konamıyor. (Oran kısmı 2026-10-30 kapandı: oran yalnız kurallı sorulardan, `saha.test.ts` "model önerisi hazırlık oranının paydasına girmez".) | Prova işaretini model önerisine de aç ya da öneriyi ayrı göster |
 | D8-9 | Düşük | Tek cümlelik saha sorusu olgu ima edebilir. | "Model önerisi" etiketiyle ayrı göster |
 | D8-12 | Düşük | PÜKÖ hesabı eşlemeyi yalnız `soru.cikti_eslemesi`nden okur; ders dosyası akışının onaylı eşlemesi kullanılmaz (değer `null` olur). | İki eşleme kaynağını birleştir |
 | G-27-5 | Bilgi | OIDC isteğinde nonce yok (`@better-auth/sso` 1.7). PKCE + state + tek kullanımlık kod testle gösterildi. | Kütüphane desteklerse aç |

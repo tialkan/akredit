@@ -71,6 +71,23 @@ describe("soru listesi (saf)", () => {
     expect(JSON.stringify(l)).not.toMatch(/olasilik|basari|tahmin/u);
   });
 
+  it("model önerisi hazırlık oranının paydasına girmez (inceleme dalga 8, D8-8)", () => {
+    // Kurallı liste yukarıdakiyle aynı: 8 soru, 2 kanıtlı, %25. P.1'e iki model önerisi eklenir;
+    // P.1 kanıtlı olduğundan eski hesapta toplam 4 / 10 = %40 ve P.1 3 / 3 olurdu. Doğrusu değişmemesi.
+    const yz = sorulariKur({
+      cerceve: AKREDIT_ONLISANS_IC,
+      kanitlar,
+      eksikCumleler,
+      yzOnerileri: [
+        { olcutKod: "P.1", metin: "P.1 kurul kararları nasıl izleniyor?" },
+        { olcutKod: "P.1", metin: "P.1 paydaş görüşleri nasıl toplanıyor?" },
+      ],
+    });
+    expect(yz.sorular.filter((s) => s.kaynak === "yz")).toHaveLength(2);
+    expect(yz.toplam).toEqual({ soru: 8, kanitli: 2, oran: 25 });
+    expect(yz.hazirlik.find((h) => h.olcutKod === "P.1")).toMatchObject({ soru: 1, kanitli: 1, oran: 100 });
+  });
+
   it("aynı girdi aynı listeyi verir; rol setleri kurallı", () => {
     const l2 = sorulariKur({ cerceve: AKREDIT_ONLISANS_IC, kanitlar, eksikCumleler });
     expect(l2).toEqual(l);
