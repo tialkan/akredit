@@ -208,12 +208,52 @@ describe("MÜDEK Tablo 5.1 Lisans Eğitim Planı", () => {
     expect(u.eksikSayisi).toBe(1);
   });
 
-  it("seçmeli ders varsa toplam yazılmaz, EKSİK çıkar", () => {
+  it("seçmeli ders varsa ve yer sayısı girilmediyse toplam EKSİK çıkar", () => {
     const secmeli = structuredClone(BOLOGNA);
     const d = secmeli.dersler[2];
     if (d && "zorunlu" in d) d.zorunlu = false;
     const t = tabloUret(tanim("mudek-lisans.5.1"), { ...VERI, bologna: secmeli });
     expect(toplam(t.satirlar).slice(3)).toEqual(["EKSİK", "EKSİK", "EKSİK", "EKSİK"]);
+  });
+
+  it("seçmeli dersler kurumun girdiği yer sayısı kadar sayılır", () => {
+    // MUH201 (3. yarıyıl, MK, kredi 3, AKTS 5) ve uydurma MUH203 (3. yarıyıl, MK, kredi 3, AKTS 5) seçmeli.
+    // 3. yarıyılda 2 seçmeli yer: MK = 2 x "3-5" = "6-10". MTB zorunlu derslerden: "8-11".
+    // GE ve Diğer: seçmeliler bu kategoride değil, katkı 0 → "0-0".
+    const secmeli = structuredClone(BOLOGNA);
+    const d = secmeli.dersler[2];
+    if (d && "zorunlu" in d) d.zorunlu = false;
+    secmeli.dersler.push({
+      kod: "MUH203",
+      ad: "Malzeme",
+      yariyil: 3,
+      tul: "3+0+0",
+      kredi: 3,
+      akts: 5,
+      zorunlu: false,
+      bos: false,
+      bilgiler: { "Dersin Dili": "Türkçe" },
+    });
+    const v = {
+      ...VERI,
+      bologna: secmeli,
+      dersKategorileri: { ...VERI.dersKategorileri, MUH203: "MK" },
+      secmeliYerSayilari: { "3": 2 },
+    };
+    const t = tabloUret(tanim("mudek-lisans.5.1"), v);
+    expect(toplam(t.satirlar).slice(3)).toEqual(["8-11", "6-10", "0-0", "0-0"]);
+    // Yer sayısı 0: seçmeliler sayılmaz; MK'de zorunlu ders de yok → "0-0".
+    const sifir = tabloUret(tanim("mudek-lisans.5.1"), { ...v, secmeliYerSayilari: { "3": 0 } });
+    expect(toplam(sifir.satirlar).slice(3)).toEqual(["8-11", "0-0", "0-0", "0-0"]);
+    // Aynı yarıyılın seçmelileri farklı kategorideyse hangisinin sayılacağı bilinmez: MK ve GE EKSİK.
+    const karisik = tabloUret(tanim("mudek-lisans.5.1"), {
+      ...v,
+      dersKategorileri: { ...v.dersKategorileri, MUH203: "GE" },
+    });
+    expect(toplam(karisik.satirlar).slice(3)).toEqual(["8-11", "EKSİK", "EKSİK", "0-0"]);
+    // SABAK Tablo 1 AKTS sütunu: zorunlu 6 + 5 = 11, seçmeli 2 x 5 = 10 → 21.
+    const sabak = tabloUret(tanim("sabak-genel.odr-1"), v);
+    expect(toplam(sabak.satirlar)).toContain("21");
   });
 
   it("kategori eşlemesi olmayan ders EKSİK çıkar, sıfır ya da boş yazılmaz", () => {

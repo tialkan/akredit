@@ -83,6 +83,14 @@ export default async function ProgramSayfasi({ params }: { params: Promise<{ id:
       <SayfaBasligi
         baslik={program.ad}
         aciklama={`${program.duzey === "onlisans" ? "Önlisans" : "Lisans"} programı · ${program.birim}`}
+        eylem={
+          <Link
+            href={`/panel/programlar/${program.id}/tablolar`}
+            className="inline-flex min-h-11 items-center underline underline-offset-4"
+          >
+            Akreditasyon tabloları
+          </Link>
+        }
       />
       <Sekmeler
         etiket="Program bölümleri"
