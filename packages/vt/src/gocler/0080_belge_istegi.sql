@@ -7,7 +7,7 @@
 --   da) birincil anahtar çakışmasıyla reddedilir. Yüklenen dosya kanıt olur ama "doğrulanmamış" kalır: kabul,
 --   kanıt etiketi önerisine verilen insan kararıdır.
 -- Üç tablo da yalnız eklenir ve kurum yalıtımlıdır.
--- kanit_olcut_baglantisi: dış birimden gelen doğrulanmamış kanıt, onaylı kabul kararı olmadan ölçüte bağlanamaz.
+-- kanit_olcut_baglantisi: dış birimden gelen doğrulanmamış kanıt (kaynak_ayrinti.dogrulama), onaylı kabul kararı olmadan ölçüte bağlanamaz.
 
 CREATE TABLE belge_istegi (
   id uuid PRIMARY KEY NOT NULL,
@@ -86,7 +86,7 @@ CREATE OR REPLACE FUNCTION dis_birim_kaniti_denetle() RETURNS trigger
   AS $$
 BEGIN
   IF EXISTS (
-    SELECT 1 FROM belge_istegi_yuklemesi y WHERE y.kanit_id = NEW.kanit_id
+    SELECT 1 FROM kanit k WHERE k.id = NEW.kanit_id AND k.kaynak_ayrinti ->> 'dogrulama' = 'dogrulanmamis'
   ) AND NOT EXISTS (
     SELECT 1 FROM belge_istegi_yuklemesi y
       JOIN karar k ON k.oneri_id = y.oneri_id
