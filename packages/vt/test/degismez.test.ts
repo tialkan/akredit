@@ -28,6 +28,10 @@ const YALNIZ_EKLEME = [
   "onay_baglantisi_kullanimi",
   "oneri",
   "rapor_bolumu_surumu",
+  "sinav_hucre_karari",
+  "sinav_hucresi",
+  "sinav_sablonu",
+  "sinav_taramasi",
   "yetki_politikasi",
 ];
 

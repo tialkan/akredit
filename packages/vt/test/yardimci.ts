@@ -209,6 +209,43 @@ export async function kurumVerisiEkle(db: Vt, kurumId: string, ad: string): Prom
     await tx
       .insert(s.ogrenciPuani)
       .values({ kurumId, olcmeAraciId: arac.id, soruId: soru.id, ogrenciTakmaAd: "tk-1", puan: "7" });
+    // İP-43: sınav taraması (şablon, tarama, onay bekleyen hücre ve kararı).
+    const sablon = ilk(
+      await tx.insert(s.sinavSablonu).values({ kurumId, olcmeAraciId: arac.id, sablon: {} }).returning(),
+    );
+    const tarama = ilk(
+      await tx
+        .insert(s.sinavTaramasi)
+        .values({
+          kurumId,
+          olcmeAraciId: arac.id,
+          sablonId: sablon.id,
+          kanitId: kanit.id,
+          saglayici: "ollama",
+          model: "ornek",
+          esik: 0.9,
+          kagitSayisi: 1,
+        })
+        .returning(),
+    );
+    const hucre = ilk(
+      await tx
+        .insert(s.sinavHucresi)
+        .values({
+          kurumId,
+          taramaId: tarama.id,
+          kagitSira: 1,
+          alan: "1",
+          deger: "7",
+          guven: 0.5,
+          durum: "onay_bekliyor",
+          katman: 2,
+        })
+        .returning(),
+    );
+    await tx
+      .insert(s.sinavHucreKarari)
+      .values({ kurumId, hucreId: hucre.id, sonuc: "onaylandi", deger: "7", kararVerenKisiId: kisi.id });
     await tx
       .insert(s.olcmeSonucu)
       .values({ kurumId, dersAcilisiId: acilis.id, hesapSurumu: "1", girdiOzeti: "0".repeat(64), sonuc: {} });
