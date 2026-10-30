@@ -11,6 +11,7 @@ import type { DocxBolumu, DocxModeli } from "@akredit/belge";
 import { atifYaz } from "@akredit/cekirdek";
 import { type Cerceve, DOGRULANMADI, type Olcut, type OlgunlukDuzeyi, tumOlcutler } from "@akredit/cerceveler";
 import { z } from "zod";
+import { cumleDenetle, cumlelereBol, type DenetimKaynaklari } from "../odr/denetim.ts";
 
 export interface KanitKaydi {
   id: string;
@@ -87,9 +88,33 @@ export interface BidrOzeti {
   bolumler: { kod: string; metin: string; kanitIdleri: string[] }[];
 }
 
+const SAYI_SORUNU = "Kaynağı gösterilmeyen sayı";
+const SAYI_EKSIGI = "[EKSİK: Kaynağı gösterilmeyen sayı içeren bir cümle KİDR'ye alınmadı.]";
+
+/**
+ * BİDR metnini ÖDR ile aynı sayı denetiminden geçirir (dalga 3 #5). BİDR bölümü insan düzeltmesiyle değişmiş
+ * olabilir; kaynağı gösterilmeyen sayı içeren cümle KİDR'ye girmez, yerine EKSİK işareti konur. Atıf ve diğer
+ * cümleler olduğu gibi kalır. KİDR'de hesap atfı yoktur; sayı ancak kanıt başlığında birebir geçebilir.
+ */
+export function sayiDenetimli(metin: string, k: DenetimKaynaklari): string {
+  return metin
+    .split("\n\n")
+    .map((paragraf) =>
+      paragraf
+        .split("\n")
+        .map((satir) =>
+          cumlelereBol(satir)
+            .map((c) => (cumleDenetle(c, k).sorunlar.some((s) => s.startsWith(SAYI_SORUNU)) ? SAYI_EKSIGI : c))
+            .join(" "),
+        )
+        .join("\n"),
+    )
+    .join("\n\n");
+}
+
 /**
  * KİDR bölümleri: kurum düzeyindeki kanıtlar ve her birimin BİDR bölüm metni birleşir. BİDR'si olmayan birim
- * EKSİK olarak yazılır. Birim metni olduğu gibi aktarılır (atıflar korunur), yeniden yazılmaz.
+ * EKSİK olarak yazılır. Birim metni yeniden yazılmaz (atıflar korunur); yalnız kaynaksız sayılı cümle çıkarılır.
  */
 export function kidrBolumleri(
   cerceve: Cerceve,
@@ -99,6 +124,10 @@ export function kidrBolumleri(
   bidrler: readonly BidrOzeti[],
 ): BolumTaslagi[] {
   const kurumDuzeyi = kurumKanitlari.filter((k) => k.birimId === null);
+  const kaynak: DenetimKaynaklari = {
+    kanitlar: new Map(kurumKanitlari.map((k) => [k.ozet, [k.baslik]])),
+    hesaplar: new Map(),
+  };
   const sirali = [...birimler].sort((a, b) => a.ad.localeCompare(b.ad, "tr"));
   return altOlcutler(cerceve).map(({ ustBolum, olcut }) => {
     const ilgili = kurumDuzeyi.filter((k) => k.olcutKodlari.includes(olcut.kod));
@@ -115,7 +144,7 @@ export function kidrBolumleri(
       }
       if (bolum.kanitIdleri.length) kanitli = true;
       for (const id of bolum.kanitIdleri) idler.add(id);
-      parcalar.push(`${birim.ad}:\n\n${bolum.metin}`);
+      parcalar.push(`${birim.ad}:\n\n${sayiDenetimli(bolum.metin, kaynak)}`);
     }
     if (!parcalar.length) parcalar.push(bolumMetni([], kurumAdi));
     return {

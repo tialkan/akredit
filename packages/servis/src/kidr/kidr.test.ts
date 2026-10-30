@@ -93,6 +93,42 @@ describe("derleme (saf)", () => {
     expect(b13?.kanitIdleri.sort()).toEqual(["k0", "k1"]);
     expect(b13?.eksik).toBe(false);
   });
+  it("KİDR: BİDR metnindeki kaynaksız sayı aktarılmaz (dalga 3 #5)", () => {
+    // BİDR bölümü insan düzeltmesiyle değişmiş olabilir; ÖDR'deki sayı denetimi KİDR'de de uygulanır.
+    const kanitlar = [
+      { ...K("k0", OZET2, ["B.1.3"], null), baslik: "2025 Danışma Kurulu Tutanağı" },
+      K("k1", OZET1, ["B.1.3"], "b1"),
+    ];
+    const k = kidrBolumleri(
+      KIDR_CERCEVESI,
+      "Deneme Üniversitesi",
+      kanitlar,
+      [{ id: "b1", ad: "Alfa MYO" }],
+      [
+        {
+          raporId: "r1",
+          birimId: "b1",
+          birimAdi: "Alfa MYO",
+          bolumler: [
+            {
+              kod: "B.1.3",
+              metin:
+                "Kayıtlı kanıt: Kanıt k1 [K:11111111]\n\nÖğrencilerin %92'si memnun [K:11111111]. Kurul toplandı [K:11111111].",
+              kanitIdleri: ["k1"],
+            },
+          ],
+        },
+      ],
+    );
+    const parcalar = k.find((x) => x.kod === "B.1.3")?.metin.split("\n\n");
+    expect(parcalar).toEqual([
+      "Kurum düzeyi (Deneme Üniversitesi):",
+      "Kayıtlı kanıt: 2025 Danışma Kurulu Tutanağı [K:22222222]",
+      "Alfa MYO:",
+      "Kayıtlı kanıt: Kanıt k1 [K:11111111]",
+      "[EKSİK: Kaynağı gösterilmeyen sayı içeren bir cümle KİDR'ye alınmadı.] Kurul toplandı [K:11111111].",
+    ]);
+  });
   it("olgunluk: rubrik DOĞRULANMADI ise aday olsa da düzey önerilmez", () => {
     const id = "01900000-0000-7000-8000-000000000001";
     const o = olgunlukOnerisiKur({
