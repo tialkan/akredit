@@ -10,12 +10,7 @@ export class KagitSiniriHatasi extends Error {}
 
 /** Normalleştirilmiş metin: Türkçe büyük harf, işaretsiz (İ→I, Ş→S; tarayıcı metni ikisini de verebilir), tek boşluk. */
 const norm = (s: string) =>
-  s
-    .toLocaleUpperCase("tr-TR")
-    .normalize("NFD")
-    .replace(/\p{M}/gu, "")
-    .replace(/\s+/gu, " ")
-    .trim();
+  s.toLocaleUpperCase("tr-TR").normalize("NFD").replace(/\p{M}/gu, "").replace(/\s+/gu, " ").trim();
 
 /**
  * Sayfaları kâğıtlara böler. Dönen her dizi bir kâğıdın sayfa sıralarıdır (0'dan başlar).
