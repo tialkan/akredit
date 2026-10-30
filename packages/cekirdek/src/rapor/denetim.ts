@@ -87,3 +87,8 @@ export function raporDenetle(
   const eksikler = eksikleriAyristir(metin).map((e) => e.aciklama);
   return { bulgular, kullanilanKanitlar: [...kullanilan], eksikler };
 }
+
+// İP-44: cümle ayrıştırma, dil denetimi ve kanıt paneli eşlemesi (paket dışına bu dosya üzerinden açılır).
+export * from "./cumle.ts";
+export * from "./dil.ts";
+export * from "./kanit-paneli.ts";
