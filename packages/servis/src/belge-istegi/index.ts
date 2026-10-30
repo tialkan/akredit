@@ -14,7 +14,7 @@
 
 import { createHash, createHmac, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import { gunlugeYaz, type Islem, kiraciIslemi, type SorguSonucu, satirlar, sema, type Vt } from "@akredit/vt";
-import { and, desc, eq, gte, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, isNull, lte, sql } from "drizzle-orm";
 import { z } from "zod";
 import { gunluge, islem, type ServisBaglami } from "../baglam.ts";
 import { ServisHatasi, vtHatasiCevir } from "../hata.ts";
@@ -25,6 +25,11 @@ export const VARSAYILAN_GUN = 14;
 export const EN_BUYUK_DOSYA = 20 * 1024 * 1024;
 /** Aynı ağ izinden bir saatte en çok bu kadar yükleme (kurum içinde). */
 export const AG_SINIRI_SAATLIK = 10;
+/**
+ * Ağ izi çıkarılamayan (vekil IP başlığı yazmadı) bütün yüklemelerin kurum içinde bir saatteki ortak sınırı
+ * (inceleme dalga 8, bulgu 6). Bu yüklemeler tek bir ağdan geliyormuş gibi birlikte sayılır.
+ */
+export const AG_IZSIZ_SINIRI_SAATLIK = 20;
 /** Hatırlatma, son tarihe bu kadar saat kala bir kez gönderilir. */
 export const HATIRLATMA_SAATI = 48;
 
@@ -85,18 +90,22 @@ const TURLER: { uzanti: string[]; mime: string; imza: (v: Uint8Array) => boolean
   {
     uzanti: ["docx"],
     mime: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    imza: (v) => bas(v, [0x50, 0x4b, 0x03, 0x04]),
+    imza: (v) => ooxmlMi(v, "word/document.xml"),
   },
   {
     uzanti: ["xlsx"],
     mime: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    imza: (v) => bas(v, [0x50, 0x4b, 0x03, 0x04]),
+    imza: (v) => ooxmlMi(v, "xl/workbook.xml"),
   },
-  { uzanti: ["odt"], mime: "application/vnd.oasis.opendocument.text", imza: (v) => bas(v, [0x50, 0x4b, 0x03, 0x04]) },
+  {
+    uzanti: ["odt"],
+    mime: "application/vnd.oasis.opendocument.text",
+    imza: (v) => odfMi(v, "application/vnd.oasis.opendocument.text"),
+  },
   {
     uzanti: ["ods"],
     mime: "application/vnd.oasis.opendocument.spreadsheet",
-    imza: (v) => bas(v, [0x50, 0x4b, 0x03, 0x04]),
+    imza: (v) => odfMi(v, "application/vnd.oasis.opendocument.spreadsheet"),
   },
   { uzanti: ["doc"], mime: "application/msword", imza: (v) => bas(v, [0xd0, 0xcf, 0x11, 0xe0]) },
   { uzanti: ["xls"], mime: "application/vnd.ms-excel", imza: (v) => bas(v, [0xd0, 0xcf, 0x11, 0xe0]) },
@@ -106,6 +115,61 @@ const TURLER: { uzanti: string[]; mime: string; imza: (v: Uint8Array) => boolean
 
 function bas(v: Uint8Array, b: number[]): boolean {
   return v.byteLength >= b.length && b.every((x, i) => v[i] === x);
+}
+
+const ZIP_IMZASI = [0x50, 0x4b, 0x03, 0x04];
+const u16 = (v: Uint8Array, i: number) => (v[i] ?? 0) | ((v[i + 1] ?? 0) << 8);
+const u32 = (v: Uint8Array, i: number) => (u16(v, i) | (u16(v, i + 2) << 16)) >>> 0;
+
+/**
+ * ZIP merkezi dizinindeki dosya adları (inceleme dalga 8, bulgu 5). Dizin sonu kaydı dosyanın son 64 KB'ında
+ * aranır; dizin bozuk ya da dosya sınırı dışındaysa `null`. Dosya açılmaz, yalnız adlar okunur.
+ */
+export function zipGirdileri(v: Uint8Array): string[] | null {
+  if (!bas(v, ZIP_IMZASI) || v.byteLength < 22) return null;
+  let son = -1;
+  for (let i = v.byteLength - 22; i >= Math.max(0, v.byteLength - 22 - 0xffff); i--)
+    if (u32(v, i) === 0x06054b50) {
+      son = i;
+      break;
+    }
+  if (son < 0) return null;
+  const sayi = u16(v, son + 10);
+  const boyut = u32(v, son + 12);
+  let i = u32(v, son + 16);
+  if (i + boyut > son || sayi > 100_000) return null;
+  const ad = new TextDecoder();
+  const adlar: string[] = [];
+  for (let n = 0; n < sayi; n++) {
+    if (i + 46 > son || u32(v, i) !== 0x02014b50) return null;
+    const adUz = u16(v, i + 28);
+    const sonraki = i + 46 + adUz + u16(v, i + 30) + u16(v, i + 32);
+    if (sonraki > son) return null;
+    adlar.push(ad.decode(v.subarray(i + 46, i + 46 + adUz)));
+    i = sonraki;
+  }
+  return adlar;
+}
+
+/** Office Open XML: `[Content_Types].xml` ve türün ana parçası merkezi dizinde olmalı. */
+function ooxmlMi(v: Uint8Array, anaParca: string): boolean {
+  const a = zipGirdileri(v);
+  return Boolean(a?.includes("[Content_Types].xml") && a.includes(anaParca));
+}
+
+/**
+ * OpenDocument: ilk girdi sıkıştırılmamış `mimetype` olmalı ve içeriği türün kendisi olmalı (ODF 1.2, bölüm 3.3).
+ * Merkezi dizin de geçerli olmalı.
+ */
+function odfMi(v: Uint8Array, mime: string): boolean {
+  if (!zipGirdileri(v)?.includes("mimetype")) return false;
+  const adUz = u16(v, 26);
+  const ekUz = u16(v, 28);
+  const boyut = u32(v, 18);
+  const ad = new TextDecoder().decode(v.subarray(30, 30 + adUz));
+  if (ad !== "mimetype" || u16(v, 8) !== 0 || boyut !== mime.length) return false;
+  const bas_ = 30 + adUz + ekUz;
+  return new TextDecoder().decode(v.subarray(bas_, bas_ + boyut)) === mime;
 }
 
 /** Kabul edilen uzantılar (kullanıcıya gösterilir). */
@@ -339,7 +403,7 @@ export async function istekleri(b: ServisBaglami): Promise<IstekSatiri[]> {
       const g = gon.filter((x) => x.istekId === s.id).at(-1);
       const y = yuk.find((x) => x.y.id === s.id);
       let durum: IstekDurumu = simdi.getTime() >= s.son.getTime() ? "suresi_doldu" : "bekliyor";
-      if (y) durum = y.sonuc === "onaylandi" ? "kabul_edildi" : y.sonuc === "reddedildi" ? "reddedildi" : "yuklendi";
+      if (y) durum = kabulSonucuMu(y.sonuc) ? "kabul_edildi" : y.sonuc === "reddedildi" ? "reddedildi" : "yuklendi";
       return {
         id: s.id,
         istenen: s.istenen,
@@ -452,13 +516,19 @@ export async function istekYukle(db: Vt, gizli: string, g: YuklemeGirdisi, simdi
       const s = await istekYukle_(tx, istekId, g.jeton);
       const e = await engel(tx, s, simdi);
       if (e) throw e;
-      if (g.agIzi) {
+      {
         const saatOnce = new Date(simdi.getTime() - 3_600_000);
         const [n] = await tx
           .select({ n: sql<number>`count(*)::int` })
           .from(sema.belgeIstegiYuklemesi)
-          .where(and(eq(sema.belgeIstegiYuklemesi.agIzi, g.agIzi), gte(sema.belgeIstegiYuklemesi.zaman, saatOnce)));
-        if ((n?.n ?? 0) >= AG_SINIRI_SAATLIK)
+          .where(
+            and(
+              g.agIzi ? eq(sema.belgeIstegiYuklemesi.agIzi, g.agIzi) : isNull(sema.belgeIstegiYuklemesi.agIzi),
+              gte(sema.belgeIstegiYuklemesi.zaman, saatOnce),
+              lte(sema.belgeIstegiYuklemesi.zaman, simdi),
+            ),
+          );
+        if ((n?.n ?? 0) >= (g.agIzi ? AG_SINIRI_SAATLIK : AG_IZSIZ_SINIRI_SAATLIK))
           throw new ServisHatasi(
             "cok_fazla_istek",
             "Kısa sürede çok fazla yükleme yapıldı. Bir saat sonra yeniden deneyin.",
@@ -555,19 +625,36 @@ export async function istekYukle(db: Vt, gizli: string, g: YuklemeGirdisi, simdi
 // ---------- Kabul durumu ----------
 
 /**
- * Kanıtın rapora atıf yapılabilir olup olmadığı. Dış birimden gelen kanıt ancak kabul önerisi onaylandıysa
- * uygundur; diğer kanıtlar bu kurala tabi değildir. Aynı kural veritabanında ölçüt bağında da uygulanır.
+ * Kabul kuralının tek yeri (inceleme dalga 8, bulgu 7): kabul önerisine verilen `onaylandi` ve `duzeltildi`
+ * kararları aynı anlamdadır, ikisi de kabuldür. Veritabanındaki karşılığı göç 0110 tetikleyicisidir; ÖDR
+ * (`onayliKanitlar`) ve rapor atıf denetimi bu modülü kullanır.
+ */
+export const KABUL_SONUCLARI = ["onaylandi", "duzeltildi"] as const;
+
+export function kabulSonucuMu(sonuc: string): boolean {
+  return (KABUL_SONUCLARI as readonly string[]).includes(sonuc);
+}
+
+/** Dış birimden gelip henüz kabul edilmemiş kanıtların kimlikleri (kurum içinde). Bunlara atıf yapılamaz. */
+export async function kabulBekleyenDisKanitlar(tx: Islem): Promise<Set<string>> {
+  const r = await tx.execute(sql`
+    select k.id from kanit k
+    where k.kaynak_ayrinti ->> 'dogrulama' = 'dogrulanmamis'
+      and not exists (
+        select 1 from belge_istegi_yuklemesi y join karar r on r.oneri_id = y.oneri_id
+        where y.kanit_id = k.id and r.sonuc::text in ('onaylandi', 'duzeltildi')
+      )`);
+  return new Set(satirlar(r as unknown as SorguSonucu<{ id: string }>).map((x) => x.id));
+}
+
+/**
+ * Kanıtın rapora atıf yapılabilir olup olmadığı. Dış birimden gelen kanıt ancak kabul edildiyse uygundur; diğer
+ * kanıtlar bu kurala tabi değildir. Aynı kural veritabanında ölçüt bağında da uygulanır.
  */
 export async function atifaUygunMu(tx: Islem, kanitId: string): Promise<boolean> {
-  const [k] = await tx.select({ ayrinti: sema.kanit.kaynakAyrinti }).from(sema.kanit).where(eq(sema.kanit.id, kanitId));
+  const [k] = await tx.select({ id: sema.kanit.id }).from(sema.kanit).where(eq(sema.kanit.id, kanitId));
   if (!k) return false;
-  if ((k.ayrinti as { dogrulama?: unknown } | null)?.dogrulama !== "dogrulanmamis") return true;
-  const [r] = await tx
-    .select({ id: sema.karar.id })
-    .from(sema.belgeIstegiYuklemesi)
-    .innerJoin(sema.karar, eq(sema.karar.oneriId, sema.belgeIstegiYuklemesi.oneriId))
-    .where(and(eq(sema.belgeIstegiYuklemesi.kanitId, kanitId), eq(sema.karar.sonuc, "onaylandi")));
-  return Boolean(r);
+  return !(await kabulBekleyenDisKanitlar(tx)).has(kanitId);
 }
 
 // ---------- Hatırlatma (işçi) ----------

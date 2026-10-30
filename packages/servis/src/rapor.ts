@@ -6,6 +6,7 @@ import { type Islem, sema } from "@akredit/vt";
 import { asc, desc, eq } from "drizzle-orm";
 import type { z } from "zod";
 import { type Hedef, islem, type ServisBaglami } from "./baglam.ts";
+import { kabulBekleyenDisKanitlar } from "./belge-istegi/index.ts";
 import { bulunamadi } from "./hata.ts";
 import type { KanitAtfi, Rapor, SurecGorevi } from "./semalar.ts";
 
@@ -30,10 +31,14 @@ function raporHedefi(kurumId: string, kapsam: unknown): Hedef {
   return { tur: "kurum", id: kurumId };
 }
 
-/** Paragraf atıflarını kurumun kanıtlarına çözer (özet önekiyle). */
+/**
+ * Paragraf atıflarını kurumun kanıtlarına çözer (özet önekiyle). Kabul edilmemiş dış birim kanıtına atıf
+ * çözülmemiş sayılır, paragraf `EKSİK` olur (`atifaUygunMu` ile aynı kural).
+ */
 function paragraflar(
   metin: string,
   kanitlar: { id: string; ozet: string }[],
+  uygunDegil: Set<string>,
 ): RaporC["bolumler"][number]["paragraflar"] {
   return metin
     .split(/\n\s*\n/u)
@@ -44,7 +49,7 @@ function paragraflar(
       let cozulemeyen = false;
       for (const a of atiflariAyristir(p)) {
         const k = kanitlar.filter((x) => x.ozet.startsWith(a.ozetOneki));
-        if (k.length !== 1) {
+        if (k.length !== 1 || uygunDegil.has((k[0] as { id: string }).id)) {
           cozulemeyen = true;
           continue;
         }
@@ -68,6 +73,7 @@ async function raporGorunumu(tx: Islem, r: typeof sema.rapor.$inferSelect): Prom
     .orderBy(asc(sema.raporBolumuSurumu.olusturma));
   const oncekiler = new Set(surumler.flatMap((x) => (x.s.oncekiSurumId ? [x.s.oncekiSurumId] : [])));
   const kanitlar = await tx.select({ id: sema.kanit.id, ozet: sema.kanit.ozet }).from(sema.kanit);
+  const uygunDegil = await kabulBekleyenDisKanitlar(tx);
   const [donem] = r.donemId
     ? await tx.select({ ad: sema.donem.ad }).from(sema.donem).where(eq(sema.donem.id, r.donemId))
     : [];
@@ -82,7 +88,7 @@ async function raporGorunumu(tx: Islem, r: typeof sema.rapor.$inferSelect): Prom
         id: x.s.id,
         baslik: x.olcutBaslik ?? x.s.bolumKodu ?? "Bölüm",
         olcut: x.olcutKod ?? x.s.bolumKodu ?? "",
-        paragraflar: paragraflar(x.s.metin, kanitlar),
+        paragraflar: paragraflar(x.s.metin, kanitlar, uygunDegil),
       })),
   };
 }
