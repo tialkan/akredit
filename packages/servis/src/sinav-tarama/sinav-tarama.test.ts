@@ -59,6 +59,12 @@ describe("öğrenci numarası", () => {
     expect(istemGuvenliMi("«2099000101»")).toBe(false);
     expect(istemGuvenliMi("«20 99 0»")).toBe(false);
   });
+  it("inceleme dalga 8: dört haneli ya da her rakamı ayraçlı numara da istemde olamaz", () => {
+    expect(istemGuvenliMi("soru 3 (en çok 100 puan) «12,5»")).toBe(true);
+    expect(istemGuvenliMi("Kutu: kâğıttaki toplam puan (en çok 100 puan)\nTaranan metin: «85»")).toBe(true);
+    for (const m of ["«2099»", "«2 0 9 9»", "«2, 0, 9, 9»", "«2-0-9-9»", "«2 / 0 / 9 / 9»", "«2|0|9|9»"])
+      expect(istemGuvenliMi(m), m).toBe(false);
+  });
 });
 
 describe("onaya düşme", () => {
@@ -223,6 +229,42 @@ describe("yalnız kurum içi model", () => {
       "http://akredit-model.akredit.svc.cluster.local:8000/v1",
     ])
       expect(yerelOkuyucuKur({ hazir: "vllm", adres, model: "m" }, { fetch }).ad).toBe("vllm");
+  });
+  it("inceleme dalga 8: ad kurum dışına çözülürse ya da sunucu yönlendirirse istek gitmez", async () => {
+    const giden: string[] = [];
+    const yanit = (govde: string, durum = 200, ek: Record<string, string> = {}) =>
+      new Response(govde, { status: durum, headers: { "content-type": "application/json", ...ek } });
+    const tamam = JSON.stringify({ choices: [{ message: { content: '{"deger":7.5,"guven":0.9}' } }] });
+    const ic = async (adres: string, ayar: RequestInit) => {
+      giden.push(adres);
+      expect(ayar.redirect).toBe("manual");
+      return yanit(tamam);
+    };
+    const ayar = { hazir: "vllm", adres: "http://model.internal:8000/v1", model: "m" };
+    const HIZLI = { bekle: async () => {} };
+    // Ad dışarıya çözülüyor: istek gitmez.
+    const disari = yerelOkuyucuKur(ayar, { fetch: ic, http: HIZLI, coz: async () => ["8.8.8.8"] });
+    await expect(disari.oku({ alan: "1", azami: 10, metin: "7,5" })).rejects.toThrow();
+    // Adreslerden biri dışarıdaysa da gitmez; çözülemezse de gitmez.
+    const karisik = yerelOkuyucuKur(ayar, { fetch: ic, http: HIZLI, coz: async () => ["10.0.0.5", "203.0.113.9"] });
+    await expect(karisik.oku({ alan: "1", azami: 10, metin: "7,5" })).rejects.toThrow();
+    const yok = yerelOkuyucuKur(ayar, { fetch: ic, http: HIZLI, coz: async () => [] });
+    await expect(yok.oku({ alan: "1", azami: 10, metin: "7,5" })).rejects.toThrow();
+    expect(giden).toHaveLength(0);
+    // Kurum içine çözülen ad kabul edilir; yönlendirme izlenmez.
+    const icerde = yerelOkuyucuKur(ayar, {
+      fetch: ic,
+      http: HIZLI,
+      coz: async () => ["10.0.0.5", "::ffff:192.168.1.4"],
+    });
+    expect(await icerde.oku({ alan: "1", azami: 10, metin: "7,5" })).toEqual({ deger: 7.5, guven: 0.9 });
+    expect(giden).toHaveLength(1);
+    const yonlendiren = yerelOkuyucuKur(ayar, {
+      http: HIZLI,
+      fetch: async () => yanit("", 302, { location: "https://disari.example/v1" }),
+      coz: async () => ["10.0.0.5"],
+    });
+    await expect(yonlendiren.oku({ alan: "1", azami: 10, metin: "7,5" })).rejects.toThrow();
   });
   it("ortamdan okuma: eksik değişkende null", () => {
     expect(ortamdanYerelModel({})).toBeNull();

@@ -5,10 +5,12 @@
 // adresi kurum ağının içinde olmalıdır. Sağlayıcı çıkış kapısından `kurum_ici` kipinde, yurt dışı izni kapalı
 // olarak geçer; kapı da yurt dışı hedefe isteği göndermez. Yerel model yoksa iş başlamaz.
 
+import { lookup } from "node:dns/promises";
 import {
   type CikisKaydi,
   cikisKapisi,
   type FetchIslevi,
+  type OpenaiUyumluAyari,
   openaiUyumlu,
   type Saglayici,
   type SohbetIstegi,
@@ -35,7 +37,11 @@ export const YerelModelAyari = z
   .strict();
 export type YerelModelAyari = z.infer<typeof YerelModelAyari>;
 
-/** Ana makine kurum ağında mı: noktasız ad, .local/.internal/.svc, localhost ya da özel IP (infra/kurum-ici ile aynı kural). */
+/**
+ * Ana makine adı kurum ağında görünüyor mu: noktasız ad, .local/.internal/.svc, localhost ya da özel IP
+ * (infra/kurum-ici ile aynı kural). Ad için bu yalnız ön denetimdir; her istekte çözülen adresler ayrıca
+ * `cozulenAdresKurumIciMi` ile denetlenir.
+ */
 export function kurumIciAdresMi(ana: string): boolean {
   const h = ana.toLowerCase().replace(/^\[|\]$/gu, "");
   if (h === "localhost" || h === "::1") return true;
@@ -47,6 +53,53 @@ export function kurumIciAdresMi(ana: string): boolean {
     return a === 10 || a === 127 || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168);
   }
   return /^f[cd][0-9a-f]{2}:/u.test(h);
+}
+
+/** IP adresi özel aralıkta mı (IPv4, IPv4 eşlemeli IPv6, ::1, fc00::/7). Ad verilirse false. */
+export function kurumIciIpMi(ip: string): boolean {
+  const h = ip
+    .toLowerCase()
+    .replace(/^\[|\]$/gu, "")
+    .replace(/^::ffff:(?=\d+\.)/u, "");
+  if (h === "::1") return true;
+  if (/^\d{1,3}(\.\d{1,3}){3}$/u.test(h)) return kurumIciAdresMi(h);
+  return h.includes(":") && /^f[cd][0-9a-f]{2}:/u.test(h);
+}
+
+/** Ad çözücü: adın bütün adresleri. */
+export type AdCozucu = (ana: string) => Promise<string[]>;
+
+const dnsCozucu: AdCozucu = async (ana) => (await lookup(ana, { all: true, verbatim: true })).map((a) => a.address);
+
+/**
+ * Adın çözüldüğü bütün adresler kurum içinde mi (inceleme dalga 8, bulgu 10). Noktasız ad ya da `.internal` adı
+ * dışarıyı gösterebilir; adreslerden biri bile dışarıdaysa ya da ad çözülemezse false. IP verilirse kendisi denetlenir.
+ */
+export async function cozulenAdresKurumIciMi(ana: string, coz: AdCozucu = dnsCozucu): Promise<boolean> {
+  const h = ana.replace(/^\[|\]$/gu, "");
+  if (/^[\d.]+$/u.test(h) || h.includes(":")) return kurumIciIpMi(h);
+  let adresler: string[];
+  try {
+    adresler = await coz(h);
+  } catch {
+    return false;
+  }
+  return adresler.length > 0 && adresler.every(kurumIciIpMi);
+}
+
+/**
+ * Kurum içi fetch: her istekten önce adı çözüp adresleri denetler, yönlendirmeyi izlemez (3xx hatadır). Model
+ * sunucusu isteği dışarıya yönlendiremez.
+ */
+export function kurumIciFetch(temel: FetchIslevi, coz?: AdCozucu): FetchIslevi {
+  return async (adres, ayar) => {
+    if (!(await cozulenAdresKurumIciMi(new URL(adres).hostname, coz)))
+      throw new ServisHatasi("kural_ihlali", YEREL_MODEL_DISARIDA);
+    const y = await temel(adres, { ...ayar, redirect: "manual" });
+    if (y.type === "opaqueredirect" || (y.status >= 300 && y.status < 400))
+      throw new ServisHatasi("kural_ihlali", YEREL_MODEL_DISARIDA);
+    return y;
+  };
 }
 
 /** Sunucu ortamından yerel model ayarını okur (`infra/kurum-ici` değişkenleri). Eksikse null. */
@@ -72,7 +125,14 @@ export interface YerelOkuyucu {
  */
 export function yerelOkuyucuKur(
   ham: unknown,
-  s: { fetch?: FetchIslevi; kaydet?: (k: CikisKaydi) => void } = {},
+  s: {
+    fetch?: FetchIslevi;
+    kaydet?: (k: CikisKaydi) => void;
+    /** Ad çözücü (testte sahte). Verilmezse işletim sisteminin çözücüsü. */
+    coz?: AdCozucu;
+    /** Yeniden deneme ayarı (testte bekleme). */
+    http?: OpenaiUyumluAyari["http"];
+  } = {},
 ): YerelOkuyucu {
   if (ham === null || ham === undefined) throw new ServisHatasi("kural_ihlali", YEREL_MODEL_YOK);
   const a = YerelModelAyari.safeParse(ham);
@@ -91,7 +151,8 @@ export function yerelOkuyucuKur(
     adres: url.toString(),
     model: a.data.model,
     yurtIci: true,
-    ...(s.fetch ? { fetch: s.fetch } : {}),
+    fetch: kurumIciFetch(s.fetch ?? globalThis.fetch, s.coz),
+    ...(s.http ? { http: s.http } : {}),
   });
   return okuyucuKur(ham_, s.kaydet);
 }
