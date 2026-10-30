@@ -51,6 +51,34 @@ function istemciIp(istek: Request): string | null {
   return istek.headers.get("x-real-ip") ?? istek.headers.get("x-forwarded-for")?.split(",").at(-1)?.trim() ?? null;
 }
 
+/**
+ * Gövdeyi en çok `sinir` bayt okur; aşarsa null. `content-length` başlığı istemciden gelir ve parçalı aktarımda
+ * hiç yoktur, bu yüzden tek başına sınır değildir.
+ */
+export async function sinirliGovde(istek: Request, sinir: number): Promise<Uint8Array | null> {
+  if (!istek.body) return new Uint8Array();
+  const okuyucu = istek.body.getReader();
+  const parcalar: Uint8Array[] = [];
+  let toplam = 0;
+  for (;;) {
+    const { done, value } = await okuyucu.read();
+    if (done) break;
+    toplam += value.byteLength;
+    if (toplam > sinir) {
+      await okuyucu.cancel().catch(() => {});
+      return null;
+    }
+    parcalar.push(value);
+  }
+  const v = new Uint8Array(toplam);
+  let i = 0;
+  for (const p of parcalar) {
+    v.set(p, i);
+    i += p.byteLength;
+  }
+  return v;
+}
+
 const metin = (f: FormData, ad: string) => {
   const v = f.get(ad);
   return typeof v === "string" ? v : "";
@@ -64,7 +92,11 @@ export async function yuklemeIsle(o: YuklemeOrtami, istek: Request): Promise<Yuk
     return hata(413, `Dosya çok büyük. En çok ${belgeIstegi.EN_BUYUK_DOSYA / 1048576} MB yüklenebilir.`);
   let f: FormData;
   try {
-    f = await istek.formData();
+    const govde = await sinirliGovde(istek, belgeIstegi.EN_BUYUK_DOSYA + GOVDE_PAYI);
+    if (!govde) return hata(413, `Dosya çok büyük. En çok ${belgeIstegi.EN_BUYUK_DOSYA / 1048576} MB yüklenebilir.`);
+    f = await new Response(govde, {
+      headers: { "content-type": istek.headers.get("content-type") ?? "" },
+    }).formData();
   } catch {
     return hata(400, "Form okunamadı. Sayfayı yenileyip yeniden deneyin.");
   }
