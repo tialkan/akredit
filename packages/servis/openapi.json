@@ -11915,7 +11915,7 @@
     "/api/v1/puko/olcumler": {
       "post": {
         "operationId": "pukoOlcumleri",
-        "summary": "Dönem ölçümlerini işle: kapanış, katman 0 kayıtları ve yeni karar kartları",
+        "summary": "Dönem ölçümlerini işle: değerler kayıtlı veriden hesaplanır; gövde yalnız ders, dönem ve çıktıyı seçer. Yalnız oturumla.",
         "x-akredit-yetki": "olcme.veri_gir",
         "parameters": [
           {
@@ -11937,7 +11937,7 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "olcumler": {
+                  "secimler": {
                     "minItems": 1,
                     "maxItems": 5000,
                     "type": "array",
@@ -11950,40 +11950,21 @@
                         },
                         "kod": {
                           "type": "string",
-                          "minLength": 1
+                          "minLength": 1,
+                          "maxLength": 50
                         },
                         "dersKodu": {
                           "type": "string",
-                          "minLength": 1
+                          "minLength": 1,
+                          "maxLength": 50
                         },
                         "donem": {
                           "type": "string",
-                          "minLength": 1
-                        },
-                        "deger": {
-                          "type": ["number", "null"]
-                        },
-                        "esik": {
-                          "type": "number"
-                        },
-                        "kaynak": {
-                          "type": "object",
-                          "properties": {
-                            "kanitId": {
-                              "type": "string"
-                            },
-                            "hesapSurumu": {
-                              "type": "string",
-                              "minLength": 1
-                            },
-                            "girdiOzeti": {
-                              "type": "string"
-                            }
-                          },
-                          "required": ["hesapSurumu"]
+                          "minLength": 1,
+                          "maxLength": 100
                         }
                       },
-                      "required": ["olcumTuru", "kod", "dersKodu", "donem", "deger", "esik", "kaynak"],
+                      "required": ["olcumTuru", "kod", "dersKodu", "donem"],
                       "additionalProperties": false
                     }
                   },
@@ -11993,7 +11974,7 @@
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                   }
                 },
-                "required": ["olcumler", "kanitId"],
+                "required": ["secimler", "kanitId"],
                 "additionalProperties": false
               }
             }
