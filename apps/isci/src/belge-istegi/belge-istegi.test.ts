@@ -113,3 +113,73 @@ describe("belge isteği turu", () => {
     expect(h.konan).toContain(y.kanitId);
   });
 });
+
+describe("inceleme dalga 8: hesapsız yüklenen dosyanın virüs taraması", () => {
+  async function yukle(icerik: string) {
+    const s = await istek(24 * 5);
+    const ozet = createHash("sha256").update(icerik).digest("hex");
+    return belgeIstegi.istekYukle(
+      db,
+      GIZLI,
+      {
+        jeton: s.jeton,
+        dosya: { ozet, depoAnahtari: `${KURUM}/${ozet}`, dosyaAdi: "ek.pdf", mime: "application/pdf", boyut: 10 },
+        agIzi: null,
+      },
+      SIMDI,
+    );
+  }
+  /** Depo anahtarın kendisini içerik olarak döndürür; tarayıcı `zararli` kümesindeki içeriği bulgu sayar. */
+  function tarayanHat(zararli: Set<string>, ulasilamaz = false) {
+    const h = hat();
+    h.depo = {
+      async al(anahtar: string) {
+        return new TextEncoder().encode(anahtar);
+      },
+    } as unknown as HatBaglami["depo"];
+    h.virus = {
+      ad: "sahte",
+      async tara(veri: Uint8Array) {
+        if (ulasilamaz) throw new Error("Virüs tarama hizmetine ulaşılamadı.");
+        return zararli.has(new TextDecoder().decode(veri)) ? { temiz: false, bulgu: "Ornek.Imza" } : { temiz: true };
+      },
+    };
+    return h;
+  }
+  const anahtar = (kanitId: string) =>
+    kiraciIslemi(db, KURUM, (tx) => tx.select().from(sema.kanit).where(eq(sema.kanit.id, kanitId))).then(
+      (l) => l[0]?.depoAnahtari as string,
+    );
+
+  it("zararlı dosya kuyruğa girmez, işleme kaydı 'hata' olur ve günlüğe yazılır; temiz dosya girer", async () => {
+    const kotu = await yukle("zararli-icerik");
+    const iyi = await yukle("temiz-icerik");
+    const zararli = new Set([await anahtar(kotu.kanitId)]);
+    const h = tarayanHat(zararli);
+    await belgeIstegiTuru(h, bellekTasiyici(), KURUM, SIMDI);
+    expect(h.konan).toContain(iyi.kanitId);
+    expect(h.konan).not.toContain(kotu.kanitId);
+    const isleme = await kiraciIslemi(db, KURUM, (tx) =>
+      tx.select().from(sema.kanitIsleme).where(eq(sema.kanitIsleme.kanitId, kotu.kanitId)),
+    );
+    expect(isleme.map((x) => x.durum)).toContain("hata");
+    const g = await kiraciIslemi(db, KURUM, (tx) =>
+      tx.select().from(sema.gunluk).where(eq(sema.gunluk.eylem, "kanit.zararli_bulundu")),
+    );
+    expect(g.map((x) => x.hedefId)).toContain(kotu.kanitId);
+    // Sonraki turda yeniden kuyruğa girmez.
+    const h2 = tarayanHat(zararli);
+    await belgeIstegiTuru(h2, bellekTasiyici(), KURUM, SIMDI);
+    expect(h2.konan).not.toContain(kotu.kanitId);
+  });
+
+  it("tarama hizmetine ulaşılamazsa dosya kuyruğa girmez, sonraki turda yeniden denenir", async () => {
+    const y = await yukle("ulasilamayan-icerik");
+    const h = tarayanHat(new Set(), true);
+    await belgeIstegiTuru(h, bellekTasiyici(), KURUM, SIMDI);
+    expect(h.konan).not.toContain(y.kanitId);
+    const h2 = tarayanHat(new Set());
+    await belgeIstegiTuru(h2, bellekTasiyici(), KURUM, SIMDI);
+    expect(h2.konan).toContain(y.kanitId);
+  });
+});
