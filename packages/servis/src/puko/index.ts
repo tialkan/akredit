@@ -23,6 +23,7 @@ import { and, asc, count, eq } from "drizzle-orm";
 import { z } from "zod";
 import { type Aktor, gunluge, islem, type ServisBaglami } from "../baglam.ts";
 import { ServisHatasi } from "../hata.ts";
+import { olcumleriHesapla, PukoOlcumSecimi } from "./olcum-hesabi.ts";
 import type {
   KararKarti,
   OnlemSecenegi,
@@ -34,6 +35,7 @@ import type {
   SurecEylemi,
 } from "./turler.ts";
 
+export { PukoOlcumSecimi } from "./olcum-hesabi.ts";
 export * from "./turler.ts";
 
 /** Ölçüm girdisi: hesaplanmış bir ÇK ya da PÇ değeri (eşiği geçen ya da geçmeyen). */
@@ -464,9 +466,13 @@ export async function pukoOnlemSec(
   });
 }
 
+/**
+ * İstek gövdesi yalnız neyin işleneceğini söyler: ders, dönem, ÇK/PÇ kodu. Değer, eşik ve kaynak gövdeden
+ * alınmaz (`strict`: `deger` gelirse 400); sunucu kayıtlı not ve soru verisinden hesaplar (ilke 2).
+ */
 export const PukoOlcumGirdisi = z
   .object({
-    olcumler: z.array(PukoOlcumu).min(1).max(5000),
+    secimler: z.array(PukoOlcumSecimi).min(1).max(5000),
     /** Ölçme sonucunun kanıtı (kapanışın bağlandığı kayıt). Aynı kurumda var olmalı. */
     kanitId: z.string().uuid(),
   })
@@ -475,24 +481,31 @@ export const PukoOlcumGirdisi = z
 /**
  * Dönem ölçümlerini işler: önlemi seçilmiş ve hedef dönemi gelen döngüleri kapatır (iyileşmediyse yeni kart),
  * eşiği geçenleri katman 0 olarak günlüğe yazar, açık kartı olmayan eşik altı kümeler için kart açar.
+ * Ölçüm değerleri sunucuda `@akredit/olcme` ile hesaplanır. Yalnız oturum açmış kişi çağırabilir; API anahtarı
+ * (bir YZ ajanı olabilir) döngü kapatamaz.
  */
 export async function pukoOlcumleriIsle(
   b: ServisBaglami,
   girdi: unknown,
 ): Promise<{ otomatik: number; acilan: number; kapanan: number }> {
+  if (b.aktor.tur !== "oturum") throw new ServisHatasi("yetki_yok", "Ölçümleri yalnız oturum açmış kişi işleyebilir.");
   const g = PukoOlcumGirdisi.parse(girdi);
   return islem(b, async (tx, gerekli) => {
     await gerekli("olcme.veri_gir", { tur: "kurum", id: b.aktor.kurumId });
     const [k] = await tx
       .select({ id: sema.kanit.id })
       .from(sema.kanit)
-      .where(and(eq(sema.kanit.id, g.kanitId)));
+      .where(and(eq(sema.kanit.id, g.kanitId), eq(sema.kanit.kurumId, b.aktor.kurumId)));
     if (!k) throw new ServisHatasi("bulunamadi", "Ölçme sonucunun kanıtı bulunamadı.");
+    const olcumler = (await olcumleriHesapla(tx, b.aktor.kurumId, g.secimler)).map((o) => ({
+      ...o,
+      kaynak: { ...o.kaynak, kanitId: g.kanitId },
+    }));
     const depo = vtPukoDeposu(tx, b.aktor.kurumId);
     const simdi = b.simdi();
     const baglam = { kimlik: randomUUID, zaman: simdi.toISOString(), kokNeden: () => [] };
-    const s = await sonrakiDonemiIsle(depo, g.olcumler, { ...baglam, kanitId: g.kanitId });
-    const { otomatik, kartlar } = await kartlariUret(g.olcumler, baglam);
+    const s = await sonrakiDonemiIsle(depo, olcumler, { ...baglam, kanitId: g.kanitId });
+    const { otomatik, kartlar } = await kartlariUret(olcumler, baglam);
     const acik = new Set(
       (await pukoKayitlari(depo))
         .filter((x) => x.durum === "acik" || x.durum === "onlem_secildi")

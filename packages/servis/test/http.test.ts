@@ -90,17 +90,7 @@ function ornekIstek(ad: string, a: Ornek): { yol: string; govde?: unknown } {
     pukoOlcumleri: {
       yol: "/puko/olcumler",
       govde: {
-        olcumler: [
-          {
-            olcumTuru: "pc",
-            kod: "PÇ1",
-            dersKodu: "BP101",
-            donem: "2025-2026 Bahar",
-            deger: 40,
-            esik: 60,
-            kaynak: { hesapSurumu: "olcme-1.0.0" },
-          },
-        ],
+        secimler: [{ olcumTuru: "pc", kod: "PÇ1", dersKodu: "BPA102", donem: "2025-2026 Bahar" }],
         kanitId: a.kanitKurum,
       },
     },

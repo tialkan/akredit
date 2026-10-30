@@ -640,7 +640,7 @@ export const UCLAR: Uc[] = [
     ad: "pukoOlcumleri",
     yontem: "POST",
     yol: "/puko/olcumler",
-    ozet: "Dönem ölçümlerini işle: kapanış, katman 0 kayıtları ve yeni karar kartları",
+    ozet: "Dönem ölçümlerini işle: değerler kayıtlı veriden hesaplanır; gövde yalnız ders, dönem ve çıktıyı seçer. Yalnız oturumla.",
     eylem: "olcme.veri_gir",
     govde: puko.PukoOlcumGirdisi,
     cikti: z.object({ otomatik: z.number().int(), acilan: z.number().int(), kapanan: z.number().int() }),
