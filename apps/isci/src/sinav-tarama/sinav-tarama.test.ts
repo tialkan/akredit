@@ -170,11 +170,12 @@ async function baglam(): Promise<ServisBaglami> {
   return { db, aktor: await aktorYukle(db, KURUM, hoca), simdi: () => SIMDI };
 }
 
-async function yukle(depo: ReturnType<typeof bellekDepo>) {
-  const veri = pdfOlustur(ORNEK.sayfalar.map((_, i) => ["AKREDIT SINAV KAPAK", `Vize kagidi ${i + 1}`]));
+async function yukle(depo: ReturnType<typeof bellekDepo>, kuyruk = bellekKuyrugu(), amac = "sinav_taramasi", ek = "") {
+  const veri = pdfOlustur(ORNEK.sayfalar.map((_, i) => ["AKREDIT SINAV KAPAK", `Vize kagidi ${i + 1} ${amac} ${ek}`]));
   const r = await kanitAl(
-    { db, depo, kuyruk: bellekKuyrugu() },
+    { db, depo, kuyruk },
     {
+      kaynakAyrinti: { amac },
       kurumId: KURUM,
       dosyaAdi: "vize-taramasi.pdf",
       mime: "application/pdf",
@@ -231,6 +232,71 @@ describe("yerel model yokken iş başlamaz, yurt dışına yol yok", () => {
   it("yurt içi olmayan sağlayıcı okuyucu olamaz", () => {
     const s = { ad: "openrouter", model: "m", yurtIci: false, sohbet: async () => ({ icerik: "", aracCagrilari: [] }) };
     expect(() => sinavTarama.okuyucuKur(s)).toThrow(/kurum ağının dışında/u);
+  });
+});
+
+describe("inceleme: dolaylı yollar ve uydurma sayı", () => {
+  it("tarama dosyası kanıt hattının metin/YZ kuyruğuna girmez; hattan geçmiş dosya taranmaz", async () => {
+    const depo = bellekDepo();
+    const kuyruk = bellekKuyrugu();
+    const gonderilen: string[] = [];
+    const asil = kuyruk.gonder.bind(kuyruk);
+    kuyruk.gonder = async (ad, v, sec) => {
+      gonderilen.push(ad);
+      return asil(ad, v, sec);
+    };
+    const yeni = await yukle(depo, kuyruk, "sinav_taramasi", "kuyruk");
+    expect(yeni.durum).toBe("eklendi");
+    // Açık numaralı kâğıt metni kanit_parcasi'na yazılmamalı ve kurumun sağlayıcısına gitmemeli.
+    expect(gonderilen).toEqual([]);
+
+    // Sıradan kanıt olarak yüklenmiş (hattan geçmiş) dosya taramaya sokulamaz.
+    const sirali = await yukle(depo, bellekKuyrugu(), "genel");
+    const s = sahteYerelSunucu();
+    await expect(
+      sinavTaramasiIsi(
+        {
+          db,
+          depo,
+          yerelModel: YEREL,
+          takmaAdAnahtari: ANAHTAR,
+          fetch: s.fetch,
+          kaynakKur: async () => ornekKaynak(ORNEK),
+        },
+        { kurumId: KURUM, kisiId: hoca, kanitId: sirali.kanitId, olcmeAraciId: aracId },
+      ),
+    ).rejects.toThrow(/sınav taraması için yüklenmemiş/u);
+    expect(s.istekler).toHaveLength(0);
+  });
+
+  it("modelin kutu metninde olmayan sayısı (güven 1 olsa da) otomatik puana girmez", async () => {
+    const depo = bellekDepo();
+    const b = await baglam();
+    await sinavTarama.sablonKaydet(b, { olcmeAraciId: aracId, sablon: ORNEK.sablon });
+    const k2 = await yukle(depo, bellekKuyrugu(), "sinav_taramasi", "uydurma");
+    // Uyduran model: kutuda ne yazarsa yazsın 1 ve güven 1 döner.
+    const fetch = async () =>
+      new Response(
+        JSON.stringify({ choices: [{ message: { content: '{"deger":1,"guven":1}' }, finish_reason: "stop" }] }),
+        { status: 200, headers: { "content-type": "application/json" } },
+      );
+    const sonuc = await sinavTaramasiIsi(
+      {
+        db,
+        depo,
+        yerelModel: YEREL,
+        takmaAdAnahtari: ANAHTAR,
+        fetch,
+        simdi: () => SIMDI,
+        kaynakKur: async () => ornekKaynak(ORNEK),
+      },
+      { kurumId: KURUM, kisiId: hoca, kanitId: k2.kanitId, olcmeAraciId: aracId },
+    );
+    const g = await sinavTarama.taramaGorunumu(b, sonuc.taramaId);
+    const puanli = g.hucreler.filter((h) => h.alan !== "*numara");
+    // Örnek kâğıtlarda hiçbir puan kutusunda yalnız "1" yazmıyor: 4 kâğıt × 4 puan kutusu onaya düşmeli.
+    expect(puanli).toHaveLength(16);
+    for (const h of puanli) expect(h.nedenler).toContain("metinde_yok");
   });
 });
 
@@ -370,7 +436,9 @@ describe("uçtan uca", () => {
     const gunluk = await kiraciIslemi(db, KURUM, (tx) =>
       tx.select().from(sema.gunluk).where(eq(sema.gunluk.kurumId, KURUM)),
     );
-    const okunan = gunluk.filter((x) => x.eylem === "sinav.hucre_okundu");
+    const okunan = gunluk.filter(
+      (x) => x.eylem === "sinav.hucre_okundu" && (x.ayrinti as { taramaId?: string }).taramaId === sonuc.taramaId,
+    );
     expect(okunan).toHaveLength(20);
     expect(okunan.every((x) => typeof (x.ayrinti as { guven?: unknown }).guven === "number")).toBe(true);
     expect(okunan.filter((x) => (x.ayrinti as { durum: string }).durum === "otomatik_okundu")).toHaveLength(14);

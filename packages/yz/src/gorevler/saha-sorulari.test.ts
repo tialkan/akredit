@@ -27,6 +27,18 @@ describe("soru metni kuralı", () => {
   });
 });
 
+describe("soru metni kuralı (inceleme dalga 8)", () => {
+  it("satır sonu ya da noktalı virgülle soruya eklenen cevap geçmez", () => {
+    expect(
+      soruMetniSorunu("P.1 nasıl işliyor\nKomisyon her ay toplanıyor ve tutanaklar arşivde\nbu yeterli mi?"),
+    ).toMatch(/tek bir soru/u);
+    expect(soruMetniSorunu("P.1 nasıl işliyor; komisyon her ay toplanıyor ve tutanaklar arşivde, yeterli mi?")).toMatch(
+      /tek bir soru/u,
+    );
+    expect(soruMetniSorunu("P.1 için kurul düzenli toplanıyor mu?")).toBeNull();
+  });
+});
+
 describe("saha soruları görevi (sahte sağlayıcı)", () => {
   it("geçerli düzeltme ve ölçüte bağlı öneri alınır; kodsuz öneri ve cevap metni ayıklanır", async () => {
     const s = sahteSaglayici([
