@@ -1150,7 +1150,7 @@ export const YOL_HARITASI: { no: number; ad: string; metin: string; dalga: "simd
     no: 43,
     ad: "Sınav kâğıdı taraması",
     metin: "Sınav kâğıtları toplu taranır, soru bazlı puan çıkarılır. Yalnız kurum içindeki modelle çalışır.",
-    dalga: "sonra",
+    dalga: "simdi",
   },
   {
     no: 44,
@@ -1162,7 +1162,7 @@ export const YOL_HARITASI: { no: number; ad: string; metin: string; dalga: "simd
     no: 45,
     ad: "Hesapsız belge isteme",
     metin: "İdari birimlerden, onlara hesap açmadan, tek kullanımlık bağlantıyla belge istenir.",
-    dalga: "sonra",
+    dalga: "simdi",
   },
   {
     no: 46,
@@ -1180,7 +1180,7 @@ export const YOL_HARITASI: { no: number; ad: string; metin: string; dalga: "simd
     no: 48,
     ad: "Saha ziyareti hazırlığı",
     metin: "Değerlendirici ziyaretine hazırlık: olası sorular ve her birinin kanıtı üzerinden prova.",
-    dalga: "sonra",
+    dalga: "simdi",
   },
 ];
 

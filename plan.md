@@ -174,12 +174,12 @@ Durumlar: **hazır** (başlanabilir), **devam**, **inceleme**, **tamam**, **bekl
 | [40](plan/ip/IP-40-sifir-kisisel-veri.md) | Sıfır kişisel veri çıkışı, KVKK envanteri, hukuk paketi | 7 | inceleme | 03, 28 |
 | [41](plan/ip/IP-41-ornek-universite.md) | Sentetik Örnek Üniversitesi demosu | 7 | inceleme | 12 |
 | [42](plan/ip/IP-42-site-metni.md) | Site metni: güçlü vaat, dört rol, pilot başvurusu | 7 | inceleme | 07 |
-| [43](plan/ip/IP-43-sinav-kagidi-taramasi.md) | Toplu sınav kağıdı taraması (yerel model) | 8 | hazır | 10, 06 |
+| [43](plan/ip/IP-43-sinav-kagidi-taramasi.md) | Toplu sınav kağıdı taraması (yerel model) | 8 | inceleme | 10, 06 |
 | [44](plan/ip/IP-44-cumleden-kanita.md) | Cümleden kanıta tek tık, rapor dil denetimi | 8 | bekliyor | 19, 20 |
-| [45](plan/ip/IP-45-hesapsiz-belge-isteme.md) | İdari birimlerden hesapsız belge isteme | 8 | hazır | 10, 14 |
+| [45](plan/ip/IP-45-hesapsiz-belge-isteme.md) | İdari birimlerden hesapsız belge isteme | 8 | inceleme | 10, 14 |
 | [46](plan/ip/IP-46-toplantidan-tutanaga.md) | Toplantıdan tutanağa ve EBYS taslağına akış | 8 | bekliyor | 18, 23 |
 | [47](plan/ip/IP-47-program-akreditasyonu-tablolari.md) | Program akreditasyonu tablo dönüştürücüsü | 8 | bekliyor | 11, 19 |
-| [48](plan/ip/IP-48-saha-ziyareti-hazirligi.md) | Saha ziyareti hazırlık simülatörü | 8 | hazır | 22 |
+| [48](plan/ip/IP-48-saha-ziyareti-hazirligi.md) | Saha ziyareti hazırlık simülatörü | 8 | inceleme | 22 |
 
 ## 9. Alt ajan çalışma modeli
 
