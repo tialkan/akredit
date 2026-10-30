@@ -1,6 +1,6 @@
 # İP-48: Saha ziyareti hazırlık simülatörü
 
-- **Durum:** inceleme
+- **Durum:** tamam
 - **Faz:** 8
 - **Bağımlılık:** İP-22
 - **Sahip olduğu yollar:** `packages/servis/src/saha-ziyareti/**`, `apps/web/src/app/panel/saha-ziyareti/**`, `packages/yz/src/gorevler/saha-sorulari*.ts`, `docs/raporlar/IP-48.md`
@@ -23,10 +23,11 @@ Değerlendirici ziyaretinden önce kurum, olası soruları ve her sorunun cevab�
 - [x] Model önerisi ölçüt kimliği olmadan listeye girmez; model cevap metni yazmaz (test, sahte sağlayıcı).
 - [x] Hazırlık oranı elle hesaplanmış örnekle test edilir.
 - [x] Eksik işareti süreç motorunda görev oluşturur (test).
-- [ ] Demo kiracısında (İP-41) çalışır; axe temiz; `pnpm verify` temiz.
+- [x] Demo kiracısında (İP-41) çalışır; axe temiz; `pnpm verify` temiz. (`ornek-veri/test/yukle.test.ts`, `e2e/erisilebilirlik.spec.ts`)
 
 ## Günlük
 
 - 2026-10-29: İP dosyası yazıldı.
 - 2026-10-30: Uygulandı, durum inceleme. Servis `packages/servis/src/saha-ziyareti` (saf `sorular.ts`: her ölçüt ve alt ölçüt, son ÖDR sürümündeki her EKSİK cümle bir soru; onaylı kanıt eşlemesi; ölçüt başına kanıtlı soru oranı; kurallı rol setleri. `index.ts`: `hazirla`, `provaIsaretle`). YZ görevi `packages/yz/src/gorevler/saha-sorulari.ts`: yalnız dil düzeltmesi ve ölçüt koduna bağlı öneri; cevap, atıf ve yeni sayı içeren öğe ayıklanır. Panel `/panel/saha-ziyareti`: hazırlık tablosu, rol bazlı prova, "Hazırım / Eksik var" (eksik var komisyona görev açar). Göç yok, yeni tablo yok. Kalan: axe ve demo kiracısında tarayıcı denetimi bu ortamda çalıştırılamadı (Playwright tarayıcısı indirilemedi); sayfa `e2e/sayfalar.ts` listesine eklendi. Ayrıntı: `docs/raporlar/IP-48.md`.
 - 2026-10-30: İnceleme D8-8 ve D8-9 kapatıldı (dal `duzeltme/baglantilar`). Model önerileri hazırlık oranının paydasına girmez; `modelOnerisi` ayrı sayılır ve panelde ayrı rozetle gösterilir. Ayıklanmış öneriler günlüğe `saha.yz_onerileri` olarak saklanır (yeni tablo yok), modelsiz sonraki listede kalır ve prova işareti alır. `olguImasi` kuralı sıklık sözcüğü, geçmiş ortaç ya da iyelikli etkinlik adı taşıyan model önerisini reddeder. KİDR ve programın biriminin BİDR'sindeki EKSİK bölümler de soru üretir (yalnız çerçevedeki kodlar, son sürüm).
+- 2026-10-30 (kapanış): Son ölçüt kapatıldı. Demo kiracısı: `packages/ornek-veri/test/yukle.test.ts` › "servis katmanı demo kurumunda …" testine `sahaZiyareti.hazirla` eklendi (PGlite, gerçek şema; her ölçüt soru üretir, oran kurallı sorulardan hesaplanır, modelsiz). Tarayıcı: `/panel/saha-ziyareti` klavye, ekran okuyucu ve axe e2e testleri geçer. `pnpm verify` adımları temiz. Durum tamam.
