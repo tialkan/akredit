@@ -4,6 +4,7 @@
 
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
+import { writeFile } from "node:fs/promises";
 import { bellekDepo } from "@akredit/depo";
 import { aktorYukle, type ServisBaglami, ServisHatasi, sinavTarama } from "@akredit/servis";
 import { gocleriUygula, kiraciIslemi, pgliteBaglantisi, sema, type Vt, zinciriDogrula } from "@akredit/vt";
@@ -12,7 +13,15 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { kanitAl } from "../kanit-hatti/alma.ts";
 import { bellekKuyrugu } from "../kanit-hatti/kuyruk.ts";
 import { pdfOlustur } from "../kanit-hatti/test/pdf-yardimci.ts";
-import { birlesikKaynak, pdfTaramaKaynagi, sinavTaramasiIsi, taramaKaynagiKur } from "./index.ts";
+import {
+  bekleyenTaramalariKuyrugaKoy,
+  birlesikKaynak,
+  goruntuyuPdfYap,
+  pdfTaramaKaynagi,
+  sinavTaramasiIsi,
+  taramaIstegiIsi,
+  taramaKaynagiKur,
+} from "./index.ts";
 
 const KURUM = "01900000-0000-7000-8000-0000000000c3";
 const SIMDI = new Date("2026-10-30T09:00:00Z");
@@ -68,6 +77,8 @@ let db: Vt;
 let kapat: () => Promise<void>;
 let hoca: string;
 let aracId: string;
+let ikinciHoca: string;
+let degerlendirici: string;
 const ilk = <T>(x: T[]): T => {
   const d = x[0];
   if (!d) throw new Error("ekleme başarısız");
@@ -111,6 +122,31 @@ beforeAll(async () => {
       kapsamId: ders.id,
       baslangic: new Date("2026-01-01T00:00:00Z"),
     });
+    // Kırpıntı erişimi için: aynı dersin ikinci öğretim elemanı (onay yetkilisi) ve süreli değerlendirici
+    // (okur ama karar veremez).
+    ikinciHoca = ilk(await tx.insert(sema.kisi).values({ kurumId: KURUM, adSoyad: "İkinci Hoca" }).returning()).id;
+    degerlendirici = ilk(
+      await tx.insert(sema.kisi).values({ kurumId: KURUM, adSoyad: "Deneme Değerlendirici" }).returning(),
+    ).id;
+    await tx.insert(sema.rolAtamasi).values([
+      {
+        kurumId: KURUM,
+        kisiId: ikinciHoca,
+        rol: "ogretim_elemani",
+        kapsamTuru: "ders",
+        kapsamId: ders.id,
+        baslangic: new Date("2026-01-01T00:00:00Z"),
+      },
+      {
+        kurumId: KURUM,
+        kisiId: degerlendirici,
+        rol: "degerlendirici",
+        kapsamTuru: "ders",
+        kapsamId: ders.id,
+        baslangic: new Date("2026-01-01T00:00:00Z"),
+        bitis: new Date("2027-01-01T00:00:00Z"),
+      },
+    ]);
     const donem = ilk(
       await tx
         .insert(sema.donem)
@@ -374,10 +410,10 @@ describe("uçtan uca", () => {
     await expect(
       sinavTarama.hucreKarari(b, { hucreId: kart(4, "*numara").hucreId, sonuc: "onaylandi" }, ANAHTAR),
     ).rejects.toThrow(/numarasını yazın/u);
-    // Otomatik hücreye karar verilemez.
+    // Otomatik hücre tek tek "onaylanmaz" (özet onayıyla onaylanır); yalnız düzeltilebilir.
     const oto = g.hucreler.find((h) => h.kagitSira === 1 && h.alan === "1");
     await expect(sinavTarama.hucreKarari(b, { hucreId: oto?.hucreId, sonuc: "onaylandi" }, ANAHTAR)).rejects.toThrow(
-      /onay beklemiyor/u,
+      /özetiyle onaylanır/u,
     );
 
     // Hoca kâğıda bakıp karar verir.
@@ -395,10 +431,47 @@ describe("uçtan uca", () => {
     await expect(
       sinavTarama.hucreKarari(b, { hucreId: kart(2, "2").hucreId, sonuc: "onaylandi" }, ANAHTAR),
     ).rejects.toThrow();
-    expect((await sinavTarama.taramaGorunumu(b, sonuc.taramaId)).kartlar).toHaveLength(0);
+    const g2 = await sinavTarama.taramaGorunumu(b, sonuc.taramaId);
+    expect(g2.kartlar).toHaveLength(0);
+    // Aktarım öncesi özet (inceleme D8-3): 14 otomatik hücre.
+    expect(g2.otomatikOzet.sayi).toBe(14);
+    expect(g2.sahip).toBe(true);
 
-    expect(await sinavTarama.puanlariAktar(b, sonuc.taramaId)).toEqual({ ogrenciSayisi: 4, puanSayisi: 12 });
-    await expect(sinavTarama.puanlariAktar(b, sonuc.taramaId)).rejects.toThrow(/zaten aktarılmış/u);
+    // Özet onayı olmadan aktarım yok; kişi istediği otomatik hücreyi düzeltebilir (Katman 1, doğrudan).
+    await expect(sinavTarama.puanlariAktar(b, sonuc.taramaId)).rejects.toThrow(/özetini görüp onaylayın/u);
+    const k1Toplam = g2.hucreler.find((h) => h.kagitSira === 1 && h.alan === "*toplam");
+    await sinavTarama.hucreKarari(b, { hucreId: k1Toplam?.hucreId, sonuc: "duzeltildi", deger: 15.5 }, ANAHTAR);
+    // Kişinin gördüğü özet artık eski: düzeltilen hücre özetten çıktı, aktarım durur.
+    await expect(sinavTarama.puanlariAktar(b, sonuc.taramaId, { ozet: g2.otomatikOzet.ozet })).rejects.toThrow(
+      /değişti/u,
+    );
+    const g3 = await sinavTarama.taramaGorunumu(b, sonuc.taramaId);
+    expect(g3.otomatikOzet.sayi).toBe(13);
+    expect(await sinavTarama.puanlariAktar(b, sonuc.taramaId, { ozet: g3.otomatikOzet.ozet })).toEqual({
+      ogrenciSayisi: 4,
+      puanSayisi: 12,
+      otomatikSayisi: 13,
+    });
+    expect((await sinavTarama.taramaGorunumu(b, sonuc.taramaId)).aktarildi).toBe(true);
+    await expect(sinavTarama.puanlariAktar(b, sonuc.taramaId, { ozet: g3.otomatikOzet.ozet })).rejects.toThrow(
+      /zaten aktarılmış/u,
+    );
+    // Aktarımdan sonra hiçbir hücreye karar girmez (servis ve veritabanı tetikleyicisi).
+    const k1S2 = g3.hucreler.find((h) => h.kagitSira === 1 && h.alan === "2");
+    await expect(
+      sinavTarama.hucreKarari(b, { hucreId: k1S2?.hucreId, sonuc: "duzeltildi", deger: 1 }, ANAHTAR),
+    ).rejects.toThrow(/aktarıldı/u);
+    await expect(
+      kiraciIslemi(db, KURUM, (tx) =>
+        tx.insert(sema.sinavHucreKarari).values({
+          kurumId: KURUM,
+          hucreId: k1S2?.hucreId as string,
+          sonuc: "duzeltildi",
+          deger: "1",
+          kararVerenKisiId: hoca,
+        }),
+      ),
+    ).rejects.toThrow();
 
     // Ölçme (elle hesap): ÖÇ1 = (S1+S2)/20 → K1 15,5/20 = %77,5; K2 16/20 = %80; K3 15/20 = %75; K4 7/20 = %35.
     // ÖÇ2 = S3/20 → %75, %60, %90, %50.
@@ -447,8 +520,18 @@ describe("uçtan uca", () => {
     expect(okunan.every((x) => typeof (x.ayrinti as { guven?: unknown }).guven === "number")).toBe(true);
     expect(okunan.filter((x) => (x.ayrinti as { durum: string }).durum === "otomatik_okundu")).toHaveLength(14);
     const kararlar = gunluk.filter((x) => x.eylem === "sinav.hucre_karari");
-    expect(kararlar).toHaveLength(6);
+    // 6 onay kartı (Katman 2) + 1 otomatik hücre düzeltmesi (Katman 1).
+    expect(kararlar).toHaveLength(7);
     expect(kararlar.every((x) => (x.ayrinti as { dayanak: string }).dayanak === "dogrudan")).toBe(true);
+    expect(kararlar.map((x) => (x.ayrinti as { katman: number }).katman).sort()).toEqual([1, 2, 2, 2, 2, 2, 2]);
+    const ozetOnayi = gunluk.find((x) => x.eylem === "sinav.otomatik_ozet_onaylandi");
+    expect(ozetOnayi?.ayrinti).toMatchObject({
+      otomatikSayisi: 13,
+      katman: 1,
+      kural: "K1-sinav-otomatik-ozet",
+      dayanak: "dogrudan",
+      toplu: true,
+    });
     expect(gunluk.some((x) => x.eylem === "sinav.puanlar_aktarildi")).toBe(true);
     expect(await zinciriDogrula(db, KURUM)).toBeNull();
 
@@ -463,6 +546,196 @@ describe("uçtan uca", () => {
         tx.delete(sema.sinavHucreKarari).where(and(eq(sema.sinavHucreKarari.kurumId, KURUM))),
       ),
     ).rejects.toThrow();
+  });
+});
+
+const YEREL_ORTAM = {
+  AKREDIT_YZ_HAZIR: YEREL.hazir,
+  AKREDIT_YZ_ADRES: YEREL.adres,
+  AKREDIT_YZ_MODEL: YEREL.model,
+};
+
+describe("panelden yükleme isteği → kuyruk → kanitAl (sınav taraması amacı) → tarama", () => {
+  it("istek kuyruğa bir kez girer, dosya hattın metin/YZ kuyruğuna girmeden kanıt olur, sonuç bir kez yazılır", async () => {
+    const depo = bellekDepo();
+    const b = await baglam();
+    await sinavTarama.sablonKaydet(b, { olcmeAraciId: aracId, sablon: ORNEK.sablon });
+    const veri = pdfOlustur([["AKREDIT SINAV KAPAK", "panel yuklemesi"]]);
+
+    // Yerel model yoksa form kapalı: istek hiç yazılmaz, dosya depoya konmaz.
+    await expect(
+      sinavTarama.taramaIstegiKaydet(b, { olcmeAraciId: aracId }, { veri, dosyaAdi: "vize.pdf" }, { depo, ortam: {} }),
+    ).rejects.toThrow(/kurum içinde/u);
+    // Tür içerikten bulunur: PDF adlı düz metin reddedilir.
+    await expect(
+      sinavTarama.taramaIstegiKaydet(
+        b,
+        { olcmeAraciId: aracId },
+        { veri: new TextEncoder().encode("düz metin"), dosyaAdi: "vize.pdf" },
+        { depo, ortam: YEREL_ORTAM },
+      ),
+    ).rejects.toThrow(/PDF, PNG/u);
+    // Yetkisiz kişi (değerlendirici) istek açamaz.
+    const deg = { db, aktor: await aktorYukle(db, KURUM, degerlendirici), simdi: () => SIMDI };
+    await expect(
+      sinavTarama.taramaIstegiKaydet(
+        deg,
+        { olcmeAraciId: aracId },
+        { veri, dosyaAdi: "x.pdf" },
+        { depo, ortam: YEREL_ORTAM },
+      ),
+    ).rejects.toThrow();
+
+    const { istekId } = await sinavTarama.taramaIstegiKaydet(
+      b,
+      { olcmeAraciId: aracId },
+      { veri, dosyaAdi: "../vize\u0007.pdf" },
+      { depo, ortam: YEREL_ORTAM },
+    );
+
+    // Süreç turu bekleyen isteği kuyruğa koyar (tekil anahtarla).
+    const gonderilen: { veri: unknown; anahtar: string }[] = [];
+    await bekleyenTaramalariKuyrugaKoy(db, KURUM, async (v, anahtar) => gonderilen.push({ veri: v, anahtar }));
+    expect(gonderilen).toEqual([{ veri: { kurumId: KURUM, istekId }, anahtar: `sinav:${istekId}` }]);
+
+    const kuyruk = bellekKuyrugu();
+    const hatKuyrugu: string[] = [];
+    const asil = kuyruk.gonder.bind(kuyruk);
+    kuyruk.gonder = async (ad, v, sec) => {
+      hatKuyrugu.push(ad);
+      return asil(ad, v, sec);
+    };
+    const s = sahteYerelSunucu();
+    const sonuc = await taramaIstegiIsi(
+      {
+        hat: { db, depo, kuyruk },
+        yerelModel: YEREL,
+        takmaAdAnahtari: ANAHTAR,
+        fetch: s.fetch,
+        coz: async () => ["10.0.0.5"],
+        simdi: () => SIMDI,
+        kaynakKur: async () => ornekKaynak(ORNEK),
+      },
+      gonderilen[0]?.veri,
+    );
+    expect(sonuc).toMatchObject({ durum: "tamam" });
+    if (sonuc?.durum !== "tamam") throw new Error("tamamlanmadı");
+    // Kanıt sınav taraması amacıyla alındı; metin çıkarma ve YZ kuyruğuna hiçbir şey gitmedi.
+    expect(hatKuyrugu).toEqual([]);
+    const [k] = await kiraciIslemi(db, KURUM, (tx) =>
+      tx.select().from(sema.kanit).where(eq(sema.kanit.id, sonuc.kanitId)),
+    );
+    expect(k?.kaynakAyrinti).toMatchObject({ amac: "sinav_taramasi", istekId });
+    expect(k?.dosyaAdi).toBe("vize.pdf");
+
+    // Sonuç bir kez: ikinci çalıştırma bir şey yapmaz, istek artık beklemiyor.
+    const ikinci = await taramaIstegiIsi(
+      { hat: { db, depo, kuyruk }, yerelModel: YEREL, takmaAdAnahtari: ANAHTAR, fetch: s.fetch },
+      { kurumId: KURUM, istekId },
+    );
+    expect(ikinci).toBeNull();
+    expect(await sinavTarama.bekleyenTaramaIstekleri(db, KURUM)).toEqual([]);
+    const panel = await sinavTarama.taramaPaneli(b, await dersKimligi());
+    expect(panel.istekler.find((i) => i.id === istekId)).toMatchObject({ durum: "tamam", taramaId: sonuc.taramaId });
+    expect(panel.araclar[0]?.sablon).not.toBeNull();
+    expect(panel.taramalar.some((t) => t.taramaId === sonuc.taramaId && !t.aktarildi)).toBe(true);
+  });
+
+  it("işçide yerel model yoksa dosya kanıt olarak bile alınmaz; istek Türkçe iletiyle hata olarak kapanır", async () => {
+    const depo = bellekDepo();
+    const b = await baglam();
+    const veri = pdfOlustur([["AKREDIT SINAV KAPAK", "modelsiz isci"]]);
+    const { istekId } = await sinavTarama.taramaIstegiKaydet(
+      b,
+      { olcmeAraciId: aracId },
+      { veri, dosyaAdi: "vize.pdf" },
+      { depo, ortam: YEREL_ORTAM },
+    );
+    const kanitOnce = await kiraciIslemi(db, KURUM, async (tx) => (await tx.select().from(sema.kanit)).length);
+    const sonuc = await taramaIstegiIsi(
+      { hat: { db, depo, kuyruk: bellekKuyrugu() }, yerelModel: null, takmaAdAnahtari: ANAHTAR },
+      { kurumId: KURUM, istekId },
+    );
+    expect(sonuc).toMatchObject({ durum: "hata", ileti: expect.stringMatching(/kurum içinde/u) });
+    expect(await kiraciIslemi(db, KURUM, async (tx) => (await tx.select().from(sema.kanit)).length)).toBe(kanitOnce);
+    const panel = await sinavTarama.taramaPaneli(b, await dersKimligi());
+    expect(panel.istekler.find((i) => i.id === istekId)).toMatchObject({ durum: "hata" });
+  });
+});
+
+async function dersKimligi(): Promise<string> {
+  return kiraciIslemi(db, KURUM, async (tx) => {
+    const [d] = await tx.select({ id: sema.ders.id }).from(sema.ders).where(eq(sema.ders.kod, "UYD101"));
+    return d?.id as string;
+  });
+}
+
+describe("numara kutusu kırpıntısı: ayrı erişim (inceleme D8-4)", () => {
+  it("yalnız tarama sahibi ve onay yetkilisi alır; süre dolunca bağlantı yok; her erişim günlükte", async () => {
+    const depo = bellekDepo();
+    const b = await baglam();
+    await sinavTarama.sablonKaydet(b, { olcmeAraciId: aracId, sablon: ORNEK.sablon });
+    const k = await yukle(depo, bellekKuyrugu(), "sinav_taramasi", "kirpinti");
+    const s = sahteYerelSunucu();
+    const t = await sinavTaramasiIsi(
+      {
+        db,
+        depo,
+        yerelModel: YEREL,
+        takmaAdAnahtari: ANAHTAR,
+        fetch: s.fetch,
+        coz: async () => ["10.0.0.5"],
+        simdi: () => SIMDI,
+        kaynakKur: async () => ornekKaynak(ORNEK),
+      },
+      { kurumId: KURUM, kisiId: hoca, kanitId: k.kanitId, olcmeAraciId: aracId },
+    );
+    const g = await sinavTarama.taramaGorunumu(b, t.taramaId);
+    const numara = g.hucreler.find((h) => h.kagitSira === 4 && h.alan === "*numara");
+    const puan = g.hucreler.find((h) => h.kagitSira === 4 && h.alan === "1");
+    if (!numara || !puan) throw new Error("hücre yok");
+    // Taramanın kayıt zamanı veritabanı saatidir; erişim penceresi ona göre hesaplanır.
+    const [tr] = await kiraciIslemi(db, KURUM, (tx) =>
+      tx.select().from(sema.sinavTaramasi).where(eq(sema.sinavTaramasi.id, t.taramaId)),
+    );
+    const t0 = tr?.olusturma.getTime() ?? 0;
+    const anda = (kisi: string, ms: number) =>
+      aktorYukle(db, KURUM, kisi).then((aktor) => ({ db, aktor, simdi: () => new Date(t0 + ms) }));
+
+    // Sahip: imzalı, kısa süreli bağlantı.
+    const r = await sinavTarama.kirpintiBaglantisi(await anda(hoca, 60_000), numara.hucreId, { depo });
+    expect(r.adres).toContain(numara.kirpintiOzeti as string);
+    expect(new Date(r.bitis).getTime() - (t0 + 60_000)).toBe(sinavTarama.KIRPINTI_BAGLANTI_SN * 1000);
+    // Onay yetkilisi (aynı dersin öğretim elemanı, sahip değil).
+    await sinavTarama.kirpintiBaglantisi(await anda(ikinciHoca, 60_000), numara.hucreId, { depo });
+    // Okuyabilen ama karar veremeyen değerlendirici alamaz.
+    await expect(
+      sinavTarama.kirpintiBaglantisi(await anda(degerlendirici, 60_000), numara.hucreId, { depo }),
+    ).rejects.toMatchObject({ kod: "yetki_yok" });
+    // Puan hücresinin kırpıntı bağlantısı yoktur.
+    await expect(
+      sinavTarama.kirpintiBaglantisi(await anda(hoca, 60_000), puan.hucreId, { depo }),
+    ).rejects.toMatchObject({
+      kod: "bulunamadi",
+    });
+    // Süre dolunca (30 gün + 1 dk) sahibe de bağlantı verilmez.
+    const gun = 86_400_000;
+    await expect(
+      sinavTarama.kirpintiBaglantisi(await anda(hoca, sinavTarama.KIRPINTI_ERISIM_GUN * gun + 60_000), numara.hucreId, {
+        depo,
+      }),
+    ).rejects.toThrow(/süresi doldu/u);
+
+    // Yalnız verilen iki bağlantı günlükte; numara yok.
+    const gunluk = await kiraciIslemi(db, KURUM, (tx) =>
+      tx.select().from(sema.gunluk).where(eq(sema.gunluk.eylem, "sinav.kirpinti_erisimi")),
+    );
+    const bu = gunluk.filter((x) => (x.ayrinti as { taramaId: string }).taramaId === t.taramaId);
+    expect(bu.map((x) => [x.aktorId, (x.ayrinti as { gerekce: string }).gerekce])).toEqual([
+      [hoca, "tarama_sahibi"],
+      [ikinciHoca, "onay_yetkilisi"],
+    ]);
+    for (const x of bu) for (const n of NUMARALAR) expect(JSON.stringify(x.ayrinti)).not.toContain(n);
   });
 });
 
@@ -503,5 +776,25 @@ describe("PDF ve ZIP kaynağı (kurum içi Poppler + Tesseract)", () => {
     expect(iki.sayfaSayisi).toBe(5);
     expect(await iki.bolge(1, kutu, "1")).toEqual({ metin: "8" });
     await expect(taramaKaynagiKur(new TextEncoder().encode("düz metin"))).rejects.toThrow(/PDF/u);
+  });
+
+  it("görüntü (PNG, JPEG, TIFF) kurum içinde Tesseract ile PDF'e çevrilip aynı yoldan okunur", async () => {
+    const komutlar: string[][] = [];
+    const pdf = pdfOlustur([["a"], ["b"], ["c"]]);
+    const calistirici = async (k: string, a: string[]) => {
+      komutlar.push([k, ...a]);
+      // Tesseract "pdf" çıktısı: <çıktı>.pdf yazar.
+      if (k === "tesseract" && a.at(-1) === "pdf") await writeFile(`${a[1]}.pdf`, pdf);
+      if (k === "pdfinfo") return "Pages:          3\n";
+      return "";
+    };
+    const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0]);
+    expect(await goruntuyuPdfYap(png, { calistirici })).toEqual(pdf);
+    const tiff = new Uint8Array([0x49, 0x49, 0x2a, 0x00, 0, 0, 0, 0]);
+    const kaynak = await taramaKaynagiKur(tiff, { calistirici });
+    expect(kaynak.sayfaSayisi).toBe(3);
+    await (kaynak as { kapat?: () => Promise<void> }).kapat?.();
+    expect(komutlar.filter((c) => c[0] === "tesseract").every((c) => c.includes("pdf"))).toBe(true);
+    expect(new Set(komutlar.map((c) => c[0]))).toEqual(new Set(["tesseract", "pdfinfo"]));
   });
 });

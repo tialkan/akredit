@@ -15,11 +15,19 @@ Dış sızma testi bulguları geldiğinde bu tabloya `D-xx` kimliğiyle eklenir.
 | D8-3 | Orta | Sınav taramasında otomatik hücreler kişi görmeden ölçme aracına aktarılıyor; model doğruluğu ve 0,9 eşiği DOĞRULANMADI. | Aktarım öncesi özet onayı; pilotta ölçüm |
 | D8-4 | Orta | Sınav taraması yükleme ucu yok; numara kırpıntısı kanıt deposu yetkisiyle erişilebilir. | Uç `amac: sinav_taramasi` vermeli; kırpıntı erişimini ayrıca sınırla |
 | D8-8 | Düşük | Model önerisine prova işareti konamıyor. (Oran kısmı 2026-10-30 kapandı: oran yalnız kurallı sorulardan, `saha.test.ts` "model önerisi hazırlık oranının paydasına girmez".) | Prova işaretini model önerisine de aç ya da öneriyi ayrı göster |
+| D8-8 | Düşük | Saha hazırlık oranının paydası model önerisi sayısına bağlı; model önerisine prova işareti konamıyor. | Oranı yalnız kurallı listeden hesapla |
 | D8-9 | Düşük | Tek cümlelik saha sorusu olgu ima edebilir. | "Model önerisi" etiketiyle ayrı göster |
-| D8-12 | Düşük | PÜKÖ hesabı eşlemeyi yalnız `soru.cikti_eslemesi`nden okur; ders dosyası akışının onaylı eşlemesi kullanılmaz (değer `null` olur). | İki eşleme kaynağını birleştir |
 | G-27-5 | Bilgi | OIDC isteğinde nonce yok (`@better-auth/sso` 1.7). PKCE + state + tek kullanımlık kod testle gösterildi. | Kütüphane desteklerse aç |
 
 Kritik ya da Yüksek önemde açık bulgu yok. Kalan doğrulama (bulgu değil): G-27-2 için `infra/kurum-ici/denetle.sh` helm'li ve Docker sunuculu bir ortamda (helm lint/template, compose ile kurulum ve eski sürümden yükseltme) bir kez çalıştırılmalı; G-27-1 için ilk hafta `AKREDIT_CSP=rapor` ile ihlal raporları izlenmeli.
+
+## İP-43 bağlantı turunda kapananlar (testle, 2026-10-30, dal `ip/43-baglanti`)
+
+| Kimlik | Önem | Bulgu | Düzeltme | Test |
+|---|---|---|---|---|
+| D8-3 | Orta | Otomatik hücreler kişi görmeden aktarılıyordu. | Aktarım öncesi tek ekranlık özet; aktarım özet onayıyla (Katman 1, doğrudan, tek dokunuş; gönderilen SHA-256 özeti ekrandaki kümeyle aynı olmalı). Otomatik hücre düzeltilebilir; aktarımdan sonra karar girmez (göç 0120 tetikleyicisi). Model doğruluğu ve eşik hâlâ DOĞRULANMADI (pilot). | `apps/isci/src/sinav-tarama/sinav-tarama.test.ts` "uçtan uca" |
+| D8-4 | Orta | Yükleme ucu yoktu; numara kırpıntısının ayrı erişimi yoktu. | Panel ucu dosyayı depoya koyar, işçi `kanitAl` ile `amac: sinav_taramasi` verir; `kirpintiBaglantisi` yalnız tarama sahibi ve onay yetkilisine, 30 gün içinde, 5 dakikalık imzalı bağlantı verir; her erişim günlükte. | aynı dosya, "panelden yükleme isteği" ve "numara kutusu kırpıntısı" |
+| D8-12 | Düşük | PÜKÖ eşlemeyi yalnız `soru.cikti_eslemesi`nden okuyordu. | Soruda eşleme yoksa ders dosyası akışının onaylı eşlemesi (`onayliEslemeSatirlari`); sınav taraması ölçmesi de aynı. | `packages/servis/test/puko-vt.test.ts` "bulgu 12" |
 
 ## Dalga 8 açık bulgu turunda kapananlar (testle, 2026-10-30, dal `duzeltme/puko-olcum`)
 

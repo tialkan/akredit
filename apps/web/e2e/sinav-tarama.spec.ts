@@ -6,7 +6,7 @@ import { expect, test } from "@playwright/test";
 test("onay kartları klavyeyle kapatılır, aktarım düğmesi sonra açılır", async ({ page }) => {
   await page.goto("/panel/dersler/ders-bp101/tarama");
   await expect(page.getByRole("heading", { level: 1, name: "Sınav kâğıdı taraması" })).toBeVisible();
-  const aktar = page.getByRole("button", { name: "Puanları ölçmeye aktar" });
+  const aktar = page.getByRole("button", { name: "Özeti onayla ve puanları aktar" });
   await expect(aktar).toBeDisabled();
   const kartlar = page.getByRole("article");
   await expect(kartlar).toHaveCount(4);

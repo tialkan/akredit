@@ -456,6 +456,42 @@ export async function esikOku(tx: Islem, kurumId: string): Promise<number | unde
 }
 
 /**
+ * İnceleme dalga 8, bulgu 12: dersin bu açılışı için ders dosyası akışında onaylanmış soru-çıktı eşlemesi.
+ * Eşleme önerisi yoksa, karar verilmemişse ya da reddedildiyse null. Ölçme hesapları soruda kayıtlı eşleme
+ * (`soru.cikti_eslemesi`) boş olduğunda bunu kullanır.
+ */
+export async function onayliEslemeSatirlari(
+  tx: Islem,
+  dersId: string,
+  acilisId: string,
+): Promise<EslemeSatiri[] | null> {
+  const r = (await oneriler(tx, "soru_cikti_eslemesi", dersId)).find(
+    (x) => (x.o.icerik as { dersAcilisiId?: string }).dersAcilisiId === acilisId,
+  );
+  return r ? onayliSatirlar(r) : null;
+}
+
+/**
+ * Bir sorunun ölçmede kullanılacak eşlemesi: soruda kayıtlı eşleme varsa o (çıktı kimliği koda çevrilir), yoksa
+ * ders dosyası akışının onaylı eşlemesi (ağırlık 1). Dersin bilinen çıktı kodları dışındaki eşleme atılır.
+ */
+export function soruEslemesi(
+  q: { numara: string; ciktiEslemesi: unknown },
+  aracAdi: string,
+  ckKod: ReadonlyMap<string, string>,
+  onayli: readonly EslemeSatiri[] | null,
+  gecerliKodlar: ReadonlySet<string>,
+): { ciktiKod: string; agirlik: number }[] {
+  const kayitli = ((q.ciktiEslemesi as { ciktiId: string; agirlik: number }[] | null) ?? [])
+    .filter((e) => ckKod.has(e.ciktiId))
+    .map((e) => ({ ciktiKod: ckKod.get(e.ciktiId) as string, agirlik: e.agirlik }))
+    .filter((e) => gecerliKodlar.has(e.ciktiKod));
+  if (kayitli.length) return kayitli;
+  const satir = onayli?.find((x) => x.aracAdi === aracAdi && x.soruNo === q.numara);
+  return (satir?.ckKodlari ?? []).filter((k) => gecerliKodlar.has(k)).map((k) => ({ ciktiKod: k, agirlik: 1 }));
+}
+
+/**
  * Onaylı eşlemeden ölçmeyi yapar, sonucu, ders dosyası raporunu ve dosya onay önerisini yazar. Aynı eşleme için
  * ikinci kez çağrılırsa var olan kaydı döndürür.
  */

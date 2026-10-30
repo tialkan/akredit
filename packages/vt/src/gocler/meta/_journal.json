@@ -155,6 +155,13 @@
       "when": 1793048726894,
       "tag": "0110_kabul_kurali",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1793048786894,
+      "tag": "0120_sinav_tarama_baglanti",
+      "breakpoints": true
     }
   ]
 }
