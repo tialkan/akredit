@@ -47,6 +47,17 @@ describe("atıf ve sayı denetimi (saf)", () => {
     expect(cumleDenetle("Sağlanma 62,5 [K:1a2b3c4d].", kaynaklar).gecerli).toBe(false);
     expect(cumleDenetle("[H:00000000] bilinmez.", kaynaklar).gecerli).toBe(false);
   });
+  it("kanıtın dosya adındaki rakam serbest metinde sayı dayanağı olamaz (dalga 3 #8)", () => {
+    const k = { ...kaynaklar, kanitlar: new Map([[OZ2, ["2023-anket-120-kisi.pdf", "01.04.2026"]]]) };
+    // Dosya adı kaynaktan birebir alıntılanabilir; içindeki 120 ise kişi sayısının dayanağı değildir.
+    expect(cumleDenetle("“2023-anket-120-kisi.pdf” 01.04.2026 tarihinde onaylandı [K:9f8e7d6c].", k).gecerli).toBe(
+      true,
+    );
+    expect(cumleDenetle("Ankete 120 kişi katıldı [K:9f8e7d6c].", k).sorunlar).toEqual([
+      "Kaynağı gösterilmeyen sayı: 120",
+    ]);
+    expect(cumleDenetle("2023 yılında anket yapıldı [K:9f8e7d6c].", k).gecerli).toBe(false);
+  });
   it("EKSİK işaretli cümle atıfsız geçer, içindeki sayı yine denetlenir", () => {
     expect(cumleDenetle("[EKSİK: tutanak yok]", kaynaklar)).toMatchObject({ gecerli: true, eksik: true });
     expect(cumleDenetle("3 toplantı yapıldı [EKSİK].", kaynaklar).gecerli).toBe(false);

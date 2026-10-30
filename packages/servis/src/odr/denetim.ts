@@ -13,7 +13,7 @@ const KOD = /[\p{L}][\p{L}\d]*(?:\.\d+)+|[\p{L}]+\d+[\p{L}\d]*/gu;
 const SAYI = /\d+(?:[.,]\d+)*/gu;
 
 export interface DenetimKaynaklari {
-  /** Onaylı kanıtlar: özet → izinli metinler (dosya adı, onay tarihi). */
+  /** Onaylı kanıtlar: özet → yalnız birebir geçebilen metinler (dosya adı, onay tarihi). */
   kanitlar: ReadonlyMap<string, readonly string[]>;
   /** Hesap kaynakları: kısa kimlik → izinli metinler (biçimlenmiş değerler). */
   hesaplar: ReadonlyMap<string, readonly string[]>;
@@ -42,6 +42,12 @@ export function cumleDenetle(cumle: string, k: DenetimKaynaklari): CumleDenetimi
   const eksik = eksikleriAyristir(cumle).length > 0;
   const kanitOzetleri: string[] = [];
   const izinli: string[] = [];
+  /**
+   * Kanıtın kaynak metinleri (dosya adı, onay tarihi) yalnız birebir geçtiği yerde izinlidir. İçlerindeki rakam
+   * serbest metne dayanak olamaz: "2023-anket-120-kisi.pdf" adı "120 kişi katıldı" demeyi izinli kılmaz
+   * (dalga 3 #8). Sayının dayanağı hesap atfıdır.
+   */
+  const kanitMetinleri: string[] = [];
   for (const a of atiflariAyristir(cumle)) {
     const eslesen = [...k.kanitlar.keys()].filter((o) => o.startsWith(a.ozetOneki));
     if (eslesen.length !== 1) {
@@ -50,7 +56,7 @@ export function cumleDenetle(cumle: string, k: DenetimKaynaklari): CumleDenetimi
     }
     const ozet = eslesen[0] as string;
     kanitOzetleri.push(ozet);
-    izinli.push(...(k.kanitlar.get(ozet) ?? []));
+    kanitMetinleri.push(...(k.kanitlar.get(ozet) ?? []));
   }
   const hesapKimlikleri: string[] = [];
   for (const h of hesapAtiflari(cumle)) {
@@ -65,7 +71,9 @@ export function cumleDenetle(cumle: string, k: DenetimKaynaklari): CumleDenetimi
   }
   if (!eksik && kanitOzetleri.length + hesapKimlikleri.length === 0) sorunlar.push("Cümlede atıf yok.");
   const izinliSayilar = new Set(izinli.flatMap(sayilar));
-  const govde = cumle.replace(KANIT_ATFI, " ").replace(HESAP_ATFI, " ").replace(EKSIK_ISARETI, " ");
+  let govde = cumle.replace(KANIT_ATFI, " ").replace(HESAP_ATFI, " ").replace(EKSIK_ISARETI, " ");
+  for (const m of [...new Set(kanitMetinleri)].filter(Boolean).sort((a, b) => b.length - a.length))
+    govde = govde.split(m).join(" ");
   for (const s of sayilar(govde)) if (!izinliSayilar.has(s)) sorunlar.push(`Kaynağı gösterilmeyen sayı: ${s}`);
   return { gecerli: sorunlar.length === 0, eksik, kanitOzetleri, hesapKimlikleri, sorunlar };
 }
