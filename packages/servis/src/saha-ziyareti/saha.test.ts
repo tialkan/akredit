@@ -45,6 +45,23 @@ describe("soru listesi (saf)", () => {
     expect(l.sorular.some((s) => s.olcutKod === "Z.9")).toBe(false);
   });
 
+  it("inceleme D8-8: model önerisi hazırlık oranının paydasına girmez, ayrı sayılır", () => {
+    const m = sorulariKur({
+      cerceve: AKREDIT_ONLISANS_IC,
+      kanitlar,
+      eksikCumleler,
+      yzOnerileri: [
+        { olcutKod: "P.2", metin: "P.2 paydaş görüşü alınıyor mu?" },
+        { olcutKod: "P.1", metin: "P.1 çıktılar nasıl güncelleniyor?" },
+      ],
+    });
+    // Kurallı liste değişmez: oran aynı. Model soruları ayrı: 2 soru, P.1 kanıtlı olduğundan 1 kanıtlı.
+    expect(m.toplam).toEqual(l.toplam);
+    expect(m.hazirlik).toEqual(l.hazirlik);
+    expect(m.modelOnerisi).toEqual({ soru: 2, kanitli: 1 });
+    expect(l.modelOnerisi).toEqual({ soru: 0, kanitli: 0 });
+  });
+
   it("cevap yazılmaz; kanıt eşlenir, kanıtsız soru hazırlıksız", () => {
     const p1 = l.sorular.find((s) => s.olcutKod === "P.1");
     expect(p1?.kanitlar.map((k) => k.dosyaAdi)).toEqual(["kurul-tutanagi.pdf"]);
@@ -189,6 +206,14 @@ describe("Örnek Üniversitesi ile uçtan uca", () => {
     ]);
     expect(d.sorular.find((x) => x.id === p1?.id)?.metin).toBe("P.1 program çıktılarını nasıl belirlediniz?");
     expect(JSON.stringify(d)).not.toContain("Kanıt ektedir");
+    // D8-8: öneri saklanır; modelsiz sonraki çağrıda da listede kalır, oranın paydasına girmez ve prova alır.
+    expect(d.toplam).toEqual(once.toplam);
+    expect(d.modelOnerisi).toEqual({ soru: 1, kanitli: 0 });
+    const sonra = await saha.hazirla(y, GIRDI());
+    const p5 = sonra.sorular.find((x) => x.kaynak === "yz");
+    expect(p5?.metin).toBe("P.5 mezunlarla nasıl iletişim kuruyorsunuz?");
+    const r = await saha.provaIsaretle(y, { ...GIRDI(), soruId: p5?.id, rol: "komisyon", durum: "hazirim" });
+    expect(r.durum).toBe("hazirim");
     // Modele kanıt içeriği ve kişi adı gitmez.
     const giden = JSON.stringify(s.istekler);
     expect(giden).not.toContain("Deneme Yönetici");
@@ -219,7 +244,9 @@ describe("Örnek Üniversitesi ile uçtan uca", () => {
     // Prova işareti hazırlık oranını değiştirmez: oran yalnız kanıttan hesaplanır.
     expect(sonra.toplam).toEqual(d.toplam);
     // Başka kişinin işaretleri bu kişiye görünmez.
-    expect((await saha.hazirla(await o.baglam(a, a.yonetici), GIRDI())).prova).toEqual({});
+    const baskasi = (await saha.hazirla(await o.baglam(a, a.yonetici), GIRDI())).prova;
+    expect(baskasi).not.toHaveProperty(p3?.id as string);
+    expect(baskasi).not.toHaveProperty(p1?.id as string);
   });
 
   it("gözlemci listeyi görür ama prova işareti koyamaz", async () => {
@@ -228,6 +255,35 @@ describe("Örnek Üniversitesi ile uçtan uca", () => {
     await expect(
       saha.provaIsaretle(g, { ...GIRDI(), soruId: d.sorular[0]?.id, rol: "komisyon", durum: "eksik_var" }),
     ).rejects.toMatchObject({ kod: "yetki_yok" });
+  });
+
+  it("KİDR ve BİDR eksikleri de soru üretir (yalnız çerçevedeki kodlar, son sürüm)", async () => {
+    await kiraciIslemi(o.db, a.kurumId, async (tx) => {
+      const [r] = await tx
+        .insert(sema.rapor)
+        .values({ kurumId: a.kurumId, tur: "kidr", kapsam: { tur: "kurum", id: a.kurumId }, baslik: "KİDR taslağı" })
+        .returning({ id: sema.rapor.id });
+      await tx.insert(sema.raporBolumuSurumu).values([
+        {
+          kurumId: a.kurumId,
+          raporId: r?.id as string,
+          bolumKodu: "P.2",
+          metin: "Paydaş katılımı [EKSİK: kurum düzeyinde kanıt yok].",
+          denetimSonucu: { eksik: true },
+        },
+        {
+          kurumId: a.kurumId,
+          raporId: r?.id as string,
+          bolumKodu: "Z.9",
+          metin: "[EKSİK: çerçevede olmayan kod].",
+          denetimSonucu: { eksik: true },
+        },
+      ]);
+    });
+    const d = await saha.hazirla(await o.baglam(a, a.yonetici), GIRDI());
+    const k = d.sorular.filter((s) => s.kaynak === "eksik" && s.eksikCumle?.includes("kurum düzeyinde"));
+    expect(k.map((s) => s.olcutKod)).toEqual(["P.2"]);
+    expect(d.sorular.some((s) => s.olcutKod === "Z.9")).toBe(false);
   });
 
   it("listede olmayan soru ve başka kurum reddedilir", async () => {

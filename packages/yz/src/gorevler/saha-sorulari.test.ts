@@ -2,7 +2,13 @@
 import { describe, expect, it } from "vitest";
 import { sahteSaglayici } from "../saglayicilar/sahte.ts";
 import { gorevCalistir } from "./gorev.ts";
-import { type SahaSorulariGirdisi, sahaSorulari, sahaSorulariniAyikla, soruMetniSorunu } from "./saha-sorulari.ts";
+import {
+  olguImasi,
+  type SahaSorulariGirdisi,
+  sahaSorulari,
+  sahaSorulariniAyikla,
+  soruMetniSorunu,
+} from "./saha-sorulari.ts";
 
 const girdi: SahaSorulariGirdisi = {
   sorular: [
@@ -96,5 +102,16 @@ describe("saha soruları görevi (sahte sağlayıcı)", () => {
     expect(a.duzeltmeler).toEqual([]);
     expect(a.oneriler).toHaveLength(2);
     expect(a.reddedilen).toHaveLength(3);
+  });
+});
+
+describe("olgu ima eden soru (inceleme D8-9)", () => {
+  it("sıklık, geçmiş ortaç ya da iyelikli etkinlik varsayan öneri yakalanır; tarafsız soru geçer", () => {
+    expect(olguImasi("P.2 kurulun haftalık toplantıları nasıl belgeleniyor?")).not.toBeNull();
+    expect(olguImasi("P.3 yaptığınız anket sonuçları nerede?")).not.toBeNull();
+    expect(olguImasi("P.4 düzenlenen çalıştay kimlere açıktı?")).not.toBeNull();
+    expect(olguImasi("P.1 toplantılarınız kayda geçiyor mu?")).not.toBeNull();
+    expect(olguImasi("P.5 mezunlarla nasıl iletişim kuruyorsunuz?")).toBeNull();
+    expect(olguImasi("P.2 paydaş görüşü alınıyor mu, nasıl?")).toBeNull();
   });
 });
