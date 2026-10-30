@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "rewriteRelativeImportExtensions": true,
+    "declaration": true,
+    "rootDir": "../..",
+    "outDir": "dist",
+    "sourceMap": false,
+    "removeComments": false
+  },
+  "include": [
+    "src/**/*.ts",
+    "../../packages/cekirdek/src/**/*.ts",
+    "../../packages/cerceveler/src/**/*.ts",
+    "../../packages/olcme/src/**/*.ts",
+    "../../packages/yz/src/**/*.ts"
+  ],
+  "exclude": [
+    "**/*.test.ts",
+    "../../packages/**/*.test.ts",
+    "../../packages/**/test/**",
+    "../../packages/**/fixtures/**",
+    "../../packages/yz/src/degerlendirme/**"
+  ]
+}

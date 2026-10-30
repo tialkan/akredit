@@ -35,3 +35,4 @@ Herkes, hesap açmadan ve ücretsiz, kendi yapay zekâ asistanıyla (Claude, Cha
 ## Günlük
 
 - 2026-10-30: İP dosyası yazıldı ve uygulandı, durum inceleme. Ayrıntı: `docs/raporlar/IP-49.md`.
+- 2026-10-30 (kapanış): npm yayınına hazır derleme eklendi (`scripts/derle.ts`, `tsconfig.build.json`; iş alanı paketleri `dist`e gömülür, dış bağımlılık SDK ve zod; `publishConfig` ile `bin`/`exports` `dist`e). `pnpm pack` paketi `npx` ile stdio el sıkışması, araç listesi ve çağrıyla denendi; yayın yapılmadı. Ters vekilde hız sınırı notu: `docs/isletim/acik-mcp-hiz-siniri.md`. Kalan, insan işi: canlı istemcilerle bağlantı denemesi, npm kapsamı ve yayın kararı, vekil sınırının sunucuda kurulması. Durum inceleme.

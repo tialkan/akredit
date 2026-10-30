@@ -10,6 +10,7 @@ Bu klasör akredit.org'un kurulumu, yayını, yedeği ve izlenmesi içindir. Kay
 | [yedekleme-ve-geri-donus.md](yedekleme-ve-geri-donus.md) | WAL arşivi, taban yedek, zaman noktasına dönüş, tatbikat |
 | [gozlem.md](gozlem.md) | Ölçüler, uyarılar, durum sayfası, günlük saklama |
 | [surum-ve-geri-alma.md](surum-ve-geri-alma.md) | Hazırlık ve üretime yayın, göç sırası, geri alma |
+| [acik-mcp-hiz-siniri.md](acik-mcp-hiz-siniri.md) | Açık MCP ucu için ters vekilde hız ve gövde sınırı |
 | [tatbikat/](tatbikat/) | Yapılan geri dönüş tatbikatlarının çıktıları |
 
 ## Mimari özet
