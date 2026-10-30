@@ -15,6 +15,7 @@ import * as onay from "../onay/index.ts";
 import * as oneri from "../oneri.ts";
 import * as panel from "../panel.ts";
 import * as politika from "../politika.ts";
+import * as puko from "../puko/index.ts";
 import * as rapor from "../rapor.ts";
 import * as s from "../semalar.ts";
 import * as wordPaketi from "../word-paketi/index.ts";
@@ -606,6 +607,44 @@ export const UCLAR: Uc[] = [
     sorgu: s.SayfaGirdisi,
     cikti: s.sayfaSemasi(s.GunlukKaydi),
     isle: (b, g) => panel.gunluk(b, g.sorgu as s.SayfaGirdisi),
+  },
+  {
+    ad: "pukoKartlari",
+    yontem: "GET",
+    yol: "/puko/kartlar",
+    ozet: "Karar bekleyen PÜKÖ kartları (katman 2), otomatik kayıt sayısı ve onay yorgunluğu",
+    eylem: "olcme.oku",
+    cikti: z.object({
+      kartlar: z.array(
+        z.object({ id: z.string(), pukoId: z.string(), hedefDonem: z.string().nullable() }).passthrough(),
+      ),
+      otomatikSayisi: z.number().int(),
+      yorgunluk: z.object({}).passthrough(),
+    }),
+    isle: (b) => puko.pukoPaneli(b),
+  },
+  {
+    ad: "pukoOnlemSec",
+    yontem: "POST",
+    yol: "/puko/onlem",
+    ozet: "Karar kartında önlem seç. Yalnız oturumla; karar veren oturumdaki kişidir.",
+    eylem: "karar.ver",
+    govde: puko.OnlemSecimi,
+    cikti: z.object({
+      devir: z.array(z.object({ dersKodu: z.string(), hedefDonem: z.string() }).passthrough()),
+      eylem: z.object({ pukoId: z.string(), baslik: z.string() }).passthrough(),
+    }),
+    isle: (b, g) => puko.pukoOnlemSec(b, g.govde),
+  },
+  {
+    ad: "pukoOlcumleri",
+    yontem: "POST",
+    yol: "/puko/olcumler",
+    ozet: "Dönem ölçümlerini işle: kapanış, katman 0 kayıtları ve yeni karar kartları",
+    eylem: "olcme.veri_gir",
+    govde: puko.PukoOlcumGirdisi,
+    cikti: z.object({ otomatik: z.number().int(), acilan: z.number().int(), kapanan: z.number().int() }),
+    isle: (b, g) => puko.pukoOlcumleriIsle(b, g.govde),
   },
 ];
 

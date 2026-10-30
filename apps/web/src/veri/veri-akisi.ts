@@ -47,6 +47,8 @@ export const TABLO_SINIFI: Record<string, string | null> = {
   katki: "karar",
   yetki_politikasi: "karar",
   kayit_duzeltmesi: "karar",
+  // PÜKÖ olayları (İP-39): önlem seçiminde karar veren kişinin kimliği.
+  puko_olayi: "karar",
   gunluk: "gunluk",
   bildirim: "bildirim",
   gorev: "bildirim",

@@ -10,4 +10,5 @@ export * from "./kurum.ts";
 export * from "./olcme.ts";
 export * from "./oneri.ts";
 export * from "./ortak.ts";
+export * from "./puko.ts";
 export * from "./surec.ts";
