@@ -2,6 +2,7 @@
 // kuruldu (metinleri DOGRULANMADI); geçmiş raporlar için korunur. Resmî belgeden alınmış
 // güncel YÖKAK sürümleri veri-resmi.ts içindedir. Ayrıntı: docs/cerceveler.md.
 
+import { PROGRAM_CERCEVELERI } from "./program-tablolari/cerceveler.ts";
 import { type Cerceve, cerceveSemasi, DOGRULANMADI, type KanitGereksinimi, type Olcut } from "./sema.ts";
 import { YOKAK_KIDR_3_2_1, YOKAK_KURUMSAL_3_3 } from "./veri-resmi.ts";
 
@@ -297,4 +298,6 @@ export const ILK_CERCEVELER: readonly Cerceve[] = [
   MUDEK_TASLAK,
   AKREDIT_ONLISANS_IC,
   BOLOGNA_AKTS_IC,
+  // Program akreditasyonu kuruluşları (İP-47): resmî belgeden, uzman doğrulaması bekliyor.
+  ...PROGRAM_CERCEVELERI,
 ];

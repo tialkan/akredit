@@ -28,6 +28,7 @@ import { XmlHatasi } from "./xml.ts";
 import { GuvenlikHatasi, VARSAYILAN_ZIP, type ZipSinirlari, zipAc } from "./zip.ts";
 
 export * from "./paket.ts";
+export * from "./tablo-sablon.ts";
 export type * from "./turler.ts";
 export { crc32, zipCrcUyusmayanlar } from "./zip.ts";
 

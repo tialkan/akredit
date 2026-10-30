@@ -1190,7 +1190,7 @@ export const YOL_HARITASI: { no: number; ad: string; metin: string; dalga: "tama
     no: 47,
     ad: "Program akreditasyonu tabloları",
     metin: "MÜDEK, FEDEK, EPDAD ve SABAK tabloları kanıttan hazırlanır. Resmî belge alınmadan çerçeve eklenmez.",
-    dalga: "sonra",
+    dalga: "simdi",
   },
   {
     no: 48,

@@ -178,7 +178,7 @@ Durumlar: **hazır** (başlanabilir), **devam**, **inceleme**, **tamam**, **bekl
 | [44](plan/ip/IP-44-cumleden-kanita.md) | Cümleden kanıta tek tık, rapor dil denetimi | 8 | inceleme | 19, 20 |
 | [45](plan/ip/IP-45-hesapsiz-belge-isteme.md) | İdari birimlerden hesapsız belge isteme | 8 | tamam | 10, 14 |
 | [46](plan/ip/IP-46-toplantidan-tutanaga.md) | Toplantıdan tutanağa ve EBYS taslağına akış | 8 | bekliyor | 18, 23 |
-| [47](plan/ip/IP-47-program-akreditasyonu-tablolari.md) | Program akreditasyonu tablo dönüştürücüsü | 8 | bekliyor | 11, 19 |
+| [47](plan/ip/IP-47-program-akreditasyonu-tablolari.md) | Program akreditasyonu tablo dönüştürücüsü | 8 | inceleme | 11, 19 |
 | [48](plan/ip/IP-48-saha-ziyareti-hazirligi.md) | Saha ziyareti hazırlık simülatörü | 8 | inceleme | 22 |
 | [49](plan/ip/IP-49-acik-mcp.md) | Herkese açık Akredit MCP sunucusu ve tanıtımı | 8 | inceleme | 25, 42 |
 

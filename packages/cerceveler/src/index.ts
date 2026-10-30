@@ -6,6 +6,7 @@ export const PAKET = "@akredit/cerceveler";
 export * from "./esleme.ts";
 export * from "./ice-aktarma.ts";
 export * from "./kutuphane.ts";
+export * from "./program-tablolari/index.ts";
 export * from "./sema.ts";
 export * from "./veri.ts";
 export * from "./veri-resmi.ts";

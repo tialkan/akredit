@@ -34,8 +34,9 @@ const SAYFALAR = [
 describe("şema", () => {
   it("ilk çerçevelerin hepsi şemaya uyar", () => {
     for (const c of ILK_CERCEVELER) expect(cerceveSemasi.safeParse(c).success).toBe(true);
-    // 2020 tabanlı 2 YÖKAK taslağı + resmî belgeden 2 YÖKAK sürümü + MÜDEK + 2 iç çerçeve.
-    expect(ILK_CERCEVELER).toHaveLength(7);
+    // 2020 tabanlı 2 YÖKAK taslağı + resmî belgeden 2 YÖKAK sürümü + MÜDEK taslağı + 2 iç çerçeve
+    // + İP-47 program çerçeveleri (MÜDEK lisans ve YL, FEDEK, SABAK, EPDAD öğretmen eğitimi ve RPD).
+    expect(ILK_CERCEVELER).toHaveLength(13);
   });
 
   it("kaynak özeti olmayan resmî çerçevede hiçbir ölçüt metin ya da resmî başlık taşımaz", () => {
