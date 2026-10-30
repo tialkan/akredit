@@ -1,6 +1,6 @@
 # İP-44: Cümleden kanıta tek tık inceleme ve rapor dil denetimi
 
-- **Durum:** hazır
+- **Durum:** inceleme
 - **Faz:** 8
 - **Bağımlılık:** İP-19, İP-20 (ikisi de incelemede)
 - **Sahip olduğu yollar:** `packages/cekirdek/src/rapor/**`, `apps/web/src/app/panel/raporlar/**`, `apps/web/src/app/degerlendirici/kanit/**`, `packages/servis/src/rapor.ts`, `docs/raporlar/IP-44.md`
@@ -19,13 +19,14 @@
 
 ## Kabul ölçütleri
 
-- [ ] Her atıflı cümleden kanıt paneli açılır; sayfa/satır vurgusu PDF, DOCX ve XLSX kanıtında çalışır (e2e).
-- [ ] Yazıyla sayı, kanıtsız üstünlük ve öznesiz eylem kuralları elle hazırlanmış örneklerle test edilir; yanlış pozitif örnekleri de testte.
-- [ ] Denetim modelsiz çalışır (test sahte sağlayıcı bile kurmaz).
-- [ ] Portal görünümü salt okunur; erişim günlükte.
-- [ ] axe temiz, klavyeyle cümleler arasında gezilebilir; `pnpm verify` temiz.
+- [x] Her atıflı cümleden kanıt paneli açılır; sayfa/satır vurgusu PDF, DOCX ve XLSX kanıtında çalışır (e2e).
+- [x] Yazıyla sayı, kanıtsız üstünlük ve öznesiz eylem kuralları elle hazırlanmış örneklerle test edilir; yanlış pozitif örnekleri de testte.
+- [x] Denetim modelsiz çalışır (test sahte sağlayıcı bile kurmaz).
+- [x] Portal görünümü salt okunur; erişim günlükte.
+- [x] axe temiz, klavyeyle cümleler arasında gezilebilir; `pnpm check`, `pnpm typecheck`, ilgili paket testleri ve web derlemesi temiz (tam `pnpm verify` tek komutla koşulmadı, adımlar ayrı).
 
 ## Günlük
 
 - 2026-10-29: İP dosyası yazıldı. İP-19 ve İP-20 incelemeden çıkınca hazır olur.
 - 2026-10-30 (inceleme kapanışı, dal `inceleme/kapanis`): Bağımlılıklar İP-19 ve İP-20 tamam oldu (inceleme kapanışı). Durum hazır.
+- 2026-10-30 (dal `ip/44-cumleden-kanita`): Uygulandı, durum inceleme. `cekirdek/rapor`: `cumle.ts` (cümle ayrıştırma, atıf kendinden önceki metni kapsar), `dil.ts` (beş kural, saf), `kanit-paneli.ts` (PDF sayfa, DOCX bölüm, XLSX hücre/satır, slayt eşlemesi); `denetim.ts` bunları dışa açar. `servis/rapor.ts`: `dilDenetimi`, `dilBulgulariniKaydet` (yeni bulgular `rapor_bolumu` önerisi, hedef `rapor_bolumu_surumu`, üretici kural; tür VT kuralıyla yüksek riskli, bulgunun önemi içerikte), `kanitPaneli` (SHA-256 ve onay bilgisi), yayım uyarısı (açık yüksek bulgu). `[H:…]` paragrafı artık EKSİK sayılmaz. Web: rapor okuyucusu (cümle düğmeleri, yan panel, Esc, odak dönüşü), dil denetimi özeti ve "onay kutusuna ekle" eylemi; portalda `/degerlendirici/kanit/rapor` salt okunur, görüntüleme `degerlendirici.rapor_goruntulendi` ile günlüğe. Göç ve yeni tablo yok. Kalan: yayım uyarısı onay kutusu karar ekranına bağlanmadı (sahip olunmayan yol); portal menüsüne bağlantı eklenmedi; `klavye.spec` `/panel/kararlar` testi bu dalda da kırık (dokunulmayan sayfa). Rapor: `docs/raporlar/IP-44.md`.
