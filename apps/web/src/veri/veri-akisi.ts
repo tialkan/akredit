@@ -58,6 +58,9 @@ export const TABLO_SINIFI: Record<string, string | null> = {
   gorev: "bildirim",
   eylem: "bildirim",
   kurum_acilis_talebi: "basvuru",
+  belge_istegi: "belge_istegi",
+  belge_istegi_gonderimi: "belge_istegi",
+  belge_istegi_yuklemesi: "belge_istegi",
   anket: null,
   anket_sorusu: null,
   birim: null,
@@ -173,6 +176,17 @@ const FAALIYETLER: Faaliyet[] = [
     saklama: "Başvuru sonuçlanana kadar + saklama politikası",
     alici: "İşletmeci",
     teknikTedbir: "Kurumsal alan adı doğrulaması",
+  },
+  {
+    kimlik: "belge_istegi",
+    faaliyet: "İdari birimlerden hesapsız belge isteme",
+    veriKategorisi: "Birim yetkilisinin kurumsal e-postası; yüklediği belge ve kısa not; tuzlu ağ izi (IP saklanmaz)",
+    amac: "Eksik kanıtın idari birimden toplanması",
+    hukukiSebep: `Kamu görevi / hukuki yükümlülük (YÖKAK süreçleri, ${DOG})`,
+    saklama: "Akreditasyon dönemi; belge kanıt saklama kuralına tabi",
+    alici: "Kurum yetkilileri (kalite komisyonu)",
+    teknikTedbir:
+      "Tek kullanımlık, süreli, HMAC imzalı bağlantı; belirteç yalnız özetiyle saklanır; belge doğrulanmamış girer, kabul insan kararıdır",
   },
 ];
 

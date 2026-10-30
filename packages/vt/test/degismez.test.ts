@@ -17,6 +17,9 @@ import {
 } from "./yardimci.ts";
 
 const YALNIZ_EKLEME = [
+  "belge_istegi",
+  "belge_istegi_gonderimi",
+  "belge_istegi_yuklemesi",
   "cikti",
   "gunluk",
   "kanit",

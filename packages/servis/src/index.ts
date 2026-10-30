@@ -3,6 +3,7 @@
 export * as akademik from "./akademik.ts";
 export * as arastirma from "./arastirma/index.ts";
 export * from "./baglam.ts";
+export * as belgeIstegi from "./belge-istegi/index.ts";
 export * as bologna from "./bologna/index.ts";
 export * as dersDosyasi from "./ders-dosyasi/index.ts";
 export * as gosterge from "./gosterge.ts";
