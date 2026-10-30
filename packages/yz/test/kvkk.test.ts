@@ -1,5 +1,25 @@
 import { describe, expect, it } from "vitest";
-import { ibanGecerliMi, maskeKaldir, maskele, maskeleyici, tcknGecerliMi } from "../src/guvence/kvkk.ts";
+import {
+  ibanGecerliMi,
+  maskeKaldir,
+  maskele,
+  maskeleyici,
+  ogrenciNoDeseniGecerliMi,
+  ogrenciNoDesenleriniDerle,
+  tcknGecerliMi,
+} from "../src/guvence/kvkk.ts";
+
+describe("kurumun öğrenci numarası desenleri (inceleme 4-7 #7)", () => {
+  it("bozuk, boşu eşleyen ya da aşırı uzun desen reddedilir; geçerli desen derlenir", () => {
+    expect(ogrenciNoDeseniGecerliMi("\\b2\\d{8}\\b")).toBe(true);
+    expect(ogrenciNoDeseniGecerliMi("(")).toBe(false);
+    expect(ogrenciNoDeseniGecerliMi("\\d*")).toBe(false);
+    expect(ogrenciNoDeseniGecerliMi("a".repeat(201))).toBe(false);
+    const d = ogrenciNoDesenleriniDerle(["(", "\\bOGR\\d{4}\\b"]);
+    expect(d).toHaveLength(1);
+    expect(maskele("No OGR1234 geldi.", { ogrenciNoDesenleri: d }).metin).toBe("No [ÖĞRENCİ-NO-1] geldi.");
+  });
+});
 
 // Kurgu numaralar. 10000000146: tek haneler 1+0+0+0+1=2, çift haneler 0 → (2*7-0) mod 10 = 4 = 10. hane;
 // ilk 10 hane toplamı 6 → 11. hane 6. Geçerli.

@@ -15,6 +15,7 @@ import {
   type FetchIslevi,
   type KurumYzAyari,
   type MaskeSecenegi,
+  ogrenciNoDesenleriniDerle,
   openaiUyumlu,
   ortamdanAnahtarKasasi,
   politikaUygula,
@@ -112,7 +113,8 @@ export function yzAyariniCoz(ham: unknown, ek?: MaskeSecenegi): KurumYzAyari {
   if (yz?.ogrenciNoDesenleri)
     maske.ogrenciNoDesenleri = [
       ...(ek?.ogrenciNoDesenleri ?? []),
-      ...yz.ogrenciNoDesenleri.map((d) => new RegExp(d, "gu")),
+      // Bozuk desen atlanır; `new RegExp` hatası her YZ çağrısını durdurmasın (inceleme 4-7 #7).
+      ...ogrenciNoDesenleriniDerle(yz.ogrenciNoDesenleri),
     ];
   return { yurtDisiIzin: yz?.yurtDisiIzin === true, maske };
 }

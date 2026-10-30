@@ -10,7 +10,16 @@ import {
   anahtariAyikla,
   kurumSaglayicisi,
   YzAnahtariYokHatasi,
+  yzAyariniCoz,
 } from "../src/yz-fabrika.ts";
+
+describe("öğrenci numarası deseni (inceleme 4-7 #7)", () => {
+  it("bozuk desen YZ çağrılarını durdurmaz; geçerli desenler uygulanır", () => {
+    const a = yzAyariniCoz({ yz: { ogrenciNoDesenleri: ["(", "\\bOGR\\d{4}\\b"] } });
+    expect(a.maske.ogrenciNoDesenleri).toHaveLength(1);
+  });
+});
+
 import { ortam, yurtDisiIzniVer } from "./yardimci.ts";
 
 const ANAHTAR = "sk-or-v1-uydurmafabrika0000000001";
