@@ -1,6 +1,6 @@
 # İP-48: Saha ziyareti hazırlık simülatörü
 
-- **Durum:** hazır
+- **Durum:** inceleme
 - **Faz:** 8
 - **Bağımlılık:** İP-22
 - **Sahip olduğu yollar:** `packages/servis/src/saha-ziyareti/**`, `apps/web/src/app/panel/saha-ziyareti/**`, `packages/yz/src/gorevler/saha-sorulari*.ts`, `docs/raporlar/IP-48.md`
@@ -19,12 +19,13 @@ Değerlendirici ziyaretinden önce kurum, olası soruları ve her sorunun cevab�
 
 ## Kabul ölçütleri
 
-- [ ] Her alt ölçüt ve her EKSİK cümle en az bir soru üretir (test, sentetik Örnek Üniversitesi verisiyle).
-- [ ] Model önerisi ölçüt kimliği olmadan listeye girmez; model cevap metni yazmaz (test, sahte sağlayıcı).
-- [ ] Hazırlık oranı elle hesaplanmış örnekle test edilir.
-- [ ] Eksik işareti süreç motorunda görev oluşturur (test).
+- [x] Her alt ölçüt ve her EKSİK cümle en az bir soru üretir (test, sentetik Örnek Üniversitesi verisiyle).
+- [x] Model önerisi ölçüt kimliği olmadan listeye girmez; model cevap metni yazmaz (test, sahte sağlayıcı).
+- [x] Hazırlık oranı elle hesaplanmış örnekle test edilir.
+- [x] Eksik işareti süreç motorunda görev oluşturur (test).
 - [ ] Demo kiracısında (İP-41) çalışır; axe temiz; `pnpm verify` temiz.
 
 ## Günlük
 
 - 2026-10-29: İP dosyası yazıldı.
+- 2026-10-30: Uygulandı, durum inceleme. Servis `packages/servis/src/saha-ziyareti` (saf `sorular.ts`: her ölçüt ve alt ölçüt, son ÖDR sürümündeki her EKSİK cümle bir soru; onaylı kanıt eşlemesi; ölçüt başına kanıtlı soru oranı; kurallı rol setleri. `index.ts`: `hazirla`, `provaIsaretle`). YZ görevi `packages/yz/src/gorevler/saha-sorulari.ts`: yalnız dil düzeltmesi ve ölçüt koduna bağlı öneri; cevap, atıf ve yeni sayı içeren öğe ayıklanır. Panel `/panel/saha-ziyareti`: hazırlık tablosu, rol bazlı prova, "Hazırım / Eksik var" (eksik var komisyona görev açar). Göç yok, yeni tablo yok. Kalan: axe ve demo kiracısında tarayıcı denetimi bu ortamda çalıştırılamadı (Playwright tarayıcısı indirilemedi); sayfa `e2e/sayfalar.ts` listesine eklendi. Ayrıntı: `docs/raporlar/IP-48.md`.
