@@ -69,17 +69,28 @@ export function bildirimMetni(y: BildirimYolu): string {
   return BILDIRIM_METNI.eposta;
 }
 
-/** Tarayıcının gönderdiği anlık bildirim aboneliği (PushSubscription.toJSON()). */
-export const abonelikSemasi = z.object({
-  endpoint: z
-    .string()
-    .url()
-    .max(2048)
-    .refine((s) => s.startsWith("https://"), "Abonelik adresi güvenli değil."),
-  expirationTime: z.number().nullable().optional(),
-  keys: z.object({ p256dh: z.string().min(1).max(256), auth: z.string().min(1).max(64) }),
-});
-export type Abonelik = z.infer<typeof abonelikSemasi>;
+/**
+ * Tarayıcının gönderdiği anlık bildirim aboneliği (PushSubscription.toJSON()). Şema ilk kullanımda kurulur:
+ * modül düzeyinde `z.object(...)` çağrısı yan etki sayıldığından, bu dosyadan yalnız yardımcı alan istemci
+ * bileşeni (mobil-kurulum.tsx) bütün zod kütüphanesini tarayıcı paketine taşıyordu (~37 KB, İP-31 bütçesi).
+ */
+function abonelikSemasiKur() {
+  return z.object({
+    endpoint: z
+      .string()
+      .url()
+      .max(2048)
+      .refine((s) => s.startsWith("https://"), "Abonelik adresi güvenli değil."),
+    expirationTime: z.number().nullable().optional(),
+    keys: z.object({ p256dh: z.string().min(1).max(256), auth: z.string().min(1).max(64) }),
+  });
+}
+let kurulanSema: ReturnType<typeof abonelikSemasiKur> | undefined;
+export function abonelikSemasi(): ReturnType<typeof abonelikSemasiKur> {
+  kurulanSema ??= abonelikSemasiKur();
+  return kurulanSema;
+}
+export type Abonelik = z.infer<ReturnType<typeof abonelikSemasiKur>>;
 
 /** Gerçek saklama ve gönderim sonraki İP'de bağlanır; burada yalnız arayüz ve bellek uygulaması vardır. */
 export interface AbonelikDeposu {
@@ -145,7 +156,7 @@ export async function abonelikIsle(istek: Request, kullaniciId: string, depo: Ab
     return new Response(null, { status: 204 });
   }
   if (istek.method !== "POST") return Response.json({ hata: "Bu işlem desteklenmiyor." }, { status: 405 });
-  const s = abonelikSemasi.safeParse(govde);
+  const s = abonelikSemasi().safeParse(govde);
   if (!s.success)
     return Response.json(
       { hata: "Bildirim aboneliği okunamadı. Sayfayı yenileyip bildirimleri yeniden açın." },
