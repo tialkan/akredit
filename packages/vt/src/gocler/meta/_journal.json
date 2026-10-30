@@ -113,6 +113,13 @@
       "when": 1793048486894,
       "tag": "0060_pilot_basvurusu",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1793134886894,
+      "tag": "0080_belge_istegi",
+      "breakpoints": true
     }
   ]
 }
