@@ -35,6 +35,15 @@ describe("cümle ayrıştırma", () => {
     expect(c[0]?.atiflar[0]?.capa).toEqual({ sayfa: 2 });
   });
 
+  it("son atıftan sonra gelen cümle atıf almaz (atıf kendinden önceki metni kapsar)", () => {
+    const c = raporCumleleri("Kurul toplandı [K:abcdef12]. Program en iyi programdır.");
+    expect(c.map((x) => [x.kaynak, x.eksik])).toEqual([
+      ["kendi", false],
+      ["yok", true],
+    ]);
+    expect(dilDenetle("Kurul toplandı [K:abcdef12]. Program en iyi programdır.").map((b) => b.cumle)).toEqual([2]);
+  });
+
   it("atıfsız paragrafın bütün cümleleri EKSİK; hesap atfı kaynak sayılır", () => {
     expect(raporCumleleri("Atıfsız. Bu da.").every((c) => c.eksik)).toBe(true);
     expect(raporCumleleri("PÇ1 sağlanma düzeyi 62,5 [H:0a1b2c3d].")[0]).toMatchObject({
