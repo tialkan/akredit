@@ -1,7 +1,13 @@
 // Sınav kâğıdı taraması ekranının veri biçimi ve örnek kipteki kurgu tarama (İP-43).
 // Biçim `@akredit/servis` `sinavTarama.TaramaGorunumu` ile aynıdır; numara hiçbir alanda yoktur.
 
-export type Neden = "dusuk_guven" | "okunamadi" | "azami_asimi" | "toplam_tutarsiz" | "numara_okunamadi";
+export type Neden =
+  | "dusuk_guven"
+  | "okunamadi"
+  | "azami_asimi"
+  | "toplam_tutarsiz"
+  | "numara_okunamadi"
+  | "metinde_yok";
 
 export interface Hucre {
   hucreId: string;
@@ -31,6 +37,7 @@ export const NEDEN_METNI: Record<Neden, string> = {
   azami_asimi: "Okunan puan sorunun azami puanını aşıyor.",
   toplam_tutarsiz: "Soru puanlarının toplamı kâğıttaki toplamla tutmuyor.",
   numara_okunamadi: "Öğrenci numarası okunamadı.",
+  metinde_yok: "Okunan puan kutudaki yazıyla eşleşmiyor.",
 };
 
 export function alanAdi(alan: string): string {

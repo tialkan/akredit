@@ -10,6 +10,7 @@ import {
   istemGuvenliMi,
   kagidiDegerlendir,
   kagitlaraBol,
+  metindeSayiVarMi,
   numarayiOku,
   okuyucuKur,
   ortamdanYerelModel,
@@ -135,6 +136,28 @@ describe("onaya düşme", () => {
       ["1", ["dusuk_guven"]],
       ["2", ["dusuk_guven", "okunamadi"]],
     ]);
+  });
+  it("inceleme: modelin kutu metninde olmayan sayısı güven 1 olsa da otomatik kabul edilmez", () => {
+    // Kutu metni "yedi" ya da boş; model 7 ve güven 1 dönüyor. Sayı metinde yok → onaya düşmeli.
+    expect(metindeSayiVarMi("yedi", 7)).toBe(false);
+    expect(metindeSayiVarMi("", 9)).toBe(false);
+    expect(metindeSayiVarMi("7,5", 7.5)).toBe(true);
+    expect(metindeSayiVarMi("l0", 10)).toBe(true);
+    expect(metindeSayiVarMi("12", 1)).toBe(false);
+    expect(metindeSayiVarMi("??", null)).toBe(true);
+    const r = kagidiDegerlendir({
+      sorular: [{ alan: "1", deger: 7, guven: 1, metinde: false }, h("2", 3, 1)],
+      toplam: null,
+      numaraOkundu: true,
+      azami: AZAMI,
+      esik: 0.5,
+    });
+    expect(r.find((x) => x.alan === "1")).toMatchObject({
+      durum: "onay_bekliyor",
+      katman: 2,
+      nedenler: ["metinde_yok"],
+    });
+    expect(r.find((x) => x.alan === "1")).not.toHaveProperty("metinde");
   });
   it("onay kartı her zaman Katman 2, devredilemez; toplam ve azami kuralı öne çıkar", () => {
     expect(hucreKatmani(["dusuk_guven", "toplam_tutarsiz"])).toMatchObject({

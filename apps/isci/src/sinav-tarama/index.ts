@@ -17,6 +17,7 @@ import type { FetchIslevi } from "@akredit/yz";
 import { eq } from "drizzle-orm";
 import { unzipSync } from "fflate";
 import { z } from "zod";
+import { SINAV_TARAMASI_AMACI } from "../kanit-hatti/alma.ts";
 import { type KomutCalistirici, varsayilanCalistirici } from "../kanit-hatti/ocr.ts";
 
 type TaramaKaynagi = sinavTarama.TaramaKaynagi;
@@ -179,12 +180,19 @@ export async function sinavTaramasiIsi(c: TaramaIsciBaglami, ham: unknown): Prom
   sinavTarama.yerelOkuyucuKur(c.yerelModel, c.fetch ? { fetch: c.fetch } : {});
   const kanit = await kiraciIslemi(c.db, is.kurumId, async (tx) => {
     const [k] = await tx
-      .select({ depoAnahtari: sema.kanit.depoAnahtari })
+      .select({ depoAnahtari: sema.kanit.depoAnahtari, kaynakAyrinti: sema.kanit.kaynakAyrinti })
       .from(sema.kanit)
       .where(eq(sema.kanit.id, is.kanitId));
     return k;
   });
   if (!kanit) throw new ServisHatasi("bulunamadi", "Yüklenen tarama bulunamadı.");
+  // Kâğıtlar yalnız tarama amacıyla (kanıt hattının metin ve YZ adımlarına girmeden) yüklenmiş olmalı; aksi hâlde
+  // açık numaralı metin `kanit_parcasi`na yazılmış ve kurumun sağlayıcısına gitmiş olabilir.
+  if ((kanit.kaynakAyrinti as { amac?: unknown } | null)?.amac !== SINAV_TARAMASI_AMACI)
+    throw new ServisHatasi(
+      "kural_ihlali",
+      "Bu dosya sınav taraması için yüklenmemiş. Kâğıtları sınav taraması ekranından yeniden yükleyin.",
+    );
   const veri = await c.depo.al(kanit.depoAnahtari);
   const kaynak = await (c.kaynakKur ?? taramaKaynagiKur)(veri);
   try {

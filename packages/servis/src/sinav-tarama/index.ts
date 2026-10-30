@@ -27,6 +27,7 @@ import {
   KagitSiniriHatasi,
   kagidiDegerlendir,
   kagitlaraBol,
+  metindeSayiVarMi,
   numarayiOku,
   type OkunanHucre,
 } from "./saf.ts";
@@ -191,12 +192,13 @@ export async function taramayiIsle(b: ServisBaglami, girdi: unknown, d: TaramaBa
     for (const q of sablon.sorular) {
       const bo = await d.kaynak.bolge(sayfa(k, q.kutu.sayfa), q.kutu, q.soruNo);
       const o = await okuyucu.oku({ alan: q.soruNo, azami: azami.get(q.soruNo) ?? null, metin: bo.metin });
-      sorular.push({ alan: q.soruNo, ...o });
+      sorular.push({ alan: q.soruNo, ...o, metinde: metindeSayiVarMi(bo.metin, o.deger) });
     }
     let toplam: OkunanHucre | null = null;
     if (sablon.toplam) {
       const bo = await d.kaynak.bolge(sayfa(k, sablon.toplam.sayfa), sablon.toplam, TOPLAM_ALANI);
-      toplam = { alan: TOPLAM_ALANI, ...(await okuyucu.oku({ alan: TOPLAM_ALANI, azami: null, metin: bo.metin })) };
+      const o = await okuyucu.oku({ alan: TOPLAM_ALANI, azami: null, metin: bo.metin });
+      toplam = { alan: TOPLAM_ALANI, ...o, metinde: metindeSayiVarMi(bo.metin, o.deger) };
     }
     okunan.push({
       takmaAd,
