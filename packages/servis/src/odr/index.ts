@@ -16,6 +16,7 @@ import { type Islem, sema } from "@akredit/vt";
 import { and, asc, desc, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { gunluge, islem, type ServisBaglami } from "../baglam.ts";
+import { kabulBekleyenDisKanitlar, kabulSonucuMu } from "../belge-istegi/index.ts";
 import { bulunamadi, ServisHatasi } from "../hata.ts";
 import {
   type DersDosyasiSatiri,
@@ -144,12 +145,13 @@ export async function onayliKanitlar(
     .where(and(eq(sema.oneri.tur, "kanit_etiketi"), eq(sema.oneri.hedefTuru, "kanit")))
     .orderBy(asc(sema.karar.zaman));
   const kanitlar = new Map((await tx.select().from(sema.kanit)).map((k) => [k.id, k]));
+  const kabulBekleyen = await kabulBekleyenDisKanitlar(tx);
   const harita = new Map<string, OnayliKanit>();
   for (const r0 of satir) {
     const kn = kanitlar.get(r0.o.hedefId);
     if (!kn) continue;
     const r = { ...r0, kn };
-    if (r.k.sonuc === "reddedildi" || !programaAit(r.kn.kapsamlar, p, dersler)) continue;
+    if (!kabulSonucuMu(r.k.sonuc) || kabulBekleyen.has(r.kn.id) || !programaAit(r.kn.kapsamlar, p, dersler)) continue;
     let olcutler: string[];
     if (r.k.sonuc === "duzeltildi") {
       const metin = String((r.k.duzeltme as { metin?: unknown } | null)?.metin ?? "");

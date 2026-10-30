@@ -86,7 +86,92 @@ describe("jeton", () => {
     expect(bi.dosyaDenetle(new Uint8Array(), "plan.pdf").tamam).toBe(false);
     expect(bi.dosyaDenetle(new Uint8Array(bi.EN_BUYUK_DOSYA + 1), "plan.pdf").tamam).toBe(false);
   });
+
+  it("inceleme dalga 8: ZIP tabanlı türlerde beklenen iç dosya aranır", () => {
+    const ODT = "application/vnd.oasis.opendocument.text";
+    const docx = zipYap([
+      ["[Content_Types].xml", "<Types/>"],
+      ["word/document.xml", "<w:document/>"],
+    ]);
+    expect(bi.dosyaDenetle(docx, "plan.docx").tamam).toBe(true);
+    // Rastgele ZIP: imza aynı ama iç dosya yok.
+    const bos = zipYap([["oku-beni.txt", "merhaba"]]);
+    for (const u of ["docx", "xlsx", "odt", "ods"]) expect(bi.dosyaDenetle(bos, `plan.${u}`).tamam).toBe(false);
+    // docx olarak xlsx içeriği kabul edilmez.
+    const xlsx = zipYap([
+      ["[Content_Types].xml", "<Types/>"],
+      ["xl/workbook.xml", "<workbook/>"],
+    ]);
+    expect(bi.dosyaDenetle(xlsx, "plan.xlsx").tamam).toBe(true);
+    expect(bi.dosyaDenetle(xlsx, "plan.docx").tamam).toBe(false);
+    // ODF: ilk girdi sıkıştırılmamış `mimetype`, içeriği türün kendisi.
+    const odt = zipYap([
+      ["mimetype", ODT],
+      ["content.xml", "<office:document-content/>"],
+    ]);
+    expect(bi.dosyaDenetle(odt, "plan.odt")).toEqual({ tamam: true, mime: ODT });
+    expect(bi.dosyaDenetle(odt, "plan.ods").tamam).toBe(false);
+    const sonraMime = zipYap([
+      ["content.xml", "<x/>"],
+      ["mimetype", ODT],
+    ]);
+    expect(bi.dosyaDenetle(sonraMime, "plan.odt").tamam).toBe(false);
+    // Kesik dosya.
+    expect(bi.dosyaDenetle(docx.slice(0, docx.byteLength - 10), "plan.docx").tamam).toBe(false);
+  });
 });
+
+/** Sıkıştırmasız (stored) en küçük ZIP: yerel başlıklar, merkezi dizin ve dizin sonu kaydı. CRC denetlenmez. */
+function zipYap(girdiler: [string, string][]): Uint8Array {
+  const enc = new TextEncoder();
+  const yerel: number[] = [];
+  const merkez: number[] = [];
+  const u16 = (a: number[], n: number) => a.push(n & 0xff, (n >> 8) & 0xff);
+  const u32 = (a: number[], n: number) => a.push(n & 0xff, (n >> 8) & 0xff, (n >> 16) & 0xff, (n >>> 24) & 0xff);
+  for (const [ad, icerik] of girdiler) {
+    const a = enc.encode(ad);
+    const v = enc.encode(icerik);
+    const konum = yerel.length;
+    u32(yerel, 0x04034b50);
+    u16(yerel, 20);
+    u16(yerel, 0);
+    u16(yerel, 0);
+    u32(yerel, 0);
+    u32(yerel, 0);
+    u32(yerel, v.length);
+    u32(yerel, v.length);
+    u16(yerel, a.length);
+    u16(yerel, 0);
+    yerel.push(...a, ...v);
+    u32(merkez, 0x02014b50);
+    u16(merkez, 20);
+    u16(merkez, 20);
+    u16(merkez, 0);
+    u16(merkez, 0);
+    u32(merkez, 0);
+    u32(merkez, 0);
+    u32(merkez, v.length);
+    u32(merkez, v.length);
+    u16(merkez, a.length);
+    u16(merkez, 0);
+    u16(merkez, 0);
+    u16(merkez, 0);
+    u16(merkez, 0);
+    u32(merkez, 0);
+    u32(merkez, konum);
+    merkez.push(...a);
+  }
+  const son: number[] = [];
+  u32(son, 0x06054b50);
+  u16(son, 0);
+  u16(son, 0);
+  u16(son, girdiler.length);
+  u16(son, girdiler.length);
+  u32(son, merkez.length);
+  u32(son, yerel.length);
+  u16(son, 0);
+  return new Uint8Array([...yerel, ...merkez, ...son]);
+}
 
 describe("istek ve yükleme", () => {
   it("istek e-postayla gider; bağlantı tek kullanımlıktır, ikinci kullanım reddedilir", async () => {
@@ -202,6 +287,19 @@ describe("istek ve yükleme", () => {
     const sonra = new Date(SIMDI.getTime() + 3_600_001);
     await bi.istekYukle(o.db, GIZLI, { jeton: j, dosya: dosya(), agIzi: ag }, sonra);
   });
+
+  it("inceleme dalga 8: ağ izi yoksa kurum genelinde ağ izsiz yüklemelere ortak saatlik sınır uygulanır", async () => {
+    // Testteki diğer ağ izsiz yüklemeler başka zamanda: bu pencerede sayım sıfırdan başlar.
+    const an = new Date(SIMDI.getTime() + 20 * GUN);
+    for (let i = 0; i < bi.AG_IZSIZ_SINIRI_SAATLIK; i++)
+      await bi.istekYukle(o.db, GIZLI, { jeton: jetonu((await istek(25)).baglanti), dosya: dosya(), agIzi: null }, an);
+    const j = jetonu((await istek(25)).baglanti);
+    expect(await kod(bi.istekYukle(o.db, GIZLI, { jeton: j, dosya: dosya(), agIzi: null }, an))).toBe(
+      "cok_fazla_istek",
+    );
+    // Ağ izi olan istemci bu ortak sınırdan etkilenmez.
+    await bi.istekYukle(o.db, GIZLI, { jeton: j, dosya: dosya(), agIzi: "baska-ag" }, an);
+  });
 });
 
 describe("doğrulama insan kararıdır", () => {
@@ -245,6 +343,38 @@ describe("doğrulama insan kararıdır", () => {
     expect(await kiraciIslemi(o.db, o.a.kurumId, (tx) => bi.atifaUygunMu(tx, y.kanitId))).toBe(true);
     await bagla(kabul.id);
     expect((await bi.istekleri(b)).find((x) => x.kanitId === y.kanitId)?.durum).toBe("kabul_edildi");
+  });
+
+  it("inceleme dalga 8: düzeltilerek verilen kabul de kabuldür; kabulsüz dış kanıta rapor atfı EKSİK sayılır", async () => {
+    const rapor = await import("../rapor.ts");
+    const j = jetonu((await istek()).baglanti);
+    const d = dosya();
+    const y = await bi.istekYukle(o.db, GIZLI, { jeton: j, dosya: d, agIzi: null }, SIMDI);
+    const b = await o.baglam(o.a, o.a.yonetici);
+    const metin = `Hizmet içi eğitim planı yayımlandı [K:${d.ozet.slice(0, 12)} s.1].`;
+    await kiraciIslemi(o.db, o.a.kurumId, (tx) =>
+      tx.insert(sema.raporBolumuSurumu).values({ kurumId: o.a.kurumId, raporId: o.a.raporId, bolumKodu: "B.9", metin }),
+    );
+    const paragraf = async () =>
+      (await rapor.rapor(b, o.a.raporId)).bolumler.flatMap((x) => x.paragraflar).find((p) => p.metin === metin);
+    expect((await paragraf())?.eksik).toBe(true);
+    expect((await paragraf())?.atiflar).toEqual([]);
+
+    const kabul = await oneri.kararVer(b, { oneriId: y.oneriId, sonuc: "duzeltildi", duzeltme: "A.1" });
+    expect(await kiraciIslemi(o.db, o.a.kurumId, (tx) => bi.atifaUygunMu(tx, y.kanitId))).toBe(true);
+    expect((await bi.istekleri(b)).find((x) => x.kanitId === y.kanitId)?.durum).toBe("kabul_edildi");
+    expect((await paragraf())?.eksik).toBe(false);
+    // Veritabanı kuralı da aynı: düzeltilmiş kabul kararıyla ölçüte bağlanabilir.
+    const [c] = await o.db.insert(sema.cerceve).values({ kod: "deneme-dalga8", ad: "Deneme", surum: "1" }).returning();
+    const [ol] = await o.db
+      .insert(sema.olcut)
+      .values({ cerceveId: c?.id as string, kod: "A.1", baslik: "Deneme ölçüt", sira: 1 })
+      .returning();
+    await kiraciIslemi(o.db, o.a.kurumId, (tx) =>
+      tx
+        .insert(sema.kanitOlcutBaglantisi)
+        .values({ kurumId: o.a.kurumId, kanitId: y.kanitId, olcutId: ol?.id as string, kararId: kabul.id }),
+    );
   });
 
   it("istek ve yükleme günlükte; kayıtlar değiştirilemez", async () => {

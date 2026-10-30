@@ -148,6 +148,13 @@
       "when": 1793048666894,
       "tag": "0102_puko",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1793048726894,
+      "tag": "0110_kabul_kurali",
+      "breakpoints": true
     }
   ]
 }
