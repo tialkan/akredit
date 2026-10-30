@@ -262,6 +262,33 @@ export async function kurumVerisiEkle(db: Vt, kurumId: string, ad: string): Prom
     await tx
       .insert(s.sinavHucreKarari)
       .values({ kurumId, hucreId: hucre.id, sonuc: "onaylandi", deger: "7", kararVerenKisiId: kisi.id });
+    // Göç 0120: yükleme isteği, sonucu ve aktarım öncesi özet onayı.
+    const tIstek = ilk(
+      await tx
+        .insert(s.sinavTaramaIstegi)
+        .values({
+          kurumId,
+          olcmeAraciId: arac.id,
+          depoAnahtari: `${kurumId}/${"a".repeat(64)}`,
+          ozet: "a".repeat(64),
+          dosyaAdi: "vize.pdf",
+          mime: "application/pdf",
+          boyut: 10,
+          isteyenKisiId: kisi.id,
+        })
+        .returning(),
+    );
+    await tx
+      .insert(s.sinavTaramaIstegiSonucu)
+      .values({ kurumId, istekId: tIstek.id, durum: "tamam", kanitId: kanit.id, taramaId: tarama.id });
+    await tx.insert(s.sinavOzetOnayi).values({
+      kurumId,
+      taramaId: tarama.id,
+      otomatikSayisi: 0,
+      ozet: "b".repeat(64),
+      kural: "K1-sinav-otomatik-ozet",
+      onaylayanKisiId: kisi.id,
+    });
     await tx
       .insert(s.olcmeSonucu)
       .values({ kurumId, dersAcilisiId: acilis.id, hesapSurumu: "1", girdiOzeti: "0".repeat(64), sonuc: {} });
