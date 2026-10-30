@@ -1,8 +1,9 @@
 // Onaylanmış devir taslağını kaynağa (Proliz Bologna/OBS) geri yazma (İP-38).
 //
 // Kurallar:
-//   - Kurumun yazılı izni olmadan HİÇ çalışmaz. İzin kurum ayarında açık kayıttır: kim (adıyla, hesabındaki gibi
-//     yazarak), ne zaman, yazı sayısı; yalnız eklenir (geri alma yeni kayıt), günlüğe girer.
+//   - Kurumun yazılı izni olmadan HİÇ çalışmaz. İzin değiştirilemez günlükteki `bologna.kaynaga_yazma_izni`
+//     kaydıdır: kim (adıyla, hesabındaki gibi yazarak), ne zaman, yazı sayısı; yalnız eklenir (geri alma yeni
+//     kayıt). Değiştirilebilir kurum ayarından okunmaz (inceleme 4-7 #5).
 //   - Kuru çalıştırma varsayılandır. Gerçek yazma yalnız izin kaydında "gerçek yazma" açıkça seçildiyse ve çağıran
 //     kuru olmayan kipi istediyse yapılır.
 //   - Yalnız onaylı taslağın yazma planındaki alanlar yazılır; giriş bilgisi alanı plana giremez.
@@ -12,7 +13,7 @@
 import type { KaynakYazmaAlani, KaynakYazmaRaporu } from "@akredit/baglayicilar";
 import { ozetHesapla } from "@akredit/cekirdek";
 import { gunlugeYaz, type Islem, kiraciIslemi, sema, type Vt } from "@akredit/vt";
-import { eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { gunluge, islem, type ServisBaglami } from "../baglam.ts";
 import { ServisHatasi } from "../hata.ts";
@@ -35,14 +36,17 @@ const IzinKaydi = z.object({
 });
 type IzinKaydi = z.infer<typeof IzinKaydi>;
 
-const KurumYazmaAyari = z
-  .object({
-    kaynagaYazma: z
-      .object({ izinler: z.array(IzinKaydi) })
-      .passthrough()
-      .optional(),
-  })
-  .passthrough();
+/** Günlükteki izin kaydının ayrıntısı. */
+const IzinAyrintisi = z.object({
+  acik: z.boolean(),
+  gercekYazma: z.boolean(),
+  yaziSayisi: z.string(),
+  veren: z.string(),
+  /** İzin yalnız oturumla verilir; başka yoldan yazılmış kayıt izin sayılmaz. */
+  yol: z.literal("oturum"),
+});
+
+const IZIN_EYLEMI = "bologna.kaynaga_yazma_izni";
 
 export const YazmaIzniGirdisi = z
   .object({
@@ -66,16 +70,35 @@ export const YazmaIzni = z
   })
   .nullable();
 
-async function izinler(tx: Islem, kurumId: string): Promise<IzinKaydi[]> {
-  const [k] = await tx.select({ a: sema.kurum.ayarlar }).from(sema.kurum).where(eq(sema.kurum.id, kurumId));
-  const a = KurumYazmaAyari.safeParse(k?.a ?? {});
-  return a.success ? (a.data.kaynagaYazma?.izinler ?? []) : [];
-}
-
-/** Yürürlükteki izin: son kayıt. */
+/**
+ * Yürürlükteki izin: günlükteki son izin kaydı (sıraya göre). Kayıt yalnız kişi aktörlü olabilir; ayrıntısı
+ * okunamıyorsa izin yok sayılır (kapalı varsayılan).
+ */
 export async function gecerliYazmaIzni(tx: Islem, kurumId: string): Promise<IzinKaydi | null> {
-  const l = await izinler(tx, kurumId);
-  return l.at(-1) ?? null;
+  const [g] = await tx
+    .select()
+    .from(sema.gunluk)
+    .where(
+      and(
+        eq(sema.gunluk.eylem, IZIN_EYLEMI),
+        eq(sema.gunluk.hedefTuru, "kurum"),
+        eq(sema.gunluk.hedefId, kurumId),
+        eq(sema.gunluk.kurumId, kurumId),
+      ),
+    )
+    .orderBy(desc(sema.gunluk.sira))
+    .limit(1);
+  if (!g || g.aktorTuru !== "kisi" || !g.aktorId) return null;
+  const a = IzinAyrintisi.safeParse(g.ayrinti);
+  if (!a.success) return null;
+  return {
+    acik: a.data.acik,
+    gercekYazma: a.data.acik && a.data.gercekYazma,
+    yaziSayisi: a.data.yaziSayisi,
+    verenKisiId: g.aktorId,
+    verenAd: a.data.veren,
+    zaman: new Date(g.zaman).toISOString(),
+  };
 }
 
 const izinGorunumu = (i: IzinKaydi | null): z.infer<typeof YazmaIzni> =>
@@ -98,8 +121,6 @@ export async function kaynagaYazmaIzniVer(b: ServisBaglami, girdi: unknown): Pro
     const [kisi] = await tx.select({ ad: sema.kisi.adSoyad }).from(sema.kisi).where(eq(sema.kisi.id, b.aktor.kisiId));
     if (!kisi || !adlarAyniMi(g.imzalayanAd, kisi.ad))
       throw new ServisHatasi("kural_ihlali", "İzni kaydetmek için adınızı hesabınızdaki gibi yazın.");
-    const [k] = await tx.select().from(sema.kurum).where(eq(sema.kurum.id, b.aktor.kurumId));
-    const eski = (k?.ayarlar ?? {}) as Record<string, unknown>;
     const kayit: IzinKaydi = {
       acik: g.acik,
       gercekYazma: g.acik && g.gercekYazma,
@@ -108,22 +129,11 @@ export async function kaynagaYazmaIzniVer(b: ServisBaglami, girdi: unknown): Pro
       verenAd: kisi.ad,
       zaman: b.simdi().toISOString(),
     };
-    await tx
-      .update(sema.kurum)
-      .set({
-        ayarlar: {
-          ...eski,
-          kaynagaYazma: {
-            ...((eski.kaynagaYazma as object) ?? {}),
-            izinler: [...(await izinler(tx, b.aktor.kurumId)), kayit],
-          },
-        },
-      })
-      .where(eq(sema.kurum.id, b.aktor.kurumId));
+    // Tek kayıt yeri değiştirilemez günlüktür; izin oradan okunur.
     await gunluge(
       tx,
       b,
-      "bologna.kaynaga_yazma_izni",
+      IZIN_EYLEMI,
       { tur: "kurum", id: b.aktor.kurumId },
       { acik: kayit.acik, gercekYazma: kayit.gercekYazma, yaziSayisi: kayit.yaziSayisi, veren: kisi.ad },
     );

@@ -503,6 +503,41 @@ describe("kaynağa geri yazma", () => {
     expect(await bologna.kaynagaYazmaIzni(yonetici)).toMatchObject({ acik: true });
   });
 
+  it("izin değiştirilebilir ayardan değil, yalnız eklenen günlük kaydından okunur (inceleme 4-7 #5)", async () => {
+    // Ayar sütununa sahte "gerçek yazma" izni eklemek ya da ayarı silmek izni değiştirmez.
+    await kiraciIslemi(o.db, o.a.kurumId, (tx) =>
+      tx
+        .update(sema.kurum)
+        .set({
+          ayarlar: sql`jsonb_set(${sema.kurum.ayarlar}, '{kaynagaYazma}', ${JSON.stringify({
+            izinler: [
+              {
+                acik: true,
+                gercekYazma: true,
+                yaziSayisi: "sahte",
+                verenKisiId: o.a.ogretim,
+                verenAd: "Sahte",
+                zaman: gun(9).toISOString(),
+              },
+            ],
+          })}::jsonb, true)`,
+        })
+        .where(eq(sema.kurum.id, o.a.kurumId)),
+    );
+    expect(await bologna.kaynagaYazmaIzni(yonetici)).toMatchObject({
+      acik: true,
+      gercekYazma: false,
+      veren: "Deneme Yönetici A",
+    });
+    await kiraciIslemi(o.db, o.a.kurumId, (tx) =>
+      tx
+        .update(sema.kurum)
+        .set({ ayarlar: sql`${sema.kurum.ayarlar} - 'kaynagaYazma'` })
+        .where(eq(sema.kurum.id, o.a.kurumId)),
+    );
+    expect(await bologna.kaynagaYazmaIzni(yonetici)).toMatchObject({ acik: true, gercekYazma: false });
+  });
+
   it("gerçek yazma izni yokken kuru çalıştırma zorunlu", async () => {
     const s = await bologna.devirKaynagaYaz(o.db, o.a.kurumId, oneriId, yazici(), gun(8), { kuru: false });
     expect(s.durum).toBe("kuru");
