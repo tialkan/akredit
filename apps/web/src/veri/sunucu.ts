@@ -1,7 +1,7 @@
 // Sunucu bileşenlerinin veri kaynağı. Gerçek veri kipinde isteğin çerezinden oturumu çözer ve servis
 // kaynağını kurar; oturum yoksa giriş sayfasına yönlendirir. Örnek veri kipinde bellekteki kaynak döner.
 
-import type { gosterge as G, ServisBaglami } from "@akredit/servis";
+import type { gosterge as G, puko as P, ServisBaglami } from "@akredit/servis";
 import { aktorOlustur } from "../app/api/_ortak/v1.ts";
 import { ErisimHatasi, istekBaglami } from "../kimlik/erisim.ts";
 import { veriKaynagi as bellekKaynagi } from "./bellek.ts";
@@ -39,6 +39,21 @@ export async function gostergeVerisi(): Promise<G.GostergePanosu | null> {
   const { gosterge, ServisHatasi } = await import("@akredit/servis");
   try {
     return await gosterge.gostergePanosu(await servisBaglami());
+  } catch (e) {
+    if (e instanceof ServisHatasi && e.kod === "yetki_yok") return null;
+    throw e;
+  }
+}
+
+/**
+ * Karar kartları (İP-39). Gerçek veri kipinde kalıcı PÜKÖ deposundan (`@akredit/servis puko.pukoPaneli`):
+ * açık kartlar, önerilen hedef dönem ve katman 0 kayıt sayısı. Kurum kapsamında ölçme okuma yetkisi yoksa `null`.
+ * Örnek kipte çağrılmaz (sayfa örnek kartları kendisi üretir).
+ */
+export async function kararKartlariVerisi(): Promise<P.PukoPaneli | null> {
+  const { puko, ServisHatasi } = await import("@akredit/servis");
+  try {
+    return await puko.pukoPaneli(await servisBaglami());
   } catch (e) {
     if (e instanceof ServisHatasi && e.kod === "yetki_yok") return null;
     throw e;

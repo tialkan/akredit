@@ -10,17 +10,24 @@ import { Keyboard } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Dugme } from "../../../bilesenler/dugme.tsx";
 import { IletisimKutusu, useBildirim } from "../../../bilesenler/etkilesimli.tsx";
-import { UzunMetinAlani } from "../../../bilesenler/form.tsx";
+import { MetinAlani, UzunMetinAlani } from "../../../bilesenler/form.tsx";
 import { BosDurum, Rozet } from "../../../bilesenler/temel.tsx";
+import { onlemGonder } from "./gonder.ts";
 import { KART_KISAYOLLARI, kartKisayolu, yuzde } from "./kisayol.ts";
 
 type Secim = { tur: "secenek"; id: string } | { tur: "kendi" };
 
 const OLCUM_ADI = { ck: "Ders çıktısı", pc: "Program çıktısı" } as const;
 
-export function KararKartlari({ ilkKartlar }: { ilkKartlar: puko.KararKarti[] }) {
+type Kart = puko.KararKarti & { hedefDonem?: string | null };
+
+export function KararKartlari({ ilkKartlar, gercek = false }: { ilkKartlar: Kart[]; gercek?: boolean }) {
   const bildir = useBildirim();
   const [kartlar, setKartlar] = useState(ilkKartlar);
+  const [donemler, setDonemler] = useState<Record<string, string>>(() =>
+    Object.fromEntries(ilkKartlar.map((k) => [k.id, k.hedefDonem ?? ""])),
+  );
+  const [gonderiliyor, setGonderiliyor] = useState(false);
   const [odak, setOdak] = useState(0);
   const [secimler, setSecimler] = useState<Record<string, Secim>>({});
   const [kendiMetin, setKendiMetin] = useState<Record<string, string>>({});
@@ -45,7 +52,8 @@ export function KararKartlari({ ilkKartlar }: { ilkKartlar: puko.KararKarti[] })
     if (s.tur === "kendi") setTimeout(() => document.getElementById(`onlem-metin-${kart.id}`)?.focus(), 0);
   };
 
-  const kaydet = (kart: puko.KararKarti) => {
+  const kaydet = async (kart: Kart) => {
+    if (gonderiliyor) return;
     const s = secimler[kart.id];
     if (!s) return setHata((x) => ({ ...x, [kart.id]: "Önce bir önlem seçin ya da kendi önleminizi yazın." }));
     let metin: string;
@@ -58,7 +66,21 @@ export function KararKartlari({ ilkKartlar }: { ilkKartlar: puko.KararKarti[] })
         return setHata((x) => ({ ...x, [kart.id]: "Bu önlem kullanılamaz. Başka birini seçin." }));
       metin = o.metin;
     }
-    const sureMs = Date.now() - acilis.current;
+    const hedefDonem = (donemler[kart.id] ?? "").trim();
+    if (!hedefDonem)
+      return setHata((x) => ({ ...x, [kart.id]: "Önlemin uygulanacağı dönemi yazın (ör. 2026-2027 Güz)." }));
+    const sureMs = Math.min(Date.now() - acilis.current, 3_600_000);
+    if (gercek) {
+      setGonderiliyor(true);
+      const r = await onlemGonder({
+        kartId: kart.id,
+        secim: s.tur === "kendi" ? { kendiMetni: metin } : { secenekId: s.id },
+        hedefDonem,
+        sureMs,
+      });
+      setGonderiliyor(false);
+      if (!r.tamam) return setHata((x) => ({ ...x, [kart.id]: r.hata }));
+    }
     setSureler((x) => [...x, { katman: 2, sureMs, sonuc: s.tur === "kendi" ? "duzeltildi" : "onaylandi" }]);
     setKartlar((x) => x.filter((k) => k.id !== kart.id));
     setOdak((o) => Math.max(0, Math.min(o, kartlar.length - 2)));
@@ -78,7 +100,7 @@ export function KararKartlari({ ilkKartlar }: { ilkKartlar: puko.KararKarti[] })
         const s = aktif.secenekler[eylem.sira];
         if (s) sec(aktif, { tur: "secenek", id: s.id });
       } else if (eylem.tur === "kendi") sec(aktif, { tur: "kendi" });
-      else if (eylem.tur === "kaydet") kaydet(aktif);
+      else if (eylem.tur === "kaydet") void kaydet(aktif);
       else setYardim(true);
     };
     window.addEventListener("keydown", dinle);
@@ -224,13 +246,24 @@ export function KararKartlari({ ilkKartlar }: { ilkKartlar: puko.KararKarti[] })
                       }}
                     />
                   ) : null}
+                  <MetinAlani
+                    className="mt-2"
+                    etiket="Önlemin uygulanacağı dönem"
+                    id={`onlem-donem-${kart.id}`}
+                    maxLength={100}
+                    value={donemler[kart.id] ?? ""}
+                    onChange={(e) => {
+                      const deger = e.currentTarget.value;
+                      setDonemler((x) => ({ ...x, [kart.id]: deger }));
+                    }}
+                  />
                   {hata[kart.id] ? (
                     <p role="alert" className="mt-2 font-semibold text-risk-yuksek">
                       {hata[kart.id]}
                     </p>
                   ) : null}
                   <div className="mt-3">
-                    <Dugme tur="birincil" onClick={() => kaydet(kart)}>
+                    <Dugme tur="birincil" disabled={gonderiliyor} onClick={() => void kaydet(kart)}>
                       Kararı kaydet
                     </Dugme>
                   </div>
