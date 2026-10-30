@@ -1,0 +1,28 @@
+{
+  "name": "@akredit/acik-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "description": "Herkese açık Akredit MCP sunucusu: hesapsız, salt okuma, deterministik araçlar (ölçüt, Bologna denetimi, ÇK/PÇ hesabı, rapor dil denetimi). Kurum verisine erişmez, model çağırmaz.",
+  "bin": {
+    "akredit-acik-mcp": "./src/cli.ts"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "start": "node src/cli.ts",
+    "http": "node src/cli.ts --http",
+    "typecheck": "tsc --noEmit -p .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@akredit/cekirdek": "workspace:*",
+    "@akredit/cerceveler": "workspace:*",
+    "@akredit/olcme": "workspace:*",
+    "@akredit/yz": "workspace:*",
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "zod": "^4.6.7"
+  }
+}
