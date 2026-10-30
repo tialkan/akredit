@@ -644,4 +644,46 @@ describe("sessiz devir: bildirilecek kimse yoksa süreli onay yok (inceleme dalg
     expect(k).toEqual([]);
     expect(dersId).toBeTruthy();
   });
+
+  it("veritabanı: bildirilen boşken süre dolumu kararı reddedilir (son savunma hattı)", async () => {
+    // Servis bu kararı yazmaz; tetikleyici de kabul etmemeli. Süre sonu geçmiş, politika geçerli, yalnız
+    // bildirilen kişi yok: kimse itiraz edemezdi, "itirazsız onay" olamaz.
+    const [p] = await kiraciIslemi(o.db, o.a.kurumId, (tx) =>
+      tx
+        .select()
+        .from(sema.yetkiPolitikasi)
+        .where(sql`${sema.yetkiPolitikasi.oneriTurleri} @> array['bologna_devri']::oneri_turu[]`),
+    );
+    expect(p).toBeDefined();
+    const ekle = (bildirilen: string[]) =>
+      kiraciIslemi(o.db, o.a.kurumId, async (tx) => {
+        const [r] = await tx
+          .insert(sema.oneri)
+          .values({
+            kurumId: o.a.kurumId,
+            tur: "bologna_devri",
+            hedefTuru: "ders",
+            hedefId: a.dersler[0]?.id as string,
+            icerik: { sureSonu: gun(10).toISOString(), bildirilen },
+            gerekce: "Deneme.",
+            guven: 0.95,
+            ureticiTuru: "kural",
+            uretici: { kural: "ornek", surum: "1" },
+            risk: "dusuk",
+            olusturma: SIMDI,
+          })
+          .returning();
+        await tx.insert(sema.karar).values({
+          kurumId: o.a.kurumId,
+          oneriId: r?.id as string,
+          sonuc: "onaylandi",
+          kararVerenKisiId: p?.imzalayanKisiId as string,
+          dayanak: "sure_dolumu",
+          politikaId: p?.id as string,
+          zaman: gun(30),
+        });
+      });
+    await expect(ekle([])).rejects.toSatisfy(nedeni(/bildirilmediği/u));
+    await expect(ekle([o.a.ogretim])).resolves.toBeUndefined();
+  });
 });
