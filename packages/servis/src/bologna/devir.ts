@@ -17,7 +17,7 @@ import { yerelTarih } from "@akredit/surec";
 import { gunlugeYaz, type Islem, kiraciIslemi, sema, type Vt } from "@akredit/vt";
 import { and, desc, eq, inArray, isNotNull, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
-import { aktorYetkiliMi, atamalariOku, hedefZinciri, islem, type ServisBaglami } from "../baglam.ts";
+import { aktorYetkiliMi, atamalariOku, gunluge, hedefZinciri, islem, type ServisBaglami } from "../baglam.ts";
 import { bulunamadi, ServisHatasi } from "../hata.ts";
 import * as oneriServisi from "../oneri.ts";
 import { uygulanabilirPolitikalar } from "../politika.ts";
@@ -139,6 +139,59 @@ async function devirAyari(tx: Islem, kurumId: string): Promise<IsGunuAyari & { s
   const a = KurumDevirAyari.safeParse(k?.a ?? {});
   const s = a.success ? a.data.sessizDevir : undefined;
   return { tatiller: s?.tatiller ?? [], saatDilimi: s?.saatDilimi ?? VARSAYILAN_SAAT_DILIMI };
+}
+
+export const DevirAyarlari = z.object({ tatiller: z.array(z.string()), saatDilimi: z.string() });
+export type DevirAyarlari = z.infer<typeof DevirAyarlari>;
+
+export const DevirAyarlariGirdisi = z
+  .object({
+    tatiller: z
+      .array(z.string().regex(/^\d{4}-\d{2}-\d{2}$/u, "Tatil günlerini YYYY-AA-GG biçiminde yazın."))
+      .max(100, "En çok 100 tatil günü girilebilir."),
+  })
+  .strict();
+
+/** Kurumun sessiz devir ayarları (tatil günleri, saat dilimi). */
+export async function devirAyarlari(b: ServisBaglami): Promise<DevirAyarlari> {
+  return islem(b, async (tx, gerekli) => {
+    await gerekli("oneri.oku", { tur: "kurum", id: b.aktor.kurumId });
+    const a = await devirAyari(tx, b.aktor.kurumId);
+    return { tatiller: [...(a.tatiller ?? [])], saatDilimi: a.saatDilimi };
+  });
+}
+
+/**
+ * Tatil listesini kaydeder (iş günü hesabında sayılmaz). Yalnız oturumdaki kurum yöneticisi; değişiklik
+ * günlüğe kişinin adıyla, eski ve yeni gün sayısıyla yazılır. Geçerli tarih olmayan gün reddedilir.
+ */
+export async function devirAyarlariniKaydet(b: ServisBaglami, girdi: unknown): Promise<DevirAyarlari> {
+  if (b.aktor.tur !== "oturum")
+    throw new ServisHatasi("yetki_yok", "Tatil günlerini yalnız oturum açmış kişi değiştirebilir.");
+  const g = DevirAyarlariGirdisi.parse(girdi);
+  for (const t of g.tatiller)
+    if (Number.isNaN(Date.parse(`${t}T00:00:00Z`)) || new Date(`${t}T00:00:00Z`).toISOString().slice(0, 10) !== t)
+      throw new ServisHatasi("gecersiz_istek", `${t} geçerli bir tarih değil. Günü düzeltip yeniden kaydedin.`);
+  const tatiller = [...new Set(g.tatiller)].sort();
+  return islem(b, async (tx, gerekli) => {
+    await gerekli("kurum.ayar_yonet", { tur: "kurum", id: b.aktor.kurumId });
+    const [k] = await tx.select({ a: sema.kurum.ayarlar }).from(sema.kurum).where(eq(sema.kurum.id, b.aktor.kurumId));
+    const ayarlar = (k?.a ?? {}) as Record<string, unknown>;
+    const onceki = (ayarlar.sessizDevir ?? {}) as Record<string, unknown>;
+    const eski = await devirAyari(tx, b.aktor.kurumId);
+    await tx
+      .update(sema.kurum)
+      .set({ ayarlar: { ...ayarlar, sessizDevir: { ...onceki, tatiller } } })
+      .where(eq(sema.kurum.id, b.aktor.kurumId));
+    await gunluge(
+      tx,
+      b,
+      "kurum.tatil_listesi",
+      { tur: "kurum", id: b.aktor.kurumId },
+      { onceki: (eski.tatiller ?? []).length, yeni: tatiller.length, tatiller },
+    );
+    return { tatiller, saatDilimi: eski.saatDilimi };
+  });
 }
 
 /** Dersin en son onaylanmış (ya da düzeltilerek onaylanmış) Bologna taslağı: elle, eksik giderme ya da devir. */

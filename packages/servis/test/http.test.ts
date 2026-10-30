@@ -83,6 +83,8 @@ function ornekIstek(ad: string, a: Ornek): { yol: string; govde?: unknown } {
     politikaIptal: { yol: `/politikalar/${a.kanitDers}/iptal`, govde: {} },
     gunluk: { yol: "/gunluk" },
     pukoKartlari: { yol: "/puko/kartlar" },
+    bolognaDevirAyarlari: { yol: "/bologna/devir-ayarlari" },
+    bolognaDevirAyarlariKaydet: { yol: "/bologna/devir-ayarlari", govde: { tatiller: ["2026-10-29"] } },
     yoneticiOzeti: { yol: `/oneriler/${a.oneriDisGonderim}/yonetici-ozeti` },
     yoneticiOzetiGoruldu: { yol: `/oneriler/${a.oneriDisGonderim}/ozet-goruldu`, govde: { imza: "eski" } },
     pukoOnlemSec: {
