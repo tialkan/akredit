@@ -114,6 +114,52 @@ describe("politika motoru", () => {
     expect((await onay.politikalariUygula(o.db, o.a.kurumId, SIMDI)).kararlar).toEqual([]);
   });
 
+  it("modelin yazdığı Bologna taslağı (yüzde ve saat değerleri) politikayla onaylanamaz (dalga 3 #7)", async () => {
+    const p = await imzaliPolitika(o.a.yonetici, "Bologna taslakları", {
+      oneriTurleri: ["bologna_taslagi"],
+      enYuksekRisk: "orta",
+    });
+    const taslak = (ureticiTuru: "yz" | "kisi") =>
+      kiraciIslemi(o.db, o.a.kurumId, async (tx) => {
+        const [s] = await tx
+          .insert(sema.oneri)
+          .values({
+            kurumId: o.a.kurumId,
+            tur: "bologna_taslagi",
+            hedefTuru: "ders",
+            hedefId: o.a.dersId,
+            icerik: { baslik: "Bologna taslağı", metin: "Değerlendirme ve iş yükü değerleri." },
+            gerekce: "Deneme.",
+            guven: 0.95,
+            ureticiTuru,
+            uretici: ureticiTuru === "yz" ? { gorev: "bologna-taslagi" } : { kisi: o.a.ogretim },
+            risk: "orta",
+          })
+          .returning();
+        return s?.id as string;
+      });
+    const yz = await taslak("yz");
+    expect((await onay.politikalariUygula(o.db, o.a.kurumId, SIMDI, [yz])).kararlar).toEqual([]);
+    // Servisi atlayan doğrudan ekleme de tetikleyicide reddedilir.
+    const dogrudan = kiraciIslemi(o.db, o.a.kurumId, (tx) =>
+      tx.insert(sema.karar).values({
+        kurumId: o.a.kurumId,
+        oneriId: yz,
+        sonuc: "onaylandi",
+        kararVerenKisiId: o.a.yonetici,
+        dayanak: "politika",
+        politikaId: p.id,
+        zaman: SIMDI,
+      }),
+    );
+    expect(await hataKodu(dogrudan)).toBe("vt:23514");
+    // Kişinin kendi yazdığı taslak (Word paketi) politika kapsamında kalır.
+    const kisi = await taslak("kisi");
+    expect((await onay.politikalariUygula(o.db, o.a.kurumId, SIMDI, [kisi])).kararlar).toEqual([
+      expect.objectContaining({ oneriId: kisi, politikaId: p.id }),
+    ]);
+  });
+
   it("iptal edilen politika artık uygulanmaz", async () => {
     const p = await imzaliPolitika(o.a.yonetici, "Eylemler", { oneriTurleri: ["eylem"], enYuksekRisk: "orta" });
     await politika.politikaIptal(await o.baglam(o.a, o.a.yonetici), p.id);
