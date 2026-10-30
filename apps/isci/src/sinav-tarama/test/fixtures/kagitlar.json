@@ -1,0 +1,32 @@
+{
+  "aciklama": "Sentetik taranmış sınav kâğıtları (İP-43). Dört kâğıt, her biri tek sayfa ve kapak işaretli. Ad ve numaralar uydurmadır (2099 ile başlayan numaralar hiçbir öğrenciye ait değildir). 'bolgeler', her kutunun kurum içi OCR'dan çıkmış metnini taklit eder.",
+  "sablon": {
+    "sinir": { "tur": "kapak", "isaret": "AKREDIT SINAV KAPAK" },
+    "numara": { "sayfa": 1, "x": 0.6, "y": 0.05, "genislik": 0.3, "yukseklik": 0.05 },
+    "numaraUzunlugu": 10,
+    "toplam": { "sayfa": 1, "x": 0.8, "y": 0.9, "genislik": 0.15, "yukseklik": 0.05 },
+    "sorular": [
+      { "soruNo": "1", "kutu": { "sayfa": 1, "x": 0.8, "y": 0.2, "genislik": 0.15, "yukseklik": 0.05 } },
+      { "soruNo": "2", "kutu": { "sayfa": 1, "x": 0.8, "y": 0.4, "genislik": 0.15, "yukseklik": 0.05 } },
+      { "soruNo": "3", "kutu": { "sayfa": 1, "x": 0.8, "y": 0.6, "genislik": 0.15, "yukseklik": 0.05 } }
+    ]
+  },
+  "sayfalar": [
+    {
+      "metin": "AKREDIT SINAV KAPAK\nAdı Soyadı: Deneme Birinci\nVize sınavı",
+      "bolgeler": { "*numara": "2099000101", "1": "8", "2": "7,5", "3": "15", "*toplam": "30,5" }
+    },
+    {
+      "metin": "AKREDIT SINAV KAPAK\nAdı Soyadı: Deneme İkinci\nVize sınavı",
+      "bolgeler": { "*numara": "2099 000 102", "1": "9?", "2": "6", "3": "12", "*toplam": "28" }
+    },
+    {
+      "metin": "AKREDIT SINAV KAPAK\nAdı Soyadı: Deneme Üçüncü\nVize sınavı",
+      "bolgeler": { "*numara": "20990OO1O3", "1": "12", "2": "5", "3": "18", "*toplam": "35" }
+    },
+    {
+      "metin": "AKREDIT SINAV KAPAK\nAdı Soyadı: Deneme Dördüncü\nVize sınavı",
+      "bolgeler": { "*numara": "okunaksız", "1": "4", "2": "3", "3": "10", "*toplam": "17" }
+    }
+  ]
+}
