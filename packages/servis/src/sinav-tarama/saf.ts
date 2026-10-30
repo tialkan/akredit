@@ -56,9 +56,13 @@ export function numarayiOku(metin: string, uzunluk?: number): string | null {
   return no;
 }
 
-/** Model istemine giden metin güvenli mi: öğrenci numarası olabilecek 5 ve üzeri ardışık rakam yok. */
+/**
+ * Model istemine giden metin güvenli mi: öğrenci numarası olabilecek 4 ve üzeri rakam yok. Rakamların arasında
+ * en çok üç ayraç (boşluk, nokta, virgül, tire, alt çizgi, eğik çizgi, dikey çizgi, iki nokta) olsa da numara
+ * sayılır; şablonun `numaraUzunlugu` 4 olabilir (inceleme dalga 8, bulgu 11). Puan en çok üç rakamdır (12,5).
+ */
 export function istemGuvenliMi(metin: string): boolean {
-  return !/\d[\s.\-_/]?\d[\s.\-_/]?\d[\s.\-_/]?\d[\s.\-_/]?\d/u.test(metin);
+  return !/\d(?:[\s.,\-_/|:;]{0,3}\d){3}/u.test(metin);
 }
 
 /** Puanı binde bir birimli tam sayıya çevirir (veritabanı `numeric(8,3)` ile aynı ölçek). */
