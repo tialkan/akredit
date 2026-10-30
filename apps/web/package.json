@@ -17,6 +17,7 @@
     "hukuk-paketi": "node scripts/hukuk-paketi.ts"
   },
   "dependencies": {
+    "@akredit/acik-mcp": "workspace:*",
     "@akredit/anket": "workspace:*",
     "@akredit/baglayicilar": "workspace:*",
     "@akredit/belge": "workspace:*",

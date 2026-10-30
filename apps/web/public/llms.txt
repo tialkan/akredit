@@ -15,6 +15,7 @@
 - [Güvenlik ve KVKK](https://akredit.org/guvenlik): iz bırakmadan değiştirilemeyen kayıt, kurum yalıtımı, KVKK silme hakkı; hukuk metinleri taslaktır
 - [Sınırlar](https://akredit.org/sinirlar): Akredit'in yapmadıkları
 - [Yol haritası](https://akredit.org/yol-haritasi): şimdi yapılan ve sıradaki işler
+- [Kendi yapay zekânızla (MCP)](https://akredit.org/mcp-kullan): herkese açık, hesapsız, salt okuma MCP sunucusu https://akredit.org/mcp; YÖKAK ölçüt metni ve olgunluk düzeyleri, Bologna denetimi, ÇK/PÇ hesabı, öz değerlendirme iskeleti, rapor dil denetimi; kişisel veri kabul etmez, kurum verisine erişmez
 - [Pilot başvurusu](https://akredit.org/pilot): Akredit'i kurumunuzda gerçek veriyle deneyin
 - [Sık sorulan sorular](https://akredit.org/sss)
 

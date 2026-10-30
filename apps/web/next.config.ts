@@ -5,6 +5,7 @@ const config: NextConfig = {
   output: "standalone",
   // Çalışma alanı paketleri TypeScript kaynağıyla gelir, Next derler.
   transpilePackages: [
+    "@akredit/acik-mcp",
     "@akredit/anket",
     "@akredit/baglayicilar",
     "@akredit/belge",

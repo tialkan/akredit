@@ -288,7 +288,34 @@ export default function AnaSayfa() {
         </div>
       </Bolum>
 
-      <Bolum no={7} id="sayfalar" baslik="Ayrıntıları okuyun">
+      <Bolum
+        no={7}
+        id="mcp"
+        baslik="Kendi yapay zekânızla kullanın"
+        not="Ücretsiz, hesapsız, salt okuma. Kurum verisine erişmez."
+      >
+        <div className="metin-sayfa [&>*:first-child]:mt-0">
+          <p>
+            Claude, ChatGPT, Cursor ya da VS Code'a tek bir adres ekleyin:{" "}
+            <code className="rounded-sm border border-cizgi bg-zemin px-1.5 py-0.5 font-mono text-[0.92em]">
+              https://akredit.org/mcp
+            </code>
+            . Asistanınız YÖKAK ölçütlerinin resmî metnine ve olgunluk düzeylerine kaynağıyla bakar, Bologna ders
+            bilgisini ve rapor dilini denetler, anonim puan tablosundan ÇK ve PÇ sağlanma düzeyini hesaplar.
+          </p>
+          <p>
+            Araçlar yalnız okur ve hesaplar; karar, imza ve gönderim yoktur. Kişisel veri göndermeyin: sunucu görürse
+            işlemi yapmaz. Kanıta bağlı rapor ve onay kutusu kurumun panelinde çalışır.
+          </p>
+          <p>
+            <Link href="/mcp-kullan" className={BAG}>
+              Araçlar ve ekleme adımları
+            </Link>
+          </p>
+        </div>
+      </Bolum>
+
+      <Bolum no={8} id="sayfalar" baslik="Ayrıntıları okuyun" zemin>
         <ul className="grid gap-x-10 sm:grid-cols-2">
           {[
             SAYFALAR.neYapar,
@@ -299,6 +326,7 @@ export default function AnaSayfa() {
             SAYFALAR.guvenlik,
             SAYFALAR.sinirlar,
             SAYFALAR.yolHaritasi,
+            SAYFALAR.mcpKullan,
           ].map((s) => (
             <li key={s.yol} className="border-t border-cizgi py-4">
               <Link href={s.yol} className="text-lg font-semibold text-vurgu underline-offset-4 hover:underline">

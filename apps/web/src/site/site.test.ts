@@ -155,8 +155,8 @@ describe("İP-42: vaat, roller, durum, depo yolları", () => {
     for (const k of ["odr", "kidr"]) expect(MODULLER.find((m) => m.kimlik === k)?.durum).toBe("yapimda");
   });
 
-  it("yol haritası plan.md §8'deki İP-38…48'i sırayla kapsar", () => {
-    expect(YOL_HARITASI.map((y) => y.no)).toEqual([38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]);
+  it("yol haritası plan.md §8'deki İP-38…49'u sırayla kapsar", () => {
+    expect(YOL_HARITASI.map((y) => y.no)).toEqual([38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49]);
     const plan = readFileSync(join(import.meta.dirname, "../../../../plan.md"), "utf8");
     for (const y of YOL_HARITASI) {
       const satir = plan.split("\n").find((s) => new RegExp(`^\\| \\[?${y.no}\\b`, "u").test(s)) ?? "";
