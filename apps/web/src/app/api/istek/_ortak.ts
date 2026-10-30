@@ -55,7 +55,7 @@ function istemciIp(istek: Request): string | null {
  * Gövdeyi en çok `sinir` bayt okur; aşarsa null. `content-length` başlığı istemciden gelir ve parçalı aktarımda
  * hiç yoktur, bu yüzden tek başına sınır değildir.
  */
-export async function sinirliGovde(istek: Request, sinir: number): Promise<Uint8Array | null> {
+export async function sinirliGovde(istek: Request, sinir: number): Promise<Uint8Array<ArrayBuffer> | null> {
   if (!istek.body) return new Uint8Array();
   const okuyucu = istek.body.getReader();
   const parcalar: Uint8Array[] = [];
