@@ -43,9 +43,11 @@ function KanitPaneli({
   kanitlar,
   erisilemeyen,
   kapat,
+  kanitYolu,
 }: {
   cumle: OkuyucuCumlesi;
   kanitlar: Record<string, OkuyucuKaniti>;
+  kanitYolu: string;
   erisilemeyen: readonly string[];
   kapat: () => void;
 }) {
@@ -143,6 +145,14 @@ function KanitPaneli({
               )}
             </dd>
           </dl>
+          <p className="mt-2 text-sm">
+            <a
+              href={`${kanitYolu}${kanit.id}${atif.vurgu[0] ? `#${atif.vurgu[0].parcaId}` : ""}`}
+              className="inline-block py-2 underline underline-offset-4"
+            >
+              Kanıtı ayrı sayfada aç
+            </a>
+          </p>
           {atif.konum && atif.vurgu.length === 0 && (
             <p className="mt-3 text-sm">
               Belirtilen konum belgenin okunan metninde bulunamadı. Belgenin tamamı gösteriliyor.
@@ -193,9 +203,17 @@ export interface RaporOkuyucuOzellikleri {
   erisilemeyen?: string[];
   /** Panel açık başlasın istenen cümle (bağlantıyla gelen ya da test çizimi). */
   ilkAcik?: string;
+  /** Kanıt sayfasının yolu: panelde "/panel/kanitlar/", portalda "/degerlendirici/kanit/". */
+  kanitYolu?: string;
 }
 
-export function RaporOkuyucu({ bolumler, kanitlar, erisilemeyen = [], ilkAcik }: RaporOkuyucuOzellikleri) {
+export function RaporOkuyucu({
+  bolumler,
+  kanitlar,
+  erisilemeyen = [],
+  ilkAcik,
+  kanitYolu = "/panel/kanitlar/",
+}: RaporOkuyucuOzellikleri) {
   const [acik, setAcik] = useState<OkuyucuCumlesi | null>(
     () => bolumler.flatMap((b) => b.paragraflar.flat()).find((c) => c.id === ilkAcik) ?? null,
   );
@@ -269,7 +287,14 @@ export function RaporOkuyucu({ bolumler, kanitlar, erisilemeyen = [], ilkAcik }:
       </article>
       {acik ? (
         <div id="kanit-paneli">
-          <KanitPaneli key={acik.id} cumle={acik} kanitlar={kanitHaritasi} erisilemeyen={erisilemeyen} kapat={kapat} />
+          <KanitPaneli
+            key={acik.id}
+            cumle={acik}
+            kanitlar={kanitHaritasi}
+            erisilemeyen={erisilemeyen}
+            kapat={kapat}
+            kanitYolu={kanitYolu}
+          />
         </div>
       ) : null}
     </div>
