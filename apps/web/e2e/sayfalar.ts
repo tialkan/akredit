@@ -33,6 +33,7 @@ export const SAYFALAR = [
   "/panel/raporlar",
   "/panel/raporlar/rapor-odr",
   "/panel/raporlar/rapor-olcme-bp102",
+  "/panel/saha-ziyareti",
   "/panel/surecler",
   "/panel/gostergeler",
   "/panel/ayarlar",

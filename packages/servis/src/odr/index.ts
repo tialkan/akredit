@@ -129,7 +129,7 @@ function programaAit(kapsamlar: unknown, p: { id: string; birimId: string }, der
 const KanitEtiketi = z.object({ olcutKodlari: z.array(z.string()).optional() }).loose();
 
 /** Kararla onaylanmış kanıt–ölçüt bağları. Düzeltilmiş kararda kodlar düzeltme metninden okunur. */
-async function onayliKanitlar(
+export async function onayliKanitlar(
   tx: Islem,
   cerceve: Cerceve,
   p: { id: string; birimId: string },
