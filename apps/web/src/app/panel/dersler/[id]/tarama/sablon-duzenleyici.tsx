@@ -307,11 +307,11 @@ export function SablonDuzenleyici({ dersId, arac }: { dersId: string; arac: Pane
             Sayfa alanında seçili kutuyu fareyle sürükleyerek çizin. Klavyeyle: alana odaklanın, Enter ile kutu koyun,
             ok tuşlarıyla taşıyın (Shift ile hızlı), Alt ve ok tuşlarıyla boyutlandırın, Delete ile kaldırın.
           </p>
-          {/* biome-ignore lint/a11y/noNoninteractiveTabindex: kendi klavye etkileşimi olan işaretleme alanı (role=application) */}
           <div
             ref={alan}
             role="application"
             aria-roledescription="kutu işaretleme alanı"
+            // biome-ignore lint/a11y/noNoninteractiveTabindex: kendi klavye etkileşimi olan işaretleme alanı
             tabIndex={0}
             aria-label={`${sayfa}. sayfa, seçili kutu: ${alanAdi(secili)}`}
             aria-describedby={`${kimlik}-yardim`}

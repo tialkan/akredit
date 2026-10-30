@@ -37,6 +37,10 @@ export const TABLO_SINIFI: Record<string, string | null> = {
   sinav_hucresi: "olcme",
   sinav_hucre_karari: "olcme",
   sinav_taramasi: "kanit",
+  // Göç 0120: yükleme isteği (dosya özeti ve adı), sonucu ve aktarım özeti onayı (onaylayan kişi).
+  sinav_tarama_istegi: "kanit",
+  sinav_tarama_istegi_sonucu: "kanit",
+  sinav_ozet_onayi: "olcme",
   olcme_sonucu: "olcme",
   takma_ad: "olcme",
   kisi_anahtari: "olcme",
