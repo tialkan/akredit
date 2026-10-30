@@ -1,6 +1,6 @@
 # İP-43: Toplu sınav kâğıdı taraması ve soru bazlı puan (yerel model)
 
-- **Durum:** hazır
+- **Durum:** inceleme
 - **Faz:** 8
 - **Bağımlılık:** İP-10, İP-06 (ayrıca İP-34 yerel model altyapısını kullanır)
 - **Sahip olduğu yollar:** `packages/servis/src/sinav-tarama/**`, `apps/isci/src/sinav-tarama/**`, `apps/web/src/app/panel/dersler/[id]/tarama/**`, `packages/vt/src/sema/sinav-tarama.ts`, `packages/vt/src/gocler/0070_sinav_tarama.sql`, `packages/vt/src/gocler/meta/_journal.json` (tek satır), `docs/raporlar/IP-43.md`
@@ -21,13 +21,13 @@ Ders dosyasının en çok el emeği isteyen kısmı soru bazlı puan çizelgesid
 
 ## Kabul ölçütleri
 
-- [ ] Sentetik taranmış kâğıt örnekleri (`test/fixtures/`, uydurma ad ve numaralarla) üzerinde uçtan uca test: yükleme → okuma (sahte yerel sağlayıcı) → kuyruk → onay → ölçme.
-- [ ] Yerel sağlayıcı yokken iş başlamaz; yurt dışı sağlayıcı seçilemez (test).
-- [ ] Toplam tutarsızlığı ve azami puan aşımı her zaman onaya düşer (test).
-- [ ] Öğrenci numarası veritabanına, günlüğe ve model istemine açık hâlde yazılmaz (test).
-- [ ] Hücre güveni ve onay kararı değiştirilemez günlükte.
-- [ ] Panel ekranı klavyeyle kullanılabilir, axe temiz.
-- [ ] Veri akış envanteri (İP-40) yeni tablolarla güncel; `pnpm verify` temiz.
+- [x] Sentetik taranmış kâğıt örnekleri (`test/fixtures/`, uydurma ad ve numaralarla) üzerinde uçtan uca test: yükleme → okuma (sahte yerel sağlayıcı) → kuyruk → onay → ölçme.
+- [x] Yerel sağlayıcı yokken iş başlamaz; yurt dışı sağlayıcı seçilemez (test).
+- [x] Toplam tutarsızlığı ve azami puan aşımı her zaman onaya düşer (test).
+- [x] Öğrenci numarası veritabanına, günlüğe ve model istemine açık hâlde yazılmaz (test).
+- [x] Hücre güveni ve onay kararı değiştirilemez günlükte.
+- [x] Panel ekranı klavyeyle kullanılabilir, axe temiz.
+- [x] Veri akış envanteri (İP-40) yeni tablolarla güncel; `pnpm verify` temiz.
 
 ## Açık sorular
 
@@ -37,3 +37,4 @@ Ders dosyasının en çok el emeği isteyen kısmı soru bazlı puan çizelgesid
 ## Günlük
 
 - 2026-10-29: İP dosyası yazıldı.
+- 2026-10-30: Uygulandı, inceleme bekliyor. Göç 0070 ve dört yalnız-ekleme tablosu; servis `sinav-tarama` (saf kurallar, yalnız kurum içi okuyucu, şablon, tarama, Katman 2 kartları, karar, aktarım, ölçme); işçi işi (Poppler + Tesseract kaynağı, PDF/ZIP); panel ekranı `/panel/dersler/[id]/tarama` (örnek kip). Kararlar: numara kutusu modele gitmez, deterministik okunup hemen HMAC'lanır; model yalnız puan kutusunun OCR metnini yorumlar (`@akredit/yz` görüntü taşımıyor); toplam ve azami kuralları eşikten bağımsız Katman 2; karşılaştırmalar binde bir tam sayı. Kalan: HTTP uçları ve kuyruk kaydı, şablon düzenleyici, genel onay kutusunda listeleme, görüntü girişli yerel model, eşiğin pilotta ayarı. Ayrıntı: `docs/raporlar/IP-43.md`.
