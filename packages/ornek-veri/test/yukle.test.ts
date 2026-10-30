@@ -1,6 +1,6 @@
 // Demo neslinin PGlite'ta (göçlenmiş gerçek şema, satır güvenliği ve tetikleyicilerle) yüklenmesi.
 
-import { akademik, aktorYukle, gosterge, oneri, type ServisBaglami } from "@akredit/servis";
+import { akademik, aktorYukle, gosterge, oneri, type ServisBaglami, sahaZiyareti } from "@akredit/servis";
 import {
   gocleriUygula,
   kiraciIslemi,
@@ -127,6 +127,18 @@ describe("demo nesli yükleme", () => {
     };
     const pano = await gosterge.gostergePanosu(rb);
     expect(pano.veriler.some((v) => v.anahtar === "toplam_pc")).toBe(true);
+
+    // İP-48: saha ziyareti hazırlığı demo kiracısında modelsiz çalışır; her ölçüt soru üretir, oran deterministiktir.
+    const saha = await sahaZiyareti.hazirla(b, { programId: programlar[0]?.id, cerceveKod: "yokak-kurumsal" });
+    expect(saha.programAd).toBe("Bilgisayar Mühendisliği");
+    expect(saha.yz).toBeNull();
+    expect(saha.toplam.soru).toBeGreaterThan(0);
+    expect(saha.toplam.soru).toBe(saha.sorular.filter((s) => s.kaynak !== "yz").length);
+    expect(saha.toplam.kanitli).toBeLessThanOrEqual(saha.toplam.soru);
+    // Oran = kanıtlı soru / kurallı soru yüzdesi, bir ondalık; model önerisi paydaya girmez.
+    expect(saha.toplam.oran).toBe(Math.round((saha.toplam.kanitli * 1000) / saha.toplam.soru) / 10);
+    // Her ölçüt en az bir soru üretir.
+    expect(saha.hazirlik.every((h) => h.soru >= 1)).toBe(true);
   });
 
   it("değişmeyen nesil yeniden yüklenmez; ziyaretçi kararı varsa yeni nesil açılır, eski silinmez", async () => {

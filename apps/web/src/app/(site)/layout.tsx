@@ -25,14 +25,14 @@ export default function SiteYerlesimi({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col bg-yuzey">
       <header className="border-b border-cizgi bg-yuzey">
-        <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-2">
+        <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 py-2 sm:gap-4">
           <Link href="/" aria-label="Akredit ana sayfa" className="inline-flex min-h-11 items-center">
             <Logo />
           </Link>
           <nav aria-label="Site menüsü" className="hidden flex-1 xl:block">
             <MenuListesi sinif="flex justify-end" />
           </nav>
-          <div className="ml-auto flex items-center gap-2 xl:ml-2">
+          <div className="ml-auto flex items-center gap-1 sm:gap-2 xl:ml-2">
             <Link
               href="/deneyin"
               className="inline-flex min-h-11 items-center px-2 font-semibold text-vurgu underline underline-offset-4"

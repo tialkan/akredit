@@ -37,12 +37,17 @@ export function KararKartlari({ ilkKartlar, gercek = false }: { ilkKartlar: Kart
   const acilis = useRef(Date.now());
   const kartRef = useRef<Map<string, HTMLElement>>(new Map());
 
+  const oncekiOdak = useRef(odak);
+
   const aktif = kartlar[odak];
 
-  // Odak değişince kartın süresi yeniden başlar.
+  // Odak değişince kartın süresi yeniden başlar. Sayfa ilk açıldığında odak taşınmaz: klavye kullanıcısı
+  // ilk Sekme ile "İçeriğe geç" bağlantısına gelmeli (WCAG 2.4.1, 2.4.3, 3.2.1).
   // biome-ignore lint/correctness/useExhaustiveDependencies: süre yalnız odak değişince sıfırlanır.
   useEffect(() => {
     acilis.current = Date.now();
+    if (oncekiOdak.current === odak) return;
+    oncekiOdak.current = odak;
     if (aktif) kartRef.current.get(aktif.id)?.focus();
   }, [odak]);
 

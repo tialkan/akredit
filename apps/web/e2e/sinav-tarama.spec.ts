@@ -15,7 +15,10 @@ test("onay kartları klavyeyle kapatılır, aktarım düğmesi sonra açılır",
   await page.getByLabel("Kâğıttaki öğrenci numarası").focus();
   await page.keyboard.type("2099000104");
   await page.keyboard.press("Enter");
-  await expect(page.getByRole("status")).toContainText("kararınız kaydedildi");
+  // Sayfada her bölümün kendi durum bölgesi var (şablon, yükleme, kartlar); karar bildirimi kartlarınkindedir.
+  await expect(page.getByRole("status").filter({ hasText: "kararınız kaydedildi" })).toHaveText(
+    "2. kâğıt, öğrenci numarası: kararınız kaydedildi.",
+  );
   await expect(kartlar).toHaveCount(3);
 
   // Azami puanı aşan düzeltme reddedilir, doğru puan kabul edilir.
