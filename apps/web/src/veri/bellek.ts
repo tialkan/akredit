@@ -240,6 +240,9 @@ export class BellekVeriKaynagi implements VeriKaynagi {
     if (girdi.oneriTurleri.some((t) => ONERI_RISKI[t] === "yuksek"))
       return hata("Seçilen türlerden biri yüksek riskli. Yüksek riskli işler otomatik onaylanamaz.");
     if (!(girdi.enDusukGuven >= 0 && girdi.enDusukGuven <= 1)) return hata("Güven eşiği 0 ile 100 arasında olmalı.");
+    const s = girdi.itirazSuresiIsGunu;
+    if (s !== undefined && !(Number.isInteger(s) && s >= 1 && s <= 30))
+      return hata("İtiraz süresi 1 ile 30 iş günü arasında tam sayı olmalı.");
     const kayit: PolitikaKaydi = {
       id: this.#yeniKimlik("politika") as PolitikaId,
       ad: girdi.ad.trim(),
