@@ -10,6 +10,8 @@
 //   istemine açık hâlde yazılmaz. Numara kutusu modele hiç gönderilmez; kırpıntı kanıt deposunda kalır.
 // - Toplam tutarsızlığı ve azami puan aşımı eşikten bağımsız olarak her zaman onaya (Katman 2) düşer.
 // - Okuma, güven, durum ve karar değiştirilemez günlüğe yazılır; tablolar yalnız eklenir.
+// - Otomatik okunan hücreler aktarımdan önce kişiye tek ekranda özet olarak gösterilir; aktarım bu özetin
+//   onayıyla (Katman 1, doğrudan, tek dokunuş) yapılır. Kişi istediği otomatik hücreyi düzeltebilir.
 
 import { zorunluKararDenetle } from "@akredit/cekirdek";
 import { type DersOlcmeSonucu, dersiOlc } from "@akredit/olcme";
@@ -18,8 +20,9 @@ import type { CikisKaydi, FetchIslevi } from "@akredit/yz";
 import { and, asc, desc, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { gunluge, islem, type ServisBaglami } from "../baglam.ts";
-import { takmaAdUret } from "../ders-dosyasi/index.ts";
+import { dersCiktilari, onayliEslemeSatirlari, soruEslemesi, takmaAdUret } from "../ders-dosyasi/index.ts";
 import { bulunamadi, ServisHatasi } from "../hata.ts";
+import { otomatikOzet } from "./baglanti.ts";
 import {
   binde,
   type DegerlendirilmisHucre,
@@ -34,6 +37,7 @@ import {
 import { type HucreNedeni, NUMARA_ALANI, Sablon, type TaramaKaynagi, TOPLAM_ALANI } from "./turler.ts";
 import { type AdCozucu, type YerelOkuyucu, yerelOkuyucuKur } from "./yerel-model.ts";
 
+export * from "./baglanti.ts";
 export * from "./saf.ts";
 export * from "./turler.ts";
 export * from "./yerel-model.ts";
@@ -318,7 +322,28 @@ export interface TaramaGorunumu {
   /** Bütün hücreler; otomatik okunanlar da her zaman görülebilir. */
   hucreler: HucreKarti[];
   aktarildi: boolean;
+  /** Aktarım öncesi özet: otomatik okunan ve düzeltilmemiş hücreler (inceleme dalga 8, bulgu 3). */
+  otomatikOzet: { sayi: number; ozet: string };
+  /** Taramayı başlatan kişi mi (numara kutusu görüntüsü için). */
+  sahip: boolean;
 }
+
+/** Aktarım öncesi özetin onayı: Katman 1, toplu (tek dokunuş) verilebilir; yalnız doğrudan, süre ya da politika yok. */
+export const OZET_KATMANI = {
+  katman: 1 as const,
+  kural: "K1-sinav-otomatik-ozet",
+  gerekce:
+    "Otomatik okunan puanların özeti. Aktarımdan önce siz görüp onaylarsınız; istediğiniz hücreyi düzeltebilirsiniz.",
+  devredilemez: false,
+};
+
+/** Otomatik okunan hücrenin kişi tarafından düzeltilmesi. */
+const OTOMATIK_DUZELTME_KATMANI = {
+  katman: 1 as const,
+  kural: "K1-sinav-otomatik-duzeltme",
+  gerekce: "Otomatik okunan hücreyi kişi düzeltti.",
+  devredilemez: false,
+};
 
 const sayi = (v: string | null) => (v === null ? null : Number(v));
 
@@ -359,10 +384,11 @@ export async function taramaGorunumu(b: ServisBaglami, taramaId: string): Promis
       };
     });
     const [aktarim] = await tx
-      .select({ id: sema.gunluk.id })
-      .from(sema.gunluk)
-      .where(and(eq(sema.gunluk.eylem, "sinav.puanlar_aktarildi"), eq(sema.gunluk.hedefId, taramaId)))
+      .select({ id: sema.sinavOzetOnayi.id })
+      .from(sema.sinavOzetOnayi)
+      .where(eq(sema.sinavOzetOnayi.taramaId, taramaId))
       .limit(1);
+    const oto = hucreler.filter((h) => h.katman.katman === 0 && h.karar === null);
     return {
       taramaId,
       olcmeAraciId: t.olcmeAraciId,
@@ -373,6 +399,8 @@ export async function taramaGorunumu(b: ServisBaglami, taramaId: string): Promis
       kartlar: hucreler.filter((h) => h.katman.katman === 2 && h.karar === null),
       hucreler,
       aktarildi: Boolean(aktarim),
+      otomatikOzet: { sayi: oto.length, ozet: otomatikOzet(oto) },
+      sahip: t.baslatanKisiId !== null && t.baslatanKisiId === b.aktor.kisiId,
     };
   });
 }
@@ -395,6 +423,7 @@ export const HucreKarariGirdisi = z
 /**
  * Onay kartına kişinin kararı. Katman 2: yalnız doğrudan, tek tek. Düzeltilen puan azami puanı aşamaz;
  * okunamayan ya da tutarsız hücre düzeltmeden onaylanamaz. Numara kartı numara girilmeden kapanmaz.
+ * Otomatik okunan hücre de aktarımdan önce düzeltilebilir (Katman 1); onu onaylamak özet onayıyla olur.
  */
 export async function hucreKarari(
   b: ServisBaglami,
@@ -409,9 +438,19 @@ export async function hucreKarari(
     if (!t) throw bulunamadi();
     const { dersId } = await aracDersi(tx, t.olcmeAraciId);
     await gerekli("olcme.veri_gir", { tur: "ders", id: dersId });
-    if (h.durum !== "onay_bekliyor") throw new ServisHatasi("kural_ihlali", "Bu hücre onay beklemiyor.");
+    const [aktarim] = await tx
+      .select({ id: sema.sinavOzetOnayi.id })
+      .from(sema.sinavOzetOnayi)
+      .where(eq(sema.sinavOzetOnayi.taramaId, t.id));
+    if (aktarim) throw new ServisHatasi("kural_ihlali", "Puanlar aktarıldı; bu taramaya yeni karar girilemez.");
+    const otomatik = h.durum !== "onay_bekliyor";
+    if (otomatik && g.sonuc !== "duzeltildi")
+      throw new ServisHatasi(
+        "kural_ihlali",
+        "Otomatik okunan hücre aktarım özetiyle onaylanır. Yanlışsa doğru değeri yazarak düzeltin.",
+      );
     const nedenler = h.nedenler as HucreNedeni[];
-    const katman = hucreKatmani(nedenler);
+    const katman = otomatik ? OTOMATIK_DUZELTME_KATMANI : hucreKatmani(nedenler);
     const denet = zorunluKararDenetle(katman, {
       dayanak: "dogrudan",
       kararVeren: b.aktor.kisiId,
@@ -464,7 +503,7 @@ export async function hucreKarari(
         alan: h.alan,
         sonuc: g.sonuc,
         deger: deger === null ? null : (binde(deger) / 1000).toFixed(3),
-        katman: 2,
+        katman: katman.katman,
         kural: katman.kural,
         dayanak: "dogrudan",
       },
@@ -473,16 +512,27 @@ export async function hucreKarari(
   });
 }
 
+export const AktarimGirdisi = z
+  .object({
+    /** Kişinin ekranda gördüğü otomatik hücre özeti (`taramaGorunumu().otomatikOzet.ozet`). */
+    ozet: z.string().regex(/^[0-9a-f]{64}$/u),
+  })
+  .strict();
+
 /**
- * Bütün kartlar kapandıysa kâğıtların soru puanlarını ölçme aracına (`ogrenci_puani`) aktarır. Kâğıttaki toplam
- * aktarılmaz (ölçme motoru toplamı kendisi hesaplar). Aynı öğrenci için ikinci kâğıt ya da daha önce aktarılmış
- * puan varsa durur.
+ * Bütün kartlar kapandıysa ve kişi otomatik okunan hücrelerin özetini onayladıysa kâğıtların soru puanlarını
+ * ölçme aracına (`ogrenci_puani`) aktarır. Özet onayı Katman 1'dir: tek dokunuşla verilir, yalnız doğrudan
+ * (politika ya da süre dolması yok); gönderilen özet ekrandaki kümeyle aynı olmalıdır, değiştiyse aktarım durur.
+ * Kâğıttaki toplam aktarılmaz (ölçme motoru toplamı kendisi hesaplar). Aynı öğrenci için ikinci kâğıt ya da daha
+ * önce aktarılmış puan varsa durur.
  */
 export async function puanlariAktar(
   b: ServisBaglami,
   taramaId: string,
-): Promise<{ ogrenciSayisi: number; puanSayisi: number }> {
+  onay?: unknown,
+): Promise<{ ogrenciSayisi: number; puanSayisi: number; otomatikSayisi: number }> {
   uuid.parse(taramaId);
+  const o = onay === undefined || onay === null ? null : AktarimGirdisi.parse(onay);
   return islem(b, async (tx, gerekli) => {
     const [t] = await tx.select().from(sema.sinavTaramasi).where(eq(sema.sinavTaramasi.id, taramaId));
     if (!t) throw bulunamadi();
@@ -499,6 +549,23 @@ export async function puanlariAktar(
         "kural_ihlali",
         `${bekleyen} hücre onayınızı bekliyor. Önce onları onaylayın ya da düzeltin.`,
       );
+    const [onceki] = await tx
+      .select({ id: sema.sinavOzetOnayi.id })
+      .from(sema.sinavOzetOnayi)
+      .where(eq(sema.sinavOzetOnayi.taramaId, taramaId));
+    if (onceki) throw new ServisHatasi("cakisma", "Bu taramanın puanları zaten aktarılmış.");
+    const oto = satirlar
+      .filter(({ h, k }) => h.durum === "otomatik" && !k)
+      .map(({ h }) => ({ hucreId: h.id, deger: sayi(h.deger) }));
+    if (!o)
+      throw new ServisHatasi("kural_ihlali", "Aktarımdan önce otomatik okunan puanların özetini görüp onaylayın.");
+    if (o.ozet !== otomatikOzet(oto))
+      throw new ServisHatasi(
+        "cakisma",
+        "Otomatik okunan puanlar siz özeti gördükten sonra değişti. Ekranı yenileyip özeti yeniden onaylayın.",
+      );
+    const denet = zorunluKararDenetle(OZET_KATMANI, { dayanak: "dogrudan", kararVeren: b.aktor.kisiId, toplu: true });
+    if (!denet.gecerli) throw new ServisHatasi("kural_ihlali", denet.hatalar.join(" "));
     const sorular = await tx.select().from(sema.soru).where(eq(sema.soru.olcmeAraciId, t.olcmeAraciId));
     const soruId = new Map(sorular.map((q) => [q.numara, q.id]));
     const kagitlar = new Map<number, typeof satirlar>();
@@ -542,6 +609,35 @@ export async function puanlariAktar(
       : [];
     if (varolan.length) throw new ServisHatasi("cakisma", "Bu öğrencilerin puanları bu sınav için zaten aktarılmış.");
     for (let i = 0; i < puanlar.length; i += 500) await tx.insert(sema.ogrenciPuani).values(puanlar.slice(i, i + 500));
+    const [oz] = await tx
+      .insert(sema.sinavOzetOnayi)
+      .values({
+        kurumId: b.aktor.kurumId,
+        taramaId,
+        otomatikSayisi: oto.length,
+        ozet: o.ozet,
+        katman: OZET_KATMANI.katman,
+        kural: OZET_KATMANI.kural,
+        dayanak: "dogrudan",
+        onaylayanKisiId: b.aktor.kisiId,
+        zaman: b.simdi(),
+      })
+      .returning({ id: sema.sinavOzetOnayi.id });
+    await gunluge(
+      tx,
+      b,
+      "sinav.otomatik_ozet_onaylandi",
+      { tur: "sinav_taramasi", id: taramaId },
+      {
+        ozetOnayiId: oz?.id ?? null,
+        otomatikSayisi: oto.length,
+        ozet: o.ozet,
+        katman: OZET_KATMANI.katman,
+        kural: OZET_KATMANI.kural,
+        dayanak: "dogrudan",
+        toplu: true,
+      },
+    );
     await gunluge(
       tx,
       b,
@@ -553,7 +649,7 @@ export async function puanlariAktar(
         puanSayisi: puanlar.length,
       },
     );
-    return { ogrenciSayisi: ogrenciler.size, puanSayisi: puanlar.length };
+    return { ogrenciSayisi: ogrenciler.size, puanSayisi: puanlar.length, otomatikSayisi: oto.length };
   });
 }
 
@@ -572,34 +668,36 @@ export async function olcmeHesapla(b: ServisBaglami, olcmeAraciId: string): Prom
       .from(sema.soru)
       .where(eq(sema.soru.olcmeAraciId, olcmeAraciId))
       .orderBy(asc(sema.soru.numara));
-    const ciktiIdleri = [
-      ...new Set(sorular.flatMap((q) => (q.ciktiEslemesi as { ciktiId: string }[]).map((e) => e.ciktiId))),
-    ];
-    const ciktilar = ciktiIdleri.length
-      ? await tx
-          .select({ id: sema.cikti.id, kod: sema.cikti.kod })
-          .from(sema.cikti)
-          .where(inArray(sema.cikti.id, ciktiIdleri))
-      : [];
-    const kod = new Map(ciktilar.map((c) => [c.id, c.kod]));
+    // Eşleme eski bir çıktı sürümüne bağlı olabilir: dersin bütün çıktı sürümlerinin kimliği koda çevrilir.
+    const butunCk = await tx
+      .select({ id: sema.cikti.id, kod: sema.cikti.kod })
+      .from(sema.cikti)
+      .where(and(eq(sema.cikti.tur, "ders"), eq(sema.cikti.sahipId, dersId)));
+    const kod = new Map(butunCk.map((c) => [c.id, c.kod]));
+    const gecerli = new Set((await dersCiktilari(tx, dersId)).map((c) => c.kod));
+    const onayli = await onayliEslemeSatirlari(tx, dersId, arac.dersAcilisiId);
+    const soruEslemeleri = sorular.map((q) => ({
+      q,
+      eslemeler: soruEslemesi(q, arac.ad ?? arac.tur, kod, onayli, gecerli),
+    }));
     const soruNo = new Map(sorular.map((q) => [q.id, q.numara]));
     const puanlar = await tx.select().from(sema.ogrenciPuani).where(eq(sema.ogrenciPuani.olcmeAraciId, olcmeAraciId));
     return dersiOlc({
       dersKodu: ders?.kod ?? "",
       donem: "",
-      ciktilar: [...new Set(ciktilar.map((c) => c.kod))].sort().map((k) => ({ kod: k })),
+      ciktilar: [...new Set(soruEslemeleri.flatMap((x) => x.eslemeler.map((e) => e.ciktiKod)))]
+        .sort()
+        .map((k) => ({ kod: k })),
       araclar: [
         {
           id: arac.id,
           tur: arac.tur,
           ad: arac.ad ?? arac.tur,
           agirlik: 100,
-          sorular: sorular.map((q) => ({
+          sorular: soruEslemeleri.map(({ q, eslemeler }) => ({
             no: q.numara,
             tamPuan: Number(q.tamPuan),
-            eslemeler: (q.ciktiEslemesi as { ciktiId: string; agirlik: number }[])
-              .filter((e) => kod.has(e.ciktiId))
-              .map((e) => ({ ciktiKod: kod.get(e.ciktiId) as string, agirlik: e.agirlik })),
+            eslemeler,
           })),
         },
       ],
