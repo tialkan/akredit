@@ -36,6 +36,28 @@ export type SahaSorulariCiktisi = z.infer<typeof SahaSorulariSemasi>;
 
 const CEVAP_IZI = /\[(K|H):|\bcevap\b|\byanıt\s*:|\bcevabı\s*:|evet,|hayır,/iu;
 
+/**
+ * Olgu ima eden soru (inceleme dalga 8 bulgu 9): soru, kurumda var olduğu bilinmeyen bir etkinliği varsayar.
+ * "kurulun haftalık toplantıları nasıl belgeleniyor?" kurulun haftalık toplandığını iddia eder. Kural:
+ * sıklık bildiren sözcük, geçmiş ortaç ("yaptığınız", "düzenlenen") ya da iyelikli etkinlik adı
+ * ("toplantılarınız", "anketleri") taşıyan model önerisi reddedilir. Model yeni soru önerirken yalnız
+ * "var mı, nasıl" diye sorabilir.
+ */
+const OLGU_IMASI = [
+  /(^|[\s"'(])(haftalık|aylık|yıllık|dönemlik|günlük|her\s+(hafta|ay|yıl|dönem)|düzenli(\s+olarak)?|periyodik)(?=[\s,?]|$)/iu,
+  /\p{L}+(dığınız|diğiniz|duğunuz|düğünüz|tığınız|tiğiniz|tuğunuz|tüğünüz|dığı|diği|duğu|düğü|tığı|tiği|tuğu|tüğü)(?=[\s,?]|$)/iu,
+  /\p{L}+(lenen|lanan|ilen|ılan|ulan|ülen|ınan|inen|unan|ünen)(?=\s)/iu,
+  /(toplantı|anket|çalıştay|eğitim|kurul|komisyon|rapor|tutanak|ziyaret|denetim)(lar)?(ınız|iniz|ları|leri|sı|si)(?=[\s,?]|$)/iu,
+];
+
+/** Model önerisi olgu ima ediyor mu? Ediyorsa sorun metni. */
+export function olguImasi(metin: string): string | null {
+  for (const d of OLGU_IMASI)
+    if (d.test(metin))
+      return "Soru kurumda bir etkinliğin var olduğunu varsayıyor; yalnız var mı, nasıl diye sorulabilir.";
+  return null;
+}
+
 /** Metin tek bir soru cümlesi mi; cevap izi taşıyor mu? Sorun yoksa null. */
 export function soruMetniSorunu(metin: string, izinliSayilar: readonly string[] = []): string | null {
   const t = metin.trim();
@@ -100,7 +122,7 @@ export function sahaSorulariniAyikla(c: SahaSorulariCiktisi, g: SahaSorulariGird
       reddedilen.push({ alan, aciklama: "Öneri çerçevedeki bir ölçüt koduna bağlı değil." });
       continue;
     }
-    const sorun = soruMetniSorunu(kodSayilari(o.metin, kodlar));
+    const sorun = soruMetniSorunu(kodSayilari(o.metin, kodlar)) ?? olguImasi(o.metin);
     if (sorun) {
       reddedilen.push({ alan, aciklama: sorun });
       continue;
@@ -136,6 +158,7 @@ export const sahaSorulari: Gorev<SahaSorulariGirdisi, typeof SahaSorulariSemasi>
           "1. Verilen soruların Türkçesini sadeleştir ve düzelt. Anlamı, ölçüt kodunu ve sayıları değiştirme. Her düzeltme tek bir soru cümlesidir ve soru işaretiyle biter.",
           `2. Değerlendiricinin sorabileceği yeni sorular öner. Her öneri listedeki bir ölçüt koduna bağlanır ve o kodu içerir. Ölçüt başına en çok ${g.enCokOneri ?? 2} öneri.`,
           "Soruları cevaplama. Cevap, açıklama, atıf, örnek ya da yeni sayı yazma. Kurum hakkında bilgi uydurma.",
+          "Önerilen soru kurumda bir etkinliğin (toplantı, anket, sıklık) var olduğunu varsaymasın; 'var mı, nasıl' diye sorsun.",
           KALKAN_KURALI,
         ].join("\n"),
       },
