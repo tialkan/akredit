@@ -83,9 +83,10 @@ export function epostaAlanAdiUyarMi(eposta: string, alanAdlari: string): boolean
     .some((d) => alan === d || alan.endsWith(`.${d}`));
 }
 
-function istemciIp(basliklar: Headers | undefined): string | null {
-  const x = basliklar?.get("x-forwarded-for");
-  return x?.split(",")[0]?.trim() || basliklar?.get("x-real-ip") || null;
+export function istemciIp(basliklar: Headers | undefined): string | null {
+  // Güvenilir vekil `x-real-ip` yazar ve gerçek adresi `x-forwarded-for` sonuna ekler; ilk değeri istemci
+  // yazabilir (demo ucu, kurum açılışı ve pilot formuyla aynı kural; inceleme 4-7 #6).
+  return basliklar?.get("x-real-ip")?.trim() || basliklar?.get("x-forwarded-for")?.split(",").at(-1)?.trim() || null;
 }
 
 export function kimlikSunucusuOlustur(s: KimlikSecenekleri) {
