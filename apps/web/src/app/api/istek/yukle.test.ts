@@ -142,6 +142,23 @@ describe("belge yükleme ucu", () => {
     expect(String(y.govde.hata)).toMatch(/türü kabul edilmiyor/u);
   });
 
+  it("inceleme: content-length başlığı olmayan (parçalı) büyük gövde sınırı aşamaz", async () => {
+    const jeton = await yeniIstek();
+    const n = konan.length;
+    const buyuk = new Uint8Array(belgeIstegi.EN_BUYUK_DOSYA + 200 * 1024);
+    buyuk.set(PDF);
+    const ham = istek({ j: jeton, acilis: once, dosya: new Blob([buyuk]) });
+    // Başlıksız akış: content-length yok, gövde parça parça gelir.
+    const akis = ham.body as ReadableStream<Uint8Array>;
+    const h = new Headers(ham.headers);
+    h.delete("content-length");
+    const parcali = new Request(ham.url, { method: "POST", headers: h, body: akis, duplex: "half" } as RequestInit);
+    expect(parcali.headers.get("content-length")).toBeNull();
+    const y = await yuklemeIsle(ortam(), parcali);
+    expect(y.durum).toBe(413);
+    expect(konan.length).toBe(n);
+  });
+
   it("geçerli yükleme kaydedilir; aynı bağlantı ikinci kez kullanılamaz", async () => {
     const jeton = await yeniIstek();
     const y = await yuklemeIsle(

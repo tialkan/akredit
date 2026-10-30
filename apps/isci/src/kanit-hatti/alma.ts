@@ -29,6 +29,13 @@ export type AlmaSonucu =
   | { durum: "zaten_var"; kanitId: string; ozet: string }
   | { durum: "reddedildi"; ileti: string };
 
+/**
+ * Sınav kâğıdı taraması (İP-43) için yüklenen dosyanın `kaynakAyrinti.amac` değeri. Bu dosya kanıt olarak
+ * saklanır ama metin çıkarma, gömme ve sınıflama kuyruğuna girmez: kâğıtlarda açık öğrenci numarası ve adı vardır;
+ * metni `kanit_parcasi`na yazılmamalı, kurumun (yurt dışı olabilen) sağlayıcısına gitmemelidir (ilke 7).
+ */
+export const SINAV_TARAMASI_AMACI = "sinav_taramasi";
+
 const VARSAYILAN_BOYUT = 100 * 1024 * 1024;
 
 const GirdiSemasi = z.object({
@@ -110,7 +117,7 @@ export async function kanitAl(b: HatBaglami, g: KanitGirdisi): Promise<AlmaSonuc
     });
     return { durum: "eklendi" as const, kanitId, ozet: nesne.ozet };
   });
-  if (sonuc.durum === "eklendi")
+  if (sonuc.durum === "eklendi" && g.kaynakAyrinti?.amac !== SINAV_TARAMASI_AMACI)
     await b.kuyruk.gonder(
       KUYRUK.cikar,
       { kurumId: g.kurumId, kanitId: sonuc.kanitId },

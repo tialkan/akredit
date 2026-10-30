@@ -70,6 +70,20 @@ export interface OkunanHucre {
   alan: string;
   deger: number | null;
   guven: number;
+  /** Modelin verdiği değer kutunun tarayıcı metninde geçiyor mu (`metindeSayiVarMi`). false ise onaya düşer. */
+  metinde?: boolean;
+}
+
+/**
+ * Modelin okuduğu değer kutunun tarayıcı metninde bir sayı olarak geçiyor mu (binde bir ölçekte eşitlik).
+ * Model metinde olmayan bir sayı üretirse (uydurma, tahmin) değer otomatik kabul edilmez. Rakama benzeyen
+ * harfler (O→0, l→1) numaradaki gibi düzeltilir.
+ */
+export function metindeSayiVarMi(metin: string, deger: number | null): boolean {
+  if (deger === null) return true;
+  const duz = [...metin].map((c) => BENZER[c] ?? c).join("");
+  const sayilar = duz.match(/\d+(?:[.,]\d+)?/gu) ?? [];
+  return sayilar.some((s) => binde(Number(s.replace(",", "."))) === binde(deger));
 }
 
 export interface DegerlendirilmisHucre extends OkunanHucre {
@@ -97,6 +111,7 @@ export function kagidiDegerlendir(g: {
   };
   for (const h of [...g.sorular, ...(g.toplam ? [g.toplam] : [])]) {
     if (h.deger === null) ekle(h.alan, "okunamadi");
+    if (h.metinde === false) ekle(h.alan, "metinde_yok");
     if (h.guven < g.esik) ekle(h.alan, "dusuk_guven");
     const azami = h.alan === TOPLAM_ALANI ? toplamAzami(g.azami) : g.azami.get(h.alan);
     if (h.deger !== null && (h.deger < 0 || (azami !== undefined && binde(h.deger) > binde(azami))))
@@ -108,7 +123,8 @@ export function kagidiDegerlendir(g: {
   }
   const sonuc: DegerlendirilmisHucre[] = [...g.sorular, ...(g.toplam ? [g.toplam] : [])].map((h) => {
     const n = [...(nedenler.get(h.alan) ?? [])].sort();
-    return { ...h, durum: n.length ? "onay_bekliyor" : "otomatik", katman: n.length ? 2 : 0, nedenler: n };
+    const { metinde: _m, ...hucre } = h;
+    return { ...hucre, durum: n.length ? "onay_bekliyor" : "otomatik", katman: n.length ? 2 : 0, nedenler: n };
   });
   sonuc.unshift({
     alan: NUMARA_ALANI,
@@ -131,6 +147,7 @@ const GEREKCE: Record<HucreNedeni, string> = {
   azami_asimi: "Okunan puan sorunun azami puanını aşıyor ya da eksi.",
   toplam_tutarsiz: "Soru puanlarının toplamı kâğıttaki toplamla tutmuyor.",
   numara_okunamadi: "Öğrenci numarası okunamadı.",
+  metinde_yok: "Okunan puan kutudaki yazıyla eşleşmiyor.",
 };
 
 /**
