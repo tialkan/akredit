@@ -214,6 +214,7 @@ describe("yerel model yokken iş başlamaz, yurt dışına yol yok", () => {
           yerelModel: yerelModel as never,
           takmaAdAnahtari: ANAHTAR,
           fetch: s.fetch,
+          coz: async () => ["10.0.0.5"],
           kaynakKur: async () => {
             kaynakIstendi = true;
             return ornekKaynak(ORNEK);
@@ -261,6 +262,7 @@ describe("inceleme: dolaylı yollar ve uydurma sayı", () => {
           yerelModel: YEREL,
           takmaAdAnahtari: ANAHTAR,
           fetch: s.fetch,
+          coz: async () => ["10.0.0.5"],
           kaynakKur: async () => ornekKaynak(ORNEK),
         },
         { kurumId: KURUM, kisiId: hoca, kanitId: sirali.kanitId, olcmeAraciId: aracId },
@@ -287,6 +289,7 @@ describe("inceleme: dolaylı yollar ve uydurma sayı", () => {
         yerelModel: YEREL,
         takmaAdAnahtari: ANAHTAR,
         fetch,
+        coz: async () => ["10.0.0.5"],
         simdi: () => SIMDI,
         kaynakKur: async () => ornekKaynak(ORNEK),
       },
@@ -319,6 +322,7 @@ describe("uçtan uca", () => {
         yerelModel: YEREL,
         takmaAdAnahtari: ANAHTAR,
         fetch: s.fetch,
+        coz: async () => ["10.0.0.5"],
         simdi: () => SIMDI,
         kaynakKur: async (veri) => {
           okunanOzet = createHash("sha256").update(veri).digest("hex");

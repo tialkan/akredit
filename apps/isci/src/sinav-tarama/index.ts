@@ -167,6 +167,8 @@ export interface TaramaIsciBaglami {
   /** Kanıt baytlarından kaynak kurar. Varsayılan `taramaKaynagiKur` (Poppler + Tesseract). */
   kaynakKur?: (veri: Uint8Array) => Promise<TaramaKaynagi>;
   fetch?: FetchIslevi;
+  /** Model sunucusu adının çözücüsü (testte sahte). */
+  coz?: sinavTarama.AdCozucu;
   simdi?: () => Date;
 }
 
@@ -206,6 +208,7 @@ export async function sinavTaramasiIsi(c: TaramaIsciBaglami, ham: unknown): Prom
         takmaAdAnahtari: c.takmaAdAnahtari,
         kirpintiKoy: async (kurumId, v) => c.depo.koy(kurumId, v, { mime: "image/png" }),
         ...(c.fetch ? { fetch: c.fetch } : {}),
+        ...(c.coz ? { coz: c.coz } : {}),
       },
     );
   } finally {
