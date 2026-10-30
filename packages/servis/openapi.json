@@ -2029,6 +2029,253 @@
         }
       }
     },
+    "/api/v1/oneriler/{id}/yonetici-ozeti": {
+      "get": {
+        "operationId": "yoneticiOzeti",
+        "summary": "Dış gönderim kararından önce gösterilen yönetici özeti (sayılar hesaptan)",
+        "x-akredit-yetki": "rapor.gonder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Başarılı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "imza": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["imza"],
+                  "additionalProperties": {}
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Girdi geçersiz",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Oturum ya da API anahtarı yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Yetki yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Kayıt yok ya da başka kuruma ait",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Çakışma (ör. öneriye zaten karar verilmiş)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Kural ihlali (ör. yüksek riskli öneri toplu onaylanamaz)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Çok fazla istek",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/oneriler/{id}/ozet-goruldu": {
+      "post": {
+        "operationId": "yoneticiOzetiGoruldu",
+        "summary": "Yönetici özetinin görüldüğünü özetin imzasıyla günlüğe yazar. Yalnız oturumla.",
+        "x-akredit-yetki": "rapor.gonder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Aynı anahtarla tekrarlanan istek yeniden işlenmez, ilk yanıt döner.",
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 200
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "imza": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                },
+                "required": ["imza"],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Başarılı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "imza": {
+                      "type": "string"
+                    },
+                    "zaman": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["imza", "zaman"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Girdi geçersiz",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Oturum ya da API anahtarı yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Yetki yok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Kayıt yok ya da başka kuruma ait",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Çakışma (ör. öneriye zaten karar verilmiş)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Kural ihlali (ör. yüksek riskli öneri toplu onaylanamaz)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Çok fazla istek",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/kararlar/toplu": {
       "post": {
         "operationId": "topluKararVer",
@@ -11831,9 +12078,21 @@
                       },
                       "required": ["pukoId", "baslik"],
                       "additionalProperties": {}
+                    },
+                    "eylemIdleri": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "sorumsuzDersler": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   },
-                  "required": ["devir", "eylem"],
+                  "required": ["devir", "eylem", "eylemIdleri", "sorumsuzDersler"],
                   "additionalProperties": false
                 }
               }

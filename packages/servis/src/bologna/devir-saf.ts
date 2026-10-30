@@ -79,7 +79,15 @@ export interface DevirOnlemi {
   tanim: string;
   asama: string;
   /** Önlem bir metin alanını değiştiriyorsa (önlemi kapatan insan kararıyla yazılmış). */
-  bolognaDuzeltmesi?: { alan: DuzeltilebilirAlan; dil: "tr" | "en"; metin: string } | undefined;
+  bolognaDuzeltmesi?:
+    | {
+        alan: DuzeltilebilirAlan;
+        dil: "tr" | "en";
+        metin: string;
+        /** "ekle": metin alanın sonuna yeni paragraf olarak eklenir (zaten varsa değişmez). Varsayılan "degistir". */
+        kip?: "degistir" | "ekle" | undefined;
+      }
+    | undefined;
 }
 
 export interface DevirFarki {
@@ -142,7 +150,15 @@ export function devirTaslagiKur(
       onlemler.push({ eylemId: o.eylemId, tanim: o.tanim, uygulandi: false });
       continue;
     }
-    const yeni = { ...t[dz.alan], [dz.dil]: dz.metin.trim() };
+    const mevcut = String((t[dz.alan] as unknown as Record<string, unknown> | undefined)?.[dz.dil] ?? "").trim();
+    const eklenecek = dz.metin.trim();
+    const metin =
+      dz.kip === "ekle"
+        ? mevcut.includes(eklenecek)
+          ? mevcut
+          : [mevcut, eklenecek].filter(Boolean).join("\n\n")
+        : eklenecek;
+    const yeni = { ...t[dz.alan], [dz.dil]: metin };
     const oldu = degistir(dz.alan, yeni, `PÜKÖ önlemi: ${o.tanim}`);
     onlemler.push({ eylemId: o.eylemId, tanim: o.tanim, uygulandi: oldu });
   }

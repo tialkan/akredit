@@ -42,6 +42,7 @@ export const BUTCE_SAYFALARI = [
   "/giris",
   "/panel",
   "/panel/onaylar",
+  "/panel/kararlar",
   "/panel/kanitlar",
   "/panel/kanitlar/kanit-01",
   "/panel/programlar/prog-bp",

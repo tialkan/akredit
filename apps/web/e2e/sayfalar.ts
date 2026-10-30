@@ -24,6 +24,7 @@ export const SAYFALAR = [
   "/davet",
   "/panel",
   "/panel/onaylar",
+  "/panel/kararlar",
   "/panel/kanitlar",
   "/panel/kanitlar/kanit-01",
   "/panel/programlar/prog-bp",

@@ -16,7 +16,7 @@ const GENEL_HATA = "Karar kaydedilemedi. Bağlantınızı denetleyip yeniden den
 export async function onlemGonder(
   govde: OnlemGovdesi,
   getir: Getir = (u, i) => fetch(u, i),
-): Promise<{ tamam: true } | { tamam: false; hata: string }> {
+): Promise<{ tamam: true; sorumsuzDersler: string[] } | { tamam: false; hata: string }> {
   let y: Response;
   try {
     y = await getir("/api/v1/puko/onlem", {
@@ -32,7 +32,10 @@ export async function onlemGonder(
   } catch {
     return { tamam: false, hata: GENEL_HATA };
   }
-  if (y.ok) return { tamam: true };
-  const veri = (await y.json().catch(() => null)) as { hata?: unknown } | null;
+  const veri = (await y.json().catch(() => null)) as { hata?: unknown; sorumsuzDersler?: unknown } | null;
+  if (y.ok) {
+    const s = veri?.sorumsuzDersler;
+    return { tamam: true, sorumsuzDersler: Array.isArray(s) ? s.filter((x) => typeof x === "string") : [] };
+  }
   return { tamam: false, hata: typeof veri?.hata === "string" ? veri.hata : GENEL_HATA };
 }
