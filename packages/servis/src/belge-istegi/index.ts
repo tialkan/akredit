@@ -631,8 +631,8 @@ export async function istekYukle(db: Vt, gizli: string, g: YuklemeGirdisi, simdi
  */
 export const KABUL_SONUCLARI = ["onaylandi", "duzeltildi"] as const;
 
-export function kabulSonucuMu(sonuc: string): boolean {
-  return (KABUL_SONUCLARI as readonly string[]).includes(sonuc);
+export function kabulSonucuMu(sonuc: string | null): boolean {
+  return sonuc !== null && (KABUL_SONUCLARI as readonly string[]).includes(sonuc);
 }
 
 /** Dış birimden gelip henüz kabul edilmemiş kanıtların kimlikleri (kurum içinde). Bunlara atıf yapılamaz. */
