@@ -1,12 +1,13 @@
 // PÜKÖ ölçümlerinin sunucu hesabı (inceleme dalga 8, bulgu 1). Gövde yalnız hangi ders, dönem ve çıktının
 // işleneceğini söyler; değer, eşik ve kaynak kurumun kayıtlı not ve soru verisinden `@akredit/olcme` ile
-// hesaplanır. Soru-çıktı eşlemesi soruda kayıtlı eşlemedir (`soru.cikti_eslemesi`).
+// hesaplanır. Soru-çıktı eşlemesi soruda kayıtlı eşlemedir (`soru.cikti_eslemesi`); soruda eşleme yoksa ders
+// dosyası akışında onaylanmış eşleme kullanılır (inceleme dalga 8, bulgu 12).
 
 import { dersiOlc } from "@akredit/olcme";
 import { type Islem, sema } from "@akredit/vt";
 import { and, asc, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
-import { dersCiktilari, esikOku, matrisOku } from "../ders-dosyasi/index.ts";
+import { dersCiktilari, esikOku, matrisOku, onayliEslemeSatirlari, soruEslemesi } from "../ders-dosyasi/index.ts";
 import { ServisHatasi } from "../hata.ts";
 import type { PukoOlcumu } from "./index.ts";
 
@@ -68,6 +69,8 @@ export async function olcumleriHesapla(tx: Islem, kurumId: string, secimler: Puk
       ? await tx.select().from(sema.ogrenciPuani).where(inArray(sema.ogrenciPuani.olcmeAraciId, ids))
       : [];
     const soruNo = new Map(sorular.map((q) => [q.id, q.numara]));
+    const onayli = acilis ? await onayliEslemeSatirlari(tx, ders.id, acilis.id) : null;
+    const gecerli = new Set(ckler.map((c) => c.kod));
     const s = dersiOlc(
       {
         dersKodu,
@@ -83,9 +86,7 @@ export async function olcumleriHesapla(tx: Islem, kurumId: string, secimler: Puk
             .map((q) => ({
               no: q.numara,
               tamPuan: Number(q.tamPuan),
-              eslemeler: (q.ciktiEslemesi as { ciktiId: string; agirlik: number }[])
-                .filter((e) => ckKod.has(e.ciktiId))
-                .map((e) => ({ ciktiKod: ckKod.get(e.ciktiId) as string, agirlik: e.agirlik })),
+              eslemeler: soruEslemesi(q, a.ad ?? a.tur, ckKod, onayli, gecerli),
             })),
         })),
         puanlar: puanlar.map((p) => ({
