@@ -33,6 +33,10 @@ export const TABLO_SINIFI: Record<string, string | null> = {
   kimlik_api_anahtari: "hesap",
   kimlik_sso_saglayici: null,
   ogrenci_puani: "olcme",
+  // İP-43: sınav taraması. Hücre ve kararda öğrenci yalnız takma adla (HMAC); kırpıntı kanıt deposunda.
+  sinav_hucresi: "olcme",
+  sinav_hucre_karari: "olcme",
+  sinav_taramasi: "kanit",
   olcme_sonucu: "olcme",
   takma_ad: "olcme",
   kisi_anahtari: "olcme",
@@ -75,6 +79,7 @@ export const TABLO_SINIFI: Record<string, string | null> = {
   rapor: null,
   rapor_bolumu_surumu: null,
   son_tarih: null,
+  sinav_sablonu: null,
   soru: null,
   surec_ornegi: null,
   surec_tanimi: null,
@@ -101,12 +106,13 @@ const FAALIYETLER: Faaliyet[] = [
   {
     kimlik: "olcme",
     faaliyet: "Öğrenci notları ve öğrenme çıktısı ölçmesi",
-    veriKategorisi: "Öğrenci numarası (takma adla), not ve puanlar",
+    veriKategorisi: "Öğrenci numarası (takma adla), not ve puanlar, taranmış sınav kâğıdından okunan soru puanları",
     amac: "Ders ve program öğrenme çıktılarının sağlanma düzeyi",
     hukukiSebep: `Kamu görevi / hukuki yükümlülük (yükseköğretim mevzuatı, ${DOG})`,
     saklama: "Ölçme dönemi; silme talebinde kriptografik silme",
     alici: "Yok (yalnız toplu sonuç raporlanır)",
-    teknikTedbir: "HMAC takma ad, kişiye özgü anahtar ve kriptografik silme, numara şifreli",
+    teknikTedbir:
+      "HMAC takma ad, kişiye özgü anahtar ve kriptografik silme, numara şifreli; sınav kâğıdı yalnız kurum içi modelle okunur",
   },
   {
     kimlik: "anket",

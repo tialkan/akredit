@@ -29,6 +29,7 @@ export const SAYFALAR = [
   "/panel/programlar/prog-bp",
   "/panel/dersler",
   "/panel/dersler/ders-bp101",
+  "/panel/dersler/ders-bp101/tarama",
   "/panel/raporlar",
   "/panel/raporlar/rapor-odr",
   "/panel/raporlar/rapor-olcme-bp102",

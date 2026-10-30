@@ -118,18 +118,25 @@
       "idx": 16,
       "version": "7",
       "when": 1793048546894,
-      "tag": "0100_karar_bildirilen",
+      "tag": "0070_sinav_tarama",
       "breakpoints": true
     },
     {
       "idx": 17,
+      "version": "7",
+      "when": 1793048546894,
+      "tag": "0100_karar_bildirilen",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
       "version": "7",
       "when": 1793048606894,
       "tag": "0101_bologna_taslagi_insan",
       "breakpoints": true
     },
     {
-      "idx": 18,
+      "idx": 19,
       "version": "7",
       "when": 1793048666894,
       "tag": "0102_puko",

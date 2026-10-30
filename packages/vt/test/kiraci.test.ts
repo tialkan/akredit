@@ -102,7 +102,8 @@ describe("kiracı yalıtımı", () => {
       );
       // 42501: satır güvenliği ihlali. Karar ve günlük tetikleyicileri satır güvenliğinden önce çalışır ve
       // B'nin önerisini/kanonik metnini göremedikleri için 23514 ile reddeder.
-      const beklenen = t === "karar" || t === "gunluk" ? ["42501", "23514"] : ["42501"];
+      // Sınav hücre kararı tetikleyicisi (İP-43) de B'nin hücresini göremez.
+      const beklenen = t === "karar" || t === "gunluk" || t === "sinav_hucre_karari" ? ["42501", "23514"] : ["42501"];
       expect(beklenen, `${t}: ${String(hataKodu(hata))}`).toContain(hataKodu(hata));
     }
   });

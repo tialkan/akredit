@@ -67,6 +67,11 @@ export default async function DersSayfasi({ params }: { params: Promise<{ id: st
               </li>
             ))}
           </ul>
+          <p className="mt-4">
+            <Link className="text-vurgu underline underline-offset-2" href={`/panel/dersler/${ders.id}/tarama`}>
+              Taranmış sınav kâğıtlarından soru puanlarını oku
+            </Link>
+          </p>
           <div className="mt-4 border-t border-cizgi pt-4">
             <DersDosyasiPaneli dersId={ders.id} />
           </div>
