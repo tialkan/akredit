@@ -1,6 +1,6 @@
 # Güvenlik bulguları
 
-Sürüm: İP-27, 2026-10-27; açık bulgu düzeltmeleri (dal `duzeltme/acik-bulgular`), 2026-10-27; ikinci açık kalan turu (dal `duzeltme/acik-kalanlar-2`), 2026-10-30. Kaynaklar: `docs/raporlar/inceleme-dalga-1.md`, `-2.md`, `-3.md`, `inceleme-dalga-4-7.md` ve İP-27 çalışması.
+Sürüm: İP-27, 2026-10-27; açık bulgu düzeltmeleri (dal `duzeltme/acik-bulgular`), 2026-10-27; ikinci açık kalan turu (dal `duzeltme/acik-kalanlar-2`), 2026-10-30. Dalga 8 açık bulgu turu (dal `duzeltme/puko-olcum`), 2026-10-30. Kaynaklar: `docs/raporlar/inceleme-dalga-1.md`, `-2.md`, `-3.md`, `inceleme-dalga-4-7.md`, `inceleme-dalga-8.md` ve İP-27 çalışması.
 Dış sızma testi bulguları geldiğinde bu tabloya `D-xx` kimliğiyle eklenir.
 
 Önem: Kritik / Yüksek / Orta / Düşük / Bilgi. **Kural:** Kritik ya da Yüksek önemde açık bulgu varken
@@ -12,9 +12,26 @@ Dış sızma testi bulguları geldiğinde bu tabloya `D-xx` kimliğiyle eklenir.
 |---|---|---|---|
 | G-27-3 | Düşük | Üretim imajları `surumler.env`'de henüz özetle (`@sha256`) sabit değil; CI hizmet imajı yalnız kesin etiketle (`pgvector/pgvector:0.8.0-pg17`). Bu ortamdan kayıt defterine erişilemedi. | Ağ erişimli ortamda `infra/uretim/imaj-sabitle.sh`; CI imajına özet ekle |
 | G-27-4 | Düşük | Hız sınırı süreç içi bellek; çok örnekli dağıtımda örnek başına. | Caddy `rate_limit` ya da paylaşılan sayaç |
+| D8-3 | Orta | Sınav taramasında otomatik hücreler kişi görmeden ölçme aracına aktarılıyor; model doğruluğu ve 0,9 eşiği DOĞRULANMADI. | Aktarım öncesi özet onayı; pilotta ölçüm |
+| D8-4 | Orta | Sınav taraması yükleme ucu yok; numara kırpıntısı kanıt deposu yetkisiyle erişilebilir. | Uç `amac: sinav_taramasi` vermeli; kırpıntı erişimini ayrıca sınırla |
+| D8-8 | Düşük | Saha hazırlık oranının paydası model önerisi sayısına bağlı; model önerisine prova işareti konamıyor. | Oranı yalnız kurallı listeden hesapla |
+| D8-9 | Düşük | Tek cümlelik saha sorusu olgu ima edebilir. | "Model önerisi" etiketiyle ayrı göster |
+| D8-12 | Düşük | PÜKÖ hesabı eşlemeyi yalnız `soru.cikti_eslemesi`nden okur; ders dosyası akışının onaylı eşlemesi kullanılmaz (değer `null` olur). | İki eşleme kaynağını birleştir |
 | G-27-5 | Bilgi | OIDC isteğinde nonce yok (`@better-auth/sso` 1.7). PKCE + state + tek kullanımlık kod testle gösterildi. | Kütüphane desteklerse aç |
 
 Kritik ya da Yüksek önemde açık bulgu yok. Kalan doğrulama (bulgu değil): G-27-2 için `infra/kurum-ici/denetle.sh` helm'li ve Docker sunuculu bir ortamda (helm lint/template, compose ile kurulum ve eski sürümden yükseltme) bir kez çalıştırılmalı; G-27-1 için ilk hafta `AKREDIT_CSP=rapor` ile ihlal raporları izlenmeli.
+
+## Dalga 8 açık bulgu turunda kapananlar (testle, 2026-10-30, dal `duzeltme/puko-olcum`)
+
+| Kimlik | Önem | Bulgu | Düzeltme | Test |
+|---|---|---|---|---|
+| D8-1 | Yüksek | PÜKÖ ölçüm değerleri istek gövdesinden geliyordu (ilke 2); API anahtarı döngü kapatabiliyordu. | Gövde yalnız ders, dönem ve ÇK/PÇ seçer (strict, değer gelirse 400); değer kayıtlı not ve soru verisinden `@akredit/olcme` ile hesaplanır; uç yalnız oturumla. | `packages/servis/test/puko-vt.test.ts` |
+| D8-2 | Orta | Hesapsız yüklenen dosya virüs taramasından geçmiyordu. | İşçi kuyruktan önce `kanitAl` tarayıcısıyla tarar; bulguda `kanit_isleme` `hata`, günlük kaydı, kuyruk yok; tarayıcıya ulaşılamazsa sonraki tur. | `apps/isci/src/belge-istegi/belge-istegi.test.ts` |
+| D8-5 | Orta | docx/xlsx/odt/ods yalnız ZIP imzasıyla denetleniyordu. | Merkezi dizinde `[Content_Types].xml` ve ana parça; ODF'de ilk sıkıştırılmamış `mimetype` içeriği. | `packages/servis/src/belge-istegi/belge-istegi.test.ts` |
+| D8-6 | Düşük | Ağ izi yoksa hız sınırı uygulanmıyordu. | Ağ izsiz yüklemelere kurum içinde ortak saatlik sınır (20). | aynı dosya |
+| D8-7 | Düşük | Kabul kuralı tutarsızdı; `atifaUygunMu` kullanılmıyordu. | `KABUL_SONUCLARI` tek yerde; göç `0110_kabul_kurali`; rapor atıf denetimi ve ÖDR kabulsüz dış kanıtı saymaz. | aynı dosya |
+| D8-10 | Düşük | `kurumIciAdresMi` ad çözümüne ve yönlendirmeye bakmıyordu. | `kurumIciFetch`: her istekte çözülen bütün adresler özel aralıkta olmalı; yönlendirme izlenmez. | `packages/servis/src/sinav-tarama/sinav-tarama.test.ts` |
+| D8-11 | Düşük | `istemGuvenliMi` dört haneli ya da ayraçlı numarayı geçiriyordu. | Dört ve üzeri rakam, aralarında üçe kadar ayraçla yakalanır. | aynı dosya |
 
 ## İkinci açık kalan turunda kapananlar (testle, 2026-10-30, dal `duzeltme/acik-kalanlar-2`)
 
