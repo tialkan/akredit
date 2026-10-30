@@ -142,7 +142,7 @@ Durumlar: **hazır** (başlanabilir), **devam**, **inceleme**, **tamam**, **bekl
 | [08](plan/ip/IP-08-gelistirme-altyapisi.md) | Geliştirme altyapısı ve CI | 1 | inceleme | — |
 | [09](plan/ip/IP-09-kimlik-ve-yetki.md) | Kimlik doğrulama, kiracı ve yetki | 2 | tamam | 02, 07 |
 | [10](plan/ip/IP-10-kanit-hatti.md) | Kanıt hattı ve nesne deposu | 2 | tamam | 02, 03, 04 |
-| [11](plan/ip/IP-11-cerceveler.md) | Akreditasyon çerçeve kütüphanesi | 2 | inceleme | 01, araştırma |
+| [11](plan/ip/IP-11-cerceveler.md) | Akreditasyon çerçeve kütüphanesi | 2 | tamam | 01, araştırma |
 | [12](plan/ip/IP-12-servis-ve-api.md) | Servis katmanı ve API | 2 | tamam | 01, 02, 09 |
 | [13](plan/ip/IP-13-onay-ve-yetki-devri.md) | Onay kutusu arka ucu ve yetki devri | 2 | tamam | 12, 14 |
 | [14](plan/ip/IP-14-surec-motoru.md) | Süreç motoru, takvim, bildirim | 2 | tamam | 02, 12 |
@@ -150,8 +150,8 @@ Durumlar: **hazır** (başlanabilir), **devam**, **inceleme**, **tamam**, **bekl
 | [16](plan/ip/IP-16-ders-dosyasi.md) | Ders dosyası ve ölçme raporu | 3 | tamam | 04, 05, 06, 12, 13 |
 | [17](plan/ip/IP-17-anketler.md) | Anket modülü | 3 | tamam | 02, 03, 09, 14 |
 | [18](plan/ip/IP-18-toplanti-asistani.md) | Toplantı ve karar asistanı | 3 | tamam | 03, 14 |
-| [19](plan/ip/IP-19-program-odr.md) | Program öz değerlendirme ve ÖDR | 4 | inceleme | 11, 12, 16, 17 |
-| [20](plan/ip/IP-20-kidr-bidr.md) | BİDR, KİDR, olgunluk değerlendirmesi | 4 | inceleme | 11, 12, 14 |
+| [19](plan/ip/IP-19-program-odr.md) | Program öz değerlendirme ve ÖDR | 4 | tamam | 11, 12, 16, 17 |
+| [20](plan/ip/IP-20-kidr-bidr.md) | BİDR, KİDR, olgunluk değerlendirmesi | 4 | tamam | 11, 12, 14 |
 | [21](plan/ip/IP-21-gostergeler.md) | Göstergeler ve stratejik plan | 4 | tamam | 05, 12 |
 | [22](plan/ip/IP-22-degerlendirici-portali.md) | Değerlendirici portalı, sanal kanıt odası | 4 | tamam | 09, 10, 12 |
 | [23](plan/ip/IP-23-baglayicilar-2.md) | Bağlayıcılar II (AVESİS, YÖK Atlas, UBYS, EBYS, e-posta, bulut) | 4 | inceleme | 05, 10 |
@@ -163,20 +163,20 @@ Durumlar: **hazır** (başlanabilir), **devam**, **inceleme**, **tamam**, **bekl
 | [29](plan/ip/IP-29-belgeler-egitim.md) | Kullanıcı belgeleri ve eğitim | 5 | inceleme | 07+ |
 | [30](plan/ip/IP-30-pilot.md) | Pilot ve iş yükü ölçümü | 5 | bekliyor | Faz 3 |
 | [31](plan/ip/IP-31-erisilebilirlik-performans.md) | Erişilebilirlik ve performans | 5 | tamam | 07, 12 |
-| [32](plan/ip/IP-32-kiyaslama.md) | Kurumlar arası kıyaslama | 6 | inceleme | 20, 21 |
-| [33](plan/ip/IP-33-mobil-onay.md) | Mobil onay ve bildirim | 6 | inceleme | 13 |
+| [32](plan/ip/IP-32-kiyaslama.md) | Kurumlar arası kıyaslama | 6 | tamam | 20, 21 |
+| [33](plan/ip/IP-33-mobil-onay.md) | Mobil onay ve bildirim | 6 | tamam | 13 |
 | [34](plan/ip/IP-34-kurum-ici-kurulum.md) | Kurum içi kurulum ve yerel model | 6 | inceleme | 26 |
-| [35](plan/ip/IP-35-kurum-acilisi.md) | Kurum açılışı, kurulum sihirbazı, kurum anahtarı fabrikası | 6 | inceleme | 09, 12, 23 |
-| [36](plan/ip/IP-36-isci-calisma.md) | İşçi giriş noktası, zamanlanmış işler, gerçek veri kipi | 6 | inceleme | 10, 14, 35 |
-| [37](plan/ip/IP-37-arastirma-ve-paket.md) | Web araştırma, Bologna eksik giderme, Word paketi | 7 | inceleme | 03, 10, 15, 16 |
-| [38](plan/ip/IP-38-sessiz-devir.md) | Sessiz devir ve kaynağa geri yazma | 7 | inceleme | 15, 37 |
-| [39](plan/ip/IP-39-karar-katmanlari.md) | Üç katmanlı karar modeli, karar kartları, kendini kapatan PÜKÖ | 7 | inceleme | 13, 14 |
-| [40](plan/ip/IP-40-sifir-kisisel-veri.md) | Sıfır kişisel veri çıkışı, KVKK envanteri, hukuk paketi | 7 | inceleme | 03, 28 |
-| [41](plan/ip/IP-41-ornek-universite.md) | Sentetik Örnek Üniversitesi demosu | 7 | inceleme | 12 |
-| [42](plan/ip/IP-42-site-metni.md) | Site metni: güçlü vaat, dört rol, pilot başvurusu | 7 | inceleme | 07 |
+| [35](plan/ip/IP-35-kurum-acilisi.md) | Kurum açılışı, kurulum sihirbazı, kurum anahtarı fabrikası | 6 | tamam | 09, 12, 23 |
+| [36](plan/ip/IP-36-isci-calisma.md) | İşçi giriş noktası, zamanlanmış işler, gerçek veri kipi | 6 | tamam | 10, 14, 35 |
+| [37](plan/ip/IP-37-arastirma-ve-paket.md) | Web araştırma, Bologna eksik giderme, Word paketi | 7 | tamam | 03, 10, 15, 16 |
+| [38](plan/ip/IP-38-sessiz-devir.md) | Sessiz devir ve kaynağa geri yazma | 7 | tamam | 15, 37 |
+| [39](plan/ip/IP-39-karar-katmanlari.md) | Üç katmanlı karar modeli, karar kartları, kendini kapatan PÜKÖ | 7 | tamam | 13, 14 |
+| [40](plan/ip/IP-40-sifir-kisisel-veri.md) | Sıfır kişisel veri çıkışı, KVKK envanteri, hukuk paketi | 7 | tamam | 03, 28 |
+| [41](plan/ip/IP-41-ornek-universite.md) | Sentetik Örnek Üniversitesi demosu | 7 | tamam | 12 |
+| [42](plan/ip/IP-42-site-metni.md) | Site metni: güçlü vaat, dört rol, pilot başvurusu | 7 | tamam | 07 |
 | [43](plan/ip/IP-43-sinav-kagidi-taramasi.md) | Toplu sınav kağıdı taraması (yerel model) | 8 | inceleme | 10, 06 |
-| [44](plan/ip/IP-44-cumleden-kanita.md) | Cümleden kanıta tek tık, rapor dil denetimi | 8 | bekliyor | 19, 20 |
-| [45](plan/ip/IP-45-hesapsiz-belge-isteme.md) | İdari birimlerden hesapsız belge isteme | 8 | inceleme | 10, 14 |
+| [44](plan/ip/IP-44-cumleden-kanita.md) | Cümleden kanıta tek tık, rapor dil denetimi | 8 | hazır | 19, 20 |
+| [45](plan/ip/IP-45-hesapsiz-belge-isteme.md) | İdari birimlerden hesapsız belge isteme | 8 | tamam | 10, 14 |
 | [46](plan/ip/IP-46-toplantidan-tutanaga.md) | Toplantıdan tutanağa ve EBYS taslağına akış | 8 | bekliyor | 18, 23 |
 | [47](plan/ip/IP-47-program-akreditasyonu-tablolari.md) | Program akreditasyonu tablo dönüştürücüsü | 8 | bekliyor | 11, 19 |
 | [48](plan/ip/IP-48-saha-ziyareti-hazirligi.md) | Saha ziyareti hazırlık simülatörü | 8 | inceleme | 22 |

@@ -1,6 +1,6 @@
 # İP-44: Cümleden kanıta tek tık inceleme ve rapor dil denetimi
 
-- **Durum:** bekliyor
+- **Durum:** hazır
 - **Faz:** 8
 - **Bağımlılık:** İP-19, İP-20 (ikisi de incelemede)
 - **Sahip olduğu yollar:** `packages/cekirdek/src/rapor/**`, `apps/web/src/app/panel/raporlar/**`, `apps/web/src/app/degerlendirici/kanit/**`, `packages/servis/src/rapor.ts`, `docs/raporlar/IP-44.md`
@@ -28,3 +28,4 @@
 ## Günlük
 
 - 2026-10-29: İP dosyası yazıldı. İP-19 ve İP-20 incelemeden çıkınca hazır olur.
+- 2026-10-30 (inceleme kapanışı, dal `inceleme/kapanis`): Bağımlılıklar İP-19 ve İP-20 tamam oldu (inceleme kapanışı). Durum hazır.

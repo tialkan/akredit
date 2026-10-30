@@ -1,6 +1,6 @@
 # İP-36: İşçinin üretimde kendi kendine çalışması
 
-- **Durum:** inceleme
+- **Durum:** tamam
 - **Faz:** 6
 - **Bağımlılık:** İP-10, İP-14, İP-23, İP-26, İP-35
 - **Sahip olduğu yollar:** `apps/isci/src/ana.ts`, `apps/isci/src/calisma/**`, `apps/isci/src/arama.ts`, `apps/isci/test/**`, `apps/isci/package.json`, `packages/vt/src/gocler/0010_isci.sql`, `infra/gelistirme/isci-uctan-uca.sh`, `infra/gelistirme/isci.Dockerfile`, `infra/gelistirme/docker-compose.yml` (işçi hizmeti), `infra/uretim/isci.Dockerfile`, işçi bölümleri: `infra/uretim/docker-compose.yml`, `infra/kurum-ici/docker-compose.yml`, `infra/kurum-ici/helm/akredit/**`, `apps/web/src/veri/kip.ts`, `apps/web/next.config.ts` (veri kipi), `apps/web/src/site/icerik.ts` (durum notları), `docs/raporlar/IP-36.md`
@@ -39,3 +39,4 @@
 - Karar: Bologna/AVESİS/YÖK Atlas verisi JSON kanıt olur; okuma zamanı içerikten çıkarılıp kaynak ayrıntısına yazılır, böylece değişmeyen veri yeni kanıt üretmez.
 - Karar: SMTP yoksa e-postalar bekletilir (motorun yeniden deneme kuralı), uygulama içi bildirim sürer.
 - Kalan: panelden bağlayıcı açma ve toplu belge yükleme ekranları (web), OAuth onay akışı, AVESİS/Bologna canlı pilot, OpenTelemetry SDK.
+- 2026-10-30 (inceleme kapanışı, dal `inceleme/kapanis`): Bağımsız inceleme. `apps/isci/src/calisma/yapilandirma.test.ts`, `apps/isci/src/calisma/isci.test.ts`, `apps/isci/test/uctan-uca.ts` yerinde. Açık inceleme bulgusu yok. `pnpm check` ve `pnpm typecheck` temiz, bütün paket testleri sıralı koşuda geçti. Durum tamam. Kalan (ölçüt dışı): bağlayıcı açma ekranları, OAuth onay akışı, OpenTelemetry SDK.

@@ -1,6 +1,6 @@
 # İP-40: Sıfır kişisel veri çıkışı, KVKK veri akış envanteri, hukuk paketi
 
-- **Durum:** inceleme
+- **Durum:** tamam
 - **Faz:** 7 (dalga 1)
 - **Bağımlılık:** İP-03, İP-28
 - **Sahip olduğu yollar:** `packages/yz/src/guvence/kvkk.ts`, `packages/yz/src/guvence/cikis-kapisi.ts`, `packages/yz/src/guvence/politika.ts`, `packages/yz/src/saglayicilar/**` (yalnız kapı denetimi), `packages/yz/src/web-arama/index.ts` (yalnız kapı denetimi), `packages/yz/src/envanter.ts`, `packages/yz/test/cikis-kapisi.test.ts`, `packages/yz/test/envanter.test.ts`, `packages/vt/src/kriptografik-silme.ts`, `packages/vt/src/gocler/0040_kriptografik_silme.sql`, `packages/vt/test/kriptografik-silme.test.ts`, `docs/hukuk/veri-akis-envanteri.md`, `docs/hukuk/kurum-paketi/**`, `apps/web/scripts/hukuk-paketi.ts`, `apps/web/scripts/veri-akis-envanteri.ts`, `apps/web/public/indir/**`, `apps/web/src/app/panel/ayarlar/veri-akisi/**`, `apps/web/src/app/(site)/kvkk/page.tsx`, `docs/raporlar/IP-40.md`
@@ -35,3 +35,4 @@ Kurum dışına ya da yurt dışına giden her yapay zekâ çağrısında kişis
 - Karar: etiketsiz 8-12 haneli sayılar varsayılan olarak maskelenir (eski iki test beklentisi bu yönde sıkılaştı).
 - Ortak dosya: `packages/servis/src/politika.ts` (bağlantı denemesi kapıdan geçer), `packages/servis/test/yz-fabrika.test.ts`, `apps/web/package.json` (iki betik), `docs/hukuk/README.md`.
 - Kalan: çıkış kayıtlarının günlüğe bağlanması (servis/işçi), silme talebi ekranı ve ana anahtar yönetimi, `apps/cli` model çağrısının kapıya taşınması, yetki devri yönergesi taslağı, avukat incelemesi. Ayrıntı: `docs/raporlar/IP-40.md`.
+- 2026-10-30 (inceleme kapanışı, dal `inceleme/kapanis`): Bağımsız inceleme. `packages/yz/test/cikis-kapisi.test.ts`, `apps/web/src/veri/veri-akisi.test.ts` (envanter güncellik), `packages/vt/test/kriptografik-silme.test.ts` › "anahtar silinince şifreli değer çözülemez; günlük yalnız uzar, zincir sağlam". Dalga 4-7'de sorun bulunmadı. `pnpm check` ve `pnpm typecheck` temiz, bütün paket testleri sıralı koşuda geçti. Durum tamam. Hukuk paketi TASLAK; avukat incelemesi İP-28'de bekliyor.

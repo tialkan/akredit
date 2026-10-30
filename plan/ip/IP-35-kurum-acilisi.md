@@ -1,6 +1,6 @@
 # İP-35: Kurum açılışı (self-servis), kurulum sihirbazı ve kurum anahtarıyla YZ
 
-- **Durum:** inceleme
+- **Durum:** tamam
 - **Faz:** 6
 - **Bağımlılık:** İP-03, İP-09, İP-12, İP-32
 - **Sahip olduğu yollar:** `packages/servis/src/kurum-acilisi.ts`, `packages/servis/src/kurulum/**`, `packages/servis/src/yz-fabrika.ts`, `packages/vt/src/gocler/0009_kurum_acilisi.sql`, `packages/vt/src/sema/kurulum.ts`, `apps/web/src/kimlik/kurum-acilisi.ts`, `apps/web/src/kimlik/kurulum-uclari.ts`, `apps/web/src/app/(site)/kurum-ac/**`, `apps/web/src/app/kurulum/**`, `apps/web/src/app/panel/birimler/**`, `apps/web/src/app/api/kurum-acilisi/**`, `apps/web/src/app/api/kurulum/**`, `apps/web/e2e/kurulum.spec.ts`, `apps/web/e2e/yardim/**`, `docs/raporlar/IP-35.md`
@@ -42,3 +42,4 @@ Bir kurumun hiçbir teknik yardım almadan Akredit'i açıp hocaların işini s�
   - Karar: Bologna okuması SSRF'e karşı yalnız https ve kamuya açık adres; yerel örnek sunucu yalnız `AKREDIT_TEST_KIPI=1` ve `AKREDIT_BOLOGNA_YEREL_IZIN=1` ile.
   - Karar: hocalar program kapsamında `ogretim_elemani` olarak davet edilir (ders kapsamı ayrı davet gerektirirdi).
   - Kalan: işçinin süreç girişi (pg-boss ile `kanitHattiniBaslat` çağrısı) depoda yok; bağlanırken `kurumFabrikasi` verilmeli. Bologna sayfaları program ve birim adını vermediği için bu adları yönetici yazar.
+- 2026-10-30 (inceleme kapanışı, dal `inceleme/kapanis`): Bağımsız inceleme. Ölçütlerdeki testler yerinde: `packages/servis/test/yz-fabrika.test.ts`, `packages/servis/test/kurulum.test.ts`, `packages/vt/test/kurum-acilisi.test.ts`, `apps/web/e2e/kurulum.spec.ts`, `packages/kiyaslama/test/kiyaslama.test.ts`. Dalga 4-7 açık #1 (yurt dışı izni imzasız açılabiliyordu) ve #7 (bozuk öğrenci no deseni) kapalı. `pnpm check` ve `pnpm typecheck` temiz, bütün paket testleri sıralı koşuda geçti. Durum tamam.

@@ -20,7 +20,7 @@
 
 - [ ] Kritik ve yüksek bulgu kalmadan üretime çıkılmaz.
 - [ ] Kiracı yalıtımı sızma testinde ayrıca sınanır.
-- [ ] `pnpm verify` temiz.
+- [x] `pnpm verify` temiz.
 
 ## Notlar
 
@@ -42,3 +42,4 @@ Sızma testi bir hizmet alımıdır (kullanıcı listesi).
   testle gösterildi, bilgi düzeyinde kabul edildi. Kabul ölçütlerinden "kritik/yüksek bulgu kalmadan
   üretime çıkılmaz" kural olarak `docs/guvenlik/README.md`'ye yazıldı; "kiracı yalıtımı sızma testinde
   ayrıca sınanır" dış denetim kapsamına zorunlu bölüm olarak kondu, sınama insan işine bağlı.
+- 2026-10-30 (inceleme kapanışı, dal `inceleme/kapanis`): Bağımsız inceleme. `pnpm verify` adımları temiz (ölçüt 3 işaretlendi). Açık bulgular: G-27-3 (düşük, imaj özeti), G-27-4 (düşük), D8-3, D8-4 (orta, İP-43), D8-8 kısmen, D8-9, D8-12 (düşük); kritik ya da yüksek açık bulgu yok. İnsan bekleyen: bağımsız sızma testi hizmet alımı (kiracı yalıtımı zorunlu bölüm, `docs/guvenlik/dis-denetim-kapsami.md`) ve bulguların kapatılması. Durum inceleme.

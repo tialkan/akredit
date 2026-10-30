@@ -33,3 +33,4 @@ Program akreditasyon kuruluşları öz değerlendirme raporunda belirli tablolar
 ## Günlük
 
 - 2026-10-29: İP dosyası yazıldı. İP-11 ve İP-19 incelemeden çıkınca ve resmî belgeler gelince hazır olur.
+- 2026-10-30 (inceleme kapanışı, dal `inceleme/kapanis`): Kod bağımlılıkları İP-11 ve İP-19 tamam oldu. Durum bekliyor kalır: bu İP'nin kendi ön koşulu olan MÜDEK, FEDEK, EPDAD ve SABAK resmî ÖDR kılavuzları ve tablo şablonları `kaynaklar/resmi/` altında yok (insan işi). Belgeler gelince hazır yapılır.

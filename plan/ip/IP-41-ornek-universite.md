@@ -1,6 +1,6 @@
 # İP-41: Sentetik Örnek Üniversitesi demosu
 
-- **Durum:** inceleme
+- **Durum:** tamam
 - **Faz:** 7
 - **Bağımlılık:** İP-12 (servis ve API), İP-09 (kimlik), İP-07 (web), İP-36 (işçi)
 - **Sahip olduğu yollar:** `packages/ornek-veri/**`, `packages/vt/src/gocler/0050_demo.sql` (+ `meta/_journal.json` satırı), `packages/vt/src/sema/demo.ts` (+ `sema/index.ts` dışa aktarım satırı), `apps/web/src/demo/**`, `apps/web/src/app/(site)/deneyin/**`, `apps/web/src/app/api/deneyin/**`, `apps/web/e2e/deneyin.spec.ts`, `apps/isci/src/demo/**`, `docs/raporlar/IP-41.md`. En küçük değişiklik: `apps/web/src/kimlik/erisim.ts` (demo bağlamı), `apps/web/src/kimlik/sunucu.ts` (demo adresine e-posta yok), `apps/web/src/app/panel/layout.tsx` (şerit ve tur), site menüsü ve ana sayfaya "Deneyin" bağlantısı, `apps/isci/src/calisma/isci.ts` (zamanlama satırı), `infra/coolify/docker-compose.yml` (ortam değişkeni), `pnpm-lock.yaml`.
@@ -38,3 +38,4 @@ akredit.org'u ziyaret eden biri hesap açmadan, üç dakikada sistemi gerçekten
 - Karar: iki saat sınırı `kimlik_uyelik.demo_bitis` ile zorlanır (Better Auth oturumu kendiliğinden uzayabildiği için); izinler `DEMO_EYLEMLERI` ile kesişir; yönetim işlevleri demo oturumunu reddeder.
 - Karar: hiçbir gerçek kurum adı ya da logosu kullanılmaz (pilot kurum dahil); demo "Örnek Üniversitesi" kalır.
 - Kalan: eski nesillerin arşivlenmesi, dağıtık hız sınırı, `/deneyin`in sitemap'e eklenmesi (İP-42). Ayrıntı: `docs/raporlar/IP-41.md`.
+- 2026-10-30 (inceleme kapanışı, dal `inceleme/kapanis`): Bağımsız inceleme. `packages/ornek-veri/test/uret.test.ts`, `yukle.test.ts`, `apps/web/src/demo/demo.test.ts` (dalga 4-7 düzeltme 2: XFF hız sınırı), e2e `deneyin.spec.ts`. `pnpm check` ve `pnpm typecheck` temiz, bütün paket testleri sıralı koşuda geçti. Durum tamam.
