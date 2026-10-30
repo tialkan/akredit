@@ -23,8 +23,8 @@ const ILK = [sec("BP101"), sec("BP102"), sec("BP104")];
  * ÇK başarısı = öğrenci puanlarının ortalaması: (a + b) / 2. Örn. 30 ve 50 → 40. PÇ3'e katkılı tek ÇK olduğundan
  * PÇ3 sağlanması ÇK başarısına eşittir.
  */
-async function dersKaydet(kod: string, donemAd: string, puanlar: [number, number]) {
-  await kiraciIslemi(o.db, o.a.kurumId, async (tx) => {
+async function dersKaydet(kod: string, donemAd: string, puanlar: [number, number], soruEslemesi = true) {
+  return kiraciIslemi(o.db, o.a.kurumId, async (tx) => {
     let [d] = await tx.select().from(sema.ders).where(eq(sema.ders.kod, kod));
     if (!d) {
       [d] = await tx
@@ -88,7 +88,7 @@ async function dersKaydet(kod: string, donemAd: string, puanlar: [number, number
         olcmeAraciId: arac?.id as string,
         numara: "1",
         tamPuan: "100",
-        ciktiEslemesi: [{ ciktiId: c?.id, agirlik: 1 }],
+        ciktiEslemesi: soruEslemesi ? [{ ciktiId: c?.id, agirlik: 1 }] : [],
       })
       .returning();
     await tx.insert(sema.ogrenciPuani).values(
@@ -100,6 +100,7 @@ async function dersKaydet(kod: string, donemAd: string, puanlar: [number, number
         puan: String(p),
       })),
     );
+    return { dersId, acilisId: ac?.id as string };
   });
 }
 
@@ -240,5 +241,66 @@ describe("PÜKÖ kalıcı depo ve uçlar", () => {
     const p = await puko.pukoPaneli(b);
     expect(p.kartlar).toHaveLength(1);
     expect(p.kartlar[0]?.oncekiPukoId).toBeTruthy();
+  });
+});
+
+describe("inceleme dalga 8, bulgu 12: ders dosyası akışının onaylı eşlemesi", () => {
+  /** Ders dosyası akışının eşleme önerisi (soruya yazılmaz). Araç adı yoksa türü ad olarak kullanılır. */
+  async function eslemeOnerisi(dersId: string, acilisId: string, karar: "onaylandi" | "reddedildi" | null) {
+    await kiraciIslemi(o.db, o.a.kurumId, async (tx) => {
+      const [on] = await tx
+        .insert(sema.oneri)
+        .values({
+          kurumId: o.a.kurumId,
+          tur: "soru_cikti_eslemesi",
+          hedefTuru: "ders",
+          hedefId: dersId,
+          icerik: {
+            baslik: "Soru-çıktı eşlemesi",
+            metin: "yariyil_sonu S1: ÖÇ1",
+            dersAcilisiId: acilisId,
+            araclar: [{ ad: "yariyil_sonu", tur: "yariyil_sonu", sorular: [{ no: "1" }] }],
+            ckKodlari: ["ÖÇ1"],
+            satirlar: [
+              { aracAdi: "yariyil_sonu", aracTur: "yariyil_sonu", soruNo: "1", ckKodlari: ["ÖÇ1"], kaynak: "insan" },
+            ],
+          },
+          gerekce: "Örnek veri.",
+          ureticiTuru: "kisi",
+          uretici: { kisiId: o.a.yonetici },
+          risk: "orta",
+        })
+        .returning();
+      if (karar)
+        await tx.insert(sema.karar).values({
+          kurumId: o.a.kurumId,
+          oneriId: on?.id as string,
+          sonuc: karar,
+          kararVerenKisiId: o.a.yonetici,
+          dayanak: "dogrudan",
+          ...(karar === "reddedildi" ? { gerekce: "Eşleme yanlış." } : {}),
+        });
+    });
+  }
+
+  it("soruda eşleme yoksa onaylı eşleme önerisi kullanılır; kararsız ya da reddedilmiş öneri kullanılmaz", async () => {
+    const { olcumleriHesapla } = await import("../src/puko/olcum-hesabi.ts");
+    // Üç ders, soruları eşlemesiz; puanlar 20 ve 60, tek soru tam puan 100.
+    const onayli = await dersKaydet("BP120", GUZ, [20, 60], false);
+    const kararsiz = await dersKaydet("BP121", GUZ, [20, 60], false);
+    const red = await dersKaydet("BP122", GUZ, [20, 60], false);
+    await eslemeOnerisi(onayli.dersId, onayli.acilisId, "onaylandi");
+    await eslemeOnerisi(kararsiz.dersId, kararsiz.acilisId, null);
+    await eslemeOnerisi(red.dersId, red.acilisId, "reddedildi");
+    const s = await kiraciIslemi(o.db, o.a.kurumId, (tx) =>
+      olcumleriHesapla(tx, o.a.kurumId, [sec("BP120", GUZ), sec("BP121", GUZ), sec("BP122", GUZ)]),
+    );
+    // BP120: ÖÇ1 başarısı (20 + 60) / 2 = 40; PÇ3'e katkılı tek ÇK olduğundan PÇ3 = 40.
+    // BP121 ve BP122: eşleme yok, PÇ3 hesaplanamaz (null).
+    expect(s.map((x) => [x.dersKodu, x.deger])).toEqual([
+      ["BP120", 40],
+      ["BP121", null],
+      ["BP122", null],
+    ]);
   });
 });

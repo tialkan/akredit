@@ -1,9 +1,11 @@
-// Toplu sınav kâğıdı taraması (İP-43). Dört tablo da yalnız eklenir (göç 0070 tetikleyicileri).
+// Toplu sınav kâğıdı taraması (İP-43). Bütün tablolar yalnız eklenir (göç 0070 ve 0120 tetikleyicileri).
 //
 // - `sinav_sablonu`: soru kutularının yeri; ölçme aracına bağlı. Yeni sürüm yeni satırdır.
 // - `sinav_taramasi`: bir yükleme (kanıt) ve onu okuyan yerel model.
 // - `sinav_hucresi`: her kâğıdın her hücresi için okuma: değer, güven, durum, nedenler. Öğrenci yalnız takma adla.
-// - `sinav_hucre_karari`: onay kuyruğundaki hücreye kişinin kararı (Katman 2, yalnız doğrudan).
+// - `sinav_hucre_karari`: onay kuyruğundaki hücreye kişinin kararı (Katman 2, yalnız doğrudan) ya da otomatik
+//   okunan hücrenin düzeltmesi.
+// - `sinav_tarama_istegi`, `sinav_tarama_istegi_sonucu`, `sinav_ozet_onayi`: göç 0120 (aşağıda).
 //
 // Öğrenci numarası hiçbir sütuna yazılmaz; görüntü kırpıntısı kanıt deposunda, burada yalnız özeti durur.
 
@@ -98,4 +100,68 @@ export const sinavHucreKarari = pgTable(
     check("sinav_hucre_karari_sonuc", sql`${t.sonuc} in ('onaylandi', 'duzeltildi')`),
     check("sinav_hucre_karari_dayanak", sql`${t.dayanak} = 'dogrudan'`),
   ],
+);
+
+// Göç 0120: panelden yükleme isteği, sonucu ve aktarım öncesi özet onayı. Üçü de yalnız eklenir.
+
+/** Panelden yüklenen tarama dosyası; işçi `kanitAl` ile kanıt olarak alır ve taramayı çalıştırır. */
+export const sinavTaramaIstegi = pgTable("sinav_tarama_istegi", {
+  id: kimlik(),
+  kurumId: kurumIdSutunu(),
+  olcmeAraciId: uuid("olcme_araci_id")
+    .notNull()
+    .references(() => olcmeAraci.id),
+  depoAnahtari: text("depo_anahtari").notNull(),
+  ozet: text("ozet").notNull(),
+  dosyaAdi: text("dosya_adi").notNull(),
+  mime: text("mime").notNull(),
+  boyut: integer("boyut").notNull(),
+  esik: real("esik"),
+  isteyenKisiId: uuid("isteyen_kisi_id")
+    .notNull()
+    .references(() => kisi.id),
+  olusturma: olusturma(),
+});
+
+/** İsteğin sonucu, istek başına bir kez: `tamam` (tarama) ya da `hata` (Türkçe ileti). */
+export const sinavTaramaIstegiSonucu = pgTable(
+  "sinav_tarama_istegi_sonucu",
+  {
+    id: kimlik(),
+    kurumId: kurumIdSutunu(),
+    istekId: uuid("istek_id")
+      .notNull()
+      .references(() => sinavTaramaIstegi.id),
+    durum: text("durum").notNull(),
+    kanitId: uuid("kanit_id").references(() => kanit.id),
+    taramaId: uuid("tarama_id").references(() => sinavTaramasi.id),
+    ileti: text("ileti"),
+    olusturma: olusturma(),
+  },
+  (t) => [unique("sinav_tarama_istegi_sonucu_tekil").on(t.istekId)],
+);
+
+/**
+ * Otomatik okunan hücrelerin aktarımdan önce kişiye gösterilen özetinin onayı (Katman 1, yalnız doğrudan).
+ * `ozet`, onaylanan hücrelerin (kimlik ve değer) SHA-256 özetidir: kişinin gördüğü küme ile aktarılan aynıdır.
+ */
+export const sinavOzetOnayi = pgTable(
+  "sinav_ozet_onayi",
+  {
+    id: kimlik(),
+    kurumId: kurumIdSutunu(),
+    taramaId: uuid("tarama_id")
+      .notNull()
+      .references(() => sinavTaramasi.id),
+    otomatikSayisi: integer("otomatik_sayisi").notNull(),
+    ozet: text("ozet").notNull(),
+    katman: smallint("katman").notNull().default(1),
+    kural: text("kural").notNull(),
+    dayanak: text("dayanak").notNull().default("dogrudan"),
+    onaylayanKisiId: uuid("onaylayan_kisi_id")
+      .notNull()
+      .references(() => kisi.id),
+    zaman: zaman("zaman").notNull().defaultNow(),
+  },
+  (t) => [unique("sinav_ozet_onayi_tekil").on(t.taramaId)],
 );

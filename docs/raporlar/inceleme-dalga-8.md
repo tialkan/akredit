@@ -26,13 +26,16 @@ Her düzeltmenin testi düzeltmeden önce başarısızdı. Numaralar aşağıdak
 
 Doğrulama: `pnpm check` temiz (yalnız önceden var olan 17 uyarı), `pnpm typecheck` temiz, testler: servis 439, işçi 65, vt 70, web 298; hepsi geçti.
 
+## İP-43 bağlantı turunda kapananlar (dal `ip/43-baglanti`, 2026-10-30)
+
+3. Orta, kapandı: otomatik hücreler aktarımdan önce tek ekranlık özette gösterilir; aktarım özet onayıyla (Katman 1, doğrudan, tek dokunuş) yapılır, gönderilen özet ekrandaki kümeyle aynı olmalıdır. Kişi otomatik hücreyi açıp düzeltebilir. Onay `sinav_ozet_onayi` tablosuna ve günlüğe yazılır; sonra karar girmez. Eşik ve el yazısı doğruluğu pilotta ölçülecek (DOĞRULANMADI).
+4. Orta, kapandı: yükleme ucu `/panel/dersler/[id]/tarama/yukle` dosyayı depoya koyar ve istek yazar; işçi `kanitAl` ile `amac: sinav_taramasi` verir (kuyruk `sinav.tarama`). Numara kırpıntısına tek yol `kirpintiBaglantisi`: tarama sahibi ve onay yetkilisi, 30 gün, 5 dakikalık bağlantı, günlükte.
+12. Düşük, kapandı: PÜKÖ ve tarama ölçmesi soruda eşleme yoksa ders dosyası akışının onaylı eşlemesini kullanır.
+
 ## Açık bulgular (önem sırasıyla)
 
-3. Orta: İP-43, otomatik hücreler kişi görmeden ölçme aracına aktarılıyor. Eşik üstü ve artık metinle eşleşen okuma Katman 0'dır; `puanlariAktar` kişi çağrısıdır ama otomatik hücreleri tek tek göstermez. Yerel modelin el yazısı doğruluğu ve 0,9 eşiği DOĞRULANMADI; pilotta ölçülmeden aktarım öncesi özet onayı (otomatik hücre sayısı ve örneklem) önerilir.
-4. Orta: İP-43, HTTP yükleme ucu ve kuyruk kaydı henüz yok. Bu incelemede eklenen sözleşmeye göre gelecekteki yükleme ucu `kaynakAyrinti: { amac: "sinav_taramasi" }` vermeli; vermezse iş dosyayı reddeder (güvenli yön). Numara kutusunun kırpıntı görüntüsü (açık numara) kanıt deposunda durur; erişimi kanıt deposu yetkisine bağlıdır, ayrıca sınırlanmalı.
 8. Düşük: İP-48, model önerileri hazırlık oranının paydasına giriyor. Oran kurallı hesaplanır ama öneri sayısı modelden gelir; oranı modelin önerdiği soru sayısı değiştirir. Ayrıca `provaIsaretle` listeyi modelsiz kurduğu için model önerisi soruya prova işareti konamaz ("Bu soru listede yok").
 9. Düşük: İP-48, tek cümlelik soru olgu ima edebilir ("kurulun haftalık toplantıları nasıl belgeleniyor?"). Sayı, atıf ve cevap izi yok; kuralla yakalanmaz. Ekranda "model önerisi" etiketiyle ayrı gösterilmesi yeterli olabilir.
-12. Düşük (yeni, bulgu 1'in sınırı): PÜKÖ hesabı soru-çıktı eşlemesini `soru.cikti_eslemesi`nden okur. Ders dosyası akışı eşlemeyi onaylı öneriden alır ve soruya yazmaz; o akıştan gelen derslerde ÇK eşlemesi boşsa değer `null` (hesaplanamadı) olur, kart açılmaz. İki eşleme kaynağının birleştirilmesi önerilir.
 
 ## PÜKÖ ve göç 0100-0102 için olumlu bulgular
 

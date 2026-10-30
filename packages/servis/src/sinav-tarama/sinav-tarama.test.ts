@@ -2,6 +2,7 @@
 // model. Uçtan uca akış `apps/isci/src/sinav-tarama/sinav-tarama.test.ts` içindedir. Numaralar uydurmadır.
 
 import { readdirSync, readFileSync } from "node:fs";
+import { zorunluKararDenetle } from "@akredit/cekirdek";
 import { sahteSaglayici } from "@akredit/yz";
 import { describe, expect, it } from "vitest";
 import { ServisHatasi } from "../hata.ts";
@@ -12,9 +13,13 @@ import {
   kagitlaraBol,
   metindeSayiVarMi,
   numarayiOku,
+  OZET_KATMANI,
   okuyucuKur,
   ortamdanYerelModel,
+  otomatikOzet,
   Sablon,
+  taramaDosyaTuru,
+  yerelModelDurumu,
   yerelOkuyucuKur,
 } from "./index.ts";
 
@@ -296,5 +301,57 @@ describe("yalnız kurum içi model", () => {
       expect(kod, ad).not.toMatch(/kurumSaglayicisi|politikaUygula|anthropic\(|hazir:\s*"(openrouter|openai|evren)"/u);
       expect(kod, ad).not.toMatch(/yurtDisiIzin:\s*true|kip:\s*"yurt_disi"|fetch\(/u);
     }
+  });
+});
+
+describe("bağlantı: yükleme türü, form durumu, aktarım özeti", () => {
+  it("dosya türü içerikten bulunur; ad ya da bildirilen tür dikkate alınmaz", () => {
+    const b = (...x: number[]) => new Uint8Array([...x, 0, 0, 0, 0]);
+    expect(taramaDosyaTuru(new TextEncoder().encode("%PDF-1.7\n"))?.tur).toBe("pdf");
+    expect(taramaDosyaTuru(b(0x50, 0x4b, 0x03, 0x04))?.tur).toBe("zip");
+    expect(taramaDosyaTuru(b(0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a))?.mime).toBe("image/png");
+    expect(taramaDosyaTuru(b(0xff, 0xd8, 0xff, 0xe0))?.tur).toBe("jpeg");
+    expect(taramaDosyaTuru(b(0x49, 0x49, 0x2a, 0x00))?.tur).toBe("tiff");
+    expect(taramaDosyaTuru(b(0x4d, 0x4d, 0x00, 0x2a))?.tur).toBe("tiff");
+    expect(taramaDosyaTuru(new TextEncoder().encode("<html>"))).toBeNull();
+    expect(taramaDosyaTuru(new Uint8Array())).toBeNull();
+  });
+
+  it("yerel model yoksa ya da kurum dışındaysa form kapalı ve nedeni Türkçe söylenir", () => {
+    expect(yerelModelDurumu({})).toMatchObject({ acik: false, ileti: expect.stringMatching(/kurum içinde/u) });
+    expect(
+      yerelModelDurumu({
+        AKREDIT_YZ_HAZIR: "ollama",
+        AKREDIT_YZ_ADRES: "https://openrouter.ai/api/v1",
+        AKREDIT_YZ_MODEL: "m",
+      }),
+    ).toMatchObject({ acik: false, ileti: expect.stringMatching(/kurum ağının dışında/u) });
+    expect(
+      yerelModelDurumu({
+        AKREDIT_YZ_HAZIR: "ollama",
+        AKREDIT_YZ_ADRES: "http://model:11434/v1",
+        AKREDIT_YZ_MODEL: "m",
+      }),
+    ).toEqual({ acik: true });
+  });
+
+  it("otomatik özet sıradan bağımsız; bir değer ya da bir hücre değişirse özet değişir", () => {
+    const a = [
+      { hucreId: "h1", deger: 8 },
+      { hucreId: "h2", deger: 7.5 },
+      { hucreId: "h3", deger: null },
+    ];
+    const o = otomatikOzet(a);
+    expect(o).toMatch(/^[0-9a-f]{64}$/u);
+    expect(otomatikOzet([...a].reverse())).toBe(o);
+    expect(otomatikOzet([{ hucreId: "h1", deger: 8.001 }, a[1] as never, a[2] as never])).not.toBe(o);
+    expect(otomatikOzet(a.slice(0, 2))).not.toBe(o);
+    // Boş küme de bir özettir (yalnız onay kartı olan tarama).
+    expect(otomatikOzet([])).toMatch(/^[0-9a-f]{64}$/u);
+  });
+
+  it("özet onayı Katman 1: toplu ve doğrudan geçer; politika ya da süre dayanağı ayrıca istenmez", () => {
+    expect(OZET_KATMANI).toMatchObject({ katman: 1, devredilemez: false });
+    expect(zorunluKararDenetle(OZET_KATMANI, { dayanak: "dogrudan", kararVeren: "k", toplu: true }).gecerli).toBe(true);
   });
 });
