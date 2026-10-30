@@ -9,6 +9,8 @@ import {
   ONERI_RISKI,
   type OneriId,
   type PolitikaId,
+  type YoneticiOzeti as YoneticiOzetiVerisi,
+  yoneticiOzeti,
 } from "@akredit/cekirdek";
 import type {
   AyarDegisikligi,
@@ -175,7 +177,38 @@ export class BellekVeriKaynagi implements VeriKaynagi {
     return { tamam: true, deger: karar };
   }
 
-  async kararVer(girdi: KararGirdisi) {
+  #gorulenOzetler = new Map<OneriId, string>();
+
+  #ornekOzet() {
+    // Örnek veri: göstergeler ve döngü sayıları uydurmadır; gerçek kipte gösterge hesabından gelir.
+    return yoneticiOzeti(
+      [
+        { kod: "G1", ad: "Program çıktısı sağlanma oranı", onceki: 58, simdiki: 64, kaynak: "örnek ölçme sonucu" },
+        { kod: "G2", ad: "Mezun memnuniyeti", onceki: 72, simdiki: 70.5, kaynak: "örnek anket" },
+      ],
+      ["Dış paydaşların program değerlendirmesine katılımı"],
+      ["acik", "onlem_secildi", "kapandi_iyilesti"],
+    );
+  }
+
+  async yoneticiOzeti(oneriId: OneriId): Promise<IslemSonucu<YoneticiOzetiVerisi>> {
+    const o = this.#oneriler.find((x) => x.id === oneriId);
+    if (!o) return hata("Öneri bulunamadı. Sayfayı yenileyip yeniden deneyin.");
+    if (o.tur !== "dis_gonderim") return hata("Bu öneri için yönetici özeti gerekmiyor.");
+    return { tamam: true as const, deger: this.#ornekOzet() };
+  }
+
+  async ozetGoruldu(oneriId: OneriId, imza: string): Promise<IslemSonucu<{ imza: string; zaman: string }>> {
+    const ozet = this.#ornekOzet();
+    if (ozet.imza !== imza) return hata("Özet siz açtıktan sonra değişti. Sayfayı yenileyip güncel özeti görün.");
+    this.#gorulenOzetler.set(oneriId, imza);
+    return { tamam: true as const, deger: { imza, zaman: this.#simdi() } };
+  }
+
+  async kararVer(girdi: KararGirdisi): Promise<IslemSonucu<Karar<OneriIcerigi>>> {
+    const o = this.#oneriler.find((x) => x.id === girdi.oneriId);
+    if (o?.tur === "dis_gonderim" && girdi.sonuc !== "reddedildi" && !this.#gorulenOzetler.has(o.id))
+      return hata("Onaydan önce yönetici özetini görün.");
     const sonuc = this.#kararOlustur(girdi);
     if (sonuc.tamam) this.#kararlar.push(sonuc.deger);
     return sonuc;

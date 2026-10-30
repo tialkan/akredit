@@ -11,6 +11,7 @@ export * as bolognaOrnek from "./gorevler/bologna-taslagi/ornek.ts";
 export * from "./gorevler/gorev.ts";
 export * from "./gorevler/kanit-avcisi/index.ts";
 export * from "./gorevler/kanit-siniflama.ts";
+export * from "./gorevler/puko-onlemi.ts";
 export * from "./gorevler/saha-sorulari.ts";
 export * from "./gorevler/toplanti-bilgisi.ts";
 export * from "./guvence/atif.ts";

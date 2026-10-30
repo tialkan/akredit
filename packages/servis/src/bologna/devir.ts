@@ -81,7 +81,12 @@ const OnlemKaynagi = z
   .object({
     secildi: z.boolean().optional(),
     bolognaDuzeltmesi: z
-      .object({ alan: z.enum(DUZELTILEBILIR_ALANLAR), dil: z.enum(["tr", "en"]), metin: z.string().max(20_000) })
+      .object({
+        alan: z.enum(DUZELTILEBILIR_ALANLAR),
+        dil: z.enum(["tr", "en"]),
+        metin: z.string().max(20_000),
+        kip: z.enum(["degistir", "ekle"]).optional(),
+      })
       .optional(),
   })
   .passthrough();
@@ -166,8 +171,8 @@ export async function sonOnayliTaslak(
   return null;
 }
 
-/** Geçen dönemde o derse bağlı kapanmış ya da seçilmiş PÜKÖ önlemleri. */
-async function donemOnlemleri(
+/** Geçen dönemde o derse bağlı kapanmış ya da seçilmiş PÜKÖ önlemleri (İP-39 seçimi `eylem` olarak gelir). */
+export async function donemOnlemleri(
   tx: Islem,
   dersId: string,
   aralik: { bas: Date | null; son: Date },
