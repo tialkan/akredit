@@ -1156,7 +1156,7 @@ export const YOL_HARITASI: { no: number; ad: string; metin: string; dalga: "tama
     no: 44,
     ad: "Cümleden kanıta tek tık",
     metin: "Rapordaki bir cümleden kanıtına tek tıkla gidilir. Rapor dili ayrıca denetlenir.",
-    dalga: "sonra",
+    dalga: "simdi",
   },
   {
     no: 45,
