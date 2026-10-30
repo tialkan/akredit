@@ -45,7 +45,7 @@ export async function gostergeVerisi(): Promise<G.GostergePanosu | null> {
   }
 }
 
-async function servisBaglami(): Promise<ServisBaglami> {
+export async function servisBaglami(): Promise<ServisBaglami> {
   const [{ headers }, { redirect }, { tekiller }] = await Promise.all([
     import("next/headers"),
     import("next/navigation"),
