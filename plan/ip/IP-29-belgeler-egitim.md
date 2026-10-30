@@ -26,3 +26,4 @@ Hocanın kılavuz okumadan kullanabilmesi; kalite birimlerinin ve bilgi işlemin
 
 - 2026-10-23: İP tanımlandı. Başlamadan önce kapsamı güncel mimariye göre ayrıntılandır.
 - 2026-10-27: `/belgeler` sitesi (hoca için 4 görev kılavuzu, kalite birimi, bilgi işlem özeti; tek kaynak `icerik.ts`, her kılavuzda "Şu an yapılamayanlar"), sadelik denetimi ve 33 test; `docs/kilavuz/` altında bilgi işlem teknik kılavuzu, 4 video senaryosu, ipucu metinleri, okunabilirlik testi yönergesi. Kalanlar: pilot okunabilirlik testi, ekran görüntüleri, ipuçlarının panele yerleştirilmesi, site menüsü bağlantısı, video çekimi. Karar: kılavuz metni Markdown'a kopyalanmadı (ayrışmasın diye). Rapor: `docs/raporlar/IP-29.md`.
+- 2026-10-30 (inceleme kapanışı, dal `inceleme/kapanis`): Bağımsız inceleme. İnsan bekleyen: pilot kullanıcılarla okunabilirlik testi (`docs/kilavuz/okunabilirlik-testi.md`), kurum izni ve pilot (İP-30). Durum inceleme.

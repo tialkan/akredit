@@ -1,6 +1,6 @@
 # İP-42: Site metni: güçlü vaat, dört rol, pilot başvurusu
 
-- **Durum:** inceleme
+- **Durum:** tamam
 - **Faz:** 7
 - **Bağımlılık:** İP-07
 - **Sahip olduğu yollar:** `apps/web/src/site/**`, `apps/web/src/app/(site)/**`, `apps/web/src/app/api/pilot/**`, `apps/web/src/pilot/**`, `apps/web/e2e/sayfalar.ts`, `apps/web/e2e/pilot.spec.ts`, `apps/web/public/llms.txt`, `apps/web/src/app/sitemap.ts`, `packages/vt/src/gocler/0060_pilot_basvurusu.sql`, `packages/vt/src/gocler/meta/_journal.json` (tek satır), `infra/coolify/docker-compose.yml` (tek değişken), `docs/tasarim/ekranlar/*-ip42-*.png`, `docs/raporlar/IP-42.md`
@@ -38,3 +38,4 @@ Dış incelemelerden sonra (docs/danismanlik/2026-10-28-dis-incelemeler.md) site
 - Karar: göç idx 60 (başka dalların 0012+ göçleriyle çakışmasın diye); başvuru tablosu kiracısız ve yalnız eklemeli.
 - Karar: pilot kurumun adı yazılı onay olmadan sitede yazılmaz (kurucu notu).
 - Kalan: başvuruları görüntüleyen yönetim ekranı; CDN hız sınırı kuralı.
+- 2026-10-30 (inceleme kapanışı, dal `inceleme/kapanis`): Bağımsız inceleme. `apps/web/src/site/site.test.ts`, e2e `pilot.spec.ts`. Yol haritası testi bu kapanışta tamam/şimdi/sonra üç durumuyla plan tablosuna bağlandı. `pnpm check` ve `pnpm typecheck` temiz, bütün paket testleri sıralı koşuda geçti. Durum tamam.

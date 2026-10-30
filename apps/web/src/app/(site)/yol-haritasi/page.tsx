@@ -9,6 +9,11 @@ export const metadata: Metadata = sayfaUstVerisi(SAYFALAR.yolHaritasi);
 const DALGALAR = [
   { dalga: "simdi", baslik: "Şimdi yapılanlar", not: "Bu işler sürüyor." },
   { dalga: "sonra", baslik: "Sıradakiler", not: "Şimdiki işler bitince başlar." },
+  {
+    dalga: "tamam",
+    baslik: "Tamamlananlar",
+    not: "Kabul ölçütleri karşılandı. Pilot ve canlı kullanım ayrıca izlenir.",
+  },
 ] as const;
 
 export default function YolHaritasi() {

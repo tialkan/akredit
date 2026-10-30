@@ -1,6 +1,6 @@
 # İP-37: Web araştırma, Bologna eksik giderme ve Word paketi
 
-- **Durum:** inceleme
+- **Durum:** tamam
 - **Faz:** 6
 - **Bağımlılık:** İP-03, İP-10, İP-15, İP-16, İP-23, İP-35, İP-36
 - **Sahip olduğu yollar:** `packages/yz/src/web-arama/**`, `packages/yz/src/gorevler/kanit-avcisi/**`, `packages/baglayicilar/src/web-tarama/**`, `packages/servis/src/arastirma/**`, `packages/servis/src/bologna/eksik-giderme.ts`, `packages/servis/src/bologna/eksik-giderme.test.ts`, `packages/servis/src/word-paketi/**`, `packages/belge/src/docx-uret.ts`, `packages/belge/src/paket.ts`, `packages/belge/test/paket.test.ts`, `packages/vt/src/gocler/0011_dis_ornek.sql`, `apps/web/src/app/panel/dersler/[id]/arastirma/**`, `docs/adr/0006-dis-ornek-kanit-degildir.md`, `docs/raporlar/IP-37.md`
@@ -37,3 +37,4 @@ Hocanın ders sayfasından tek tıkla (1) Bologna eksiklerini giderecek düzeltm
 - Kalan: web sunucusunda araştırma ve Bologna köprülerinin (tarayıcı, metin çıkarma, depo) kurulması, işçide düzenli site taraması, ayarlar ekranında web araması anahtarı, OpenRouter yanıtının canlı doğrulanması. Ayrıntı: `docs/raporlar/IP-37.md`.
 - 2026-10-28: Kalan açıklar kapatıldı (dal `ip/37-baglanti`): web sunucusunda araştırma ve Bologna köprüleri gerçek tarayıcı, metin çıkarma ve nesne deposuyla kuruldu (üretimde depo eksikse açık Türkçe hatayla durur; Coolify web hizmetine depo değişkenleri ve `akredit-kanit` birimi); işçide haftalık kurum sitesi taraması (`site` bağlayıcısı, kurum ayarına göre, hız ve sayfa sınırlı); ayarlar ekranına "Web araması" bölümü (yurt dışı izni yoksa devre dışı ve nedeni yazılı; servis de reddeder); Word paketi .zip servis testi ve Playwright panel testi. `pnpm verify` temiz, web derlemesi başarılı.
 - Kalan: OpenRouter yanıtının canlı doğrulanması; site taraması ayarı için panel ekranı; ders sayfası araştırma eylemlerinin gerçek arka uçla tarayıcı testi.
+- 2026-10-30 (inceleme kapanışı, dal `inceleme/kapanis`): Bağımsız inceleme. `packages/yz/src/web-arama/web-arama.test.ts`, `packages/baglayicilar/src/web-tarama/web-tarama.test.ts`, kanıt avcısı, eksik giderme ve Word paketi testleri, e2e `arastirma.spec.ts`. Dalga 4-7 incelemesinde sorun bulunmadı. `pnpm check` ve `pnpm typecheck` temiz, bütün paket testleri sıralı koşuda geçti. Durum tamam. Kalan (ölçüt dışı): OpenRouter yanıtının canlı doğrulanması.

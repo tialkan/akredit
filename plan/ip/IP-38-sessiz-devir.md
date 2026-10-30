@@ -1,6 +1,6 @@
 # İP-38: Sessiz devir ve kaynağa geri yazma
 
-- **Durum:** inceleme
+- **Durum:** tamam
 - **Faz:** 7
 - **Bağımlılık:** İP-13, İP-14, İP-15, İP-37
 - **Sahip olduğu yollar:** `packages/servis/src/bologna/devir*`, `packages/baglayicilar/src/bologna-proliz/yazma*`, `packages/baglayicilar/src/bologna-proliz/test/yazma/**`, `apps/isci/src/devir/**`, `apps/web/src/app/panel/dersler/[id]/devir/**`, `apps/web/src/app/panel/dersler/_bologna/devir*`, `packages/vt/src/gocler/0020_sessiz_devir.sql` (bu İP 0020-0029 aralığını kullanır), `docs/hukuk/yetki-devri-yonergesi-taslagi.md`, `docs/adr/0007-sessiz-devir-ve-varsayilan-onay.md`, `docs/raporlar/IP-38.md`
@@ -49,3 +49,4 @@ Danışmanlık kararı (2026-10-28, `docs/danismanlik/2026-10-28-dis-incelemeler
 - 2026-10-28: Uygulandı (dal `ip/38-sessiz-devir`). Göç 0020 (`bologna_devri`, `sure_dolumu`, politikaya itiraz süresi, `karar_denetle`), saf devir ve iş günü hesabı, devir motoru, süre dolumuyla varsayılan onay, kurum yazılı izni ve kuru çalıştırmalı kaynağa yazma (servis + Playwright, kayıtlı sahte Proliz sayfasıyla uçtan uca), işçi kuyruğu `bologna.devir`, 4 REST ucu, ders sayfası devir kartı, Word "isteğe bağlı", yönerge TASLAĞI, ADR 0007. `pnpm check`/`typecheck` temiz, `pnpm -r --workspace-concurrency=1 test` temiz (Vitest 1281 + node --test 38), web derlemesi başarılı.
 - Karar: devir modelsiz; önlem yalnız yapılandırılmış `bolognaDuzeltmesi` taşıyorsa uygulanır. Hocanın yeni taslağı itirazdır. Kaynağa yazmada "Kaydet insanda" yerine kurumun adıyla kayıtlı yazılı izni (ADR 0007).
 - Kalan: üretimde işçiye Playwright yazıcısı ve kurum giriş bilgisinin kasadan bağlanması; yazma izni, tatil listesi ve politika itiraz süresi için ayarlar ekranı; gerçek Proliz seçicilerinin doğrulanması (DOĞRULANMADI); yönergenin hukuk incelemesi. Ayrıntı: `docs/raporlar/IP-38.md`.
+- 2026-10-30 (inceleme kapanışı, dal `inceleme/kapanis`): Bağımsız inceleme. `packages/servis/src/bologna/devir.test.ts` ("bildirilecek kimse yoksa süreli onay yok", "veritabanı: bildirilen boşken süre dolumu kararı reddedilir", "izin değiştirilebilir ayardan değil, yalnız eklenen günlük kaydından okunur"). Dalga 4-7 bulguları (yüksek #düzeltme 1, açık #4, #5) kapalı. `pnpm check` ve `pnpm typecheck` temiz, bütün paket testleri sıralı koşuda geçti. Durum tamam. Ölçüt dışı insan işi: yetki devri yönergesinin avukat ve Senato incelemesi, gerçek Proliz seçicilerinin doğrulanması.

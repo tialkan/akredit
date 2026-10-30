@@ -1,6 +1,6 @@
 # İP-11: Akreditasyon çerçeve kütüphanesi
 
-- **Durum:** inceleme
+- **Durum:** tamam
 - **Faz:** 2
 - **Bağımlılık:** İP-01, araştırma (`docs/arastirma/`)
 - **Sahip olduğu yollar:** `packages/cerceveler/**`, `docs/cerceveler.md`, `docs/raporlar/IP-11.md`
@@ -34,3 +34,4 @@ YÖKAK ve program akreditasyon kuruluşlarının ölçütlerini, olgunluk düzey
 - 2026-10-23: İP tanımlandı. Başlamadan önce kapsamı güncel mimariye göre ayrıntılandır.
 - 2026-10-27: Şema, içe aktarma, uzman onayı, sürümlü kütüphane, eşleme önerisi/kararı ve 5 ilk çerçeve eklendi (16 test). yokak.gov.tr ve mudek.org.tr ağ vekilinde engelli: hiçbir resmî metin doğrulanmadı, hepsi `DOĞRULANMADI`; adresler `kaynaklar/resmi/kaynaklar.json`da. Kalan: belgeleri indirip içe aktarma ve uzman onayı; YÖKAK rubriği, KİDR bölümleri, MÜDEK ölçütleri. Karar: eşleme cekirdek öneri türü gelene dek yerel arayüzle. Ayrıntı: `docs/raporlar/IP-11.md`.
 - 2026-10-27 (resmî metin): Kullanıcının tarayıcıyla indirdiği 7 YÖKAK belgesi `kaynaklar/resmi/yokak/` altına adlandırılarak eklendi (toplam 15 166 880 bayt), `kaynaklar.json` güncellendi. `yokak-kurumsal@3.3` (Kılavuz 3.3 Ek-1 + Ölçütler 3.1: 4 başlık, 14 ölçüt, 46 alt ölçüt, 44 alt ölçütte düzey metni ve örnek kanıtlar) ve `yokak-kidr@3.2.1` (Ek-1 şablonu, 10 bölüm) resmî metinle eklendi; 2020 çerçeveleri korundu. D2-2 kapatıldı: `baslikDurumu`, `kaynakDosya`/`ekKaynaklar`, rapor bölümü başlık kuralı. Belgede birebir geçiş testi eklendi. Kalan: A.4.1/B.2.2 düzey metinleri ve genel düzey adları (Şekil 1 görsel) `DOĞRULANMADI`; MÜDEK; uzman onayı. Karar: Kılavuz 3.3, 3.1.1'den yeni olduğu için esas alındı; ölçüt metinleri Ölçütler 3.1'den (temiz metin katmanı).
+- 2026-10-30 (inceleme kapanışı, dal `inceleme/kapanis`): Bağımsız inceleme, ölçütler kodla eşlendi. Şema ve içe aktarma: `packages/cerceveler/test/cerceveler.test.ts` ("şema", "içe aktarma"). Kaynak sayfa ve özet: `test/resmi-metin.test.ts` (her resmî başlık belgede birebir) ve "başlık da kaynak/özet kuralına bağlı (D2-2)". Sürüm: "rapor eski sürüme bağlı kalır", "aynı sürüm farklı içerikle eklenemez". İnceleme bulgusu D2-2 kapalı. `pnpm check` ve `pnpm typecheck` temiz, bütün paket testleri sıralı koşuda geçti. Durum tamam. Kabul ölçütü dışında kalan insan işi: kalite uzmanı doğrulaması (`dogrulandi`), MÜDEK resmî belgesi, A.4.1/B.2.2 düzey metinleri (DOĞRULANMADI olarak işaretli).

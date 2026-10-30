@@ -336,18 +336,18 @@ export const MODUL_DURUMU_DAYANAGI: Record<string, string> = {
   kanit: "İP-10 tamam; panelden toplu belge yükleme ekranı yok (DURUM_NOTU).",
   baglayicilar: "İP-05 tamam, İP-23 inceleme; bağlayıcı açma ekranı yok, canlı kurum sisteminde denenmedi.",
   olcme: "İP-06 tamam; belirlenimci, panelde ders ve rapor sayfalarında.",
-  bologna: "İP-15 tamam, eksik giderme İP-37 inceleme; canlı Bologna sayfasıyla pilot yapılmadı.",
-  "kanit-avcisi": "İP-37 inceleme; OpenRouter yanıtı canlı doğrulanmadı, site taraması ayar ekranı yok.",
-  "word-paketi": "İP-37 inceleme; gidiş-dönüş testi var, pilot yok.",
+  bologna: "İP-15 tamam, eksik giderme İP-37 tamam; canlı Bologna sayfasıyla pilot yapılmadı.",
+  "kanit-avcisi": "İP-37 tamam; OpenRouter yanıtı canlı doğrulanmadı, site taraması ayar ekranı yok.",
+  "word-paketi": "İP-37 tamam; gidiş-dönüş testi var, pilot yok.",
   "ders-dosyasi": "İP-16 tamam; gerçek not dökümüyle pilot yapılmadı.",
   anket: "İP-17 tamam; panel/anketler ve /anket sayfaları.",
   toplanti: "İP-18 tamam; panel/toplantilar.",
-  odr: "İP-19 inceleme.",
-  kidr: "İP-20 inceleme.",
+  odr: "İP-19 tamam; kuruluşların resmî ÖDR şablonları yok, gerçek veriyle pilot yapılmadı.",
+  kidr: "İP-20 tamam; REST ucu ve panel sayfası yok, rubrik düzey metinleri doğrulanmadı.",
   gosterge: "İP-21 tamam; panel/gostergeler.",
   surec: "İP-14 tamam, İP-36 işçi zamanlanmış işleri; panel/surecler.",
   degerlendirici: "İP-22 tamam; /degerlendirici portalı.",
-  mobil: "İP-33 inceleme; onay kutusu İP-13 tamam.",
+  mobil: "İP-33 tamam; onay kutusu İP-13 tamam.",
   arac: "İP-24 ve İP-25 tamam.",
 };
 
@@ -1111,40 +1111,40 @@ export const KONUM_TABLOSU: { sistem: string; baglanti: string; sinir: string }[
 
 // ---------------------------------------------------------------- Yol haritası (İP-42)
 
-/** plan.md §8, İP-38…48, sade dille. Dalga plan tablosundan alınmıştır (2026-10-28). */
-export const YOL_HARITASI: { no: number; ad: string; metin: string; dalga: "simdi" | "sonra" }[] = [
+/** plan.md §8, İP-38…48, sade dille. Dalga plan tablosundaki durumdan alınmıştır (2026-10-30). */
+export const YOL_HARITASI: { no: number; ad: string; metin: string; dalga: "tamam" | "simdi" | "sonra" }[] = [
   {
     no: 38,
     ad: "Sessiz devir",
     metin:
       "Önceki dönemden değişmeyen ders bilgisi yeni döneme kendiliğinden taşınır. Onaylı bilgi, kurumun yazılı izniyle kaynağına geri yazılır.",
-    dalga: "simdi",
+    dalga: "tamam",
   },
   {
     no: 39,
     ad: "Üç katmanlı karar",
     metin:
       "İşler üçe ayrılır: kendiliğinden yürüyen, süre dolunca onaylanmış sayılan ve mutlaka bir kişinin vereceği karar. Zorunlu karar kısa bir karar kartıyla verilir.",
-    dalga: "simdi",
+    dalga: "tamam",
   },
   {
     no: 40,
     ad: "Kişisel veri ve hukuk paketi",
     metin:
       "Kişisel veri dışarı çıkmadan çalışma, KVKK veri akış envanteri, hukuk birimi için sözleşme paketi ve yetki devri yönergesi taslağı.",
-    dalga: "simdi",
+    dalga: "tamam",
   },
   {
     no: 41,
     ad: "Örnek Üniversitesi",
-    metin: "Uydurma veriyle kurulmuş bir örnek kurum. Her rolün ekranını hesap açmadan deneyebileceksiniz.",
-    dalga: "simdi",
+    metin: "Uydurma veriyle kurulmuş bir örnek kurum. Her rolün ekranını hesap açmadan deneyebilirsiniz.",
+    dalga: "tamam",
   },
   {
     no: 42,
     ad: "Site metni ve pilot başvurusu",
     metin: "Dört rolün anlatımı, mevcut sistemlerle ilişki ve pilot kurum başvurusu. Bu sayfa da bu işin parçası.",
-    dalga: "simdi",
+    dalga: "tamam",
   },
   {
     no: 43,
@@ -1162,7 +1162,7 @@ export const YOL_HARITASI: { no: number; ad: string; metin: string; dalga: "simd
     no: 45,
     ad: "Hesapsız belge isteme",
     metin: "İdari birimlerden, onlara hesap açmadan, tek kullanımlık bağlantıyla belge istenir.",
-    dalga: "simdi",
+    dalga: "tamam",
   },
   {
     no: 46,

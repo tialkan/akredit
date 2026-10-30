@@ -35,3 +35,4 @@ Toplantı ve karar asistanı (İP-18) bugün yazılı notlardan tutanak taslağ�
 ## Günlük
 
 - 2026-10-29: İP dosyası yazıldı. İP-23 incelemeden çıkınca hazır olur.
+- 2026-10-30 (inceleme kapanışı, dal `inceleme/kapanis`): İP-18 tamam, İP-23 hâlâ inceleme (UBYS, EBYS, e-posta ve bulut için canlı örnek bekliyor). Durum bekliyor.

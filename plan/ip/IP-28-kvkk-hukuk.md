@@ -21,8 +21,8 @@ Kurumların hukuk birimlerinin onaylayabileceği belge seti ve ürün içi uyum.
 ## Kabul ölçütleri
 
 - [ ] Belgeler bir hukukçu tarafından incelenmiş (insan işi).
-- [ ] Silme talebi değişmez günlük bütünlüğünü bozmadan uygulanır (test).
-- [ ] `pnpm verify` temiz.
+- [x] Silme talebi değişmez günlük bütünlüğünü bozmadan uygulanır (test).
+- [x] `pnpm verify` temiz.
 
 ## Notlar
 
@@ -32,3 +32,4 @@ Hukuki metinlerin son hali avukat onayı gerektirir; Akredit taslak üretir.
 
 - 2026-10-23: İP tanımlandı. Başlamadan önce kapsamı güncel mimariye göre ayrıntılandır.
 - 2026-10-27: `docs/hukuk/` altında taslak hukuk paketi yazıldı (kaynaklar, uyum analizi, veri işleme sözleşmesi şablonu, aydınlatma metinleri, gizlilik, çerez, kullanım koşulları, saklama-imha, envanter, VERBİS, yurt dışı aktarım). Mevzuat bilgileri web kaynaklarından erişim tarihiyle alındı; resmî metni okunamayanlar `DOĞRULANMADI`. Site: `/kvkk` güncellendi, `/gizlilik` ve `/kosullar` eklendi (taslak uyarılı). Karar: silme talebi = takma ad eşlemesi ve anahtarın silinmesi + günlüğe yeni kayıt. Kalan: avukat incelemesi; silme akışı kodu ve testi (`packages/vt`), kurum YZ ayarı ve kaydı, dışa aktarma, erişim günlüğü ekranı (İP yolları dışında, sonraki İP).
+- 2026-10-30 (inceleme kapanışı, dal `inceleme/kapanis`): Bağımsız inceleme. Silme ölçütü İP-40'ta karşılandı: `packages/vt/test/kriptografik-silme.test.ts` › "anahtar silinince şifreli değer çözülemez; günlük yalnız uzar, zincir sağlam" (işaretlendi). `pnpm verify` adımları temiz (işaretlendi). İnsan bekleyen: `docs/hukuk/` ve kurum hukuk paketinin bir avukatça incelenmesi. Durum inceleme.

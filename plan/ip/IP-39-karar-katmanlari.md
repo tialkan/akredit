@@ -1,6 +1,6 @@
 # İP-39: Üç katmanlı karar modeli, karar kartları, kendini kapatan PÜKÖ
 
-- **Durum:** inceleme
+- **Durum:** tamam
 - **Faz:** 7
 - **Bağımlılık:** İP-13, İP-14 (ortak: İP-38 sessiz devir)
 - **Sahip olduğu yollar:** `packages/cekirdek/src/karar/**`, `packages/cekirdek/test/karar*.test.ts`, `packages/olcme/src/kok-neden.ts`, `packages/olcme/test/kok-neden.test.ts`, `packages/servis/src/puko/**`, `packages/servis/test/puko.test.ts`, `apps/web/src/app/panel/kararlar/**`, `apps/web/src/app/panel/onaylar/yonetici-ozeti.tsx`, `apps/web/e2e/kararlar.spec.ts`, `docs/raporlar/IP-39.md`
@@ -41,3 +41,4 @@ Onay yorgunluğunu önlemek (dış incelemeler, 2026-10-28, Argon ilkesi): insan
 - Kalan: PÜKÖ veritabanı tablosu ve göçü, İP-38/İP-14 gerçek bağlantısı, yönetici özeti kapısının onay motoruna bağlanması ve görülmenin günlüğe yazılması, YZ önlem görevi. Ayrıntı: `docs/raporlar/IP-39.md`.
 - 2026-10-30: Açık kalan kapatıldı (dal `duzeltme/acik-kalanlar-2`): PÜKÖ kalıcı deposu `0102_puko` göçü (`puko_olayi`: RLS, değiştirilemez, olay türü başına tek kayıt, önlemde karar veren aynı kurumdan ve olay içeriğiyle aynı), servis `vtPukoDeposu`, `pukoPaneli`, `pukoOnlemSec` (oturumdaki aktör, API anahtarı reddi), `pukoOlcumleriIsle`; uçlar `GET /puko/kartlar`, `POST /puko/onlem`, `POST /puko/olcumler`; `/panel/kararlar` gerçek kipte veriyle dolar ve kararı uca gönderir. `puko_olayi` veri akış envanterinde "karar" sınıfında.
 - Kalan: İP-38/İP-14 gerçek bağlantısı (servis hâlâ `SessizDevirGirdisi` ve `SurecEylemi` döndürür), REST ölçüm ucunda kök neden boş (madde analizi bağlanmadı), yönetici özeti kapısının onay motoruna bağlanması, YZ önlem görevi.
+- 2026-10-30 (inceleme kapanışı, dal `inceleme/kapanis`): Bağımsız inceleme. `packages/cekirdek/test/karar.test.ts`, `packages/servis/test/puko.test.ts`, `packages/servis/test/puko-vt.test.ts`, `packages/vt/test/puko.test.ts`, e2e `kararlar.spec.ts`. Dalga 4-7 açık #2, #3 ve dalga 8 D8-1 kapalı; D8-12 (düşük, iki eşleme kaynağı) açık ve gerekçeyle ertelendi: değer `null` olur, kart uydurulmaz. `pnpm check` ve `pnpm typecheck` temiz, bütün paket testleri sıralı koşuda geçti. Durum tamam.
