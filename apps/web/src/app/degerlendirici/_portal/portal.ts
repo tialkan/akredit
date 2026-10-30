@@ -9,6 +9,7 @@
 // - Soru-cevap yanıtı atıf güvencesinden geçer: kanıta bağlanamayan cümle `[EKSİK: …]` olarak işaretlenir.
 //   Kanıt metni modele veri olarak (sınırlayıcı içinde) verilir, talimat olarak değil.
 
+import { ozetHesapla } from "@akredit/cekirdek";
 import {
   type Aktor,
   aktorYetkiliMi,
@@ -362,9 +363,13 @@ export async function soruSor(b: PortalBaglami, saglayici: Saglayici, girdi: unk
       kullanilan.set(p.kanitId, { kanitId: p.kanitId, ozet: p.ozet, baslik: p.baslik });
   const sonuc: SoruYaniti = { yanit, gecerli, isaretlenen, kaynaklar: [...kullanilan.values()] };
   await islem(b, (tx) =>
+    // Soru ve model yanıtı kişisel veri içerebilir (ilke 7; dalga 3 #6): günlüğe tam metin değil SHA-256 özeti
+    // ve uzunluk yazılır. Özet, elde tutulan bir metnin sorulup sorulmadığını doğrulamaya yeter.
     gunluge(tx, b, EYLEM.soruYanitlandi, null, {
-      soru,
-      yanit,
+      soruOzeti: ozetHesapla(soru),
+      soruUzunlugu: soru.length,
+      yanitOzeti: ozetHesapla(yanit),
+      yanitUzunlugu: yanit.length,
       atifGecerli: gecerli,
       isaretlenen,
       kanitlar: sonuc.kaynaklar.map((k) => k.ozet),

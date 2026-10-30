@@ -46,7 +46,8 @@ export default async function ErisimGunluguSayfasi() {
         kisiAdi: k.kisiAdi,
         islem: EYLEM_ADI[k.eylem] ?? k.eylem,
         ayrinti: [
-          typeof k.ayrinti.soru === "string" ? `Soru: ${k.ayrinti.soru}` : "",
+          // Soru metni günlükte tutulmaz (kişisel veri içerebilir); yalnız uzunluğu gösterilir.
+          typeof k.ayrinti.soruUzunlugu === "number" ? `Soru (${k.ayrinti.soruUzunlugu} karakter)` : "",
           typeof k.ayrinti.ozet === "string" ? `Kanıt ${k.ayrinti.ozet.slice(0, 8)}` : "",
           typeof k.ayrinti.arama === "string" ? `Arama: ${k.ayrinti.arama}` : "",
         ].join(""),
