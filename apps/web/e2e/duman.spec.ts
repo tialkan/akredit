@@ -92,11 +92,10 @@ test.describe("panel", () => {
 
   test("rapor EKSİK paragrafları işaretler ve atıf kanıta götürür", async ({ page }) => {
     await page.goto("/panel/raporlar/rapor-odr");
-    await expect(page.getByText(/^EKSİK: Kanıt bağlanamadı$/)).toHaveCount(2);
-    await page
-      .getByRole("link", { name: /Bölüm kurulu tutanağı/ })
-      .first()
-      .click();
+    // İP-44: rapor cümle cümle okunur; kanıtsız cümle "kanıt yok" ile işaretli, atıf yan panelden kanıta götürür.
+    await expect(page.getByText("(kanıt yok)")).toHaveCount(2);
+    await page.getByRole("button", { name: /Program çıktılarının gözden geçirilmesi/ }).click();
+    await page.getByRole("link", { name: "Kanıtı ayrı sayfada aç" }).click();
     await expect(page).toHaveURL(/kanit-03#parca-3-2/);
   });
 

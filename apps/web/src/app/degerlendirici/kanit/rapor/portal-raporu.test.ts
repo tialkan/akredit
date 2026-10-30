@@ -63,15 +63,13 @@ beforeAll(async () => {
         })
         .returning();
       for (const s of [1, 2])
-        await tx
-          .insert(sema.kanitParcasi)
-          .values({
-            kurumId: o.a.kurumId,
-            kanitId: k?.id as string,
-            sira: s - 1,
-            capa: { sayfa: s },
-            metin: `Sayfa ${s}`,
-          });
+        await tx.insert(sema.kanitParcasi).values({
+          kurumId: o.a.kurumId,
+          kanitId: k?.id as string,
+          sira: s - 1,
+          capa: { sayfa: s },
+          metin: `Sayfa ${s}`,
+        });
       return k?.id as string;
     };
     ids.kanitA = await kanitEkle(OZET_A, [{ tur: "program", id: o.a.programId }]);

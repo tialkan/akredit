@@ -37,7 +37,12 @@ export default async function PortalRaporu({ params }: { params: Promise<{ id: s
         baslik={x.rapor.ad}
         aciklama="Salt okunur görünüm. Bu görüntüleme kurumun erişim günlüğüne yazıldı."
       />
-      <RaporOkuyucu bolumler={x.veri.bolumler} kanitlar={x.veri.kanitlar} erisilemeyen={x.veri.erisilemeyen} />
+      <RaporOkuyucu
+        bolumler={x.veri.bolumler}
+        kanitlar={x.veri.kanitlar}
+        erisilemeyen={x.veri.erisilemeyen}
+        kanitYolu="/degerlendirici/kanit/"
+      />
     </>
   );
 }
