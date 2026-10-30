@@ -351,7 +351,13 @@ describe("erişim günlüğü", () => {
     );
     const soru = g.find((x) => x.eylem === EYLEM.soruYanitlandi);
     expect(soru?.kisiAdi).toBe("Deneme Değerlendirici");
-    expect(typeof soru?.ayrinti.yanit).toBe("string");
+    // Soru ve yanıt kişisel veri içerebilir (ilke 7; dalga 3 #6): günlükte tam metin değil özet ve uzunluk.
+    expect(soru?.ayrinti).not.toHaveProperty("soru");
+    expect(soru?.ayrinti).not.toHaveProperty("yanit");
+    expect(soru?.ayrinti.soruOzeti).toMatch(/^[0-9a-f]{64}$/u);
+    expect(soru?.ayrinti.yanitOzeti).toMatch(/^[0-9a-f]{64}$/u);
+    expect(typeof soru?.ayrinti.soruUzunlugu).toBe("number");
+    expect(JSON.stringify(soru?.ayrinti)).not.toContain("Danışma kurulu");
     expect(await zinciriDogrula(o.db, o.a.kurumId)).toBeNull();
   });
 
