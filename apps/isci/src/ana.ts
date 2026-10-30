@@ -5,6 +5,7 @@
 
 import { type BelirtecKasasi, belirtecKasasi, gercekBaglam, type IstemciBilgisi } from "@akredit/baglayicilar";
 import { type NesneDeposu, s3Depo, yerelDepo } from "@akredit/depo";
+import { sinavTarama } from "@akredit/servis";
 import {
   EpostaGonderilemediHatasi,
   type EpostaTasiyici,
@@ -160,7 +161,14 @@ async function baslat(y: Yapilandirma, uyarilar: string[]) {
     demo: process.env.AKREDIT_DEMO === "1",
     saatDilimi: o.AKREDIT_SAAT_DILIMI,
     gunluk,
+    // İP-43: sınav taraması yalnız sunucunun kurum içi modeliyle (AKREDIT_YZ_*); kurumun anahtarı okunmaz.
+    sinavTarama: {
+      yerelModel: sinavTarama.ortamdanYerelModel(process.env),
+      takmaAdAnahtari: process.env.AKREDIT_TAKMA_AD_ANAHTARI ?? "",
+    },
   });
+  if (!sinavTarama.ortamdanYerelModel(process.env))
+    uyarilar.push("Kurum içi model tanımlı değil; sınav taraması istekleri işlenmez (AKREDIT_YZ_*).");
   gunluk.info({ zamanlama: o.AKREDIT_ISCI_ZAMANLAMA === "1" }, "işçi çalışıyor");
 
   rapor = async () => {

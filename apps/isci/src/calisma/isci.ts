@@ -28,6 +28,13 @@ import {
   pgBossKuyrugu,
   type VirusTarayici,
 } from "../kanit-hatti/index.ts";
+import {
+  bekleyenTaramalariKuyrugaKoy,
+  SINAV_TARAMA_KUYRUGU,
+  type TaramaIstegiBaglami,
+  TaramaIstegiIsi,
+  taramaIstegiIsi,
+} from "../sinav-tarama/index.ts";
 import { epostalariGonder, type SurecBaglami, tik } from "../surec/index.ts";
 import { baglayiciEsitle, type EsitlemeBaglami } from "./baglayici-isleri.ts";
 import { BAGLAYICI_TURLERI, type BaglayiciTuru, baglayiciAyari, kurumlariListele } from "./kurumlar.ts";
@@ -40,6 +47,7 @@ export const ISCI_KUYRUK = {
   gunlukDogrula: "gunluk.dogrula",
   raporKidr: "rapor.kidr",
   bolognaDevir: "bologna.devir",
+  sinavTarama: SINAV_TARAMA_KUYRUGU,
 } as const;
 
 /**
@@ -87,6 +95,11 @@ export interface IsciBagimliliklari {
   devirYazici?: Parameters<typeof devirIscisi>[0]["yazici"];
   /** İP-38: gerçek yazma istensin mi (kurum izninde de açık olmalı); varsayılan kuru çalıştırma. */
   devirGercekYazma?: boolean;
+  /**
+   * İP-43: sınav taraması. Yerel model yalnız sunucu ortamından gelir; yoksa istekler Türkçe iletiyle `hata`
+   * olarak kapanır. Takma ad anahtarı öğrenci numarasını HMAC'lar.
+   */
+  sinavTarama?: Omit<TaramaIstegiBaglami, "hat" | "hata">;
 }
 
 const KurumIsi = z.object({ kurumId: z.uuid() });
@@ -161,6 +174,10 @@ export async function isciKur(d: IsciBagimliliklari) {
           await tik(surec, kurumId);
           // İP-45: belge isteği hatırlatmaları ve yüklenen dış birim kanıtlarının kuyruğa konması.
           await belgeIstegiTuru(hat, d.eposta, kurumId, d.saat.simdi());
+          // İP-43: panelden yüklenen sınav taramaları (istek başına tek iş; aynı istek ikinci kez kuyruğa girmez).
+          await bekleyenTaramalariKuyrugaKoy(d.db, kurumId, (veri, anahtar) =>
+            d.boss.send(ISCI_KUYRUK.sinavTarama, veri, { singletonKey: anahtar }),
+          );
         } catch (e) {
           durum.sonHata = "Süreç turu bir kurumda başarısız oldu.";
           d.gunluk.error({ kurumId, hata: e instanceof Error ? e.message : String(e) }, "süreç turu");
@@ -169,6 +186,30 @@ export async function isciKur(d: IsciBagimliliklari) {
       durum.sonTik = d.saat.simdi().toISOString();
     },
     { policy: "singleton", retryLimit: 0, expireInSeconds: 900 },
+  );
+
+  // İP-43: sınav taraması. Uzun sürer (OCR ve yerel model); yeniden deneme yok, sonuç istek kaydına yazılır.
+  await kayit(
+    ISCI_KUYRUK.sinavTarama,
+    TaramaIstegiIsi,
+    async (is) => {
+      const s = await taramaIstegiIsi(
+        {
+          yerelModel: null,
+          takmaAdAnahtari: "",
+          ...d.sinavTarama,
+          hat,
+          hata: (istekId, e) =>
+            d.gunluk.error(
+              { kurumId: is.kurumId, istekId, hata: e instanceof Error ? e.message : String(e) },
+              "sınav taraması",
+            ),
+        },
+        is,
+      );
+      if (s) d.gunluk.info({ kurumId: is.kurumId, istekId: is.istekId, durum: s.durum }, "sınav taraması");
+    },
+    { policy: "stately", retryLimit: 0, expireInSeconds: 3600 },
   );
 
   await kayit(ISCI_KUYRUK.bildirimEposta, KurumIsi, async ({ kurumId }) => {
