@@ -6,7 +6,9 @@ describe("onlemGonder (gerçek kip)", () => {
     const istekler: { url: string; init: RequestInit }[] = [];
     const getir = async (url: string | URL | Request, init?: RequestInit) => {
       istekler.push({ url: String(url), init: init ?? {} });
-      return new Response(JSON.stringify({ devir: [], eylem: {}, eylemIdleri: ["e1"], sorumsuzDersler: ["BP102"] }), { status: 200 });
+      return new Response(JSON.stringify({ devir: [], eylem: {}, eylemIdleri: ["e1"], sorumsuzDersler: ["BP102"] }), {
+        status: 200,
+      });
     };
     const s = await onlemGonder(
       { kartId: "k1", secim: { secenekId: "s1" }, hedefDonem: "2026-2027 Güz", sureMs: 1500 },

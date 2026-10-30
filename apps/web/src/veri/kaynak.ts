@@ -199,6 +199,8 @@ export interface PolitikaGirdisi {
   oneriTurleri: OneriTuru[];
   enYuksekRisk: RiskDuzeyi;
   enDusukGuven: number;
+  /** Dönem devrinde (İP-38) süreli varsayılan onayın itiraz süresi, iş günü (1-30). Verilmezse 5. */
+  itirazSuresiIsGunu?: number;
 }
 
 export type IslemSonucu<T> = { tamam: true; deger: T } | { tamam: false; hata: string };

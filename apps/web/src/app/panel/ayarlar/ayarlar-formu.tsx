@@ -9,6 +9,7 @@ import { Kart, Rozet } from "../../../bilesenler/temel.tsx";
 import { istemciVeriKaynagi } from "../../../veri/istemci.ts";
 import type { Ayarlar, YurtDisiMetni, YzSaglayici } from "../../../veri/kaynak.ts";
 import { ONERI_TURU_ETIKETI, RISK_ETIKETI, tarihYaz } from "../../../veri/yardimci.ts";
+import { DevirAyarlari } from "./devir-ayarlari.tsx";
 import { WebArama } from "./web-arama.tsx";
 import { YzAnahtari } from "./yz-anahtari.tsx";
 
@@ -39,6 +40,7 @@ export function AyarlarFormu({ ilk }: { ilk: Ayarlar }) {
     turler: [] as OneriTuru[],
     risk: "dusuk" as "dusuk" | "orta",
     guven: "90",
+    itiraz: "",
   });
   const [hata, setHata] = useState<string | null>(null);
 
@@ -61,10 +63,13 @@ export function AyarlarFormu({ ilk }: { ilk: Ayarlar }) {
       oneriTurleri: yeni.turler,
       enYuksekRisk: yeni.risk,
       enDusukGuven: Number(yeni.guven) / 100,
+      ...(yeni.turler.includes("bologna_devri" as OneriTuru) && yeni.itiraz
+        ? { itirazSuresiIsGunu: Number(yeni.itiraz) }
+        : {}),
     });
     if (!s.tamam) return setHata(s.hata);
     setHata(null);
-    setYeni({ ad: "", turler: [], risk: "dusuk", guven: "90" });
+    setYeni({ ad: "", turler: [], risk: "dusuk", guven: "90", itiraz: "" });
     setAyarlar(await kaynak.ayarlar());
     bildir("Politika taslağı oluşturuldu. Yürürlüğe girmesi için imzalayın.", "basari");
   };
@@ -127,6 +132,8 @@ export function AyarlarFormu({ ilk }: { ilk: Ayarlar }) {
       </Kart>
 
       <WebArama ayarlar={ayarlar} guncelle={guncelle} />
+
+      <DevirAyarlari />
 
       <Kart baslik="Yetki politikaları" className="xl:col-span-2">
         <p className="mb-4 max-w-prose text-soluk">
@@ -229,6 +236,17 @@ export function AyarlarFormu({ ilk }: { ilk: Ayarlar }) {
               value={yeni.guven}
               onChange={(e) => setYeni({ ...yeni, guven: e.target.value })}
             />
+            {yeni.turler.includes("bologna_devri" as OneriTuru) ? (
+              <MetinAlani
+                etiket="Dönem devrinde itiraz süresi (iş günü)"
+                ipucu="Öğretim elemanı bu sürede karar vermezse taslak onaylanmış sayılır. Boş bırakılırsa 5 iş günü."
+                type="number"
+                min={1}
+                max={30}
+                value={yeni.itiraz}
+                onChange={(e) => setYeni({ ...yeni, itiraz: e.target.value })}
+              />
+            ) : null}
           </div>
           {hata ? (
             <p role="alert" className="font-semibold text-risk-yuksek">
