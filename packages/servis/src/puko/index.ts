@@ -424,8 +424,14 @@ export async function pukoPaneli(b: ServisBaglami): Promise<PukoPaneli> {
 }
 
 function pukoHatasiCevir(e: unknown): never {
-  if (e instanceof PukoHatasi)
-    throw new ServisHatasi(/zaten karar/u.test(e.message) ? "cakisma" : "kural_ihlali", e.message);
+  if (e instanceof PukoHatasi) {
+    const kod = /zaten karar/u.test(e.message)
+      ? "cakisma"
+      : /kartı bulunamadı/u.test(e.message)
+        ? "bulunamadi"
+        : "kural_ihlali";
+    throw new ServisHatasi(kod, e.message);
+  }
   throw e;
 }
 

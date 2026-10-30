@@ -82,6 +82,28 @@ function ornekIstek(ad: string, a: Ornek): { yol: string; govde?: unknown } {
     politikaImzala: { yol: `/politikalar/${a.kanitDers}/imza`, govde: { imzalayanAd: "Deneme Rolsüz A" } },
     politikaIptal: { yol: `/politikalar/${a.kanitDers}/iptal`, govde: {} },
     gunluk: { yol: "/gunluk" },
+    pukoKartlari: { yol: "/puko/kartlar" },
+    pukoOnlemSec: {
+      yol: "/puko/onlem",
+      govde: { kartId: "kart-yok", secim: { secenekId: "s1" }, hedefDonem: "2026-2027 Güz", sureMs: 1000 },
+    },
+    pukoOlcumleri: {
+      yol: "/puko/olcumler",
+      govde: {
+        olcumler: [
+          {
+            olcumTuru: "pc",
+            kod: "PÇ1",
+            dersKodu: "BP101",
+            donem: "2025-2026 Bahar",
+            deger: 40,
+            esik: 60,
+            kaynak: { hesapSurumu: "olcme-1.0.0" },
+          },
+        ],
+        kanitId: a.kanitKurum,
+      },
+    },
     bolognaOku: { yol: `/bologna/programlar/${a.programId}/okumalar`, govde: { adres: "https://obs.ornek.edu.tr/" } },
     bolognaDenetimi: { yol: `/bologna/programlar/${a.programId}/denetim` },
     bolognaTaslagiUret: { yol: "/bologna/taslaklar", govde: { dersId: a.dersId, beyan: "Proje var." } },
@@ -194,7 +216,9 @@ describe("her uç için yetkisiz erişim", () => {
       u.ad === "bolognaTaslagiUret" ||
       u.ad === "dokumAktar" ||
       u.ad === "kanitAra" ||
-      u.ad === "odrOlustur"
+      u.ad === "odrOlustur" ||
+      u.ad === "pukoOnlemSec" ||
+      u.ad === "pukoOlcumleri"
     ) {
       expect(y.status, govde).toBe(404);
     } else if (u.ad === "siteTaramasi") {

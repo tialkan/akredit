@@ -88,7 +88,7 @@ export async function gecerliYazmaIzni(tx: Islem, kurumId: string): Promise<Izin
     )
     .orderBy(desc(sema.gunluk.sira))
     .limit(1);
-  if (!g || g.aktorTuru !== "kisi" || !g.aktorId) return null;
+  if (g?.aktorTuru !== "kisi" || !g.aktorId) return null;
   const a = IzinAyrintisi.safeParse(g.ayrinti);
   if (!a.success) return null;
   return {
