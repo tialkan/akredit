@@ -262,6 +262,13 @@ export async function kurumVerisiEkle(db: Vt, kurumId: string, ad: string): Prom
       yeni: { ad: "Yeni ad" },
       duzeltenKisiId: kisi.id,
     });
+    await tx.insert(s.pukoOlayi).values({
+      kurumId,
+      pukoId: "ornek-puko",
+      tur: "acildi",
+      olay: { tur: "acildi", pukoId: "ornek-puko" },
+      zaman: new Date("2026-01-05T09:00:00Z"),
+    });
     await gunlugeYaz(tx, { aktor: { tur: "sistem", id: null }, eylem: "deneme.basladi" });
 
     return {

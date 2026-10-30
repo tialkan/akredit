@@ -16,7 +16,7 @@ import {
 describe("öğrenci numarası deseni (inceleme 4-7 #7)", () => {
   it("bozuk desen YZ çağrılarını durdurmaz; geçerli desenler uygulanır", () => {
     const a = yzAyariniCoz({ yz: { ogrenciNoDesenleri: ["(", "\\bOGR\\d{4}\\b"] } });
-    expect(a.maske.ogrenciNoDesenleri).toHaveLength(1);
+    expect(a.maske?.ogrenciNoDesenleri).toHaveLength(1);
   });
 });
 

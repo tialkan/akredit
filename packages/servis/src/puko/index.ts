@@ -5,6 +5,7 @@
 // Sayılar yalnız `@akredit/cekirdek` ve `@akredit/olcme` hesaplarından gelir. Model yalnız önlem metni
 // önerir; rakam içeren metin düşürülür.
 
+import { randomUUID } from "node:crypto";
 import {
   type EsikAltiOlcum,
   istisnalariKumele,
@@ -17,9 +18,11 @@ import {
   zorunluKararDenetle,
 } from "@akredit/cekirdek";
 import type { KokNeden } from "@akredit/olcme";
-import { type GunlukGirdisi, gunlugeYaz, type Islem } from "@akredit/vt";
+import { type GunlukGirdisi, gunlugeYaz, type Islem, sema } from "@akredit/vt";
+import { and, asc, count, eq } from "drizzle-orm";
 import { z } from "zod";
-import type { Aktor } from "../baglam.ts";
+import { type Aktor, gunluge, islem, type ServisBaglami } from "../baglam.ts";
+import { ServisHatasi } from "../hata.ts";
 import type {
   KararKarti,
   OnlemSecenegi,
@@ -353,4 +356,152 @@ export function otomatikGunlukGirdisi(k: OtomatikKayit, zaman: Date): GunlukGird
 /** Katman 0 kayıtlarını kiracı işleminde değiştirilemez günlüğe yazar. */
 export async function otomatikKayitlariYaz(tx: Islem, kayitlar: readonly OtomatikKayit[], zaman: Date): Promise<void> {
   for (const k of kayitlar) await gunlugeYaz(tx, otomatikGunlukGirdisi(k, zaman));
+}
+
+// ---------- Kalıcı depo ve REST işleri ----------
+
+// PÜKÖ'nün kalıcı deposu ve REST işleri (İP-39). Olaylar `puko_olayi` tablosunda yalnız eklenir (0102 göçü:
+// RLS, değiştirilemez, bir döngüde her olay türü bir kez, önlemde karar veren kişi aynı kurumdan).
+//
+// Karar veren her zaman oturumdaki kişidir; API anahtarıyla gelen önlem seçimi reddedilir (katman 2 kararı
+// devredilemez, ilke 3). Sayılar istekteki ölçümlerden değil, ölçme hesabının kaynağını taşıyan ölçümlerden
+// gelir; kart sayıları `@akredit/cekirdek` hesabıdır.
+
+const OlaySatiri = z.object({ tur: z.enum(["acildi", "onlem_secildi", "kapandi"]), pukoId: z.string() }).passthrough();
+
+/** Kiracı işlemindeki veritabanı deposu. Satırlar yalnız eklenir; okuma ekleme sırasıyla. */
+export function vtPukoDeposu(tx: Islem, kurumId: string): PukoDeposu {
+  return {
+    async ekle(o: PukoOlayi) {
+      await tx.insert(sema.pukoOlayi).values({
+        kurumId,
+        pukoId: o.pukoId,
+        tur: o.tur,
+        olay: JSON.parse(JSON.stringify(o)),
+        kararVerenKisiId: o.tur === "onlem_secildi" ? o.kararVeren : null,
+        zaman: new Date(o.zaman),
+      });
+    },
+    async olaylar() {
+      const satirlar = await tx
+        .select({ olay: sema.pukoOlayi.olay })
+        .from(sema.pukoOlayi)
+        .orderBy(asc(sema.pukoOlayi.sira));
+      return satirlar.map((s) => {
+        OlaySatiri.parse(s.olay);
+        return s.olay as PukoOlayi;
+      });
+    },
+  };
+}
+
+export interface PukoPaneli {
+  kartlar: (KararKarti & { hedefDonem: string | null })[];
+  otomatikSayisi: number;
+  yorgunluk: Awaited<ReturnType<typeof pukoYorgunlugu>>;
+}
+
+/** Kartın döneminden sonraki dönem (dönem tablosunda başlangıç sırasıyla); yoksa `null`. */
+async function sonrakiDonemler(tx: Islem): Promise<Map<string, string>> {
+  const d = await tx.select().from(sema.donem).orderBy(asc(sema.donem.baslangic));
+  const m = new Map<string, string>();
+  for (let i = 0; i + 1 < d.length; i++) m.set(d[i]?.ad as string, d[i + 1]?.ad as string);
+  return m;
+}
+
+/** Karar bekleyen kartlar (açık döngüler), katman 0 kayıt sayısı ve kurum düzeyi onay yorgunluğu. */
+export async function pukoPaneli(b: ServisBaglami): Promise<PukoPaneli> {
+  return islem(b, async (tx, gerekli) => {
+    await gerekli("olcme.oku", { tur: "kurum", id: b.aktor.kurumId });
+    const depo = vtPukoDeposu(tx, b.aktor.kurumId);
+    const sonraki = await sonrakiDonemler(tx);
+    const kartlar = (await pukoKayitlari(depo))
+      .filter((k) => k.durum === "acik")
+      .map((k) => ({ ...k.kart, hedefDonem: sonraki.get(k.kart.kume.olcumler[0]?.donem ?? "") ?? null }));
+    const [o] = await tx.select({ n: count() }).from(sema.gunluk).where(eq(sema.gunluk.eylem, "karar.otomatik"));
+    return { kartlar, otomatikSayisi: Number(o?.n ?? 0), yorgunluk: await pukoYorgunlugu(depo) };
+  });
+}
+
+function pukoHatasiCevir(e: unknown): never {
+  if (e instanceof PukoHatasi)
+    throw new ServisHatasi(/zaten karar/u.test(e.message) ? "cakisma" : "kural_ihlali", e.message);
+  throw e;
+}
+
+/**
+ * Önlem seçimi (katman 2). Karar veren oturumdaki kişidir; API anahtarı reddedilir. Seçim yalnız eklenen
+ * olay olarak yazılır ve günlüğe girer.
+ */
+export async function pukoOnlemSec(
+  b: ServisBaglami,
+  girdi: unknown,
+): Promise<{ devir: SessizDevirGirdisi[]; eylem: SurecEylemi }> {
+  if (b.aktor.tur !== "oturum")
+    throw new ServisHatasi("yetki_yok", "Önlem kararını yalnız oturum açmış kişi verebilir.");
+  return islem(b, async (tx, gerekli) => {
+    await gerekli("karar.ver", { tur: "kurum", id: b.aktor.kurumId });
+    const zaman = b.simdi().toISOString();
+    const r = await onlemSec(vtPukoDeposu(tx, b.aktor.kurumId), girdi, {
+      kimlik: randomUUID,
+      zaman,
+      aktor: b.aktor,
+    }).catch(pukoHatasiCevir);
+    await gunluge(
+      tx,
+      b,
+      "puko.onlem_secildi",
+      { tur: "puko", id: r.eylem.pukoId },
+      { hedefDonem: r.eylem.hedefDonem, dersSayisi: r.devir.length },
+    );
+    return r;
+  });
+}
+
+export const PukoOlcumGirdisi = z
+  .object({
+    olcumler: z.array(PukoOlcumu).min(1).max(5000),
+    /** Ölçme sonucunun kanıtı (kapanışın bağlandığı kayıt). Aynı kurumda var olmalı. */
+    kanitId: z.string().uuid(),
+  })
+  .strict();
+
+/**
+ * Dönem ölçümlerini işler: önlemi seçilmiş ve hedef dönemi gelen döngüleri kapatır (iyileşmediyse yeni kart),
+ * eşiği geçenleri katman 0 olarak günlüğe yazar, açık kartı olmayan eşik altı kümeler için kart açar.
+ */
+export async function pukoOlcumleriIsle(
+  b: ServisBaglami,
+  girdi: unknown,
+): Promise<{ otomatik: number; acilan: number; kapanan: number }> {
+  const g = PukoOlcumGirdisi.parse(girdi);
+  return islem(b, async (tx, gerekli) => {
+    await gerekli("olcme.veri_gir", { tur: "kurum", id: b.aktor.kurumId });
+    const [k] = await tx
+      .select({ id: sema.kanit.id })
+      .from(sema.kanit)
+      .where(and(eq(sema.kanit.id, g.kanitId)));
+    if (!k) throw new ServisHatasi("bulunamadi", "Ölçme sonucunun kanıtı bulunamadı.");
+    const depo = vtPukoDeposu(tx, b.aktor.kurumId);
+    const simdi = b.simdi();
+    const baglam = { kimlik: randomUUID, zaman: simdi.toISOString(), kokNeden: () => [] };
+    const s = await sonrakiDonemiIsle(depo, g.olcumler, { ...baglam, kanitId: g.kanitId });
+    const { otomatik, kartlar } = await kartlariUret(g.olcumler, baglam);
+    const acik = new Set(
+      (await pukoKayitlari(depo))
+        .filter((x) => x.durum === "acik" || x.durum === "onlem_secildi")
+        .map((x) => x.kart.kume.anahtar),
+    );
+    const yeni = kartlar.filter((x) => !acik.has(x.kume.anahtar));
+    await kartlariAc(depo, yeni);
+    await otomatikKayitlariYaz(tx, otomatik, simdi);
+    await gunluge(
+      tx,
+      b,
+      "puko.olcumler_islendi",
+      { tur: "kanit", id: g.kanitId },
+      { otomatik: otomatik.length, acilan: yeni.length + s.yeniKartlar.length, kapanan: s.kapananlar.length },
+    );
+    return { otomatik: otomatik.length, acilan: yeni.length + s.yeniKartlar.length, kapanan: s.kapananlar.length };
+  });
 }
