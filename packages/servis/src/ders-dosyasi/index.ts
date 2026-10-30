@@ -165,7 +165,7 @@ async function acilisYukle(tx: Islem, id: string) {
 }
 
 /** Dersin her kod için en son sürümdeki çıktıları. */
-async function dersCiktilari(tx: Islem, dersId: string) {
+export async function dersCiktilari(tx: Islem, dersId: string) {
   const satir = await tx
     .select()
     .from(sema.cikti)
@@ -425,7 +425,7 @@ async function olcmeVerisi(tx: Islem, acilisId: string, dersKodu: string, donem:
   return { veri, araclar, sorular };
 }
 
-async function matrisOku(tx: Islem, ciktilar: { id: string; kod: string }[]): Promise<CkPcMatrisi> {
+export async function matrisOku(tx: Islem, ciktilar: { id: string; kod: string }[]): Promise<CkPcMatrisi> {
   if (ciktilar.length === 0) return {};
   const katkilar = await tx
     .select({ k: sema.katki, pcKod: sema.cikti.kod })
@@ -449,7 +449,7 @@ async function matrisOku(tx: Islem, ciktilar: { id: string; kod: string }[]): Pr
   return m;
 }
 
-async function esikOku(tx: Islem, kurumId: string): Promise<number | undefined> {
+export async function esikOku(tx: Islem, kurumId: string): Promise<number | undefined> {
   const [k] = await tx.select({ a: sema.kurum.ayarlar }).from(sema.kurum).where(eq(sema.kurum.id, kurumId));
   const e = (k?.a as { esikler?: { ckBasari?: unknown } } | undefined)?.esikler?.ckBasari;
   return typeof e === "number" && e >= 0 && e <= 100 ? e : undefined;
