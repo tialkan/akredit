@@ -18,6 +18,7 @@ import type {
   OneriTuru,
   RiskDuzeyi,
   YetkiPolitikasiKapsami,
+  YoneticiOzeti,
 } from "@akredit/cekirdek";
 
 export interface Kullanici {
@@ -198,6 +199,8 @@ export interface PolitikaGirdisi {
   oneriTurleri: OneriTuru[];
   enYuksekRisk: RiskDuzeyi;
   enDusukGuven: number;
+  /** Dönem devrinde (İP-38) süreli varsayılan onayın itiraz süresi, iş günü (1-30). Verilmezse 5. */
+  itirazSuresiIsGunu?: number;
 }
 
 export type IslemSonucu<T> = { tamam: true; deger: T } | { tamam: false; hata: string };
@@ -220,6 +223,10 @@ export interface VeriKaynagi {
   ayarlar(): Promise<Ayarlar>;
 
   kararVer(girdi: KararGirdisi): Promise<IslemSonucu<Karar<OneriIcerigi>>>;
+  /** Dış gönderim kararından önce gösterilen özet (İP-39). Onay, özet görülmeden verilemez. */
+  yoneticiOzeti(oneriId: OneriId): Promise<IslemSonucu<YoneticiOzeti>>;
+  /** "Özet görüldü" kaydı: özetin imzasıyla günlüğe yazılır. */
+  ozetGoruldu(oneriId: OneriId, imza: string): Promise<IslemSonucu<{ imza: string; zaman: string }>>;
   /** Yalnız düşük ve orta riskli öneriler toplu onaylanır; yüksek risk varsa hiçbiri onaylanmaz. */
   topluKararVer(oneriIdleri: OneriId[], sureMs?: number): Promise<IslemSonucu<Karar<OneriIcerigi>[]>>;
   /** İmza bekleyen politika taslağı oluşturur. Yüksek risk için politika oluşturulamaz. */

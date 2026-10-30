@@ -135,6 +135,16 @@ export class ApiVeriKaynagi implements VeriKaynagi {
     };
     return this.#iste("POST", "/kararlar", govde) as ReturnType<VeriKaynagi["kararVer"]>;
   }
+  yoneticiOzeti(oneriId: Parameters<VeriKaynagi["yoneticiOzeti"]>[0]) {
+    return this.#iste("GET", `/oneriler/${encodeURIComponent(oneriId)}/yonetici-ozeti`) as ReturnType<
+      VeriKaynagi["yoneticiOzeti"]
+    >;
+  }
+  ozetGoruldu(oneriId: Parameters<VeriKaynagi["ozetGoruldu"]>[0], imza: string) {
+    return this.#iste("POST", `/oneriler/${encodeURIComponent(oneriId)}/ozet-goruldu`, { imza }) as ReturnType<
+      VeriKaynagi["ozetGoruldu"]
+    >;
+  }
   topluKararVer(oneriIdleri: Parameters<VeriKaynagi["topluKararVer"]>[0], sureMs?: number) {
     return this.#iste("POST", "/kararlar/toplu", {
       oneriIdleri,

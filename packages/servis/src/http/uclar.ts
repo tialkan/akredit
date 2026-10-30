@@ -16,6 +16,7 @@ import * as oneri from "../oneri.ts";
 import * as panel from "../panel.ts";
 import * as politika from "../politika.ts";
 import * as puko from "../puko/index.ts";
+import * as yoneticiOzeti from "../puko/yonetici-ozeti.ts";
 import * as rapor from "../rapor.ts";
 import * as s from "../semalar.ts";
 import * as wordPaketi from "../word-paketi/index.ts";
@@ -139,6 +140,26 @@ export const UCLAR: Uc[] = [
     cikti: s.Karar,
     basariDurumu: 201,
     isle: (b, g) => oneri.kararVer(b, g.govde),
+  },
+  {
+    ad: "yoneticiOzeti",
+    yontem: "GET",
+    yol: "/oneriler/{id}/yonetici-ozeti",
+    ozet: "Dış gönderim kararından önce gösterilen yönetici özeti (sayılar hesaptan)",
+    eylem: "rapor.gonder",
+    cikti: z.object({ imza: z.string() }).passthrough(),
+    isle: (b, g) => yoneticiOzeti.oneriYoneticiOzeti(b, g.yol.id as string),
+  },
+  {
+    ad: "yoneticiOzetiGoruldu",
+    yontem: "POST",
+    yol: "/oneriler/{id}/ozet-goruldu",
+    ozet: "Yönetici özetinin görüldüğünü özetin imzasıyla günlüğe yazar. Yalnız oturumla.",
+    eylem: "rapor.gonder",
+    govde: z.object({ imza: z.string().min(1).max(200) }).strict(),
+    cikti: z.object({ imza: z.string(), zaman: z.string() }),
+    isle: (b, g) =>
+      yoneticiOzeti.yoneticiOzetiGoruldu(b, { oneriId: g.yol.id, imza: (g.govde as { imza: string }).imza }),
   },
   {
     ad: "topluKararVer",
@@ -517,6 +538,25 @@ export const UCLAR: Uc[] = [
     isle: (b, g) => bologna.kaynagaYazmaIzniVer(b, g.govde),
   },
   {
+    ad: "bolognaDevirAyarlari",
+    yontem: "GET",
+    yol: "/bologna/devir-ayarlari",
+    ozet: "Sessiz devrin kurum ayarları: tatil günleri ve saat dilimi",
+    eylem: "oneri.oku",
+    cikti: bologna.DevirAyarlari,
+    isle: (b) => bologna.devirAyarlari(b),
+  },
+  {
+    ad: "bolognaDevirAyarlariKaydet",
+    yontem: "POST",
+    yol: "/bologna/devir-ayarlari",
+    ozet: "Tatil günlerini kaydet (yalnız oturumdaki kurum yöneticisi; günlüğe adıyla yazılır)",
+    eylem: "kurum.ayar_yonet",
+    govde: bologna.DevirAyarlariGirdisi,
+    cikti: bologna.DevirAyarlari,
+    isle: (b, g) => bologna.devirAyarlariniKaydet(b, g.govde),
+  },
+  {
     ad: "bolognaEksikGiderme",
     yontem: "POST",
     yol: "/bologna/dersler/{id}/eksik-giderme",
@@ -633,6 +673,8 @@ export const UCLAR: Uc[] = [
     cikti: z.object({
       devir: z.array(z.object({ dersKodu: z.string(), hedefDonem: z.string() }).passthrough()),
       eylem: z.object({ pukoId: z.string(), baslik: z.string() }).passthrough(),
+      eylemIdleri: z.array(z.string()),
+      sorumsuzDersler: z.array(z.string()),
     }),
     isle: (b, g) => puko.pukoOnlemSec(b, g.govde),
   },

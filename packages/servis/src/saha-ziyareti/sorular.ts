@@ -4,6 +4,7 @@
 //   - model önerisi ancak çerçevedeki bir ölçüt koduna bağlıysa listeye girer.
 // Her soruya o ölçüte kararla bağlanmış onaylı kanıtlar eşlenir. Cevap metni yazılmaz; kanıtı olmayan soru
 // "hazırlıksız" sayılır. Hazırlık oranı = kanıtlı soru / soru (ölçüt başına ve toplam), olasılık değildir.
+// Model önerisi soruları oranın paydasına girmez (sayısı modelden gelir); ayrı sayılır (`modelOnerisi`).
 
 import { ozetHesapla } from "@akredit/cekirdek";
 import { type Cerceve, type Olcut, tumOlcutler } from "@akredit/cerceveler";
@@ -56,7 +57,10 @@ export interface SahaListesi {
   cerceveKod: string;
   sorular: SahaSorusu[];
   hazirlik: OlcutHazirligi[];
+  /** Yalnız kuralli sorular (ölçüt ve EKSİK); model önerileri girmez. */
   toplam: { soru: number; kanitli: number; oran: number | null };
+  /** Model önerisi sorular: oranın dışında, ayrı gösterilir. */
+  modelOnerisi: { soru: number; kanitli: number };
 }
 
 export interface KanitBagi {
@@ -150,9 +154,9 @@ export function sorulariKur(g: SoruGirdisi): SahaListesi {
       if (e.olcutKod === o.kod) ekle(o, "eksik", eksikSorusuMetni(o.kod, e.metin), e.metin);
     for (const y of g.yzOnerileri ?? []) if (y.olcutKod === o.kod) ekle(o, "yz", y.metin.trim(), null);
   }
-  // Oran yalnız kurallı sorulardan (ölçüt ve EKSİK) hesaplanır: model önerisinin sayısı paydayı
-  // değiştirmez (ilke 2; inceleme dalga 8, D8-8).
+  // İnceleme dalga 8 bulgu 8: model önerisi oranın paydasına girmez; oran yalnız kuralli sorulardan.
   const kuralli = sorular.filter((x) => x.kaynak !== "yz");
+  const model = sorular.filter((x) => x.kaynak === "yz");
   const hazirlik: OlcutHazirligi[] = olcutler.map((o) => {
     const s = kuralli.filter((x) => x.olcutKod === o.kod);
     const kanitli = s.filter((x) => x.hazirlik === "hazir").length;
@@ -165,6 +169,7 @@ export function sorulariKur(g: SoruGirdisi): SahaListesi {
     sorular,
     hazirlik,
     toplam: { soru: kuralli.length, kanitli, oran: oranHesapla(kanitli, kuralli.length) },
+    modelOnerisi: { soru: model.length, kanitli: model.filter((x) => x.hazirlik === "hazir").length },
   };
 }
 

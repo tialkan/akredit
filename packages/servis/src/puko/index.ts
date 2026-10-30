@@ -19,11 +19,13 @@ import {
 } from "@akredit/cekirdek";
 import type { KokNeden } from "@akredit/olcme";
 import { type GunlukGirdisi, gunlugeYaz, type Islem, sema } from "@akredit/vt";
-import { and, asc, count, eq } from "drizzle-orm";
+import { gorevCalistir, pukoOnlemi, pukoOnlemleriniAyikla, type Saglayici, YzHatasi } from "@akredit/yz";
+import { and, asc, count, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { type Aktor, gunluge, islem, type ServisBaglami } from "../baglam.ts";
 import { ServisHatasi } from "../hata.ts";
-import { olcumleriHesapla, PukoOlcumSecimi } from "./olcum-hesabi.ts";
+import { kurumSaglayicisi, YzAnahtariYokHatasi } from "../yz-fabrika.ts";
+import { kokNedenAnahtari, olcumleriVeKokNedenleriHesapla, PukoOlcumSecimi } from "./olcum-hesabi.ts";
 import type {
   KararKarti,
   OnlemSecenegi,
@@ -66,6 +68,38 @@ export type OnlemOnericisi = (girdi: {
 }) => Promise<unknown>;
 
 const OnericiCiktisi = z.array(z.string()).max(10);
+
+/**
+ * Kurum sağlayıcısıyla (çıkış kapısından geçmiş) önlem önericisi. Model yalnız rakamsız metin önerir; kök
+ * nedenler modele açıklama olarak gider. Kural dışı öğeler `pukoOnlemleriniAyikla` ile düşer, ardından kart
+ * kurulurken `onlemMetniGecerliMi` ile yeniden denetlenir.
+ */
+export function yzOnlemOnericisi(saglayici: Saglayici): OnlemOnericisi {
+  return async (g) => {
+    const r = await gorevCalistir(
+      pukoOnlemi,
+      {
+        olcumTuru: g.olcumTuru,
+        kod: g.kod,
+        dersKodlari: g.dersKodlari,
+        kokNedenler: g.kokNedenler.map((k) => k.aciklama),
+      },
+      saglayici,
+    );
+    return pukoOnlemleriniAyikla(r.veri).onlemler;
+  };
+}
+
+/** Kurumun sağlayıcısı (kurum anahtarı ya da kurum içi model, `politikaUygula` ile çıkış kapısında). Yoksa null. */
+async function kurumOnlemSaglayicisi(b: ServisBaglami): Promise<Saglayici | null> {
+  try {
+    return (await kurumSaglayicisi(b.db, b.aktor.kurumId, { simdi: b.simdi, bildir: false })).saglayici;
+  } catch (e) {
+    // Anahtar yoksa ya da kurum yurt dışına izin vermiyorsa model kullanılmaz; hazır önlemler gelir.
+    if (e instanceof YzAnahtariYokHatasi || e instanceof YzHatasi) return null;
+    throw e;
+  }
+}
 
 /** Model yoksa ya da yetersizse kullanılan hazır önlemler (rakamsız). */
 export const KURAL_ONLEMLERI: readonly string[] = [
@@ -437,32 +471,106 @@ function pukoHatasiCevir(e: unknown): never {
   throw e;
 }
 
+/** Önlemin gelecek dönem Bologna taslağında yazıldığı alan: yöntem ve tekniklerin sonuna eklenir. */
+export const PUKO_BOLOGNA_ALANI = "yontem" as const;
+
+/**
+ * Seçilen önlemi süreç motoruna (İP-14 `eylem`) ve İP-38 sessiz devrine bağlar. Her ders için bir eylem açılır:
+ * sorumlu, hedef dönemdeki (yoksa ölçülen dönemdeki) ders açılışının ilk sorumlusu; son tarih hedef dönemin
+ * başlangıcı; aşama "önlem al". Eylemin kaynağı `secildi` ve `bolognaDuzeltmesi` taşır; sessiz devir
+ * (`devirBaslat`) geçen dönemde açılmış bu eylemi okuyup önlemi yeni dönem taslağının yöntem alanına ekler.
+ */
+async function onlemiSureceBagla(
+  tx: Islem,
+  b: ServisBaglami,
+  r: { devir: SessizDevirGirdisi[]; eylem: SurecEylemi },
+  olculenDonem: string | null,
+): Promise<{ eylemIdleri: string[]; sorumsuz: string[] }> {
+  const [hedef] = await tx.select().from(sema.donem).where(eq(sema.donem.ad, r.eylem.hedefDonem));
+  if (!hedef) throw new ServisHatasi("bulunamadi", `${r.eylem.hedefDonem} dönemi kayıtlı değil. Önce dönemi ekleyin.`);
+  const [olculen] = olculenDonem
+    ? await tx.select().from(sema.donem).where(eq(sema.donem.ad, olculenDonem))
+    : [undefined];
+  if (olculen && hedef.baslangic <= olculen.baslangic)
+    throw new ServisHatasi("kural_ihlali", "Hedef dönem ölçülen dönemden sonra olmalı.");
+  const eylemIdleri: string[] = [];
+  const sorumsuz: string[] = [];
+  for (const d of r.devir) {
+    const dersler = await tx.select().from(sema.ders).where(eq(sema.ders.kod, d.dersKodu));
+    if (dersler.length !== 1)
+      throw new ServisHatasi(
+        dersler.length ? "kural_ihlali" : "bulunamadi",
+        dersler.length
+          ? `${d.dersKodu} kodu birden çok derste kayıtlı. Ders kodunu tekleştirin.`
+          : `${d.dersKodu} dersi kayıtlı değil.`,
+      );
+    const ders = dersler[0] as (typeof dersler)[number];
+    const donemIdleri = [hedef.id, ...(olculen ? [olculen.id] : [])];
+    const acilislar = await tx
+      .select()
+      .from(sema.dersAcilisi)
+      .where(and(eq(sema.dersAcilisi.dersId, ders.id), inArray(sema.dersAcilisi.donemId, donemIdleri)))
+      .orderBy(asc(sema.dersAcilisi.olusturma), asc(sema.dersAcilisi.id));
+    const sorumlu =
+      acilislar.find((a) => a.donemId === hedef.id && a.sorumluKisiIdleri.length)?.sorumluKisiIdleri[0] ??
+      acilislar.find((a) => a.sorumluKisiIdleri.length)?.sorumluKisiIdleri[0] ??
+      null;
+    if (!sorumlu) sorumsuz.push(d.dersKodu);
+    const [e] = await tx
+      .insert(sema.eylem)
+      .values({
+        kurumId: b.aktor.kurumId,
+        kaynak: {
+          tur: "puko",
+          id: d.dayanak.pukoId,
+          dersId: ders.id,
+          hedefDonem: d.hedefDonem,
+          secildi: true,
+          kararVeren: d.dayanak.kararVeren,
+          bolognaDuzeltmesi: { alan: PUKO_BOLOGNA_ALANI, dil: "tr", metin: d.metin, kip: "ekle" },
+        },
+        tanim: r.eylem.baslik,
+        sorumluKisiId: sorumlu,
+        hedefTarih: new Date(`${hedef.baslangic}T00:00:00Z`),
+        pukoAsamasi: "onlem_al",
+        olusturma: b.simdi(),
+      })
+      .returning({ id: sema.eylem.id });
+    if (!e) throw new Error("Eylem eklenemedi.");
+    eylemIdleri.push(e.id);
+  }
+  return { eylemIdleri, sorumsuz };
+}
+
 /**
  * Önlem seçimi (katman 2). Karar veren oturumdaki kişidir; API anahtarı reddedilir. Seçim yalnız eklenen
- * olay olarak yazılır ve günlüğe girer.
+ * olay olarak yazılır, günlüğe girer ve her ders için süreç motorunda bir eylem açar (sessiz devir girdisi).
  */
 export async function pukoOnlemSec(
   b: ServisBaglami,
   girdi: unknown,
-): Promise<{ devir: SessizDevirGirdisi[]; eylem: SurecEylemi }> {
+): Promise<{ devir: SessizDevirGirdisi[]; eylem: SurecEylemi; eylemIdleri: string[]; sorumsuzDersler: string[] }> {
   if (b.aktor.tur !== "oturum")
     throw new ServisHatasi("yetki_yok", "Önlem kararını yalnız oturum açmış kişi verebilir.");
   return islem(b, async (tx, gerekli) => {
     await gerekli("karar.ver", { tur: "kurum", id: b.aktor.kurumId });
     const zaman = b.simdi().toISOString();
-    const r = await onlemSec(vtPukoDeposu(tx, b.aktor.kurumId), girdi, {
+    const depo = vtPukoDeposu(tx, b.aktor.kurumId);
+    const r = await onlemSec(depo, girdi, {
       kimlik: randomUUID,
       zaman,
       aktor: b.aktor,
     }).catch(pukoHatasiCevir);
+    const kayit = (await pukoKayitlari(depo)).find((k) => k.pukoId === r.eylem.pukoId);
+    const bag = await onlemiSureceBagla(tx, b, r, kayit?.kart.kume.olcumler[0]?.donem ?? null);
     await gunluge(
       tx,
       b,
       "puko.onlem_secildi",
       { tur: "puko", id: r.eylem.pukoId },
-      { hedefDonem: r.eylem.hedefDonem, dersSayisi: r.devir.length },
+      { hedefDonem: r.eylem.hedefDonem, dersSayisi: r.devir.length, eylemler: bag.eylemIdleri },
     );
-    return r;
+    return { ...r, eylemIdleri: bag.eylemIdleri, sorumsuzDersler: bag.sorumsuz };
   });
 }
 
@@ -487,9 +595,12 @@ export const PukoOlcumGirdisi = z
 export async function pukoOlcumleriIsle(
   b: ServisBaglami,
   girdi: unknown,
+  secenek: { saglayici?: Saglayici | null } = {},
 ): Promise<{ otomatik: number; acilan: number; kapanan: number }> {
   if (b.aktor.tur !== "oturum") throw new ServisHatasi("yetki_yok", "Ölçümleri yalnız oturum açmış kişi işleyebilir.");
   const g = PukoOlcumGirdisi.parse(girdi);
+  // Sağlayıcı işlemden önce kurulur (kendi kiracı işlemini açar).
+  const saglayici = secenek.saglayici !== undefined ? secenek.saglayici : await kurumOnlemSaglayicisi(b);
   return islem(b, async (tx, gerekli) => {
     await gerekli("olcme.veri_gir", { tur: "kurum", id: b.aktor.kurumId });
     const [k] = await tx
@@ -497,13 +608,21 @@ export async function pukoOlcumleriIsle(
       .from(sema.kanit)
       .where(and(eq(sema.kanit.id, g.kanitId), eq(sema.kanit.kurumId, b.aktor.kurumId)));
     if (!k) throw new ServisHatasi("bulunamadi", "Ölçme sonucunun kanıtı bulunamadı.");
-    const olcumler = (await olcumleriHesapla(tx, b.aktor.kurumId, g.secimler)).map((o) => ({
+    const hesap = await olcumleriVeKokNedenleriHesapla(tx, b.aktor.kurumId, g.secimler);
+    const olcumler = hesap.olcumler.map((o) => ({
       ...o,
       kaynak: { ...o.kaynak, kanitId: g.kanitId },
     }));
     const depo = vtPukoDeposu(tx, b.aktor.kurumId);
     const simdi = b.simdi();
-    const baglam = { kimlik: randomUUID, zaman: simdi.toISOString(), kokNeden: () => [] };
+    const onerici = saglayici ? yzOnlemOnericisi(saglayici) : undefined;
+    const baglam: KartUretmeBaglami = {
+      kimlik: randomUUID,
+      zaman: simdi.toISOString(),
+      // Kök neden madde analizinden (`@akredit/olcme` `kokNedenAnalizi`); hesaplanamadıysa boş.
+      kokNeden: (o) => hesap.kokNedenler.get(kokNedenAnahtari(o)) ?? [],
+      ...(onerici ? { onerici } : {}),
+    };
     const s = await sonrakiDonemiIsle(depo, olcumler, { ...baglam, kanitId: g.kanitId });
     const { otomatik, kartlar } = await kartlariUret(olcumler, baglam);
     const acik = new Set(

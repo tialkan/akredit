@@ -9,6 +9,7 @@ import type { z } from "zod";
 import { gunluge, type Hedef, islem, type ServisBaglami } from "./baglam.ts";
 import { bulunamadi, ServisHatasi } from "./hata.ts";
 import { kanitHedefi } from "./kanit.ts";
+import { nihaiKararKapisi } from "./puko/yonetici-ozeti.ts";
 import {
   type Karar,
   KararGirdisi,
@@ -178,6 +179,7 @@ async function kararEkle(
     sureMs?: number | undefined;
   },
   toplu: boolean,
+  ozetImzasi: string | null = null,
 ): Promise<KararCiktisi> {
   const duzeltme = g.sonuc === "duzeltildi" ? { ...icerikOku(o), metin: (g.duzeltme ?? "").trim() } : null;
   const [k] = await tx
@@ -207,6 +209,7 @@ async function kararEkle(
       dayanak: "dogrudan",
       toplu,
       ...(g.sureMs !== undefined ? { sureMs: g.sureMs } : {}),
+      ...(ozetImzasi ? { gorulenOzet: ozetImzasi } : {}),
     },
   );
   return kararCiktisi(k);
@@ -223,7 +226,9 @@ export async function kararVer(b: ServisBaglami, girdi: unknown): Promise<KararC
     await gerekli("karar.ver", hedef);
     if ((await kararliIdler(tx, [o.id])).size)
       throw new ServisHatasi("cakisma", "Bu öneriye zaten karar verilmiş. Sayfayı yenileyin.");
-    return kararEkle(tx, b, o, g, false);
+    // İP-39: dış gönderimde onay, karar verenin güncel yönetici özetini gördüğü günlük kaydını ister.
+    const imza = await nihaiKararKapisi(tx, b.aktor.kurumId, o, b.aktor.kisiId, g.sonuc);
+    return kararEkle(tx, b, o, g, false, imza);
   });
 }
 

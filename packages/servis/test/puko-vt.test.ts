@@ -1,9 +1,13 @@
 // PÜKÖ'nün kalıcı deposu ve REST uçları (İP-39): PGlite, ağ yok. Ders kodları ve ölçümler uydurmadır.
 
+import type { BolognaTaslagi } from "@akredit/cekirdek";
 import { kiraciIslemi, sema } from "@akredit/vt";
+import { bolognaOrnek, politikaUygula, sahteSaglayici } from "@akredit/yz";
 import { and, eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { Aktor } from "../src/baglam.ts";
+import { donemOnlemleri } from "../src/bologna/devir.ts";
+import { devirTaslagiKur } from "../src/bologna/devir-saf.ts";
 import { apiIsleyici } from "../src/http/isleyici.ts";
 import { puko } from "../src/index.ts";
 import { type Ornek, ortam, SIMDI } from "./yardimci.ts";
@@ -192,6 +196,19 @@ describe("PÜKÖ kalıcı depo ve uçlar", () => {
     expect(kart.kume.olcumler.map((x) => x.dersKodu)).toEqual(["BP101", "BP102"]);
     expect(kart.hedefDonem).toBe(GUZ);
     expect(p.otomatikSayisi).toBeGreaterThanOrEqual(1);
+    // Kök neden REST ölçüm ucunda madde analizinden dolar. BP101: tek soru, tam puan 100, puanlar 30 ve 50;
+    // güçlük indeksi = ortalama / tam puan = 40 / 100 = 0,4 < 0,5 → zor soru. ÇK tek soruyla ölçülür → tek ölçüm.
+    // BP102: 55 / 100 = 0,55, zor değil.
+    expect(kart.kokNedenler.BP101?.map((n) => [n.tur, n.soruNo ?? null, n.deger ?? null])).toEqual([
+      ["zor_soru", "1", 0.4],
+      ["tek_olcum", null, null],
+    ]);
+    // BP101 ayırt edicilik = (üst - alt) / tam puan = (50 - 30) / 100 = 0,2, eşiğin altında değil.
+    // BP102 ayırt edicilik = (60 - 50) / 100 = 0,1 < 0,2 → ayırt etmeyen soru.
+    expect(kart.kokNedenler.BP102?.map((n) => [n.tur, n.deger ?? null])).toEqual([
+      ["ayirt_etmeyen_soru", 0.1],
+      ["tek_olcum", null],
+    ]);
     kartId = kart.id;
     secenekId = kart.secenekler[0]?.id as string;
     expect((await puko.pukoPaneli(await o.baglam(o.b, o.b.yonetici))).kartlar).toEqual([]);
@@ -210,9 +227,30 @@ describe("PÜKÖ kalıcı depo ve uçlar", () => {
     expect(sahte.status).toBe(400);
   });
 
+  it("önlem: kayıtlı olmayan hedef dönem 404, ölçülen dönemden önceki hedef reddedilir; hiçbir şey yazılmaz", async () => {
+    const b = await o.baglam(o.a, o.a.yonetici);
+    const govde = { kartId, secim: { secenekId }, sureMs: 12_000 };
+    await expect(puko.pukoOnlemSec(b, { ...govde, hedefDonem: "2030 Yok" })).rejects.toMatchObject({
+      kod: "bulunamadi",
+    });
+    await expect(puko.pukoOnlemSec(b, { ...govde, hedefDonem: BAHAR })).rejects.toMatchObject({
+      kod: "kural_ihlali",
+    });
+    expect((await puko.pukoPaneli(b)).kartlar).toHaveLength(1);
+  });
+
   it("önlem oturumdaki kişinin adıyla yalnız eklenen olay olarak yazılır; ikinci karar çakışma", async () => {
     const isle = apiIsleyici({ db: o.db, simdi: () => SIMDI });
     const y = await aktor(o.a, o.a.yonetici);
+    // BP101'in Güz açılışına sorumlu atanır; BP102'nin sorumlusu yok.
+    await kiraciIslemi(o.db, o.a.kurumId, async (tx) => {
+      const [d] = await tx.select().from(sema.ders).where(eq(sema.ders.kod, "BP101"));
+      const [dn] = await tx.select().from(sema.donem).where(eq(sema.donem.ad, GUZ));
+      await tx
+        .update(sema.dersAcilisi)
+        .set({ sorumluKisiIdleri: [o.a.ogretim] })
+        .where(and(eq(sema.dersAcilisi.dersId, d?.id as string), eq(sema.dersAcilisi.donemId, dn?.id as string)));
+    });
     const govde = { kartId, secim: { secenekId }, hedefDonem: GUZ, sureMs: 12_000 };
     const r = await isle(istek("POST", "/puko/onlem", govde), y);
     expect(r.status, await r.clone().text()).toBe(200);
@@ -231,16 +269,81 @@ describe("PÜKÖ kalıcı depo ve uçlar", () => {
     expect((await puko.pukoPaneli(await o.baglam(o.a, o.a.yonetici))).kartlar).toEqual([]);
   });
 
-  it("sonraki dönem ölçümü döngüyü kapatır; iyileşmeyen ders yeni karta girer", async () => {
-    const b = await o.baglam(o.a, o.a.yonetici);
-    const r = await puko.pukoOlcumleriIsle(b, {
-      secimler: [sec("BP101", GUZ), sec("BP102", GUZ)],
-      kanitId: o.a.kanitKurum,
+  it("seçilen önlem süreç motorunda ders başına eylem açar ve sessiz devir onu yeni dönem taslağına ekler", async () => {
+    const eylemler = await kiraciIslemi(o.db, o.a.kurumId, (tx) =>
+      tx.select().from(sema.eylem).orderBy(sema.eylem.tanim),
+    );
+    const puk = eylemler.filter((e) => (e.kaynak as { tur?: string }).tur === "puko");
+    expect(puk).toHaveLength(2);
+    const ders = await kiraciIslemi(o.db, o.a.kurumId, (tx) => tx.select().from(sema.ders));
+    const dersId = (kod: string) => ders.find((d) => d.kod === kod)?.id;
+    const bp101 = puk.find((e) => (e.kaynak as { dersId: string }).dersId === dersId("BP101"));
+    const bp102 = puk.find((e) => (e.kaynak as { dersId: string }).dersId === dersId("BP102"));
+    // Sorumlu: hedef dönem açılışının ilk sorumlusu; son tarih hedef dönemin başlangıcı; aşama "önlem al".
+    expect(bp101?.sorumluKisiId).toBe(o.a.ogretim);
+    expect(bp102?.sorumluKisiId).toBeNull();
+    expect(bp101?.hedefTarih?.toISOString()).toBe("2026-09-21T00:00:00.000Z");
+    expect(bp101?.pukoAsamasi).toBe("onlem_al");
+    expect(bp101?.tanim).toMatch(/^PÇ3 için önlem: /u);
+    // İP-38 devir girdisi: sessiz devir bu eylemi okur, önlemi yöntem alanının sonuna ekler.
+    const onlemler = await kiraciIslemi(o.db, o.a.kurumId, (tx) =>
+      donemOnlemleri(tx, dersId("BP101") as string, { bas: new Date("2026-09-21"), son: new Date("2027-02-15") }),
+    );
+    expect(onlemler).toHaveLength(1);
+    const dz = onlemler[0]?.bolognaDuzeltmesi;
+    expect(dz).toMatchObject({ alan: "yontem", dil: "tr", kip: "ekle" });
+    const { dayanaklar: _d, ...c } = bolognaOrnek.ornekCikti();
+    const onceki = { ...bolognaOrnek.ornekGirdi().sabit, ...c } as unknown as BolognaTaslagi;
+    const [te, uy, la] = onceki.tul.split("+").map(Number);
+    const s = devirTaslagiKur(onceki, {
+      ders: {
+        kod: onceki.kod,
+        ad: onceki.ad,
+        akts: onceki.akts,
+        teorik: te ?? 0,
+        uygulama: uy ?? 0,
+        laboratuvar: la ?? 0,
+      },
+      programCiktilari: null,
+      onlemler,
     });
+    expect(s.taslak.yontem).toEqual({ tr: `${onceki.yontem.tr}\n\n${dz?.metin}`, en: onceki.yontem.en });
+    expect(s.onlemler.map((x) => x.uygulandi)).toEqual([true]);
+  });
+
+  it("sonraki dönem ölçümü döngüyü kapatır; iyileşmeyen ders yeni karta girer; YZ önerisi kurum sağlayıcısından, rakamsız", async () => {
+    const b = await o.baglam(o.a, o.a.yonetici);
+    const sahte = sahteSaglayici([
+      JSON.stringify({
+        onlemler: [
+          "Zor çıkan konuyu derste ek uygulamayla yeniden işle.",
+          "Sınavda soruların yüzde 50'sini bu çıktıya ayır.",
+          "Ara değerlendirmeyi 3 haftada bir yap.",
+          "Soruların çıktıyla uyumunu bölüm kurulunda gözden geçir.",
+        ],
+      }),
+    ]);
+    // Kurum sağlayıcısı çıkış kapısından (`politikaUygula`) geçer.
+    const saglayici = politikaUygula(sahte, { yurtDisiIzin: false, maske: {} });
+    const r = await puko.pukoOlcumleriIsle(
+      b,
+      { secimler: [sec("BP101", GUZ), sec("BP102", GUZ)], kanitId: o.a.kanitKurum },
+      { saglayici },
+    );
     expect(r).toMatchObject({ kapanan: 1, acilan: 1 });
     const p = await puko.pukoPaneli(b);
     expect(p.kartlar).toHaveLength(1);
     expect(p.kartlar[0]?.oncekiPukoId).toBeTruthy();
+    const secenekler = p.kartlar[0]?.secenekler ?? [];
+    expect(secenekler.filter((x) => x.uretici === "yz").map((x) => x.metin)).toEqual([
+      "Zor çıkan konuyu derste ek uygulamayla yeniden işle.",
+      "Soruların çıktıyla uyumunu bölüm kurulunda gözden geçir.",
+    ]);
+    for (const x of secenekler) expect(x.metin).not.toMatch(/\p{Nd}/u);
+    // Modele kök neden açıklaması gider, öğrenci takma adı ya da puan gitmez.
+    const giden = JSON.stringify(sahte.istekler);
+    expect(giden).toContain("BP102");
+    expect(giden).not.toContain("ogr-");
   });
 });
 

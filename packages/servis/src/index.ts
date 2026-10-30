@@ -23,6 +23,7 @@ export * as oneri from "./oneri.ts";
 export * as panel from "./panel.ts";
 export * as politika from "./politika.ts";
 export * as puko from "./puko/index.ts";
+export * as yoneticiOzeti from "./puko/yonetici-ozeti.ts";
 export * as rapor from "./rapor.ts";
 export * as sahaZiyareti from "./saha-ziyareti/index.ts";
 export type { Sayfa, SayfaGirdisi } from "./semalar.ts";

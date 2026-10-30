@@ -70,6 +70,7 @@ export function KararKartlari({ ilkKartlar, gercek = false }: { ilkKartlar: Kart
     if (!hedefDonem)
       return setHata((x) => ({ ...x, [kart.id]: "Önlemin uygulanacağı dönemi yazın (ör. 2026-2027 Güz)." }));
     const sureMs = Math.min(Date.now() - acilis.current, 3_600_000);
+    let sorumsuz: string[] = [];
     if (gercek) {
       setGonderiliyor(true);
       const r = await onlemGonder({
@@ -80,11 +81,19 @@ export function KararKartlari({ ilkKartlar, gercek = false }: { ilkKartlar: Kart
       });
       setGonderiliyor(false);
       if (!r.tamam) return setHata((x) => ({ ...x, [kart.id]: r.hata }));
+      sorumsuz = r.sorumsuzDersler;
     }
     setSureler((x) => [...x, { katman: 2, sureMs, sonuc: s.tur === "kendi" ? "duzeltildi" : "onaylandi" }]);
     setKartlar((x) => x.filter((k) => k.id !== kart.id));
     setOdak((o) => Math.max(0, Math.min(o, kartlar.length - 2)));
-    bildir(`Karar kaydedildi: ${metin}. Önlem gelecek dönemin ders bilgi paketine ve görevlere eklenecek.`, "basari");
+    bildir(
+      `Karar kaydedildi: ${metin}. Önlem gelecek dönemin ders bilgi paketine ve görevlere eklenecek.${
+        sorumsuz.length
+          ? ` Sorumlusu olmayan dersler: ${sorumsuz.join(", ")}. Süreçler sayfasından sorumlu atayın.`
+          : ""
+      }`,
+      "basari",
+    );
   };
 
   useEffect(() => {

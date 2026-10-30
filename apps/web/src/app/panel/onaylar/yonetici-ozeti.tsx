@@ -15,10 +15,13 @@ const isaretli = (x: number) => `${x > 0 ? "+" : ""}${sayi(x)}`;
 export function YoneticiOzeti({
   ozet,
   baslik = "Yönetici özeti",
+  dugme = "Raporu onayla",
   onayla,
 }: {
   ozet: Ozet;
   baslik?: string;
+  /** Onay düğmesinin metni. */
+  dugme?: string;
   /** Kapı açıksa çağrılır; görülen özetin imzasını alır. */
   onayla: (gorulenImza: string) => void;
 }) {
@@ -103,7 +106,7 @@ export function YoneticiOzeti({
           aria-describedby="yonetici-ozeti-kapi"
           onClick={() => kapi.gecerli && gorulme && onayla(gorulme.imza)}
         >
-          Raporu onayla
+          {dugme}
         </Dugme>
         <span id="yonetici-ozeti-kapi" className="text-sm text-soluk" aria-live="polite">
           {kapi.gecerli ? "Özeti gördünüz; onay verebilirsiniz." : kapi.neden}

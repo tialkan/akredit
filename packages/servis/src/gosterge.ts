@@ -114,92 +114,96 @@ export async function olcmeVeriNoktalari(tx: Islem, kurumId: string): Promise<Ve
 /** Kurum geneli gösterge panosu verisi. Kurum kapsamında ölçme okuma yetkisi gerekir. */
 export async function gostergePanosu(b: ServisBaglami): Promise<GostergePanosu> {
   return islem(b, async (tx, gerekli) => {
-    const kurumId = b.aktor.kurumId;
-    await gerekli("olcme.oku", { tur: "kurum", id: kurumId });
-    const reddedilenler: ReddedilenVeri[] = [];
-    const gostergeler = await tx.select().from(sema.gosterge).orderBy(asc(sema.gosterge.kod));
-    const tanimlar: GostergeTanimi[] = [];
-    const tanimId = new Map<string, GostergeTanimi>();
-    for (const g of gostergeler) {
-      try {
-        const t = gostergeTanimiOku({
-          ...(g.hesapTanimi as Record<string, unknown>),
-          kod: g.kod,
-          ad: g.ad,
-          birim: g.birim ?? "",
-        });
-        tanimlar.push(t);
-        tanimId.set(g.id, t);
-      } catch {
-        reddedilenler.push({
-          gostergeKod: g.kod,
-          anahtar: null,
-          donem: null,
-          neden: "Gösterge tanımı eksik ya da hatalı.",
-        });
-      }
-    }
-
-    const olcumler = await tx
-      .select({ o: sema.gostergeOlcumu, donem: sema.donem.ad })
-      .from(sema.gostergeOlcumu)
-      .leftJoin(sema.donem, eq(sema.donem.id, sema.gostergeOlcumu.donemId))
-      .orderBy(asc(sema.gostergeOlcumu.olusturma), asc(sema.gostergeOlcumu.id));
-    const onayli = await onayliKanitIdleri(tx);
-    const kanitIdleri = olcumler
-      .map((x) => OlcumKaynagi.safeParse(x.o.kaynak).data?.kaynak)
-      .flatMap((k) => (k?.tur === "elle" || (k?.tur === "baglayici" && k.kanitId) ? [k.kanitId as string] : []))
-      .filter((id) => z.uuid().safeParse(id).success);
-    const varOlanKanit = new Set(
-      kanitIdleri.length
-        ? (await tx.select({ id: sema.kanit.id }).from(sema.kanit).where(inArray(sema.kanit.id, kanitIdleri))).map(
-            (k) => k.id,
-          )
-        : [],
-    );
-
-    const veriler: VeriNoktasi[] = [];
-    for (const { o, donem } of olcumler) {
-      const t = tanimId.get(o.gostergeId);
-      const kod = t?.kod ?? "?";
-      const k = OlcumKaynagi.safeParse(o.kaynak);
-      const red = (neden: string) =>
-        reddedilenler.push({ gostergeKod: kod, anahtar: k.data?.anahtar ?? null, donem, neden });
-      if (!t) continue; // tanımı reddedilmiş gösterge: neden zaten listede
-      if (!k.success) {
-        red("Verinin kaynağı belirtilmemiş.");
-        continue;
-      }
-      if (!donem) {
-        red("Verinin dönemi belirtilmemiş.");
-        continue;
-      }
-      const deger = o.deger === null ? Number.NaN : Number(o.deger);
-      if (!Number.isFinite(deger)) {
-        red("Değer sayı değil.");
-        continue;
-      }
-      const kaynak = k.data.kaynak;
-      if (kaynak.tur === "elle") {
-        if (!varOlanKanit.has(kaynak.kanitId)) {
-          red("Elle girilen değerin kanıtı bulunamadı.");
-          continue;
-        }
-        if (!onayli.has(kaynak.kanitId)) {
-          red("Elle girilen değerin kanıtı henüz onaylanmadı. Kanıt onaylanınca değer hesaba girer.");
-          continue;
-        }
-      }
-      if (kaynak.tur === "olcme") {
-        // Ölçme kaynaklı noktalar yalnız ölçme motorundan türetilir; elle "ölçme" diye yazılan değer kabul edilmez.
-        red("Ölçme verisi elle girilemez; ölçme sonuçlarından hesaplanır.");
-        continue;
-      }
-      veriler.push({ anahtar: k.data.anahtar, donem, deger, kaynak });
-    }
-    veriler.push(...(await olcmeVeriNoktalari(tx, kurumId)));
-
-    const donemler = [...new Set(veriler.map((v) => v.donem))].sort((a, b) => a.localeCompare(b, "tr"));
-    return { donemler, tanimlar, veriler, reddedilenler };
+    await gerekli("olcme.oku", { tur: "kurum", id: b.aktor.kurumId });
+    return gostergeVerisi(tx, b.aktor.kurumId);
   });
+}
+
+/** Panonun verisi, çağıranın kiracı işleminde (yetki çağıranda denetlenir). */
+export async function gostergeVerisi(tx: Islem, kurumId: string): Promise<GostergePanosu> {
+  const reddedilenler: ReddedilenVeri[] = [];
+  const gostergeler = await tx.select().from(sema.gosterge).orderBy(asc(sema.gosterge.kod));
+  const tanimlar: GostergeTanimi[] = [];
+  const tanimId = new Map<string, GostergeTanimi>();
+  for (const g of gostergeler) {
+    try {
+      const t = gostergeTanimiOku({
+        ...(g.hesapTanimi as Record<string, unknown>),
+        kod: g.kod,
+        ad: g.ad,
+        birim: g.birim ?? "",
+      });
+      tanimlar.push(t);
+      tanimId.set(g.id, t);
+    } catch {
+      reddedilenler.push({
+        gostergeKod: g.kod,
+        anahtar: null,
+        donem: null,
+        neden: "Gösterge tanımı eksik ya da hatalı.",
+      });
+    }
+  }
+
+  const olcumler = await tx
+    .select({ o: sema.gostergeOlcumu, donem: sema.donem.ad })
+    .from(sema.gostergeOlcumu)
+    .leftJoin(sema.donem, eq(sema.donem.id, sema.gostergeOlcumu.donemId))
+    .orderBy(asc(sema.gostergeOlcumu.olusturma), asc(sema.gostergeOlcumu.id));
+  const onayli = await onayliKanitIdleri(tx);
+  const kanitIdleri = olcumler
+    .map((x) => OlcumKaynagi.safeParse(x.o.kaynak).data?.kaynak)
+    .flatMap((k) => (k?.tur === "elle" || (k?.tur === "baglayici" && k.kanitId) ? [k.kanitId as string] : []))
+    .filter((id) => z.uuid().safeParse(id).success);
+  const varOlanKanit = new Set(
+    kanitIdleri.length
+      ? (await tx.select({ id: sema.kanit.id }).from(sema.kanit).where(inArray(sema.kanit.id, kanitIdleri))).map(
+          (k) => k.id,
+        )
+      : [],
+  );
+
+  const veriler: VeriNoktasi[] = [];
+  for (const { o, donem } of olcumler) {
+    const t = tanimId.get(o.gostergeId);
+    const kod = t?.kod ?? "?";
+    const k = OlcumKaynagi.safeParse(o.kaynak);
+    const red = (neden: string) =>
+      reddedilenler.push({ gostergeKod: kod, anahtar: k.data?.anahtar ?? null, donem, neden });
+    if (!t) continue; // tanımı reddedilmiş gösterge: neden zaten listede
+    if (!k.success) {
+      red("Verinin kaynağı belirtilmemiş.");
+      continue;
+    }
+    if (!donem) {
+      red("Verinin dönemi belirtilmemiş.");
+      continue;
+    }
+    const deger = o.deger === null ? Number.NaN : Number(o.deger);
+    if (!Number.isFinite(deger)) {
+      red("Değer sayı değil.");
+      continue;
+    }
+    const kaynak = k.data.kaynak;
+    if (kaynak.tur === "elle") {
+      if (!varOlanKanit.has(kaynak.kanitId)) {
+        red("Elle girilen değerin kanıtı bulunamadı.");
+        continue;
+      }
+      if (!onayli.has(kaynak.kanitId)) {
+        red("Elle girilen değerin kanıtı henüz onaylanmadı. Kanıt onaylanınca değer hesaba girer.");
+        continue;
+      }
+    }
+    if (kaynak.tur === "olcme") {
+      // Ölçme kaynaklı noktalar yalnız ölçme motorundan türetilir; elle "ölçme" diye yazılan değer kabul edilmez.
+      red("Ölçme verisi elle girilemez; ölçme sonuçlarından hesaplanır.");
+      continue;
+    }
+    veriler.push({ anahtar: k.data.anahtar, donem, deger, kaynak });
+  }
+  veriler.push(...(await olcmeVeriNoktalari(tx, kurumId)));
+
+  const donemler = [...new Set(veriler.map((v) => v.donem))].sort((a, b) => a.localeCompare(b, "tr"));
+  return { donemler, tanimlar, veriler, reddedilenler };
 }
