@@ -5,7 +5,7 @@
 //   kanit.cikar | kanit.ocr | kanit.zenginlestir | kanit.sinifla   kanıt hattı (İP-10), ölü mektup `.olu`
 //   baglayici.planla {tur}            (tur: bologna|avesis|yokatlas|eposta|drive|site) zamanlayıcı tetikler; bağlayıcısı açık kurumlara eşitleme işi koyar
 //   baglayici.esitle {kurumId, tur}   tek kurumun tek bağlayıcısı (elle de konabilir: YÖK Atlas)
-//   surec.tik {}                      bütün kurumlarda süreç motoru turu: takvim, hatırlatma, yükseltme, e-posta
+//   surec.tik {}                      bütün kurumlarda süreç motoru turu: takvim, hatırlatma, yükseltme, e-posta, belge isteği (İP-45)
 //   bildirim.eposta {kurumId}         bekleyen bildirim e-postalarını hemen gönderir (web görev kapatınca koyar)
 //   gunluk.dogrula {}                 bütün kurumlarda değiştirilemez günlük zincirini doğrular
 //   rapor.kidr {kurumId, kisiId, girdi}  KİDR taslağı; isteyen kişinin yetkisiyle derlenir
@@ -18,6 +18,7 @@ import { type Vt, zinciriDogrula } from "@akredit/vt";
 import type { Saglayici } from "@akredit/yz";
 import type { PgBoss } from "pg-boss";
 import { z } from "zod";
+import { belgeIstegiTuru } from "../belge-istegi/index.ts";
 import { DEMO_CRON, DEMO_KUYRUGU, demoIsi } from "../demo/index.ts";
 import { devirIscisi } from "../devir/index.ts";
 import {
@@ -158,6 +159,8 @@ export async function isciKur(d: IsciBagimliliklari) {
       for (const kurumId of await kurumlariListele(d.db)) {
         try {
           await tik(surec, kurumId);
+          // İP-45: belge isteği hatırlatmaları ve yüklenen dış birim kanıtlarının kuyruğa konması.
+          await belgeIstegiTuru(hat, d.eposta, kurumId, d.saat.simdi());
         } catch (e) {
           durum.sonHata = "Süreç turu bir kurumda başarısız oldu.";
           d.gunluk.error({ kurumId, hata: e instanceof Error ? e.message : String(e) }, "süreç turu");

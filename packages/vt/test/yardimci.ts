@@ -187,6 +187,22 @@ export async function kurumVerisiEkle(db: Vt, kurumId: string, ad: string): Prom
       values (${baglantiId}, ${kurumId}, ${oneriKatki.id}, ${kisi.id}, 'onaylandi', ${t1.toISOString()}, ${t0.toISOString()})`);
     await tx.execute(sql`insert into onay_baglantisi_kullanimi (id, kurum_id, karar_id, zaman)
       values (${baglantiId}, ${kurumId}, ${kararKatki.id}, ${t0.toISOString()})`);
+    // İP-45: hesapsız belge isteği, gönderimi ve yüklemesi (göç 0080).
+    const istekId = crypto.randomUUID();
+    await tx.insert(s.belgeIstegi).values({
+      id: istekId,
+      kurumId,
+      istenen: "Personel eğitim planı",
+      aliciEposta: "personel@ornek.edu.tr",
+      isteyenKisiId: kisi.id,
+      belirtecOzet: `${kurumId.replace(/-/gu, "")}`.padEnd(64, "0"),
+      son: t1,
+      olusturma: t0,
+    });
+    await tx.insert(s.belgeIstegiGonderimi).values({ kurumId, istekId, tur: "ilk", durum: "gonderildi", zaman: t0 });
+    await tx
+      .insert(s.belgeIstegiYuklemesi)
+      .values({ id: istekId, kurumId, kanitId: kanit.id, oneriId: oneriDusuk.id, zaman: t0 });
 
     const arac = ilk(
       await tx
