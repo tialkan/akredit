@@ -77,7 +77,11 @@ export function cumlelereAyir(paragraf: string): { metin: string; baslangic: num
   return parcalar;
 }
 
-/** Paragrafı atıflı cümlelere ayırır. Paragraf sonunda tek atıf yazımında atıf bütün cümlelere geçer. */
+/**
+ * Paragrafı atıflı cümlelere ayırır. Atıf kendinden önce gelen metni kapsar: atfı olmayan cümle, kendisinden
+ * sonra gelen ilk atıflı cümlenin atfını alır ("Kurul toplandı. Karar alındı [K:…]."). Son atıftan sonra
+ * gelen cümle kanıtsızdır.
+ */
 export function raporCumleleri(paragraf: string): RaporCumlesi[] {
   const ham = cumlelereAyir(paragraf).map((c) => ({
     ...c,
@@ -85,16 +89,15 @@ export function raporCumleleri(paragraf: string): RaporCumlesi[] {
     hesaplar: hesapAtiflari(c.metin),
     eksikIsareti: eksikleriAyristir(c.metin).length > 0,
   }));
-  const paragrafAtiflari = ham.flatMap((c) => c.atiflar);
-  const paragrafHesaplari = ham.flatMap((c) => c.hesaplar);
-  const paragrafKaynakli = paragrafAtiflari.length + paragrafHesaplari.length > 0;
-  return ham.map(({ eksikIsareti, ...c }) => {
+  return ham.map(({ eksikIsareti, ...c }, i) => {
     const kendi = c.atiflar.length + c.hesaplar.length > 0;
-    const kaynak = kendi ? "kendi" : paragrafKaynakli && !eksikIsareti ? "paragraf" : "yok";
+    const sonraki =
+      kendi || eksikIsareti ? undefined : ham.slice(i + 1).find((x) => x.atiflar.length + x.hesaplar.length > 0);
+    const kaynak = kendi ? "kendi" : sonraki ? "paragraf" : "yok";
     return {
       ...c,
-      atiflar: kendi ? c.atiflar : kaynak === "paragraf" ? paragrafAtiflari : [],
-      hesaplar: kendi ? c.hesaplar : kaynak === "paragraf" ? paragrafHesaplari : [],
+      atiflar: kendi ? c.atiflar : (sonraki?.atiflar ?? []),
+      hesaplar: kendi ? c.hesaplar : (sonraki?.hesaplar ?? []),
       kaynak,
       eksik: eksikIsareti || kaynak === "yok",
     };
