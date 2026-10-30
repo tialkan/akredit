@@ -43,8 +43,7 @@ export function soruMetniSorunu(metin: string, izinliSayilar: readonly string[] 
   if ((t.match(/[.!?](\s|$)/gu) ?? []).length > 1) return "Metin tek bir soru olmalı; cevap ya da açıklama içeremez.";
   if (CEVAP_IZI.test(t)) return "Metin cevap ya da atıf içeriyor; model cevap yazmaz.";
   const izin = new Set(izinliSayilar);
-  for (const s of sayilariCikar(t))
-    if (!izin.has(s.ham)) return `Metinde kaynağı olmayan sayı var: ${s.ham}`;
+  for (const s of sayilariCikar(t)) if (!izin.has(s.ham)) return `Metinde kaynağı olmayan sayı var: ${s.ham}`;
   return null;
 }
 

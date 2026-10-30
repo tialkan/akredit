@@ -48,7 +48,9 @@ describe("saha soruları görevi (sahte sağlayıcı)", () => {
     const r = await gorevCalistir(sahaSorulari, girdi, s);
     expect(r.gecerli).toBe(false);
     const a = sahaSorulariniAyikla(r.veri, girdi);
-    expect(a.duzeltmeler).toEqual([{ soruId: "s1", metin: "P.1 kapsamında program çıktılarını nasıl belirliyorsunuz?" }]);
+    expect(a.duzeltmeler).toEqual([
+      { soruId: "s1", metin: "P.1 kapsamında program çıktılarını nasıl belirliyorsunuz?" },
+    ]);
     expect(a.oneriler).toEqual([{ olcutKod: "P.2", metin: "P.2 müfredat güncellemesine öğrenciler nasıl katılıyor?" }]);
     expect(a.reddedilen.map((x) => x.alan)).toEqual(["duzeltmeler.1", "oneriler.1", "oneriler.2"]);
     // İstem soruları güvenilmeyen veri olarak sarar; modelden cevap istemez.
