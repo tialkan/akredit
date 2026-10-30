@@ -26,6 +26,8 @@ services:
       # İP-41: hesapsız deneme (/deneyin) ve sentetik Örnek Üniversitesi. Kapatmak için 0.
       AKREDIT_DEMO: ${AKREDIT_DEMO:-1}
       AKREDIT_ANKET_GIZLI: ${SERVICE_BASE64_64_ANKET}
+      # İP-45: hesapsız belge isteme bağlantılarının HMAC anahtarı (Coolify üretir).
+      AKREDIT_ISTEK_GIZLI: ${SERVICE_BASE64_64_ISTEK}
       AKREDIT_ANAHTAR_KASASI: ${SERVICE_BASE64_64_KASA}
       AKREDIT_SMTP_SUNUCU: ${AKREDIT_SMTP_SUNUCU:-}
       AKREDIT_SMTP_PORT: ${AKREDIT_SMTP_PORT:-587}
