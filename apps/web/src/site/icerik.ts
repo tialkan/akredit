@@ -1166,13 +1166,13 @@ export const YOL_HARITASI: { no: number; ad: string; metin: string; dalga: "tama
     no: 43,
     ad: "Sınav kâğıdı taraması",
     metin: "Sınav kâğıtları toplu taranır, soru bazlı puan çıkarılır. Yalnız kurum içindeki modelle çalışır.",
-    dalga: "simdi",
+    dalga: "tamam",
   },
   {
     no: 44,
     ad: "Cümleden kanıta tek tık",
     metin: "Rapordaki bir cümleden kanıtına tek tıkla gidilir. Rapor dili ayrıca denetlenir.",
-    dalga: "simdi",
+    dalga: "tamam",
   },
   {
     no: 45,
@@ -1196,7 +1196,7 @@ export const YOL_HARITASI: { no: number; ad: string; metin: string; dalga: "tama
     no: 48,
     ad: "Saha ziyareti hazırlığı",
     metin: "Değerlendirici ziyaretine hazırlık: olası sorular ve her birinin kanıtı üzerinden prova.",
-    dalga: "simdi",
+    dalga: "tamam",
   },
   {
     no: 49,
