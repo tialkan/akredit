@@ -150,18 +150,21 @@ export function sorulariKur(g: SoruGirdisi): SahaListesi {
       if (e.olcutKod === o.kod) ekle(o, "eksik", eksikSorusuMetni(o.kod, e.metin), e.metin);
     for (const y of g.yzOnerileri ?? []) if (y.olcutKod === o.kod) ekle(o, "yz", y.metin.trim(), null);
   }
+  // Oran yalnız kurallı sorulardan (ölçüt ve EKSİK) hesaplanır: model önerisinin sayısı paydayı
+  // değiştirmez (ilke 2; inceleme dalga 8, D8-8).
+  const kuralli = sorular.filter((x) => x.kaynak !== "yz");
   const hazirlik: OlcutHazirligi[] = olcutler.map((o) => {
-    const s = sorular.filter((x) => x.olcutKod === o.kod);
+    const s = kuralli.filter((x) => x.olcutKod === o.kod);
     const kanitli = s.filter((x) => x.hazirlik === "hazir").length;
     return { olcutKod: o.kod, baslik: o.baslik, soru: s.length, kanitli, oran: oranHesapla(kanitli, s.length) };
   });
-  const kanitli = sorular.filter((x) => x.hazirlik === "hazir").length;
+  const kanitli = kuralli.filter((x) => x.hazirlik === "hazir").length;
   // Çerçevede olmayan koda bağlı EKSİK cümle ve öneri yukarıdaki döngüde hiç eklenmez.
   return {
     cerceveKod: g.cerceve.kod,
     sorular,
     hazirlik,
-    toplam: { soru: sorular.length, kanitli, oran: oranHesapla(kanitli, sorular.length) },
+    toplam: { soru: kuralli.length, kanitli, oran: oranHesapla(kanitli, kuralli.length) },
   };
 }
 
