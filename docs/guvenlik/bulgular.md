@@ -1,6 +1,6 @@
 # Güvenlik bulguları
 
-Sürüm: İP-27, 2026-10-27; açık bulgu düzeltmeleri (dal `duzeltme/acik-bulgular`), 2026-10-27. Kaynaklar: `docs/raporlar/inceleme-dalga-1.md`, `-2.md`, `-3.md` ve İP-27 çalışması.
+Sürüm: İP-27, 2026-10-27; açık bulgu düzeltmeleri (dal `duzeltme/acik-bulgular`), 2026-10-27; ikinci açık kalan turu (dal `duzeltme/acik-kalanlar-2`), 2026-10-30. Kaynaklar: `docs/raporlar/inceleme-dalga-1.md`, `-2.md`, `-3.md`, `inceleme-dalga-4-7.md` ve İP-27 çalışması.
 Dış sızma testi bulguları geldiğinde bu tabloya `D-xx` kimliğiyle eklenir.
 
 Önem: Kritik / Yüksek / Orta / Düşük / Bilgi. **Kural:** Kritik ya da Yüksek önemde açık bulgu varken
@@ -10,15 +10,25 @@ Dış sızma testi bulguları geldiğinde bu tabloya `D-xx` kimliğiyle eklenir.
 
 | Kimlik | Önem | Bulgu | Öneri / sahip |
 |---|---|---|---|
-| D3-5 | Düşük | KİDR, BİDR bölüm metnini sayı denetiminden geçirmeden aktarıyor. | `cumleDenetle` KİDR'de de |
-| D3-6 | Düşük | Portal soru/yanıtı günlüğe tam metin (ilke 7). | Maskele ya da özetle |
-| D3-7 | Düşük | Bologna taslağında model kaynaklı yüzde/saat politikayla onaylanabilir. | Politikada `bologna_taslagi` için insan şartı |
-| D3-8 | Düşük | ÖDR sayı denetimi atıflı kanıtın dosya adındaki rakamı izinli sayıyor. | Dosya adını dayanaktan çıkar |
 | G-27-3 | Düşük | Üretim imajları `surumler.env`'de henüz özetle (`@sha256`) sabit değil; CI hizmet imajı yalnız kesin etiketle (`pgvector/pgvector:0.8.0-pg17`). Bu ortamdan kayıt defterine erişilemedi. | Ağ erişimli ortamda `infra/uretim/imaj-sabitle.sh`; CI imajına özet ekle |
 | G-27-4 | Düşük | Hız sınırı süreç içi bellek; çok örnekli dağıtımda örnek başına. | Caddy `rate_limit` ya da paylaşılan sayaç |
 | G-27-5 | Bilgi | OIDC isteğinde nonce yok (`@better-auth/sso` 1.7). PKCE + state + tek kullanımlık kod testle gösterildi. | Kütüphane desteklerse aç |
 
 Kritik ya da Yüksek önemde açık bulgu yok. Kalan doğrulama (bulgu değil): G-27-2 için `infra/kurum-ici/denetle.sh` helm'li ve Docker sunuculu bir ortamda (helm lint/template, compose ile kurulum ve eski sürümden yükseltme) bir kez çalıştırılmalı; G-27-1 için ilk hafta `AKREDIT_CSP=rapor` ile ihlal raporları izlenmeli.
+
+## İkinci açık kalan turunda kapananlar (testle, 2026-10-30, dal `duzeltme/acik-kalanlar-2`)
+
+| Kimlik | Önem | Bulgu | Düzeltme | Test |
+|---|---|---|---|---|
+| D3-5 | Düşük | KİDR, BİDR bölüm metnini sayı denetiminden geçirmeden aktarıyordu. | `kidrBolumleri` BİDR metnini `cumleDenetle` ile denetler; kaynaksız sayılı cümle EKSİK işaretiyle değişir. | `packages/servis/src/kidr/kidr.test.ts` |
+| D3-6 | Düşük | Portal soru/yanıtı günlüğe tam metin yazılıyordu (ilke 7). | Günlükte soru ve yanıtın SHA-256 özeti ve uzunluğu; erişim günlüğü sayfası metni göstermez. | `apps/web/src/app/degerlendirici/_portal/portal.test.ts` |
+| D3-7 | Düşük | Modelin yazdığı Bologna taslağı (yüzde, saat) politikayla onaylanabiliyordu. | Politika motoru `bologna_taslagi` + üretici `yz` önerisini atlar; `0101_bologna_taslagi_insan` tetikleyicisi politika ve süre dolumu dayanağını reddeder. | `packages/servis/test/onay.test.ts` |
+| D3-8 | Düşük | ÖDR sayı denetimi atıflı kanıtın dosya adındaki rakamı izinli sayıyordu. | Kanıt dosya adı ve onay tarihi yalnız birebir geçtiği yerde izinli; serbest metindeki sayı hesap atfına dayanır. | `packages/servis/src/odr/odr.test.ts` |
+| D47-2 | Orta | PÜKÖ kalıcı değildi; önlem seçimi uca bağlı değildi. | `0102_puko` (`puko_olayi`: RLS, yalnız ekleme, tek karar, karar veren aynı kurumdan); `POST /puko/onlem` yalnız oturumla, karar veren oturumdaki kişi. | `packages/vt/test/puko.test.ts`, `packages/servis/test/puko-vt.test.ts`, `http.test.ts` |
+| D47-4 | Düşük | `karar_denetle` süre dolumunda bildirilen kişiyi denetlemiyordu. | `0100_karar_bildirilen`: `bildirilen` boşsa ret. | `packages/servis/src/bologna/devir.test.ts` |
+| D47-5 | Düşük | Kaynağa yazma izni değiştirilebilir `kurum.ayarlar` JSON'undaydı. | İzin yalnız değiştirilemez günlükteki son `bologna.kaynaga_yazma_izni` kaydından okunur (oturumla verilmiş, kişi aktörlü). Eski ayar kaydı okunmaz: izin yeniden verilmeli. | `devir.test.ts` |
+| D47-6 | Düşük | Kimlik günlüğündeki ağ izi istemcinin yazdığı XFF ilk değerine dayanıyordu. | Önce `x-real-ip`, yoksa XFF son değeri. | `apps/web/src/kimlik/istemci-ip.test.ts` |
+| D47-7 | Düşük | Bozuk öğrenci no deseni her YZ çağrısını durduruyordu. | `ogrenciNoDeseniGecerliMi` / `ogrenciNoDesenleriniDerle` (@akredit/yz); servis ve işçi bozuk deseni atlar. | `packages/yz/test/kvkk.test.ts`, `packages/servis/test/yz-fabrika.test.ts` |
 
 ## Açık bulgu düzeltmelerinde kapananlar (testle, 2026-10-27)
 
