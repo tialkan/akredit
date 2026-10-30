@@ -6,9 +6,9 @@
 
 import { belgeIstegi } from "@akredit/servis";
 import type { EpostaTasiyici } from "@akredit/surec";
-import { kiraciIslemi, type SorguSonucu, satirlar, type Vt } from "@akredit/vt";
-import { sql } from "drizzle-orm";
-import { type HatBaglami, KUYRUK } from "../kanit-hatti/index.ts";
+import { gunlugeYaz, kiraciIslemi, type SorguSonucu, satirlar, sema, type Vt } from "@akredit/vt";
+import { eq, sql } from "drizzle-orm";
+import { type HatBaglami, KUYRUK, type VirusTarayici } from "../kanit-hatti/index.ts";
 
 export interface BelgeIstegiTuru {
   hatirlatilan: number;
@@ -39,7 +39,42 @@ export async function hatirlatmalariGonder(
   return { hatirlatilan, gonderilemeyen };
 }
 
-/** Yalnız "bekliyor" durumunda kalmış dış birim kanıtlarını metin çıkarma kuyruğuna koyar. */
+/**
+ * Hesapsız yüklenen dosyayı `kanitAl` ile aynı tarayıcıdan geçirir (inceleme dalga 8, bulgu 2). Bulgu varsa
+ * kanıt silinmez (ilke 4); işleme kaydı `hata` olarak eklenir, günlüğe yazılır ve dosya kuyruğa girmez.
+ * Tarayıcıya ulaşılamazsa dosya bekler ve sonraki turda yeniden denenir. Tarayıcı kurulmamışsa (ClamAV yok)
+ * davranış `kanitAl` ile aynıdır: tarama yapılmaz.
+ */
+async function taramadanGecti(hat: HatBaglami, virus: VirusTarayici, kurumId: string, kanitId: string) {
+  const [k] = await kiraciIslemi(hat.db, kurumId, (tx) =>
+    tx.select({ anahtar: sema.kanit.depoAnahtari }).from(sema.kanit).where(eq(sema.kanit.id, kanitId)),
+  );
+  if (!k) return false;
+  let t: Awaited<ReturnType<VirusTarayici["tara"]>>;
+  try {
+    t = await virus.tara(await hat.depo.al(k.anahtar));
+  } catch {
+    return false;
+  }
+  if (t.temiz) return true;
+  await kiraciIslemi(hat.db, kurumId, async (tx) => {
+    await tx.insert(sema.kanitIsleme).values({
+      kurumId,
+      kanitId,
+      durum: "hata",
+      ayrinti: { asama: "virus_taramasi", ileti: "Dosyada zararlı yazılım bulundu; işlenmedi." },
+    });
+    await gunlugeYaz(tx, {
+      aktor: { tur: "sistem", id: null },
+      eylem: "kanit.zararli_bulundu",
+      hedef: { tur: "kanit", id: kanitId },
+      ayrinti: { tarayici: virus.ad, bulgu: t.bulgu.slice(0, 200), yol: "belge_istegi" },
+    });
+  });
+  return false;
+}
+
+/** Yalnız "bekliyor" durumunda kalmış dış birim kanıtlarını (taramadan geçtiyse) metin çıkarma kuyruğuna koyar. */
 export async function bekleyenleriKuyrugaKoy(hat: HatBaglami, kurumId: string): Promise<number> {
   const idler = await kiraciIslemi(hat.db, kurumId, async (tx) =>
     satirlar(
@@ -50,9 +85,13 @@ export async function bekleyenleriKuyrugaKoy(hat: HatBaglami, kurumId: string): 
         )`)) as unknown as SorguSonucu<{ id: string }>,
     ).map((x) => x.id),
   );
-  for (const kanitId of idler)
+  let konan = 0;
+  for (const kanitId of idler) {
+    if (hat.virus && !(await taramadanGecti(hat, hat.virus, kurumId, kanitId))) continue;
     await hat.kuyruk.gonder(KUYRUK.cikar, { kurumId, kanitId }, { tekilAnahtar: `${KUYRUK.cikar}:${kanitId}` });
-  return idler.length;
+    konan++;
+  }
+  return konan;
 }
 
 /** Bir kurum için belge isteği turu. */
