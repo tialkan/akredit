@@ -123,6 +123,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@akredit/acik-mcp':
+        specifier: workspace:*
+        version: link:../acik-mcp
       '@akredit/anket':
         specifier: workspace:*
         version: link:../../packages/anket

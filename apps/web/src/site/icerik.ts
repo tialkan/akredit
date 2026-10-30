@@ -122,6 +122,14 @@ export const SAYFALAR = {
     title: "İletişim",
     aciklama: "Akredit proje sahibine ulaşma yolu, pilot uygulama durumu ve güvenlik açığı bildirimi.",
   },
+  mcpKullan: {
+    yol: "/mcp-kullan",
+    ad: "Kendi yapay zekânızla",
+    baslik: "Akredit araçlarını kendi yapay zekânızla kullanın",
+    title: "Akredit MCP: YÖKAK ölçütleri ve denetim araçları, ücretsiz ve hesapsız",
+    aciklama:
+      "Claude, ChatGPT, Cursor ya da VS Code'a akredit.org/mcp adresini ekleyin: YÖKAK ölçüt metni, Bologna denetimi, ÇK/PÇ hesabı ve rapor dil denetimi. Ücretsiz, hesapsız, salt okuma.",
+  },
   acikKaynak: {
     yol: "/acik-kaynak",
     ad: "Açık kaynak",
@@ -205,7 +213,15 @@ export const ALT_MENU: { baslik: string; sayfalar: SayfaBilgisi[] }[] = [
   },
   {
     baslik: "Kullanım",
-    sayfalar: [SAYFALAR.pilot, SAYFALAR.kurumAc, SAYFALAR.yz, SAYFALAR.giris, SAYFALAR.belgeler, SAYFALAR.sss],
+    sayfalar: [
+      SAYFALAR.pilot,
+      SAYFALAR.kurumAc,
+      SAYFALAR.mcpKullan,
+      SAYFALAR.yz,
+      SAYFALAR.giris,
+      SAYFALAR.belgeler,
+      SAYFALAR.sss,
+    ],
   },
   {
     baslik: "Güven",
@@ -1111,7 +1127,7 @@ export const KONUM_TABLOSU: { sistem: string; baglanti: string; sinir: string }[
 
 // ---------------------------------------------------------------- Yol haritası (İP-42)
 
-/** plan.md §8, İP-38…48, sade dille. Dalga plan tablosundaki durumdan alınmıştır (2026-10-30). */
+/** plan.md §8, İP-38…49, sade dille. Dalga plan tablosundaki durumdan alınmıştır (2026-10-30). */
 export const YOL_HARITASI: { no: number; ad: string; metin: string; dalga: "tamam" | "simdi" | "sonra" }[] = [
   {
     no: 38,
@@ -1180,6 +1196,13 @@ export const YOL_HARITASI: { no: number; ad: string; metin: string; dalga: "tama
     no: 48,
     ad: "Saha ziyareti hazırlığı",
     metin: "Değerlendirici ziyaretine hazırlık: olası sorular ve her birinin kanıtı üzerinden prova.",
+    dalga: "simdi",
+  },
+  {
+    no: 49,
+    ad: "Kendi yapay zekânızla",
+    metin:
+      "Herkese açık, hesapsız araç bağlantısı: YÖKAK ölçüt metni, Bologna denetimi, ÇK/PÇ hesabı ve rapor dil denetimi kendi yapay zekânızda.",
     dalga: "simdi",
   },
 ];
