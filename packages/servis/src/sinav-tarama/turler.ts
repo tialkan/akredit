@@ -63,7 +63,13 @@ export interface TaramaKaynagi {
 export const NUMARA_ALANI = "*numara";
 export const TOPLAM_ALANI = "*toplam";
 
-export type HucreNedeni = "dusuk_guven" | "okunamadi" | "azami_asimi" | "toplam_tutarsiz" | "numara_okunamadi";
+export type HucreNedeni =
+  | "dusuk_guven"
+  | "okunamadi"
+  | "azami_asimi"
+  | "toplam_tutarsiz"
+  | "numara_okunamadi"
+  | "metinde_yok";
 
 /** Modelin bir kutu için verdiği yanıt. Model yalnız okur; toplam ya da ortalama üretmez. */
 export const ModelOkumasi = z
