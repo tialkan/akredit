@@ -40,6 +40,8 @@ const CEVAP_IZI = /\[(K|H):|\bcevap\b|\byanıt\s*:|\bcevabı\s*:|evet,|hayır,/i
 export function soruMetniSorunu(metin: string, izinliSayilar: readonly string[] = []): string | null {
   const t = metin.trim();
   if (!t.endsWith("?")) return "Metin soru değil (soru işaretiyle bitmeli).";
+  // Satır sonu ya da noktalı virgül, noktasız ikinci bir cümleyi (cevabı) sorunun içine taşır.
+  if (/[\p{Cc};]/u.test(t)) return "Metin tek bir soru olmalı; cevap ya da açıklama içeremez.";
   if ((t.match(/[.!?](\s|$)/gu) ?? []).length > 1) return "Metin tek bir soru olmalı; cevap ya da açıklama içeremez.";
   if (CEVAP_IZI.test(t)) return "Metin cevap ya da atıf içeriyor; model cevap yazmaz.";
   const izin = new Set(izinliSayilar);
