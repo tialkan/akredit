@@ -61,6 +61,11 @@ export const programTabloVerisiSemasi = z.object({
       z.object({ subeSayisi: z.number().int().nonnegative(), enKalabalik: z.number().int().nonnegative() }),
     )
     .default({}),
+  /**
+   * Yarıyıl ("1", "2", ...) → o yarıyılda planda kaç seçmeli ders yeri var. Kurum girdisidir; Bologna'da
+   * yoktur. Toplam satırında seçmeli dersler bu sayı kadar sayılır.
+   */
+  secmeliYerSayilari: z.record(z.string().regex(/^\d+$/u), z.number().int().nonnegative()).default({}),
 });
 export type ProgramTabloVerisi = z.infer<typeof programTabloVerisiSemasi>;
 export type ProgramTabloVerisiGirdisi = z.input<typeof programTabloVerisiSemasi>;
@@ -203,28 +208,46 @@ function dersHucresi(s: Sutun, d: DersKaydi, v: ProgramTabloVerisi, t: TabloTani
 
 /**
  * Toplam satırı. Yalnız `toplanir` sütunlar toplanır. Sütunda bir EKSİK varsa toplam da EKSİK olur
- * (eksik veriyle toplam yazılmaz). Seçmeli ders varsa toplam EKSİK olur: ÖDR şablonları seçmeli
- * dersin planda yer aldığı sayı kadar sayılmasını ister ve bu sayı Bologna verisinde yok.
+ * (eksik veriyle toplam yazılmaz). ÖDR şablonları seçmeli dersin planda yer aldığı sayı kadar sayılmasını
+ * ister: her yarıyılın seçmeli dersleri, kurumun girdiği yer sayısı kadar sayılır. Yer sayısı girilmemişse,
+ * yarıyılı belirsizse ya da o yarıyılın seçmeli dersleri sütunda farklı değer taşıyorsa (hangisinin
+ * sayılacağı bilinemez) toplam EKSİK olur.
  */
-function toplamSatiri(t: TabloTanimi, kayitlar: DersKaydi[], satirlar: Hucre[][]): Hucre[] {
-  const secmeliVar = kayitlar.some((d) => !d.zorunlu);
+function toplamSatiri(t: TabloTanimi, v: ProgramTabloVerisi, kayitlar: DersKaydi[], satirlar: Hucre[][]): Hucre[] {
   return t.sutunlar.map((s, i) => {
     if (i === 0) return deger("Toplam", "hesap:toplam");
     if (!s.toplanir) return BOS;
-    if (secmeliVar) return eksik("Seçmeli derslerin planda kaç kez sayılacağı bilinmiyor; toplam hesaplanmadı.");
     const hucreler = satirlar.map((r) => r[i] ?? BOS);
     if (hucreler.some((h) => h.tur === "eksik")) return eksik("Sütunda eksik değer var; toplam hesaplanmadı.");
     let akts = 0;
     let kredi = 0;
+    const secmeli = new Map<number | null, { akts: number; kredi: number }[]>();
     for (const [j, h] of hucreler.entries()) {
-      if (h.tur !== "deger") continue;
       const d = kayitlar[j];
-      if (!d || d.akts === null) continue;
-      akts += d.akts;
-      kredi += d.kredi ?? 0;
+      if (!d) continue;
+      // Değer hücresi dersin kredisini taşır; boş hücre (başka kategori) sıfır katkıdır.
+      const k = h.tur === "deger" ? { akts: d.akts ?? 0, kredi: d.kredi ?? 0 } : { akts: 0, kredi: 0 };
+      if (d.zorunlu) {
+        akts += k.akts;
+        kredi += k.kredi;
+      } else secmeli.set(d.yariyil, [...(secmeli.get(d.yariyil) ?? []), k]);
+    }
+    const yerler: string[] = [];
+    for (const [yy, katkilar] of [...secmeli].sort((a, b) => (a[0] ?? 99) - (b[0] ?? 99))) {
+      if (yy === null) return eksik("Yarıyılı belirtilmemiş seçmeli ders var; toplam hesaplanmadı.");
+      const n = v.secmeliYerSayilari[String(yy)];
+      if (n === undefined) return eksik(`${yy}. yarıyılın seçmeli ders yer sayısı girilmedi; toplam hesaplanmadı.`);
+      yerler.push(String(yy));
+      if (n === 0) continue;
+      const ilk = katkilar[0] ?? { akts: 0, kredi: 0 };
+      if (katkilar.some((k) => k.akts !== ilk.akts || k.kredi !== ilk.kredi))
+        return eksik(`${yy}. yarıyılın seçmeli dersleri bu sütunda farklı değer taşıyor; toplam hesaplanmadı.`);
+      akts += n * ilk.akts;
+      kredi += n * ilk.kredi;
     }
     const metin = s.bicim === "yerel-akts" ? `${sayiMetni(kredi)}-${sayiMetni(akts)}` : sayiMetni(akts);
-    return deger(metin, `hesap:toplam#${s.kod}`, s.bicim === "yerel-akts" ? undefined : akts);
+    const kaynak = `hesap:toplam#${s.kod}${yerler.length ? `;esleme:secmeli-yer#${yerler.join(",")}` : ""}`;
+    return deger(metin, kaynak, s.bicim === "yerel-akts" ? undefined : akts);
   });
 }
 
@@ -246,7 +269,7 @@ function dersTablosu(t: TabloTanimi, v: ProgramTabloVerisi): Satir[] {
     satirlar.push({ tur: "veri", hucreler });
   }
   if (t.sutunlar.some((s) => s.toplanir) && kayitlar.length)
-    satirlar.push({ tur: "toplam", hucreler: toplamSatiri(t, kayitlar, veriSatirlari) });
+    satirlar.push({ tur: "toplam", hucreler: toplamSatiri(t, v, kayitlar, veriSatirlari) });
   return satirlar;
 }
 

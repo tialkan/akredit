@@ -24,7 +24,8 @@ Program akreditasyon kuruluşları öz değerlendirme raporunda belirli tablolar
 - [x] Her tablo elle hesaplanmış sentetik program verisiyle test edilir; beklenen değerin nasıl bulunduğu testte yorumda.
 - [x] Kaynağı olmayan sütun EKSİK çıkar, boş ya da sıfır değil (test).
 - [x] Modelsiz çalışır (test).
-- [x] `pnpm check`, `pnpm typecheck` ve ilgili paket testleri temiz (cerceveler, belge, servis, web site testi). Tam `pnpm verify` bu dalda çalıştırılmadı.
+- [x] Eşleme yalnız eklenir; tabloya yalnız kurum kullanıcısının kararı girer, öneri girmez (PGlite testi).
+- [x] `pnpm check`, `pnpm typecheck` ve ilgili paket testleri temiz (cerceveler, belge, vt, servis, web). Tam `pnpm verify` bu dalda çalıştırılmadı.
 
 ## İnsan işi
 
@@ -41,3 +42,9 @@ Program akreditasyon kuruluşları öz değerlendirme raporunda belirli tablolar
   - Çerçeveler `ILK_CERCEVELER` listesine eklendi; kurulumdaki çerçeve seçiminde kendiliğinden görünür.
   - Kararlar: ders kategorisi (MTB, mesleki, genel...) ve PÇ-kurul çıktısı eşlemesi kurumun onayladığı girdi olarak alınır, Akredit tahmin etmez; eşleme yoksa hücre EKSİK. Seçmeli ders varsa toplam EKSİK (şablon "planda yer aldığı sayı kadar" ister, bu sayı Bologna'da yok).
   - Kalan: servis katmanı (`packages/servis/src/odr/tablolar/`) ve panel sayfası (`apps/web/src/app/panel/programlar/[id]/tablolar/`) yazılmadı; kategori ve PÇ-kurul eşlemesinin saklanacağı yer (vt) ve onay akışı sonraki İP'ye. Öğrenci sayısı, kadro, bütçe tabloları (MÜDEK 1.x, 6.x, 8.1; SABAK Tablo 2-12) kaynak verisi olmadığından tanımlanmadı. MÜDEK YL ve RPD için ÖDR şablonu indirilmedi, tablo yok. İP-44 tek tık izlenebilirlik bağlantısı yok; her hücre `kaynak` anahtarı taşır.
+- 2026-10-30 (kalanlar): Servis, saklama ve panel yazıldı.
+  - Seçmeli yer sayısı: `tabloUret` girdisine `secmeliYerSayilari` (yarıyıl → yer sayısı) eklendi. Toplamda her yarıyılın seçmelileri bu sayı kadar sayılır. Yer sayısı girilmemişse, yarıyılı belirsizse ya da aynı yarıyılın seçmelileri sütunda farklı değer taşıyorsa toplam EKSİK kalır.
+  - Saklama: `0130_program_esleme` göçü, `program_esleme` tablosu. Yalnız eklenir (UPDATE, DELETE, TRUNCATE reddedilir), RLS FORCE, kararda karar veren kişi ve dayanak zorunlu, YZ karar veremez, kişi ve program aynı kurumdan, değer biçimi türe uyar. Son karar geçerli; düzeltme yeni karardır. KVKK envanterine "karar" kategorisiyle eklendi, envanter ve hukuk paketi yeniden üretildi.
+  - Servis `packages/servis/src/odr/tablolar/` (`odrTablolari`): `tabloCerceveleri`, `programTablolari`, saf `durumKur`, `eslemeOner` (YZ ya da kişi; API anahtarı yazabilir; `rapor.duzenle`), `eslemeKarariVer` (yalnız oturum, `karar.ver`; ad, zaman, dayanak günlüğe), `tabloBelgesi` (Word/Excel, indirme günlüğe). Bologna verisi programın son okuma kanıtından gelir; eşleme anahtarı ve değeri bu okumaya ve çerçeveye göre denetlenir.
+  - Panel `/panel/programlar/[id]/tablolar`: çerçeve seçimi, tablolar (EKSİK hücre nedeniyle, isteğe bağlı hücre kaynağı), eşleme onay formu (ders kategorisi ya da türü, PÇ-kurul çıktısı, seçmeli yer sayısı, ortak dayanak), Word/Excel indirme. Program sayfasına bağlantı eklendi.
+  - Kalan: YZ öneri görevi (model istemi) yazılmadı; öneri ucu hazır, öneriyi yazan ajan sonraki İP. HTTP/MCP ucu eklenmedi. İP-44 tek tık izlenebilirlik yok; hücre kaynağı metin olarak görünür.

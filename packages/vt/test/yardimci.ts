@@ -349,6 +349,20 @@ export async function kurumVerisiEkle(db: Vt, kurumId: string, ad: string): Prom
       olay: { tur: "acildi", pukoId: "ornek-puko" },
       zaman: new Date("2026-01-05T09:00:00Z"),
     });
+    // İP-47: program tablo eşlemesi (karar, uydurma dayanak).
+    await tx.insert(s.programEsleme).values({
+      kurumId,
+      programId: program.id,
+      cerceveKod: "mudek-lisans",
+      tur: "ders_kategorisi",
+      anahtar: "MAT101",
+      deger: "MTB",
+      durum: "karar",
+      uretici: "kisi",
+      kararVerenKisiId: kisi.id,
+      dayanak: "Bölüm kurulu kararı (uydurma)",
+      zaman: new Date("2026-01-05T09:00:00Z"),
+    });
     await gunlugeYaz(tx, { aktor: { tur: "sistem", id: null }, eylem: "deneme.basladi" });
 
     return {

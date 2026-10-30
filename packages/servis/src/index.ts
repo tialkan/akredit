@@ -18,6 +18,7 @@ export * as kidr from "./kidr/index.ts";
 export * as kurulum from "./kurulum/index.ts";
 export * as kurumAcilisi from "./kurum-acilisi.ts";
 export * as odr from "./odr/index.ts";
+export * as odrTablolari from "./odr/tablolar/index.ts";
 export * as onay from "./onay/index.ts";
 export * as oneri from "./oneri.ts";
 export * as panel from "./panel.ts";
