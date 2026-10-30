@@ -175,7 +175,7 @@ Durumlar: **hazır** (başlanabilir), **devam**, **inceleme**, **tamam**, **bekl
 | [41](plan/ip/IP-41-ornek-universite.md) | Sentetik Örnek Üniversitesi demosu | 7 | tamam | 12 |
 | [42](plan/ip/IP-42-site-metni.md) | Site metni: güçlü vaat, dört rol, pilot başvurusu | 7 | tamam | 07 |
 | [43](plan/ip/IP-43-sinav-kagidi-taramasi.md) | Toplu sınav kağıdı taraması (yerel model) | 8 | inceleme | 10, 06 |
-| [44](plan/ip/IP-44-cumleden-kanita.md) | Cümleden kanıta tek tık, rapor dil denetimi | 8 | hazır | 19, 20 |
+| [44](plan/ip/IP-44-cumleden-kanita.md) | Cümleden kanıta tek tık, rapor dil denetimi | 8 | inceleme | 19, 20 |
 | [45](plan/ip/IP-45-hesapsiz-belge-isteme.md) | İdari birimlerden hesapsız belge isteme | 8 | tamam | 10, 14 |
 | [46](plan/ip/IP-46-toplantidan-tutanaga.md) | Toplantıdan tutanağa ve EBYS taslağına akış | 8 | bekliyor | 18, 23 |
 | [47](plan/ip/IP-47-program-akreditasyonu-tablolari.md) | Program akreditasyonu tablo dönüştürücüsü | 8 | bekliyor | 11, 19 |
