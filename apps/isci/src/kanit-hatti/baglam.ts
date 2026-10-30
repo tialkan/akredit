@@ -3,7 +3,7 @@
 import type { NesneDeposu } from "@akredit/depo";
 import { type FabrikaSecenegi, kurumSaglayicisi, YzAnahtariYokHatasi } from "@akredit/servis";
 import { kiraciIslemi, sema, type Vt } from "@akredit/vt";
-import type { KurumYzAyari, MaskeSecenegi, Saglayici } from "@akredit/yz";
+import { type KurumYzAyari, type MaskeSecenegi, ogrenciNoDesenleriniDerle, type Saglayici } from "@akredit/yz";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import type { Kuyruk } from "./kuyruk.ts";
@@ -61,7 +61,7 @@ export async function kurumYzAyari(b: HatBaglami, kurumId: string): Promise<Kuru
   const yz = ayar.success ? ayar.data.yz : undefined;
   const maske: MaskeSecenegi = {};
   if (yz?.adlar) maske.adlar = yz.adlar;
-  if (yz?.ogrenciNoDesenleri) maske.ogrenciNoDesenleri = yz.ogrenciNoDesenleri.map((d) => new RegExp(d, "gu"));
+  if (yz?.ogrenciNoDesenleri) maske.ogrenciNoDesenleri = ogrenciNoDesenleriniDerle(yz.ogrenciNoDesenleri);
   return { yurtDisiIzin: yz?.yurtDisiIzin ?? false, maske };
 }
 

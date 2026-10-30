@@ -30,6 +30,29 @@ export interface MaskeSecenegi {
   baglamliAd?: boolean;
 }
 
+const DESEN_EN_UZUN = 200;
+
+/**
+ * Kurum ayarındaki öğrenci numarası deseni kullanılabilir mi? Derlenmeli, en çok 200 karakter olmalı ve boş
+ * metni eşlememeli (boşu eşleyen desen maskelemede sonsuz döngü ya da anlamsız eşleşme üretir). İnceleme 4-7 #7.
+ */
+export function ogrenciNoDeseniGecerliMi(desen: string): boolean {
+  if (typeof desen !== "string" || desen.length === 0 || desen.length > DESEN_EN_UZUN) return false;
+  try {
+    return !new RegExp(desen, "u").test("");
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Desenleri derler; geçersiz olanı atlar. Bozuk bir ayar bütün YZ çağrılarını durdurmaz; numara yine
+ * etiketsiz uzun sayı kuralıyla maskelenir.
+ */
+export function ogrenciNoDesenleriniDerle(desenler: readonly string[]): RegExp[] {
+  return desenler.filter(ogrenciNoDeseniGecerliMi).map((d) => new RegExp(d, "gu"));
+}
+
 export interface Esleme {
   yerTutucu: string;
   tur: VeriTuru;
