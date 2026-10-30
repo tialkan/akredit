@@ -32,7 +32,7 @@ import {
   type OkunanHucre,
 } from "./saf.ts";
 import { type HucreNedeni, NUMARA_ALANI, Sablon, type TaramaKaynagi, TOPLAM_ALANI } from "./turler.ts";
-import { type YerelOkuyucu, yerelOkuyucuKur } from "./yerel-model.ts";
+import { type AdCozucu, type YerelOkuyucu, yerelOkuyucuKur } from "./yerel-model.ts";
 
 export * from "./saf.ts";
 export * from "./turler.ts";
@@ -109,6 +109,8 @@ export interface TaramaBagimliliklari {
   /** Kırpıntıyı kanıt deposuna koyar, içerik özetini döndürür. */
   kirpintiKoy?: (kurumId: string, veri: Uint8Array) => Promise<{ ozet: string }>;
   fetch?: FetchIslevi;
+  /** Model sunucusu adının çözücüsü (testte sahte). Verilmezse işletim sisteminin çözücüsü. */
+  coz?: AdCozucu;
   /** Yalnız testler: yerel okuyucu yerine verilen okuyucu (yine de yurt içi olmalı). */
   okuyucu?: YerelOkuyucu;
 }
@@ -129,7 +131,11 @@ export async function taramayiIsle(b: ServisBaglami, girdi: unknown, d: TaramaBa
   const cikislar: CikisKaydi[] = [];
   const okuyucu =
     d.okuyucu ??
-    yerelOkuyucuKur(d.yerelModel, { ...(d.fetch ? { fetch: d.fetch } : {}), kaydet: (k) => cikislar.push(k) });
+    yerelOkuyucuKur(d.yerelModel, {
+      ...(d.fetch ? { fetch: d.fetch } : {}),
+      ...(d.coz ? { coz: d.coz } : {}),
+      kaydet: (k) => cikislar.push(k),
+    });
   if (Buffer.byteLength(d.takmaAdAnahtari) < 32)
     throw new ServisHatasi("beklenmeyen", "Öğrenci takma ad anahtarı tanımlı değil. Sistem yöneticisine bildirin.");
   const esik = g.esik ?? VARSAYILAN_ESIK;
