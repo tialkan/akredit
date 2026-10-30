@@ -141,6 +141,11 @@ function SahaGorunumu({
           <Rozet vurgulu>
             {durum.toplam.kanitli} / {durum.toplam.soru} soru kanıtlı ({oranMetni(durum.toplam.oran)})
           </Rozet>
+          {durum.modelOnerisi?.soru ? (
+            <Rozet>
+              Model önerisi {durum.modelOnerisi.soru} soru (orana girmez), {durum.modelOnerisi.kanitli} kanıtlı
+            </Rozet>
+          ) : null}
           {durum.yz ? (
             <Rozet>
               Dil düzeltmesi {durum.yz.duzeltilen}, önerilen soru {durum.yz.onerilen}

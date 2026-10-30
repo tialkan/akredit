@@ -3,7 +3,7 @@
 // hesaplanır. Soru-çıktı eşlemesi soruda kayıtlı eşlemedir (`soru.cikti_eslemesi`); soruda eşleme yoksa ders
 // dosyası akışında onaylanmış eşleme kullanılır (inceleme dalga 8, bulgu 12).
 
-import { dersiOlc } from "@akredit/olcme";
+import { dersiOlc, type KokNeden, kokNedenAnalizi } from "@akredit/olcme";
 import { type Islem, sema } from "@akredit/vt";
 import { and, asc, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
@@ -21,8 +21,25 @@ export const PukoOlcumSecimi = z
   .strict();
 export type PukoOlcumSecimi = z.infer<typeof PukoOlcumSecimi>;
 
+/** Kök neden anahtarı: ölçüm türü, ders, çıktı kodu, dönem. */
+export const kokNedenAnahtari = (o: { olcumTuru: string; dersKodu: string; kod: string; donem: string }) =>
+  JSON.stringify([o.olcumTuru, o.dersKodu, o.kod, o.donem]);
+
 /** Seçilen ders ve dönemler için ölçümleri kayıtlı veriden hesaplar. Kayıtlı olmayan ders ya da dönem 404'tür. */
 export async function olcumleriHesapla(tx: Islem, kurumId: string, secimler: PukoOlcumSecimi[]): Promise<PukoOlcumu[]> {
+  return (await olcumleriVeKokNedenleriHesapla(tx, kurumId, secimler)).olcumler;
+}
+
+/**
+ * Ölçümlerle birlikte kök nedenleri `@akredit/olcme` madde analizinden (`kokNedenAnalizi`) çıkarır. ÇK için o
+ * ÇK'yı ölçen sorular; PÇ için matriste o PÇ'ye katkısı olan ÇK'ların soruları taranır. Yorum yoktur, hesaptır.
+ */
+export async function olcumleriVeKokNedenleriHesapla(
+  tx: Islem,
+  kurumId: string,
+  secimler: PukoOlcumSecimi[],
+): Promise<{ olcumler: PukoOlcumu[]; kokNedenler: Map<string, KokNeden[]> }> {
+  const kokNedenler = new Map<string, KokNeden[]>();
   const gruplar = new Map<string, PukoOlcumSecimi[]>();
   for (const s of secimler) {
     const a = JSON.stringify([s.dersKodu, s.donem]);
@@ -71,34 +88,47 @@ export async function olcumleriHesapla(tx: Islem, kurumId: string, secimler: Puk
     const soruNo = new Map(sorular.map((q) => [q.id, q.numara]));
     const onayli = acilis ? await onayliEslemeSatirlari(tx, ders.id, acilis.id) : null;
     const gecerli = new Set(ckler.map((c) => c.kod));
-    const s = dersiOlc(
-      {
-        dersKodu,
-        donem,
-        ciktilar: ckler.map((c) => ({ kod: c.kod, metin: c.metin })),
-        araclar: araclar.map((a) => ({
-          id: a.id,
-          tur: a.tur,
-          ad: a.ad ?? a.tur,
-          agirlik: Number(a.agirlik),
-          sorular: sorular
-            .filter((q) => q.olcmeAraciId === a.id)
-            .map((q) => ({
-              no: q.numara,
-              tamPuan: Number(q.tamPuan),
-              eslemeler: soruEslemesi(q, a.ad ?? a.tur, ckKod, onayli, gecerli),
-            })),
-        })),
-        puanlar: puanlar.map((p) => ({
-          ogrenci: p.ogrenciTakmaAd,
-          aracId: p.olcmeAraciId,
-          soruNo: p.soruId ? (soruNo.get(p.soruId) ?? "*") : "*",
-          puan: p.puan === null ? null : Number(p.puan),
-        })),
-      },
-      { matris: await matrisOku(tx, ckler), ...(esik !== undefined ? { esik } : {}) },
-    );
+    const veri = {
+      dersKodu,
+      donem,
+      ciktilar: ckler.map((c) => ({ kod: c.kod, metin: c.metin })),
+      araclar: araclar.map((a) => ({
+        id: a.id,
+        tur: a.tur,
+        ad: a.ad ?? a.tur,
+        agirlik: Number(a.agirlik),
+        sorular: sorular
+          .filter((q) => q.olcmeAraciId === a.id)
+          .map((q) => ({
+            no: q.numara,
+            tamPuan: Number(q.tamPuan),
+            eslemeler: soruEslemesi(q, a.ad ?? a.tur, ckKod, onayli, gecerli),
+          })),
+      })),
+      puanlar: puanlar.map((p) => ({
+        ogrenci: p.ogrenciTakmaAd,
+        aracId: p.olcmeAraciId,
+        soruNo: p.soruId ? (soruNo.get(p.soruId) ?? "*") : "*",
+        puan: p.puan === null ? null : Number(p.puan),
+      })),
+    };
+    const matris = await matrisOku(tx, ckler);
+    const s = dersiOlc(veri, { matris, ...(esik !== undefined ? { esik } : {}) });
     for (const x of grup) {
+      const ckKodlari =
+        x.olcumTuru === "ck"
+          ? [x.kod]
+          : Object.entries(matris)
+              .filter(([, pc]) => Boolean((pc as Record<string, unknown>)[x.kod]))
+              .map(([ck]) => ck)
+              .sort();
+      const nedenler: KokNeden[] = [];
+      if (s.ogrenciSayisi > 0)
+        for (const ck of ckKodlari)
+          for (const n of kokNedenAnalizi(veri, s, ck))
+            if (!nedenler.some((m) => m.tur === n.tur && m.aracId === n.aracId && m.soruNo === n.soruNo))
+              nedenler.push(n);
+      kokNedenler.set(kokNedenAnahtari(x), nedenler);
       const deger =
         x.olcumTuru === "ck"
           ? (s.ckBasarilari.find((c) => c.ckKod === x.kod)?.ortalama ?? null)
@@ -112,5 +142,5 @@ export async function olcumleriHesapla(tx: Islem, kurumId: string, secimler: Puk
       });
     }
   }
-  return sonuc;
+  return { olcumler: sonuc, kokNedenler };
 }

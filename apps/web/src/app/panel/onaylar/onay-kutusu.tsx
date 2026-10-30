@@ -4,7 +4,13 @@
 // Kurallar: yüksek risk toplu seçilemez, politikaya bağlanamaz; kanıtları her zaman açıktır.
 // Kurallar arayüzde gizlemeyle yetinmez, VeriKaynagi da aynı kuralları uygular.
 
-import { etkinRisk, ONERI_RISKI, type OneriId, type RiskDuzeyi } from "@akredit/cekirdek";
+import {
+  etkinRisk,
+  ONERI_RISKI,
+  type OneriId,
+  type RiskDuzeyi,
+  type YoneticiOzeti as YoneticiOzetiVerisi,
+} from "@akredit/cekirdek";
 import { Check, ChevronDown, ChevronUp, FileText, Keyboard, Pencil, Wand2, WifiOff, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -25,6 +31,10 @@ import {
   yuzdeYaz,
 } from "../../../veri/yardimci.ts";
 import { useCevrimici } from "./mobil-kurulum.tsx";
+import { YoneticiOzeti } from "./yonetici-ozeti.tsx";
+
+type KararSonucuSecimi = "onaylandi" | "duzeltildi" | "reddedildi";
+type KararEki = { duzeltme?: string; gerekce?: string };
 
 type Atif = OneriGorunumu["atiflar"][number];
 
@@ -49,6 +59,13 @@ export function OnayKutusu({
   const [odak, setOdak] = useState(0);
   const [duzenlenen, setDuzenlenen] = useState<{ id: OneriId; metin: string } | null>(null);
   const [ret, setRet] = useState<{ id: OneriId; gerekce: string } | null>(null);
+  // Dış gönderimde onaydan önce yönetici özeti (İP-39): özet görülüp günlüğe yazılmadan karar gitmez.
+  const [ozetIstegi, setOzetIstegi] = useState<{
+    o: OneriGorunumu;
+    sonuc: KararSonucuSecimi;
+    ek: KararEki;
+    ozet: YoneticiOzetiVerisi;
+  } | null>(null);
   const [kanit, setKanit] = useState<Atif | null>(null);
   const [politika, setPolitika] = useState<OneriGorunumu | null>(null);
   const [yardim, setYardim] = useState(false);
@@ -93,15 +110,36 @@ export function OnayKutusu({
     [sirali],
   );
 
-  const karar = async (
-    o: OneriGorunumu,
-    sonuc: "onaylandi" | "duzeltildi" | "reddedildi",
-    ek: { duzeltme?: string; gerekce?: string } = {},
-  ) => {
+  const karar = async (o: OneriGorunumu, sonuc: KararSonucuSecimi, ek: KararEki = {}) => {
     if (!cevrimici) {
       bildir(CEVRIMDISI_HATA, "hata");
       return;
     }
+    if (o.tur === "dis_gonderim" && sonuc !== "reddedildi") {
+      const s = await kaynak.yoneticiOzeti(o.id);
+      if (!s.tamam) {
+        bildir(s.hata, "hata");
+        return;
+      }
+      setOzetIstegi({ o, sonuc, ek, ozet: s.deger });
+      return;
+    }
+    await kararGonder(o, sonuc, ek);
+  };
+
+  const ozetGorulduVeKarar = async (imza: string) => {
+    if (!ozetIstegi) return;
+    const { o, sonuc, ek } = ozetIstegi;
+    const g = await kaynak.ozetGoruldu(o.id, imza);
+    if (!g.tamam) {
+      bildir(g.hata, "hata");
+      return;
+    }
+    setOzetIstegi(null);
+    await kararGonder(o, sonuc, ek);
+  };
+
+  const kararGonder = async (o: OneriGorunumu, sonuc: KararSonucuSecimi, ek: KararEki = {}) => {
     const sureMs = sureAl();
     const s = await kaynak.kararVer({ oneriId: o.id, sonuc, ...ek, ...(sureMs !== undefined ? { sureMs } : {}) });
     if (!s.tamam) {
@@ -453,6 +491,23 @@ export function OnayKutusu({
           value={ret?.gerekce ?? ""}
           onChange={(e) => setRet((r) => (r ? { ...r, gerekce: e.target.value } : r))}
         />
+      </IletisimKutusu>
+
+      <IletisimKutusu
+        acik={ozetIstegi !== null}
+        kapat={() => setOzetIstegi(null)}
+        baslik="Gönderimden önce yönetici özeti"
+        aciklama={ozetIstegi?.o.icerik.baslik}
+        altlik={<Dugme onClick={() => setOzetIstegi(null)}>Vazgeç</Dugme>}
+      >
+        {ozetIstegi ? (
+          <YoneticiOzeti
+            ozet={ozetIstegi.ozet}
+            baslik="Özet"
+            dugme={ozetIstegi.sonuc === "duzeltildi" ? "Düzelterek onayla" : "Gönderimi onayla"}
+            onayla={(imza) => void ozetGorulduVeKarar(imza)}
+          />
+        ) : null}
       </IletisimKutusu>
 
       <IletisimKutusu

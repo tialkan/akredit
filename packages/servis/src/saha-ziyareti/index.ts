@@ -8,10 +8,10 @@
 // Hazırlık oranı kanıtlı soru / soru oranıdır; "başarı olasılığı" gibi ölçülmemiş bir rakam üretilmez.
 
 import { type Cerceve, tumOlcutler } from "@akredit/cerceveler";
-import { type Islem, sema } from "@akredit/vt";
+import { gunlugeYaz, type Islem, sema } from "@akredit/vt";
 import type { Eylem } from "@akredit/yetki";
 import { gorevCalistir, type Saglayici, sahaSorulari, sahaSorulariniAyikla } from "@akredit/yz";
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { type Denetleyici, gunluge, islem, type ServisBaglami } from "../baglam.ts";
 import { bulunamadi, ServisHatasi } from "../hata.ts";
@@ -119,6 +119,74 @@ async function odrEksikleri(
   return { surum: son, cumleler };
 }
 
+const KurumBolumu = z.object({ eksik: z.boolean() }).loose();
+
+/**
+ * Kurum kapsamındaki raporların eksikleri: en son KİDR ve programın biriminin en son BİDR'si. Her bölümün son
+ * sürümü okunur; EKSİK işaretli bölümde "[EKSİK: …]" cümleleri, yoksa bölüm metninin başı soru üretir.
+ * Yalnız seçilen çerçevede bulunan ölçüt kodları alınır.
+ */
+async function kurumEksikleri(tx: Islem, birimId: string, cerceve: Cerceve): Promise<EksikCumle[]> {
+  const kodlar = new Set(tumOlcutler(cerceve.olcutler).map((o) => o.kod));
+  const raporlar = await tx
+    .select()
+    .from(sema.rapor)
+    .where(inArray(sema.rapor.tur, ["kidr", "bidr"]))
+    .orderBy(desc(sema.rapor.olusturma), desc(sema.rapor.id));
+  const secilen = [
+    raporlar.find((r) => r.tur === "kidr"),
+    raporlar.find((r) => r.tur === "bidr" && (r.kapsam as { id?: unknown }).id === birimId),
+  ].filter((r): r is (typeof raporlar)[number] => Boolean(r));
+  const sonuc: EksikCumle[] = [];
+  for (const r of secilen) {
+    const satir = await tx
+      .select()
+      .from(sema.raporBolumuSurumu)
+      .where(eq(sema.raporBolumuSurumu.raporId, r.id))
+      .orderBy(asc(sema.raporBolumuSurumu.olusturma), asc(sema.raporBolumuSurumu.id));
+    const oncekiler = new Set(satir.flatMap((x) => (x.oncekiSurumId ? [x.oncekiSurumId] : [])));
+    for (const x of satir) {
+      if (oncekiler.has(x.id) || !x.bolumKodu || !kodlar.has(x.bolumKodu)) continue;
+      const d = KurumBolumu.safeParse(x.denetimSonucu);
+      const cumleler = eksikCumleleri(x.metin ?? "");
+      if (cumleler.length) for (const c of cumleler) sonuc.push({ olcutKod: x.bolumKodu, metin: c });
+      else if (d.success && d.data.eksik)
+        sonuc.push({
+          olcutKod: x.bolumKodu,
+          metin: `${r.tur === "kidr" ? "KİDR" : "BİDR"} bölümü EKSİK: ${(x.metin ?? "").replace(/\s+/gu, " ").trim().slice(0, 160)}`,
+        });
+    }
+  }
+  return sonuc;
+}
+
+/** Saklanan son model önerileri (günlükte `saha.yz_onerileri`; yalnız eklenir, son kayıt geçerlidir). */
+async function sakliOneriler(tx: Islem, programId: string, cerceveKod: string) {
+  const g = await tx
+    .select({ ayrinti: sema.gunluk.ayrinti })
+    .from(sema.gunluk)
+    .where(
+      and(
+        eq(sema.gunluk.eylem, "saha.yz_onerileri"),
+        eq(sema.gunluk.hedefTuru, "program"),
+        eq(sema.gunluk.hedefId, programId),
+      ),
+    )
+    .orderBy(desc(sema.gunluk.sira));
+  for (const x of g) {
+    const a = SakliOneri.safeParse(x.ayrinti);
+    if (a.success && a.data.cerceveKod === cerceveKod) return a.data.oneriler;
+  }
+  return [];
+}
+
+const SakliOneri = z
+  .object({
+    cerceveKod: z.string(),
+    oneriler: z.array(z.object({ olcutKod: z.string(), metin: z.string() })),
+  })
+  .loose();
+
 type Gerekli = (eylem: Eylem, hedef: { tur: "program" | "ders"; id: string }) => Promise<unknown>;
 
 /**
@@ -149,7 +217,9 @@ async function listeKur(tx: Islem, programId: string, cerceve: Cerceve) {
   const dersler = await tx.select({ id: sema.ders.id }).from(sema.ders).where(eq(sema.ders.programId, p.id));
   const kanitlar = await onayliKanitlar(tx, cerceve, p, new Set(dersler.map((d) => d.id)));
   const eksik = await odrEksikleri(tx, p.id, cerceve);
-  return { p, kanitlar, eksik };
+  const kurum = await kurumEksikleri(tx, p.birimId, cerceve);
+  const yzOnerileri = await sakliOneriler(tx, p.id, cerceve.kod);
+  return { p, kanitlar, eksik: { ...eksik, cumleler: [...eksik.cumleler, ...kurum] }, yzOnerileri };
 }
 
 async function provaIsaretleri(tx: Islem, b: ServisBaglami, programId: string, cerceveKod: string) {
@@ -183,7 +253,8 @@ export async function hazirla(b: ServisBaglami, girdi: unknown, secenek: Hazirli
     return { ...v, prova: await provaIsaretleri(tx, b, g.programId, cerceve.kod) };
   });
   const temel = { cerceve, kanitlar: veri.kanitlar, eksikCumleler: veri.eksik.cumleler };
-  let liste = sorulariKur(temel);
+  // Saklanan model önerileri listede kalır ve prova işareti alabilir; yeni çağrı onları yenisiyle değiştirir.
+  let liste = sorulariKur({ ...temel, yzOnerileri: veri.yzOnerileri });
   let yz: SahaDurumu["yz"] = null;
   if (secenek.saglayici) {
     // Modele yalnız soru metni ve ölçüt başlığı gider; kanıt içeriği ve kişi bilgisi gitmez.
@@ -199,6 +270,16 @@ export async function hazirla(b: ServisBaglami, girdi: unknown, secenek: Hazirli
       dilDuzeltmeleri: new Map(a.duzeltmeler.map((d) => [d.soruId, d.metin])),
     });
     yz = { duzeltilen: a.duzeltmeler.length, onerilen: a.oneriler.length, reddedilen: a.reddedilen.length };
+    // Ayıklanmış öneriler değiştirilemez günlüğe saklanır (D8-8): prova bu listeyle doğrulanır.
+    await islem(b, (tx) =>
+      gunlugeYaz(tx, {
+        aktor: { tur: "kisi", id: b.aktor.kisiId },
+        eylem: "saha.yz_onerileri",
+        hedef: { tur: "program", id: g.programId },
+        ayrinti: { cerceveKod: cerceve.kod, oneriler: a.oneriler, yol: b.aktor.tur },
+        zaman: b.simdi(),
+      }),
+    );
   }
   await islem(b, (tx) =>
     gunluge(
@@ -232,8 +313,8 @@ export async function provaIsaretle(b: ServisBaglami, girdi: unknown): Promise<P
     await programYukle(tx, g.programId);
     // Prova görev açar: salt okuma rolleri (gözlemci, değerlendirici) işaret koyamaz.
     await programdaYaDaDersinde(tx, d, gerekli, "kanit.yukle", g.programId);
-    const { p, kanitlar, eksik } = await listeKur(tx, g.programId, cerceve);
-    const liste = sorulariKur({ cerceve, kanitlar, eksikCumleler: eksik.cumleler });
+    const { p, kanitlar, eksik, yzOnerileri } = await listeKur(tx, g.programId, cerceve);
+    const liste = sorulariKur({ cerceve, kanitlar, eksikCumleler: eksik.cumleler, yzOnerileri });
     const soru = liste.sorular.find((s) => s.id === g.soruId);
     if (!soru)
       throw new ServisHatasi(

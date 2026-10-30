@@ -13,6 +13,7 @@ import {
   type Sayfa,
   type ServisBaglami,
   ServisHatasi,
+  yoneticiOzeti,
 } from "@akredit/servis";
 import type {
   Ayarlar,
@@ -143,6 +144,12 @@ export class ServisVeriKaynagi implements VeriKaynagi {
     return sonuc(async () =>
       tur<Awaited<ReturnType<typeof oneri.kararVer>>>(await oneri.kararVer(this.#b, girdi)),
     ) as ReturnType<VeriKaynagi["kararVer"]>;
+  }
+  yoneticiOzeti(oneriId: Parameters<VeriKaynagi["yoneticiOzeti"]>[0]) {
+    return sonuc(() => yoneticiOzeti.oneriYoneticiOzeti(this.#b, oneriId));
+  }
+  ozetGoruldu(oneriId: Parameters<VeriKaynagi["ozetGoruldu"]>[0], imza: string) {
+    return sonuc(() => yoneticiOzeti.yoneticiOzetiGoruldu(this.#b, { oneriId, imza }));
   }
   topluKararVer(oneriIdleri: Parameters<VeriKaynagi["topluKararVer"]>[0], sureMs?: number) {
     return sonuc(() =>
