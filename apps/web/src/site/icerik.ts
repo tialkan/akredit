@@ -126,9 +126,9 @@ export const SAYFALAR = {
     yol: "/mcp-kullan",
     ad: "Kendi yapay zekânızla",
     baslik: "Akredit araçlarını kendi yapay zekânızla kullanın",
-    title: "Akredit MCP: YÖKAK ölçütleri ve denetim araçları, ücretsiz ve hesapsız",
+    title: "Akredit MCP: YÖKAK ve program akreditasyonu ölçütleri, ücretsiz ve hesapsız",
     aciklama:
-      "Claude, ChatGPT, Cursor ya da VS Code'a akredit.org/mcp adresini ekleyin: YÖKAK ölçüt metni, Bologna denetimi, ÇK/PÇ hesabı ve rapor dil denetimi. Ücretsiz, hesapsız, salt okuma.",
+      "Claude, ChatGPT, Cursor ya da VS Code'a akredit.org/mcp adresini ekleyin: YÖKAK, MÜDEK, FEDEK, EPDAD ve SABAK ölçüt metni, Bologna denetimi, ÇK/PÇ hesabı ve rapor dil denetimi. Ücretsiz, hesapsız, salt okuma.",
   },
   acikKaynak: {
     yol: "/acik-kaynak",
