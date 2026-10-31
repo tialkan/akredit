@@ -35,3 +35,15 @@ export async function tabloDurumu(programId: string, programAd: string, cerceveK
     throw e;
   }
 }
+
+/** Son öneri isteğinin durumu; örnek kipte ve hata durumunda yok. */
+export async function oneriDurumu(programId: string, cerceveKod: string): Promise<T.yzOnerisi.OneriDurumu | null> {
+  if (!GERCEK_VERI) return null;
+  const { odrTablolari, ServisHatasi } = await import("@akredit/servis");
+  try {
+    return await odrTablolari.yzOnerisi.oneriDurumu(await servisBaglami(), { programId, cerceveKod });
+  } catch (e) {
+    if (e instanceof ServisHatasi) return null;
+    throw e;
+  }
+}

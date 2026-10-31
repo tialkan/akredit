@@ -8,9 +8,21 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { BosDurum, KirintiYolu, SayfaBasligi } from "../../../../../bilesenler/temel.tsx";
 import { panelVeriKaynagi } from "../../../../../veri/sunucu.ts";
-import { eslemeKaydet } from "./eylem.ts";
-import { cerceveSec, degerMetni, hucreMetni, ILETILER, kararOzeti, kaynakMetni } from "./gorunum.ts";
-import { GERCEK_VERI, tabloDurumu } from "./sunucu.ts";
+import { eslemeKaydet, oneriIste } from "./eylem.ts";
+import {
+  cerceveSec,
+  degerMetni,
+  dersOnDegeri,
+  eslemeCapasi,
+  hucreMetni,
+  ILETILER,
+  type KaynakBaglantisi,
+  kararOzeti,
+  kaynakBaglantilari,
+  oneriKaynaklari,
+  pcOnDegeri,
+} from "./gorunum.ts";
+import { GERCEK_VERI, oneriDurumu, tabloDurumu } from "./sunucu.ts";
 
 export const metadata: Metadata = { title: "Program tabloları" };
 
@@ -45,6 +57,7 @@ export default async function ProgramTablolariSayfasi({
   const kaynakGoster = p.kaynak === "1";
   const ileti = typeof p.ileti === "string" ? ILETILER[p.ileti] : undefined;
   const sonuc = await tabloDurumu(program.id, program.ad, cerceveKod);
+  const oneri = sonuc.tamam ? await oneriDurumu(program.id, cerceveKod) : null;
   const yol = `/panel/programlar/${program.id}/tablolar`;
 
   return (
@@ -99,13 +112,24 @@ export default async function ProgramTablolariSayfasi({
           {sonuc.ileti}
         </p>
       ) : (
-        <Gorunum durum={sonuc.durum} kaynakGoster={kaynakGoster} yol={yol} />
+        <Gorunum durum={sonuc.durum} kaynakGoster={kaynakGoster} yol={yol} oneri={oneri} />
       )}
     </>
   );
 }
 
-function Gorunum({ durum, kaynakGoster, yol }: { durum: T.ProgramTablolari; kaynakGoster: boolean; yol: string }) {
+function Gorunum({
+  durum,
+  kaynakGoster,
+  yol,
+  oneri,
+}: {
+  durum: T.ProgramTablolari;
+  kaynakGoster: boolean;
+  yol: string;
+  oneri: T.yzOnerisi.OneriDurumu | null;
+}) {
+  const kanitId = GERCEK_VERI ? (durum.bologna?.kanitId ?? null) : null;
   const indir = (bicim: "docx" | "xlsx") =>
     `${yol}/indir?${new URLSearchParams({ cerceve: durum.cerceve.kod, bicim }).toString()}`;
   const eksik = durum.tablolar.reduce((n, t) => n + t.eksikSayisi, 0);
@@ -155,15 +179,35 @@ function Gorunum({ durum, kaynakGoster, yol }: { durum: T.ProgramTablolari; kayn
       </nav>
 
       {durum.tablolar.map((t) => (
-        <TabloBolumu key={t.tanimKod} tablo={t} kaynakGoster={kaynakGoster} />
+        <TabloBolumu key={t.tanimKod} tablo={t} kaynakGoster={kaynakGoster} kanitId={kanitId} />
       ))}
 
-      <EslemeFormu durum={durum} />
+      <EslemeFormu durum={durum} oneri={oneri} />
     </>
   );
 }
 
-function HucreIcerigi({ h, kaynakGoster }: { h: Hucre; kaynakGoster: boolean }) {
+function Baglantilar({ liste, onEk }: { liste: KaynakBaglantisi[]; onEk: string }) {
+  return (
+    <span className="mt-1 block text-xs text-soluk">
+      {onEk}:{" "}
+      {liste.map((b, i) => (
+        <span key={`${b.metin}-${b.href ?? ""}`}>
+          {i > 0 ? "; " : ""}
+          {b.href ? (
+            <a href={b.href} className={`underline underline-offset-4 ${odak}`}>
+              {b.metin}
+            </a>
+          ) : (
+            b.metin
+          )}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+function HucreIcerigi({ h, kaynakGoster, kanitId }: { h: Hucre; kaynakGoster: boolean; kanitId: string | null }) {
   if (h.tur === "eksik")
     return (
       <>
@@ -177,12 +221,20 @@ function HucreIcerigi({ h, kaynakGoster }: { h: Hucre; kaynakGoster: boolean }) 
   return (
     <>
       {h.metin}
-      {kaynakGoster ? <span className="mt-1 block text-xs text-soluk">Kaynak: {kaynakMetni(h.kaynak)}</span> : null}
+      {kaynakGoster ? <Baglantilar liste={kaynakBaglantilari(h.kaynak, kanitId)} onEk="Kaynak" /> : null}
     </>
   );
 }
 
-function TabloBolumu({ tablo: t, kaynakGoster }: { tablo: UretilenTablo; kaynakGoster: boolean }) {
+function TabloBolumu({
+  tablo: t,
+  kaynakGoster,
+  kanitId,
+}: {
+  tablo: UretilenTablo;
+  kaynakGoster: boolean;
+  kanitId: string | null;
+}) {
   const yer = t.kaynak.sayfa === null ? t.kaynak.bolum : `${t.kaynak.bolum}, s. ${t.kaynak.sayfa}`;
   const baslikId = `tablo-${t.tanimKod}`;
   return (
@@ -244,12 +296,12 @@ function TabloBolumu({ tablo: t, kaynakGoster }: { tablo: UretilenTablo; kaynakG
                         scope="row"
                         className="border-b border-cizgi px-3 py-2 text-left align-top font-normal"
                       >
-                        <HucreIcerigi h={h} kaynakGoster={kaynakGoster} />
+                        <HucreIcerigi h={h} kaynakGoster={kaynakGoster} kanitId={kanitId} />
                       </th>
                     ) : (
                       // biome-ignore lint/suspicious/noArrayIndexKey: sütunlar sabit sıralıdır
                       <td key={j} className="border-b border-cizgi px-3 py-2 align-top">
-                        <HucreIcerigi h={h} kaynakGoster={kaynakGoster} />
+                        <HucreIcerigi h={h} kaynakGoster={kaynakGoster} kanitId={kanitId} />
                       </td>
                     ),
                   )}
@@ -287,13 +339,53 @@ function KararHucresi({ s, etiketler }: { s: T.EslemeSatiri; etiketler?: Map<str
         <span className="mt-1 block text-xs text-soluk">
           {s.oneri.uretici === "yz" ? "Yapay zekâ önerisi" : "Öneri"}: {degerMetni(s.oneri.deger, etiketler)}.
           Onaylanmadı.
+          {s.oneri.gerekce ? (
+            <>
+              <span className="block">Gerekçe: {s.oneri.gerekce.metin}</span>
+              <Baglantilar liste={oneriKaynaklari(s.oneri.gerekce, !GERCEK_VERI)} onEk="Dayandığı kayıt" />
+            </>
+          ) : null}
         </span>
       ) : null}
     </>
   );
 }
 
-function EslemeFormu({ durum }: { durum: T.ProgramTablolari }) {
+function OneriIstegi({ durum, oneri }: { durum: T.ProgramTablolari; oneri: T.yzOnerisi.OneriDurumu | null }) {
+  const tarih = oneri
+    ? new Date(oneri.zaman).toLocaleString("tr-TR", {
+        timeZone: "Europe/Istanbul",
+        dateStyle: "short",
+        timeStyle: "short",
+      })
+    : "";
+  return (
+    <div className="mt-4 rounded-sm border border-cizgi bg-yuzey p-4">
+      <form action={oneriIste} className="flex flex-wrap items-center gap-3">
+        <input type="hidden" name="program" value={durum.program.id} />
+        <input type="hidden" name="cerceve" value={durum.cerceve.kod} />
+        <button type="submit" className={dugme()} aria-describedby="oneri-aciklama">
+          Öneri iste
+        </button>
+        <p id="oneri-aciklama" className="text-sm text-soluk">
+          Yapay zekâ, kararı olmayan satırlar için Bologna metnine dayanan öneri hazırlar. Öneri onay formunda seçili
+          gelir ama siz onaylamadıkça tabloya girmez.
+        </p>
+      </form>
+      {oneri ? (
+        <p role="status" className="mt-2 text-sm">
+          {oneri.durum === "bekliyor"
+            ? `Son istek (${tarih}) hazırlanıyor.`
+            : oneri.durum === "tamam"
+              ? `Son istek (${tarih}): ${oneri.onerilen} öneri hazırlandı, kurala uymayan ${oneri.reddedilen} öneri alınmadı.`
+              : `Son istek (${tarih}) tamamlanamadı. ${oneri.ileti ?? ""}`}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+function EslemeFormu({ durum, oneri }: { durum: T.ProgramTablolari; oneri: T.yzOnerisi.OneriDurumu | null }) {
   const e = durum.eslemeler;
   const kurul = new Map(durum.cerceve.kurulCiktilari.map((k) => [k.kod, k.etiket]));
   const ad = durum.cerceve.dersEslemeAdi;
@@ -319,6 +411,7 @@ function EslemeFormu({ durum }: { durum: T.ProgramTablolari }) {
         bunları tahmin etmez. Öneri tabloya girmez; seçip onayladığınız değer adınız, zaman ve dayanakla kaydedilir.
         Önceki karar silinmez, yeni karar geçerli olur.
       </p>
+      <OneriIstegi durum={durum} oneri={oneri} />
       <form action={eslemeKaydet} className="mt-4 space-y-8">
         <input type="hidden" name="program" value={durum.program.id} />
         <input type="hidden" name="cerceve" value={durum.cerceve.kod} />
@@ -342,7 +435,7 @@ function EslemeFormu({ durum }: { durum: T.ProgramTablolari }) {
               </thead>
               <tbody>
                 {e.dersler.map((s) => (
-                  <tr key={s.anahtar} className="border-t border-cizgi">
+                  <tr key={s.anahtar} id={eslemeCapasi("ders", s.anahtar)} className="border-t border-cizgi">
                     <th scope="row" className="px-2 py-2 text-left align-top font-normal">
                       {s.etiket}
                     </th>
@@ -352,7 +445,7 @@ function EslemeFormu({ durum }: { durum: T.ProgramTablolari }) {
                     <td className="px-2 py-2 align-top">
                       <select
                         name={`ders:${s.anahtar}`}
-                        defaultValue=""
+                        defaultValue={dersOnDegeri(s)}
                         aria-label={`${s.etiket} için ${ad}`}
                         className={alanSinifi}
                       >
@@ -363,6 +456,17 @@ function EslemeFormu({ durum }: { durum: T.ProgramTablolari }) {
                           </option>
                         ))}
                       </select>
+                      {dersOnDegeri(s) ? (
+                        <label className="mt-1 flex min-h-11 items-center gap-2 text-sm">
+                          <input
+                            type="checkbox"
+                            name={`ders-onay:${s.anahtar}`}
+                            value="1"
+                            className={`size-5 ${odak}`}
+                          />
+                          Öneriyi onayla<span className="sr-only">: {s.etiket}</span>
+                        </label>
+                      ) : null}
                     </td>
                   </tr>
                 ))}
@@ -379,7 +483,7 @@ function EslemeFormu({ durum }: { durum: T.ProgramTablolari }) {
               çıktısı hiçbirini kapsamaz diye kaydedilir.
             </p>
             {e.pcKurul.map((s) => (
-              <fieldset key={s.anahtar} className="mt-4 border-t border-cizgi pt-3">
+              <fieldset key={s.anahtar} id={eslemeCapasi("pc", s.anahtar)} className="mt-4 border-t border-cizgi pt-3">
                 <legend className="text-sm">{s.etiket}</legend>
                 <div className="mt-1 text-sm">
                   <KararHucresi s={s} etiketler={kurul} />
@@ -391,7 +495,7 @@ function EslemeFormu({ durum }: { durum: T.ProgramTablolari }) {
                         type="checkbox"
                         name={`pc:${s.anahtar}`}
                         value={k.kod}
-                        defaultChecked={Array.isArray(s.karar?.deger) && s.karar.deger.includes(k.kod)}
+                        defaultChecked={pcOnDegeri(s).includes(k.kod)}
                         className={`size-5 ${odak}`}
                       />
                       {k.etiket}
@@ -416,7 +520,7 @@ function EslemeFormu({ durum }: { durum: T.ProgramTablolari }) {
             </p>
             <div className="mt-2 grid gap-4 sm:grid-cols-3">
               {e.secmeliYer.map((s) => (
-                <div key={s.anahtar}>
+                <div key={s.anahtar} id={eslemeCapasi("yer", s.anahtar)}>
                   <label className="block text-sm">
                     {s.etiket}
                     <input
