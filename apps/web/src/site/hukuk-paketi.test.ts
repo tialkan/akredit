@@ -1,5 +1,6 @@
 // Kurum hukuk paketi (İP-40): her belge TASLAK başlıklı, .zip güncel.
 import { readFileSync } from "node:fs";
+import { crc32, zipMerkezDizini } from "@akredit/belge";
 import { describe, expect, it } from "vitest";
 import { hukukPaketi, hukukPaketiDosyalari, PAKET_YOLU } from "./hukuk-paketi.ts";
 
@@ -37,7 +38,13 @@ describe("kurum hukuk paketi", () => {
   });
 
   it("yayımlanan .zip güncel (pnpm --filter @akredit/web hukuk-paketi)", () => {
+    // Sıkıştırılmış baytlar zlib sürümüne göre değişebilir (Node 22/24, işletim sistemi);
+    // bu yüzden içerik karşılaştırılır: her belgenin adı, CRC-32 özeti ve boyutu.
     const yayin = readFileSync(new URL(`../../public/${PAKET_YOLU}`, import.meta.url));
-    expect(Buffer.from(hukukPaketi(HUKUK)).equals(yayin)).toBe(true);
+    const beklenen = new Map(
+      hukukPaketiDosyalari(HUKUK).map((d) => [d.ad, { crc: crc32(d.veri), boyut: d.veri.length }]),
+    );
+    expect(zipMerkezDizini(yayin)).toEqual(beklenen);
+    expect(zipMerkezDizini(hukukPaketi(HUKUK))).toEqual(beklenen);
   });
 });
