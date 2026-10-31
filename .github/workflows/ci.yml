@@ -78,7 +78,8 @@ jobs:
       # Erişilebilirlik (axe, klavye) ve performans bütçeleri (e2e/butceler.ts) burada denetlenir; aşım işi kırar.
       - name: Uçtan uca testler
         if: hashFiles('apps/web/e2e/**/*.ts') != ''
-        run: pnpm --filter @akredit/web e2e
+        # github raporlayıcısı her başarısız testi dosya ve satırıyla işaret olarak yazar.
+        run: pnpm --filter @akredit/web e2e --reporter=github,list
         env:
           NEXT_TELEMETRY_DISABLED: "1"
 
