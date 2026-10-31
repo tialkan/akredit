@@ -9,6 +9,7 @@
 //   bildirim.eposta {kurumId}         bekleyen bildirim e-postalarını hemen gönderir (web görev kapatınca koyar)
 //   gunluk.dogrula {}                 bütün kurumlarda değiştirilemez günlük zincirini doğrular
 //   rapor.kidr {kurumId, kisiId, girdi}  KİDR taslağı; isteyen kişinin yetkisiyle derlenir
+//   odr.esleme_oneri {kurumId, istekId, ...}  ÖDR tablo eşlemesi YZ önerisi (İP-47); panel isteğini süreç turu koyar
 //   bologna.devir {}                  sessiz devir (İP-38): dönem başı devir önerileri, süre dolumuyla varsayılan onay, izinliyse kaynağa yazma
 
 import type { NesneDeposu } from "@akredit/depo";
@@ -21,6 +22,12 @@ import { z } from "zod";
 import { belgeIstegiTuru } from "../belge-istegi/index.ts";
 import { DEMO_CRON, DEMO_KUYRUGU, demoIsi } from "../demo/index.ts";
 import { devirIscisi } from "../devir/index.ts";
+import {
+  bekleyenOnerileriKuyrugaKoy,
+  ESLEME_ONERI_KUYRUGU,
+  EslemeOneriIsi,
+  eslemeOneriIsi,
+} from "../esleme-onerisi/index.ts";
 import {
   type HatBaglami,
   kanitHattiniBaslat,
@@ -48,6 +55,7 @@ export const ISCI_KUYRUK = {
   raporKidr: "rapor.kidr",
   bolognaDevir: "bologna.devir",
   sinavTarama: SINAV_TARAMA_KUYRUGU,
+  eslemeOneri: ESLEME_ONERI_KUYRUGU,
 } as const;
 
 /**
@@ -178,6 +186,10 @@ export async function isciKur(d: IsciBagimliliklari) {
           await bekleyenTaramalariKuyrugaKoy(d.db, kurumId, (veri, anahtar) =>
             d.boss.send(ISCI_KUYRUK.sinavTarama, veri, { singletonKey: anahtar }),
           );
+          // İP-47: paneldeki "Öneri iste" istekleri (istek başına tek iş).
+          await bekleyenOnerileriKuyrugaKoy(d.db, kurumId, (veri, anahtar) =>
+            d.boss.send(ISCI_KUYRUK.eslemeOneri, veri, { singletonKey: anahtar }),
+          );
         } catch (e) {
           durum.sonHata = "Süreç turu bir kurumda başarısız oldu.";
           d.gunluk.error({ kurumId, hata: e instanceof Error ? e.message : String(e) }, "süreç turu");
@@ -210,6 +222,25 @@ export async function isciKur(d: IsciBagimliliklari) {
       if (s) d.gunluk.info({ kurumId: is.kurumId, istekId: is.istekId, durum: s.durum }, "sınav taraması");
     },
     { policy: "stately", retryLimit: 0, expireInSeconds: 3600 },
+  );
+
+  // İP-47: ÖDR tablo eşlemesi YZ önerisi. Sonuç (olmadı dahil) günlüğe yazılır; yeniden deneme yok.
+  await kayit(
+    ISCI_KUYRUK.eslemeOneri,
+    EslemeOneriIsi,
+    async (is) => {
+      const s = await eslemeOneriIsi(
+        {
+          db: d.db,
+          simdi: () => d.saat.simdi(),
+          kurumFabrikasi: d.kurumFabrikasi,
+          ...(d.saglayici ? { saglayici: d.saglayici } : {}),
+        },
+        is,
+      );
+      d.gunluk.info({ kurumId: is.kurumId, istekId: is.istekId, ...s }, "eşleme önerisi");
+    },
+    { policy: "stately", retryLimit: 0, expireInSeconds: 900 },
   );
 
   await kayit(ISCI_KUYRUK.bildirimEposta, KurumIsi, async ({ kurumId }) => {

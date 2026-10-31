@@ -1,7 +1,16 @@
 // İP-47: program tabloları sayfasının saf yardımcıları. Örnek veri kurgudur.
 import { odrTablolari } from "@akredit/servis";
 import { describe, expect, it } from "vitest";
-import { cerceveSec, kararIstekleri, kaynakMetni, ORNEK_BOLOGNA, ornekKayitlari } from "./gorunum.ts";
+import {
+  cerceveSec,
+  dersOnDegeri,
+  eslemeCapasi,
+  kararIstekleri,
+  kaynakBaglantilari,
+  kaynakMetni,
+  ORNEK_BOLOGNA,
+  ornekKayitlari,
+} from "./gorunum.ts";
 
 const ornekDurum = (cerceveKod: string) => {
   const ozet = odrTablolari.tabloCerceveleri().find((c) => c.kod === cerceveKod);
@@ -60,5 +69,32 @@ describe("program tabloları sayfası", () => {
       { tur: "pc_kurul", anahtar: "P1", deger: ["3.C1", "3.C2"] },
       { tur: "secmeli_yer", anahtar: "2", deger: 1 },
     ]);
+  });
+
+  it("öneriyle ön dolu seçim onay kutusu işaretlenmeden karar olmaz", () => {
+    const d = ornekDurum("mudek-lisans");
+    const orn102 = d.eslemeler.dersler.find((s) => s.anahtar === "ORN102");
+    // ORN102'nin kararı yok, YZ önerisi ilk kategori: seçim öneriyle gelir.
+    const oneri = dersOnDegeri(orn102 as NonNullable<typeof orn102>);
+    expect(oneri).toBe(String(orn102?.oneri?.deger));
+    const f = new FormData();
+    f.set("ders:ORN102", oneri);
+    expect(kararIstekleri(f, d)).toEqual([]);
+    f.set("ders-onay:ORN102", "1");
+    expect(kararIstekleri(f, d)).toEqual([{ tur: "ders_kategorisi", anahtar: "ORN102", deger: oneri }]);
+  });
+
+  it("hücre kaynağı tek tıkla Bologna okumasına ya da karar satırına gider (İP-44)", () => {
+    const k = "11111111-1111-4111-8111-111111111111";
+    expect(kaynakBaglantilari("bologna:ORN101#akts", k)).toEqual([
+      { metin: "Bologna, ORN101, AKTS", href: `/panel/kanitlar/${k}` },
+    ]);
+    expect(kaynakBaglantilari("bologna:ORN101#akts", null)[0]?.href).toBeNull();
+    expect(kaynakBaglantilari("esleme:pc-kurul#P1/3.C1", k)[0]?.href).toBe("#esleme-pc-P1");
+    expect(kaynakBaglantilari("hesap:toplam#MTB;esleme:secmeli-yer#2", k).map((b) => b.href)).toEqual([
+      null,
+      "#esleme-yer-2",
+    ]);
+    expect(eslemeCapasi("ders", "MAT 101")).toBe("esleme-ders-MAT_101");
   });
 });

@@ -11,6 +11,9 @@ export const ILETILER: Record<string, string> = {
   yetki: "Bu programda eşleme onaylama yetkiniz yok. Program sorumlusuna ya da kalite birimine başvurun.",
   hata: "Kararlar kaydedilemedi. Sayfayı yenileyip yeniden deneyin.",
   ornek: "Örnek veri kipinde karar kaydedilmez.",
+  oneri_istendi: "Öneri istendi. Hazır olunca eşlemelerde onaysız olarak görünür; sayfayı birazdan yenileyin.",
+  oneri_ornek: "Örnek veri kipinde öneri istenmez.",
+  oneri_hata: "Öneri istenemedi. Bologna verisinin aktarıldığından emin olun ve yeniden deneyin.",
 };
 
 /** Seçilen çerçeve; tanınmayan değer ilk çerçeveye düşer. */
@@ -58,6 +61,59 @@ export function kaynakMetni(kaynak: string): string {
     .join("; ");
 }
 
+export interface KaynakBaglantisi {
+  metin: string;
+  /** Tek tıkla gidilecek adres; kaynağı gösteren sayfa yoksa null (ör. hesap). */
+  href: string | null;
+}
+
+/** Eşleme satırının sayfa içi çapası: hücre kaynağından karar satırına gidilir. */
+export function eslemeCapasi(tur: "ders" | "pc" | "yer", anahtar: string): string {
+  return `esleme-${tur}-${anahtar.replace(/[^0-9A-Za-z_-]/gu, "_")}`;
+}
+
+/**
+ * Hücre kaynağından tek tık bağlantılar (İP-44): Bologna kaynağı programın Bologna okuma kanıtına, kurum
+ * kararı aynı sayfadaki karar satırına (karar veren, zaman, dayanak) gider. Hesap kaynağı bağlantısızdır;
+ * hesap girdileri aynı satırdaki öteki hücrelerdedir. Okuma kanıtı yoksa (örnek kip) bağlantı verilmez.
+ */
+export function kaynakBaglantilari(kaynak: string, kanitId: string | null): KaynakBaglantisi[] {
+  return kaynak.split(";").map((k) => {
+    const metin = kaynakMetni(k);
+    const [tur = "", geri = ""] = k.split(":");
+    const [nesne = "", alan = ""] = geri.split("#");
+    if (tur === "bologna") return { metin, href: kanitId ? `/panel/kanitlar/${kanitId}` : null };
+    if (tur === "esleme") {
+      if (nesne === "secmeli-yer") return { metin, href: `#${eslemeCapasi("yer", alan)}` };
+      if (nesne === "pc-kurul") return { metin, href: `#${eslemeCapasi("pc", alan.split("/")[0] ?? "")}` };
+      return { metin, href: `#${eslemeCapasi("ders", alan)}` };
+    }
+    return { metin, href: null };
+  });
+}
+
+/** Öneri gerekçesinin kaynakları, okunur ve bağlantılı. */
+export function oneriKaynaklari(g: T.OneriGerekcesi, ornek: boolean): KaynakBaglantisi[] {
+  return g.kaynaklar.map((k) => {
+    const href = !ornek && k.kanitId ? `/panel/kanitlar/${k.kanitId}` : null;
+    if (k.tur === "bologna") return { metin: `Bologna okuması, ${k.anahtar}`, href };
+    if (k.tur === "pc") return { metin: `Program çıktısı ${k.anahtar} metni`, href };
+    return { metin: `Kurul çıktısı ${k.anahtar} metni`, href: null };
+  });
+}
+
+/** Onay formunda ders seçiminin ön değeri: karar yoksa öneri, yoksa boş ("Değiştirme"). */
+export function dersOnDegeri(s: T.EslemeSatiri): string {
+  if (s.karar) return "";
+  return typeof s.oneri?.deger === "string" ? s.oneri.deger : "";
+}
+
+/** PÇ satırında işaretli kurul çıktıları: karar varsa karar, yoksa öneri. */
+export function pcOnDegeri(s: T.EslemeSatiri): string[] {
+  const d = s.karar?.deger ?? s.oneri?.deger;
+  return Array.isArray(d) ? d : [];
+}
+
 export interface KararIstegi {
   tur: T.EslemeTuru;
   anahtar: string;
@@ -73,8 +129,10 @@ export function kararIstekleri(f: FormData, d: T.ProgramTablolari): KararIstegi[
   const sonuc: KararIstegi[] = [];
   for (const s of d.eslemeler.dersler) {
     const v = f.get(`ders:${s.anahtar}`);
-    if (typeof v === "string" && v && v !== s.karar?.deger)
-      sonuc.push({ tur: "ders_kategorisi", anahtar: s.anahtar, deger: v });
+    if (typeof v !== "string" || !v || v === s.karar?.deger) continue;
+    // Öneriyle ön doldurulmuş seçim, satırın onay kutusu işaretlenmeden karar olmaz.
+    if (v === dersOnDegeri(s) && f.get(`ders-onay:${s.anahtar}`) !== "1") continue;
+    sonuc.push({ tur: "ders_kategorisi", anahtar: s.anahtar, deger: v });
   }
   for (const s of d.eslemeler.pcKurul) {
     if (f.get(`pc-onay:${s.anahtar}`) !== "1") continue;
@@ -167,6 +225,10 @@ export function ornekKayitlari(dersKodlari: readonly string[]): T.EslemeKaydi[] 
       kararVeren: null,
       dayanak: null,
       zaman,
+      gerekce: {
+        metin: "Örnek gerekçe: dersin amacı temel bilim konularını işler.",
+        kaynaklar: [{ tur: "bologna", anahtar: "ORN102" }],
+      },
     },
   ];
   return kayitlar;

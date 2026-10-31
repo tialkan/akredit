@@ -27,6 +27,8 @@ import { gunluge, islem, type ServisBaglami } from "../../baglam.ts";
 import { okumalar } from "../../bologna/index.ts";
 import { bulunamadi, ServisHatasi } from "../../hata.ts";
 
+export * as yzOnerisi from "./yz-onerisi.ts";
+
 const Kimlik = z.string().uuid("Geçersiz kimlik.");
 
 export const EslemeTuru = z.enum(["ders_kategorisi", "pc_kurul", "secmeli_yer"]);
@@ -88,10 +90,22 @@ export interface EslemeKarari {
   zaman: string;
   dayanak: string;
 }
+/** Önerinin dayandığı kayıt: Bologna okuma kanıtındaki ders, program çıktısı metni ya da kurul çıktısı. */
+export interface OneriKaynagi {
+  tur: "bologna" | "pc" | "kurul";
+  anahtar: string;
+  /** Bologna okumasının kanıt kimliği (ders ve PÇ kaynaklarında). */
+  kanitId?: string;
+}
+export interface OneriGerekcesi {
+  metin: string;
+  kaynaklar: OneriKaynagi[];
+}
 export interface EslemeOnerisi {
   deger: string | string[] | number;
   uretici: "yz" | "kisi";
   zaman: string;
+  gerekce: OneriGerekcesi | null;
 }
 export interface EslemeSatiri {
   anahtar: string;
@@ -111,6 +125,7 @@ export interface EslemeKaydi {
   kararVeren: string | null;
   dayanak: string | null;
   zaman: Date;
+  gerekce?: unknown;
 }
 
 async function kayitlar(tx: Islem, programId: string, cerceveKod: string): Promise<EslemeKaydi[]> {
@@ -131,8 +146,27 @@ async function kayitlar(tx: Islem, programId: string, cerceveKod: string): Promi
       kararVeren: x.ad,
       dayanak: x.e.dayanak,
       zaman: x.e.zaman,
+      gerekce: x.e.gerekce,
     }));
 }
+
+const GerekceSemasi = z
+  .object({
+    metin: z.string().trim().min(3).max(500),
+    kaynaklar: z
+      .array(
+        z
+          .object({
+            tur: z.enum(["bologna", "pc", "kurul"]),
+            anahtar: z.string().trim().min(1).max(100),
+            kanitId: Kimlik.optional(),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(20),
+  })
+  .strict();
 
 const DegerSemasi = {
   ders_kategorisi: z.string(),
@@ -164,7 +198,12 @@ function sonDurumlar(
     else
       m.set(k.anahtar, {
         ...onceki,
-        oneri: { deger: d.data, uretici: k.uretici === "yz" ? "yz" : "kisi", zaman: k.zaman.toISOString() },
+        oneri: {
+          deger: d.data,
+          uretici: k.uretici === "yz" ? "yz" : "kisi",
+          zaman: k.zaman.toISOString(),
+          gerekce: GerekceSemasi.safeParse(k.gerekce).data ?? null,
+        },
       });
   }
   return m;
@@ -290,7 +329,10 @@ const EslemeTemeli = z
   })
   .strict();
 
-export const OneriGirdisi = EslemeTemeli.extend({ uretici: z.enum(["yz", "kisi"]) }).strict();
+export const OneriGirdisi = EslemeTemeli.extend({
+  uretici: z.enum(["yz", "kisi"]),
+  gerekce: GerekceSemasi.optional(),
+}).strict();
 export const KararGirdisi = EslemeTemeli.extend({
   dayanak: z
     .string()
@@ -306,7 +348,7 @@ async function denetle(
   tx: Islem,
   g: z.infer<typeof EslemeTemeli>,
   cerceve: Cerceve,
-): Promise<{ cerceveKod: string | null; deger: string | string[] | number }> {
+): Promise<{ cerceveKod: string | null; deger: string | string[] | number; kanitId: string }> {
   const ozet = cerceveOzeti(cerceve);
   const [okuma] = await okumalar(tx, g.programId, 1);
   if (!okuma) throw gecersiz("Bu programın Bologna verisi aktarılmadı. Önce ders bilgi paketini aktarın.");
@@ -315,7 +357,7 @@ async function denetle(
     if (typeof g.deger !== "string" || !ozet.dersKodlari.includes(g.deger))
       throw gecersiz(`Ders ${ozet.dersEslemeAdi} değeri bu çerçevede geçerli değil. Listeden seçin.`);
     if (!v.dersler.some((d) => d.kod === g.anahtar)) throw gecersiz("Bu ders programın Bologna verisinde yok.");
-    return { cerceveKod: cerceve.kod, deger: g.deger };
+    return { cerceveKod: cerceve.kod, deger: g.deger, kanitId: okuma.kanitId };
   }
   if (g.tur === "pc_kurul") {
     const gecerli = new Set(ozet.kurulCiktilari.map((k) => k.kod));
@@ -324,14 +366,14 @@ async function denetle(
       throw gecersiz("Kurul çıktısı bu çerçevede geçerli değil. Listeden seçin.");
     if (!v.programCiktilari.some((p) => p.kod === g.anahtar))
       throw gecersiz("Bu program çıktısı programın Bologna verisinde yok.");
-    return { cerceveKod: cerceve.kod, deger: [...new Set(g.deger)].sort() };
+    return { cerceveKod: cerceve.kod, deger: [...new Set(g.deger)].sort(), kanitId: okuma.kanitId };
   }
   if (typeof g.deger !== "number" || !Number.isInteger(g.deger) || g.deger < 0 || g.deger > 50)
     throw gecersiz("Seçmeli yer sayısı 0 ile 50 arasında bir tam sayı olmalı.");
   const y = Number(g.anahtar);
   if (!/^\d+$/u.test(g.anahtar) || !v.dersler.some((d) => !("hata" in d) && !d.zorunlu && d.yariyil === y))
     throw gecersiz("Bu yarıyılda seçmeli ders yok.");
-  return { cerceveKod: null, deger: g.deger };
+  return { cerceveKod: null, deger: g.deger, kanitId: okuma.kanitId };
 }
 
 /**
@@ -344,6 +386,9 @@ export async function eslemeOner(b: ServisBaglami, girdi: unknown): Promise<{ ta
   return islem(b, async (tx, gerekli) => {
     await gerekli("rapor.duzenle", { tur: "program", id: g.programId });
     const d = await denetle(tx, g, cerceve);
+    // Gerekçenin kaynakları programın son Bologna okumasına bağlı olmalı (ilke 1).
+    if (g.gerekce?.kaynaklar.some((k) => k.kanitId !== undefined && k.kanitId !== d.kanitId))
+      throw gecersiz("Önerinin kaynağı programın son Bologna okuması değil. Öneriyi yeniden isteyin.");
     await tx.insert(sema.programEsleme).values({
       kurumId: b.aktor.kurumId,
       programId: g.programId,
@@ -353,6 +398,7 @@ export async function eslemeOner(b: ServisBaglami, girdi: unknown): Promise<{ ta
       deger: d.deger,
       durum: "oneri",
       uretici: g.uretici,
+      gerekce: g.gerekce ?? null,
       zaman: b.simdi(),
     });
     await gunluge(

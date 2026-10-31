@@ -8,6 +8,7 @@ export * from "./anahtar-kasasi.ts";
 export * from "./degerlendirme/duzenek.ts";
 export * from "./gorevler/bologna-taslagi/index.ts";
 export * as bolognaOrnek from "./gorevler/bologna-taslagi/ornek.ts";
+export * from "./gorevler/esleme-onerisi.ts";
 export * from "./gorevler/gorev.ts";
 export * from "./gorevler/kanit-avcisi/index.ts";
 export * from "./gorevler/kanit-siniflama.ts";

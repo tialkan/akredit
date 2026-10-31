@@ -27,6 +27,8 @@ export const programEsleme = pgTable("program_esleme", {
   uretici: text("uretici").notNull(),
   kararVerenKisiId: uuid("karar_veren_kisi_id").references(() => kisi.id),
   dayanak: text("dayanak"),
+  /** Yalnız öneride: gerekçe metni ve dayandığı kayıtlar (0131 göçü). */
+  gerekce: jsonb("gerekce"),
   zaman: zaman("zaman").notNull(),
   olusturma: olusturma(),
 });

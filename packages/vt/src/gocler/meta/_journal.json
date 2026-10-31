@@ -169,6 +169,13 @@
       "when": 1793048846894,
       "tag": "0130_program_esleme",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1793048906894,
+      "tag": "0131_program_esleme_gerekce",
+      "breakpoints": true
     }
   ]
 }
