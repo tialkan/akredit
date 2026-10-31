@@ -6,14 +6,11 @@
 useDefault = true
 
 [allowlist]
-description = "Sahte test anahtarları (gerçek sisteme bağlı değil)"
+description = "Sahte test anahtarları ve uydurma test değerleri (gerçek sisteme bağlı değil)"
+regexTarget = "line"
+regexes = ['''uydurma'''']
 paths = [
   '''^apps/web/src/kimlik/test/fixtures/idp-anahtar\.pem$''',
   '''^apps/web/src/kimlik/test/fixtures/idp-sertifika\.pem$''',
 ]
 
-# Testlerde kullanılan uydurma parola ve anahtarlar: değerin içinde "uydurma" geçer.
-[[allowlists]]
-description = "Uydurma test değerleri"
-regexTarget = "line"
-regexes = ['''uydurma''']

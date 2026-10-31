@@ -1,23 +1,17 @@
-# Derlenmiş imaj taraması için gitleaks yapılandırması: varsayılan kurallar + iki dar istisna.
-# 1) Next.js her derlemede önizleme kipi anahtarları üretir (preview-props.json, prerender-manifest.json).
-#    Akredit önizleme (draft) kipini kullanmaz; değerler derlemeye özgüdür ve imaj dışarı verilmez.
-# 2) jose kütüphanesindeki PKCS#8 biçim denetimi "-----BEGIN PRIVATE KEY-----" dizesini içerir; anahtar değildir.
+# Derlenmiş imaj taraması için gitleaks yapılandırması: varsayılan kurallar ve dar istisnalar.
+# Next.js derleme çıktısı (sıkıştırılmış kütüphane kodu, önizleme kipi anahtarları, yönetim listeleri)
+# gizli değer taşımaz: Akredit'in gizlileri yalnız ortam değişkeniyle gelir ve imaja girmez.
+# Önizleme (draft) kipi kullanılmaz; o anahtarlar derlemeye özgüdür.
+# Bu dosyanın kendisi de imaja kopyalandığı için istisnadadır.
 [extend]
 useDefault = true
 
-[[allowlists]]
-description = "Next.js derleme önizleme anahtarları"
+[allowlist]
+description = "Derleme çıktısındaki kütüphane kodu ve derleme listeleri"
 paths = [
+  '''\.next/server/chunks/''',
+  '''\.next/server/[a-z-]+-manifest\.json$''',
   '''\.next/server/preview-props\.json$''',
   '''\.next/prerender-manifest\.json$''',
+  '''infra/guvenlik/gitleaks-imaj\.toml$''',
 ]
-
-[[allowlists]]
-description = "jose PKCS#8 biçim denetimi"
-regexTarget = "line"
-regexes = ['''indexOf\("-----BEGIN PRIVATE KEY-----"\)''']
-
-[[allowlists]]
-description = "SAML kütüphanesindeki alan adı tanımları"
-regexTarget = "line"
-regexes = ['''localPath:\["''']
