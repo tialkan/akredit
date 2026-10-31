@@ -31,7 +31,10 @@ jobs:
         run: corepack enable && corepack prepare --activate
       - run: pnpm install --frozen-lockfile
       - name: Biçim, tip ve testler
-        run: pnpm verify
+        run: |
+          # Hata olursa son satırlar işaret olarak da yazılır (günlük indirilemeyen ortamlar için).
+          set -o pipefail
+          pnpm verify 2>&1 | tee "$RUNNER_TEMP/verify.log" || { grep -nE "FAIL|Error|error|ELIFECYCLE|failed|✗|×" "$RUNNER_TEMP/verify.log" | tail -40 | sed 's/^/::error::/'; tail -25 "$RUNNER_TEMP/verify.log" | sed 's/^/::error::son: /'; exit 1; }
       - name: Web derlemesi
         run: pnpm --filter @akredit/web build
         env:
@@ -131,7 +134,7 @@ jobs:
           mkdir imaj && docker export "$(docker create akredit-${{ matrix.uygulama }}:ci)" | tar -x -C imaj
           if find imaj -name '.env' -o -name '.env.*' -not -name '.env.ornek' | grep -q .; then echo "İmajda .env dosyası var"; exit 1; fi
           R="$PWD/gitleaks-imaj.json"; touch "$R"; chmod 666 "$R"
-          docker run --rm -v "$PWD/imaj/uygulama:/tara:ro" -v "$R:/rapor.json" ghcr.io/gitleaks/gitleaks:v8.28.0 dir /tara --no-banner --redact --report-format json --report-path /rapor.json || { jq -r '.[] | "::error file=\(.File),line=\(.StartLine)::\(.RuleID) \(.Commit[0:7])"' "$R"; exit 1; }
+          docker run --rm -v "$PWD/imaj/uygulama:/tara:ro" -v "$R:/rapor.json" -v "$PWD/infra/guvenlik/gitleaks-imaj.toml:/ayar.toml:ro" ghcr.io/gitleaks/gitleaks:v8.28.0 dir /tara --config /ayar.toml --no-banner --redact --report-format json --report-path /rapor.json || { jq -r '.[] | "::error file=\(.File),line=\(.StartLine)::\(.RuleID) \(.Commit[0:7])"' "$R"; exit 1; }
       - name: Kök olmayan kullanıcı denetimi
         run: test "$(docker inspect -f '{{.Config.User}}' akredit-${{ matrix.uygulama }}:ci)" = "node"
 

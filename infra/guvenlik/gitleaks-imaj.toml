@@ -1,0 +1,23 @@
+# Derlenmiş imaj taraması için gitleaks yapılandırması: varsayılan kurallar + iki dar istisna.
+# 1) Next.js her derlemede önizleme kipi anahtarları üretir (preview-props.json, prerender-manifest.json).
+#    Akredit önizleme (draft) kipini kullanmaz; değerler derlemeye özgüdür ve imaj dışarı verilmez.
+# 2) jose kütüphanesindeki PKCS#8 biçim denetimi "-----BEGIN PRIVATE KEY-----" dizesini içerir; anahtar değildir.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Next.js derleme önizleme anahtarları"
+paths = [
+  '''\.next/server/preview-props\.json$''',
+  '''\.next/prerender-manifest\.json$''',
+]
+
+[[allowlists]]
+description = "jose PKCS#8 biçim denetimi"
+regexTarget = "line"
+regexes = ['''indexOf\("-----BEGIN PRIVATE KEY-----"\)''']
+
+[[allowlists]]
+description = "SAML kütüphanesindeki alan adı tanımları"
+regexTarget = "line"
+regexes = ['''localPath:\["''']
