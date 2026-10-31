@@ -21,7 +21,7 @@ export async function tabloDurumu(programId: string, programAd: string, cerceveK
         program: { id: programId, ad: programAd },
         cerceve,
         okuma: { kanitId: "ornek", okundu: ORNEK_BOLOGNA.okundu, veri: ORNEK_BOLOGNA },
-        kayitlar: ornekKayitlari(ozet?.dersKodlari ?? []),
+        kayitlar: ornekKayitlari(ozet?.dersKodlari ?? [], ozet?.ozgu?.bolumler[0]?.kod),
       }),
     };
   }

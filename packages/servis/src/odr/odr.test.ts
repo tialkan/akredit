@@ -3,7 +3,15 @@
 // numaralar uydurmadır.
 
 import { metinCikar, tabloOku } from "@akredit/belge";
-import { AKREDIT_ONLISANS_IC, type Cerceve, cerceveSemasi, MUDEK_TASLAK } from "@akredit/cerceveler";
+import {
+  AKREDIT_ONLISANS_IC,
+  type Cerceve,
+  cerceveSemasi,
+  EPDAD_OGRETMEN_1_1,
+  MUDEK_EK1,
+  MUDEK_LISANS_3_1,
+  MUDEK_TASLAK,
+} from "@akredit/cerceveler";
 import { kiraciIslemi, sema } from "@akredit/vt";
 import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -142,6 +150,48 @@ describe("ÖDR kurucu ve şablon (saf)", () => {
     expect(m.bolumler).toEqual([]);
     expect(m.eksikler[0]?.neden).toContain("DOĞRULANMADI");
     expect(m.cerceve.rozet).toBe("Uzman doğrulaması bekliyor");
+  });
+  it("program çerçevesi: seçim yoksa EKSİK; seçilen disiplinin konuları ve göstergeler EKSİK yer tutucuyla", () => {
+    const bos = { programAd: "X", kanitlar: [], hesaplar: [], surecKayitlari: [] };
+    const olcut = (t: ReturnType<typeof odrKur>, kod: string) =>
+      t.bolumler.flatMap((b) => b.olcutler).find((x) => x.kod === kod);
+    const secimsiz = odrKur({ ...bos, cerceve: MUDEK_LISANS_3_1 });
+    expect(olcut(secimsiz, "5.1")?.paragraflar.map((p) => p.metin)).toContain(
+      "[EKSİK: Programın disiplin seçimi yapılmadı; Disipline özgü eğitim planı konuları (EK-1) rapora eklenemedi.]",
+    );
+    expect(olcut(secimsiz, "5.1")?.ekler).toBeUndefined();
+    const secili = odrKur({ ...bos, cerceve: MUDEK_LISANS_3_1, ozguBolumleri: ["bilgisayar-yazilim"] });
+    const ekler = olcut(secili, "5.1")?.ekler ?? [];
+    expect(ekler.length).toBe(MUDEK_EK1.bolumler.find((b) => b.kod === "bilgisayar-yazilim")?.konular.length);
+    expect(ekler[0]?.kaynak).toContain(", s. 11");
+    expect(secili.eksikler.some((e) => e.olcutKod === "5.1" && e.neden.includes("kanıtı bağlanmadı"))).toBe(true);
+    // Word: ölçütün altında öğe tablosu; her satır EKSİK, karşılandı cümlesi yok.
+    const m = odrDocxModeli({
+      taslak: secili,
+      kurumAd: "Örnek",
+      surum: 1,
+      surumler: [],
+      onay: null,
+      dersDosyalari: [],
+    });
+    const b51 = m.bolumler.find((b) => b.baslik?.startsWith("5.1 "));
+    const tablo = b51?.icerik.find((i) => i.tur === "tablo");
+    expect(tablo?.tur === "tablo" && tablo.satirlar.every((s) => s.at(-1) === "[EKSİK]")).toBe(true);
+
+    const epdad = odrKur({ ...bos, cerceve: EPDAD_OGRETMEN_1_1 });
+    const g = olcut(epdad, "2.1.1")?.ekler ?? [];
+    expect(g[0]).toMatchObject({ etiket: "Gösterge 1", duzeyTanimi: false });
+    const me = odrDocxModeli({
+      taslak: epdad,
+      kurumAd: "Örnek",
+      surum: 1,
+      surumler: [],
+      onay: null,
+      dersDosyalari: [],
+    });
+    const t211 = me.bolumler.find((b) => b.baslik?.startsWith("2.1.1 "))?.icerik.find((i) => i.tur === "tablo");
+    expect(t211?.tur === "tablo" && t211.basliklar).toEqual(["Gösterge", "Resmî metin", "Kaynak", "Düzey", "Kanıt"]);
+    expect(t211?.tur === "tablo" && t211.satirlar[0]?.[2]).toContain("düzey tanımları belgeden okunamadı");
   });
 });
 

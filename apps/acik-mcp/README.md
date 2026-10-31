@@ -4,8 +4,8 @@ Yükseköğretimde kalite güvencesi ve akreditasyon işleri için herkese açı
 
 | Araç | Ne yapar |
 |---|---|
-| `olcut_ara` | YÖKAK ölçütlerinde arama yapar. |
-| `olcut_getir` | Bir ölçütün resmî metnini, üst ve alt ölçütlerini getirir. |
+| `olcut_ara` | YÖKAK ya da program akreditasyonu (MÜDEK, FEDEK, SABAK, EPDAD) ölçütlerinde, EPDAD göstergelerinde ve programa özgü konularda arar. |
+| `olcut_getir` | Bir ölçütün resmî metnini, üst ve alt ölçütlerini, varsa göstergelerini ve programa özgü konularını kaynak sayfasıyla getirir. |
 | `olgunluk_duzeyleri` | Alt ölçütün olgunluk düzeylerini ve örnek kanıtlarını getirir. |
 | `oz_degerlendirme_iskeleti` | Öz değerlendirme raporu iskeletini çıkarır; her bölüm EKSİK işaretli ve gereken kanıt türleriyle gelir. |
 | `bologna_denetle` | Bologna ders bilgisini eksik ve tutarsız alanlar için denetler. |

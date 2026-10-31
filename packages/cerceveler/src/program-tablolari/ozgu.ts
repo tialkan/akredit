@@ -127,3 +127,97 @@ export function ozguBolum(cerceve: string, kod: string): OzguBolum | null {
   const liste = cerceve === "mudek-lisans" ? MUDEK_EK1.bolumler : cerceve === "fedek-lisans" ? FEDEK_PROGRAMA_OZGU : [];
   return liste.find((b) => b.kod === kod) ?? null;
 }
+
+// ---------------------------------------------------------------------------------------------------------
+// Ölçüt ağacına bağlama
+
+/**
+ * Programa ya da disipline özgü içeriğin bağlandığı ölçüt. Bağ belgeden gelir: MÜDEK 3.1 Ölçüt 5.1 eğitim
+ * planının "EK-1'de verilen disipline özgü konuları" içermesini ister; FEDEK 4.1 Ölçüt 10.1 "Programa özgü
+ * ölçütlerin sağlandığı kanıtlanmış" olmasını ister. Hangi bölümün geçerli olduğunu kurum seçer; Akredit
+ * program adından tahmin etmez.
+ */
+export interface OzguBagi {
+  cerceve: "mudek-lisans" | "fedek-lisans";
+  olcutKod: string;
+  /** Panelde ve raporda kullanılan ad. */
+  ad: string;
+  /** Bir bölüm için kullanılan sözcük. */
+  bolumAdi: "disiplin" | "program";
+}
+
+export const OZGU_BAGLARI: readonly OzguBagi[] = [
+  { cerceve: "mudek-lisans", olcutKod: "5.1", ad: "Disipline özgü eğitim planı konuları (EK-1)", bolumAdi: "disiplin" },
+  { cerceve: "fedek-lisans", olcutKod: "10.1", ad: "Programa özgü ölçütler", bolumAdi: "program" },
+];
+
+/** Çerçevenin özgü içerik bağı; yoksa null (seçim gerekmez). */
+export function ozguBagi(cerceve: string): OzguBagi | null {
+  return OZGU_BAGLARI.find((b) => b.cerceve === cerceve) ?? null;
+}
+
+/** Çerçevenin seçilebilir bölümleri (MÜDEK EK-1 disiplinleri ya da FEDEK programları). */
+export function ozguBolumListesi(cerceve: string): readonly OzguBolum[] {
+  return cerceve === "mudek-lisans" ? MUDEK_EK1.bolumler : cerceve === "fedek-lisans" ? FEDEK_PROGRAMA_OZGU : [];
+}
+
+/** Göstergeleri olan çerçeve (EPDAD öğretmen eğitimi 1.1). */
+export const GOSTERGELI_CERCEVE = "epdad-ogretmen";
+
+/** Kaynak belgenin okunur adı (kaynak listesindeki not); bulunamazsa dosya adı. */
+export function belgeAdi(dosya: string): string {
+  return Object.values(PROGRAM_BELGELERI).find((b) => b.dosya === dosya)?.not ?? dosya;
+}
+
+/** Bir ölçütün altında gösterilen öğe: disipline ya da programa özgü konu, ya da EPDAD göstergesi. */
+export type OlcutEki =
+  | {
+      tur: "ozgu_konu";
+      /** Kararlı kimlik: `cerceve/bolum/sıra` (sıra 1'den). */
+      kimlik: string;
+      bolumKod: string;
+      bolumBaslik: string;
+      grup: string | null;
+      metin: string;
+      kaynak: OzguKaynak;
+    }
+  | {
+      tur: "gosterge";
+      kimlik: string;
+      no: number;
+      metin: string;
+      duzeyler: Readonly<Record<DuzeyAdi, string>> | null;
+      kaynak: OzguKaynak;
+    };
+
+/**
+ * Ölçütün altındaki ek öğeler. Özgü konular yalnız kurumun seçtiği bölümlerden gelir; bilinmeyen bölüm kodu
+ * yok sayılır. EPDAD'da alt standardın göstergeleri gelir. Saf işlev; metin belgeden gelir, yazılmaz.
+ */
+export function olcutEkleri(cerceve: string, olcutKod: string, secilenBolumler: readonly string[]): OlcutEki[] {
+  if (cerceve === GOSTERGELI_CERCEVE)
+    return altStandartGostergeleri(olcutKod).map((g) => ({
+      tur: "gosterge",
+      kimlik: `${cerceve}/${g.altStandart}/${g.no}`,
+      no: g.no,
+      metin: g.metin,
+      duzeyler: g.duzeyler,
+      kaynak: g.kaynak,
+    }));
+  const bag = ozguBagi(cerceve);
+  if (!bag || bag.olcutKod !== olcutKod) return [];
+  const secili = new Set(secilenBolumler);
+  return ozguBolumListesi(cerceve)
+    .filter((b) => secili.has(b.kod))
+    .flatMap((b) =>
+      b.konular.map((k, i) => ({
+        tur: "ozgu_konu" as const,
+        kimlik: `${cerceve}/${b.kod}/${i + 1}`,
+        bolumKod: b.kod,
+        bolumBaslik: b.baslik,
+        grup: k.grup,
+        metin: k.metin,
+        kaynak: k.kaynak,
+      })),
+    );
+}

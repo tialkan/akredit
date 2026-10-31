@@ -4,7 +4,7 @@
 
 import type { DocxBolumu, DocxModeli, XlsxSayfasi } from "@akredit/belge";
 import { DOGRULANMADI } from "@akredit/cerceveler";
-import type { OdrTaslagi } from "./kurucu.ts";
+import type { OdrEki, OdrTaslagi } from "./kurucu.ts";
 
 export interface OdrOnayi {
   onaylayan: string;
@@ -47,6 +47,34 @@ const kapsamaSatirlari = (t: OdrTaslagi) =>
   t.bolumler.flatMap((b) =>
     b.olcutler.map((o) => [b.kod, o.kod, o.baslik, String(o.kanitSayisi), o.kapsandi ? "Var" : "EKSİK"]),
   );
+
+/**
+ * Ölçüt altındaki resmî öğeler (özgü konu, gösterge): resmî metin ve kaynakla, her biri EKSİK yer
+ * tutucusuyla. Karşılandığına dair metin yazılmaz; kanıt bağlanınca doldurulur.
+ */
+function ekTablosu(ekler: readonly OdrEki[]): DocxModeli["bolumler"][number]["icerik"] {
+  if (!ekler.length) return [];
+  const gosterge = ekler.some((e) => e.duzeyTanimi !== undefined);
+  return [
+    {
+      tur: "tablo",
+      basliklar: gosterge
+        ? ["Gösterge", "Resmî metin", "Kaynak", "Düzey", "Kanıt"]
+        : ["Bölüm", "Resmî metin", "Kaynak", "Kanıt"],
+      satirlar: ekler.map((e) =>
+        gosterge
+          ? [
+              e.etiket,
+              e.metin,
+              e.duzeyTanimi === false ? `${e.kaynak} (düzey tanımları belgeden okunamadı)` : e.kaynak,
+              "[EKSİK]",
+              "[EKSİK]",
+            ]
+          : [e.etiket, e.metin, e.kaynak, "[EKSİK]"],
+      ),
+    },
+  ];
+}
 
 export function odrDocxModeli(g: OdrBelgeGirdisi): DocxModeli {
   const t = g.taslak;
@@ -98,6 +126,7 @@ export function odrDocxModeli(g: OdrBelgeGirdisi): DocxModeli {
           metin: p.metin,
           ...(p.eksik ? { vurgu: "eksik" as const } : {}),
         })),
+        ...ekTablosu(o.ekler ?? []),
       ],
     })),
   ]);

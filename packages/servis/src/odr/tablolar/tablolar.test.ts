@@ -265,6 +265,41 @@ describe("program tabloları servisi", () => {
     expect(await kod(karar("ders_kategorisi", "MAT101", "MTB", b))).toBe("bulunamadi");
   });
 
+  it("disiplin seçimi: seçilmeden özgü konu gelmez; kararla 5.1 altında konular kaynağıyla görünür", async () => {
+    const once = await durum();
+    expect(once.ozguSecimi?.karar).toBeNull();
+    const d51 = (a: t.AgacDugumu[]) => a.find((x) => x.kod === "5")?.altlar.find((x) => x.kod === "5.1");
+    expect(d51(once.agac)?.ekler).toEqual([]);
+    // Bilinmeyen kod, boş seçim ve API anahtarı reddedilir; Akredit seçimi tahmin etmez.
+    expect(await kod(karar("ozgu_bolum", t.OZGU_ANAHTARI, ["olmayan"]))).toBe("gecersiz_istek");
+    expect(await kod(karar("ozgu_bolum", t.OZGU_ANAHTARI, []))).toBe("gecersiz_istek");
+    expect(await kod(karar("ozgu_bolum", t.OZGU_ANAHTARI, ["bilgisayar-yazilim"], anahtar))).toBe("yetki_yok");
+    await karar("ozgu_bolum", t.OZGU_ANAHTARI, ["bilgisayar-yazilim"]);
+    const d = await durum();
+    expect(d.ozguSecimi?.karar?.deger).toEqual(["bilgisayar-yazilim"]);
+    expect(d.ozguSecimi?.karar?.dayanak).toBe("Bölüm kurulu kararı 2026/7");
+    const ekler = d51(d.agac)?.ekler ?? [];
+    expect(ekler.length).toBeGreaterThan(0);
+    expect(ekler[0]?.kaynak.sayfa).toBe(11);
+    expect(t.ekSayisi(d.agac)).toBe(ekler.length);
+    const [g] = await kiraciIslemi(o.db, o.a.kurumId, (tx) =>
+      tx
+        .select()
+        .from(sema.gunluk)
+        .where(eq(sema.gunluk.eylem, "program_esleme.karar_verildi"))
+        .orderBy(desc(sema.gunluk.sira))
+        .limit(1),
+    );
+    expect(g?.ayrinti).toMatchObject({ tur: "ozgu_bolum", deger: ["bilgisayar-yazilim"] });
+  });
+
+  it("EPDAD ağacında göstergeler alt standart altında; seçim gerekmez", async () => {
+    const d = await t.programTablolari(yonetici, { programId, cerceveKod: "epdad-ogretmen" });
+    expect(d.ozguSecimi).toBeNull();
+    // 156 gösterge (kılavuzdaki 158 DOĞRULANMADI; bkz. cerceveler testi).
+    expect(t.ekSayisi(d.agac)).toBe(156);
+  });
+
   it("Word ve Excel dosyası üretilir, indirme günlüğe girer", async () => {
     for (const bicim of ["docx", "xlsx"] as const) {
       const f = await t.tabloBelgesi(yonetici, { programId, cerceveKod: CERCEVE, bicim });

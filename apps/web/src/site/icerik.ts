@@ -1056,7 +1056,7 @@ export const DORT_ROL: KararRolu[] = [
       {
         baslik: "Çerçeveler",
         metin:
-          "YÖKAK çerçevesi resmî metinden yüklüdür. MÜDEK ve diğer program akreditasyonu çerçeveleri resmî belge alınınca eklenecek.",
+          "YÖKAK, MÜDEK, FEDEK, SABAK ve EPDAD çerçeveleri resmî belgeden yüklüdür; her öğenin belgesi ve sayfası görünür. Uzman doğrulaması bekler.",
       },
     ],
     karar: "Program raporunun bölümlerini onaylar. Son gönderimi yetkili kişi yapar.",
@@ -1189,8 +1189,9 @@ export const YOL_HARITASI: { no: number; ad: string; metin: string; dalga: "tama
   {
     no: 47,
     ad: "Program akreditasyonu tabloları",
-    metin: "MÜDEK, FEDEK, EPDAD ve SABAK tabloları kanıttan hazırlanır. Resmî belge alınmadan çerçeve eklenmez.",
-    dalga: "simdi",
+    metin:
+      "MÜDEK, FEDEK, EPDAD ve SABAK tabloları kanıttan hazırlanır. Disipline özgü konular ve EPDAD göstergeleri belgesi ve sayfasıyla ölçüt ağacında görünür.",
+    dalga: "tamam",
   },
   {
     no: 48,

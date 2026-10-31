@@ -78,3 +78,43 @@ test("program tabloları: eşleme onayı örnek kipte kaydedilmez", async ({ pag
   await expect(page).toHaveURL(/ileti=ornek/u);
   await expect(page.getByRole("status").filter({ hasText: "Örnek veri kipinde karar kaydedilmez." })).toBeVisible();
 });
+
+test("program tabloları: disiplin seçimi ve ölçüt ağacı kaynak sayfasıyla; örnek kipte seçim kaydedilmez", async ({
+  page,
+}) => {
+  await page.goto(`${YOL}?cerceve=mudek-lisans`);
+  const ozgu = page.locator("#ozgu");
+  await expect(ozgu.getByRole("heading", { name: /disiplin seçimi/u })).toBeVisible();
+  // Örnek kipte kurgu seçim gösterilir; karar veren ve dayanak yazılıdır.
+  await expect(ozgu.getByText("Örnek Program Sorumlusu", { exact: false })).toBeVisible();
+  const agac = page.locator("#olcut-agaci");
+  await expect(agac.getByRole("heading", { name: "Ölçüt ağacı" })).toBeVisible();
+  // 5.1 klavyeyle açılır; seçilen disiplinin konuları kaynak sayfasıyla görünür.
+  const ozet = agac.locator("summary", { hasText: /^5\.1 / });
+  await sekmeyleGit(page, ozet, 1500);
+  await page.keyboard.press("Enter");
+  const liste = agac.getByRole("list", { name: "5.1 konu listesi" });
+  await expect(liste).toBeVisible();
+  await expect(liste.getByText(/Kaynak: MÜDEK .*, s\. 11/u).first()).toBeVisible();
+  await axeTemiz(page);
+
+  // Seçim yalnız klavyeyle onaylanır; örnek kipte kaydedilmez.
+  await page.goto(`${YOL}?cerceve=mudek-lisans`);
+  await sekmeyleGit(page, page.locator("#ozgu input[name=dayanak]"), 1500);
+  await page.keyboard.type("Bölüm kurulu kararı, örnek");
+  await sekmeyleGit(page, page.getByRole("button", { name: "Seçimi onayla" }), 20);
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/ileti=ornek/u);
+});
+
+test("program tabloları: EPDAD göstergeleri dört düzeyle; okunamayan tanım uydurulmaz", async ({ page }) => {
+  await page.goto(`${YOL}?cerceve=epdad-ogretmen`);
+  await expect(page.locator("#ozgu")).toHaveCount(0);
+  const agac = page.locator("#olcut-agaci");
+  await sekmeyleGit(page, agac.locator("summary", { hasText: /^2\.1\.1 / }), 1500);
+  await page.keyboard.press("Enter");
+  const liste = agac.getByRole("list", { name: "2.1.1 gösterge listesi" });
+  await expect(liste.getByText("Belgeden okunamadı").first()).toBeVisible();
+  await expect(liste.getByText("İleri Düzeyde").first()).toBeVisible();
+  await axeTemiz(page);
+});

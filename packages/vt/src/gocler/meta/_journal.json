@@ -176,6 +176,13 @@
       "when": 1793048906894,
       "tag": "0131_program_esleme_gerekce",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1793048966894,
+      "tag": "0132_program_esleme_ozgu",
+      "breakpoints": true
     }
   ]
 }
