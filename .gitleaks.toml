@@ -12,5 +12,6 @@ regexes = ['''uydurma''']
 paths = [
   '''^apps/web/src/kimlik/test/fixtures/idp-anahtar\.pem$''',
   '''^apps/web/src/kimlik/test/fixtures/idp-sertifika\.pem$''',
+  '''^infra/guvenlik/gitleaks-imaj\.toml$''',
 ]
 
