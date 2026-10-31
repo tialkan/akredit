@@ -149,7 +149,17 @@ describe("belge yükleme ucu", () => {
     buyuk.set(PDF);
     const ham = istek({ j: jeton, acilis: once, dosya: new Blob([buyuk]) });
     // Başlıksız akış: content-length yok, gövde parça parça gelir.
-    const akis = ham.body as ReadableStream<Uint8Array>;
+    // Kaynak, iptale uyan çekmeli bir akıştır: undici'nin FormData akışı Node 24'te iptalden sonra da
+    // veri itip yakalanmamış hata bırakıyor (sunucu değil, test kaynağı kaynaklı).
+    const baytlar = new Uint8Array(await ham.arrayBuffer());
+    let konum = 0;
+    const akis = new ReadableStream<Uint8Array>({
+      pull(c) {
+        if (konum >= baytlar.length) return c.close();
+        c.enqueue(baytlar.slice(konum, konum + 64 * 1024));
+        konum += 64 * 1024;
+      },
+    });
     const h = new Headers(ham.headers);
     h.delete("content-length");
     const parcali = new Request(ham.url, { method: "POST", headers: h, body: akis, duplex: "half" } as RequestInit);
