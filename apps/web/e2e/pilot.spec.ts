@@ -65,7 +65,15 @@ test.describe("İP-42 site metni", () => {
     const tasma = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
     );
-    expect(tasma).toBeLessThanOrEqual(0);
+    // Taşma olursa ileti taşan öğeleri (kaydırma kabı içindekiler hariç) adıyla söyler.
+    const tasanlar = await page.evaluate(() =>
+      [...document.querySelectorAll("body *")]
+        .filter((e) => e.getBoundingClientRect().right > document.documentElement.clientWidth + 1)
+        .filter((e) => !e.closest("[class*='overflow-x-auto']"))
+        .slice(0, 6)
+        .map((e) => `${e.tagName.toLowerCase()}.${String(e.className).slice(0, 50)}`),
+    );
+    expect(tasma, tasanlar.join(" | ")).toBeLessThanOrEqual(0);
   });
 
   test("ana sayfadan dört role yönlendirme", async ({ page }) => {

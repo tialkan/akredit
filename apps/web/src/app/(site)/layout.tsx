@@ -25,7 +25,7 @@ export default function SiteYerlesimi({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col bg-yuzey">
       <header className="border-b border-cizgi bg-yuzey">
-        <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 py-2 sm:gap-4">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-2 gap-y-1 px-4 py-2 sm:gap-x-4">
           <Link href="/" aria-label="Akredit ana sayfa" className="inline-flex min-h-11 items-center">
             <Logo />
           </Link>
