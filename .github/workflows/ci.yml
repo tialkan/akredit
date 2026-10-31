@@ -25,6 +25,7 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
+          package-manager-cache: false
           node-version: ${{ matrix.node }}
       - name: pnpm
         run: corepack enable && corepack prepare --activate
@@ -45,6 +46,7 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
+          package-manager-cache: false
           node-version: 22
       - name: pnpm
         run: corepack enable && corepack prepare --activate
@@ -91,6 +93,7 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
+          package-manager-cache: false
           node-version: 22
       - name: pnpm
         run: corepack enable && corepack prepare --activate
@@ -127,7 +130,8 @@ jobs:
           # İmaj dosya sistemi açılıp taranır; .env, anahtar ya da parola bulunursa iş kalır.
           mkdir imaj && docker export "$(docker create akredit-${{ matrix.uygulama }}:ci)" | tar -x -C imaj
           if find imaj -name '.env' -o -name '.env.*' -not -name '.env.ornek' | grep -q .; then echo "İmajda .env dosyası var"; exit 1; fi
-          docker run --rm -v "$PWD/imaj/uygulama:/tara:ro" ghcr.io/gitleaks/gitleaks:v8.28.0 dir /tara --no-banner --redact
+          R="$PWD/gitleaks-imaj.json"; touch "$R"; chmod 666 "$R"
+          docker run --rm -v "$PWD/imaj/uygulama:/tara:ro" -v "$R:/rapor.json" ghcr.io/gitleaks/gitleaks:v8.28.0 dir /tara --no-banner --redact --report-format json --report-path /rapor.json || { jq -r '.[] | "::error file=\(.File),line=\(.StartLine)::\(.RuleID) \(.Commit[0:7])"' "$R"; exit 1; }
       - name: Kök olmayan kullanıcı denetimi
         run: test "$(docker inspect -f '{{.Config.User}}' akredit-${{ matrix.uygulama }}:ci)" = "node"
 
@@ -139,7 +143,10 @@ jobs:
         with:
           fetch-depth: 0
       - name: Gitleaks
-        run: docker run --rm -v "$PWD:/depo" ghcr.io/gitleaks/gitleaks:v8.28.0 git /depo --no-banner --redact
+        run: |
+          # Bulgular dosya ve satırıyla işaret olarak yazılır (gizli değer --redact ile gizli kalır).
+          R="$RUNNER_TEMP/gitleaks.json"; touch "$R"; chmod 666 "$R"
+          docker run --rm -v "$PWD:/depo" -v "$R:/rapor.json" ghcr.io/gitleaks/gitleaks:v8.28.0 git /depo --no-banner --redact --report-format json --report-path /rapor.json || { jq -r '.[] | "::error file=\(.File),line=\(.StartLine)::\(.RuleID) \(.Commit[0:7])"' "$R"; exit 1; }
 
   bagimlilik-incelemesi:
     name: Bağımlılık incelemesi
