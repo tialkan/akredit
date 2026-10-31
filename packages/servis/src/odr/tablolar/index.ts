@@ -10,8 +10,13 @@
 import { tabloSablonuDocx, tabloSablonuXlsx } from "@akredit/belge";
 import { ozetHesapla } from "@akredit/cekirdek";
 import {
+  belgeAdi,
   type Cerceve,
   kurulCiktilari,
+  type OlcutEki,
+  olcutEkleri,
+  ozguBagi,
+  ozguBolumListesi,
   PROGRAM_CERCEVELERI,
   type ProgramBolognaVerisi,
   sablonTablosu,
@@ -31,7 +36,10 @@ export * as yzOnerisi from "./yz-onerisi.ts";
 
 const Kimlik = z.string().uuid("Geçersiz kimlik.");
 
-export const EslemeTuru = z.enum(["ders_kategorisi", "pc_kurul", "secmeli_yer"]);
+export const EslemeTuru = z.enum(["ders_kategorisi", "pc_kurul", "secmeli_yer", "ozgu_bolum"]);
+
+/** Disiplin ya da program seçiminin tek anahtarı (0132 göçü). */
+export const OZGU_ANAHTARI = "bolum";
 export type EslemeTuru = z.infer<typeof EslemeTuru>;
 
 // ---------------------------------------------------------------------------------------------------------
@@ -46,6 +54,16 @@ export interface TabloCercevesi {
   /** "kategori" ya da "tür": panelde ve iletilerde kullanılır. */
   dersEslemeAdi: "kategori" | "tür";
   kurulCiktilari: { kod: string; etiket: string }[];
+  /**
+   * Disipline ya da programa özgü içerik (MÜDEK EK-1, FEDEK programa özgü ölçütler). Bölümü kurum seçer;
+   * Akredit program adından tahmin etmez. Çerçevede yoksa null.
+   */
+  ozgu: {
+    ad: string;
+    olcutKod: string;
+    bolumAdi: "disiplin" | "program";
+    bolumler: { kod: string; baslik: string; belge: string; sayfa: number }[];
+  } | null;
 }
 
 function tanimlar(cerceveKod: string): TabloTanimi[] {
@@ -68,6 +86,23 @@ function cerceveOzeti(c: Cerceve): TabloCercevesi {
     dersKodlari: kategoriler.length ? kategoriler : turler,
     dersEslemeAdi: kategoriler.length ? "kategori" : "tür",
     kurulCiktilari: t.some((x) => x.duzen === "pc-kurul") ? kurulCiktilari(c) : [],
+    ozgu: ozguOzeti(c.kod),
+  };
+}
+
+function ozguOzeti(cerceveKod: string): TabloCercevesi["ozgu"] {
+  const bag = ozguBagi(cerceveKod);
+  if (!bag) return null;
+  return {
+    ad: bag.ad,
+    olcutKod: bag.olcutKod,
+    bolumAdi: bag.bolumAdi,
+    bolumler: ozguBolumListesi(cerceveKod).map((b) => ({
+      kod: b.kod,
+      baslik: b.baslik,
+      belge: belgeAdi(b.kaynak.dosya),
+      sayfa: b.kaynak.sayfa,
+    })),
   };
 }
 
@@ -172,6 +207,7 @@ const DegerSemasi = {
   ders_kategorisi: z.string(),
   pc_kurul: z.array(z.string()),
   secmeli_yer: z.number().int().nonnegative(),
+  ozgu_bolum: z.array(z.string()).min(1),
 } as const;
 
 /** Her anahtarın son kararı ve son karardan sonraki son önerisi. */
@@ -222,6 +258,40 @@ export interface ProgramTablolari {
     pcKurul: EslemeSatiri[];
     secmeliYer: EslemeSatiri[];
   };
+  /** Disiplin ya da program seçimi; çerçevede özgü içerik yoksa null. */
+  ozguSecimi: EslemeSatiri | null;
+  /** Ölçüt ağacı: her ölçütün kaynağı ve altında göstergeler ya da seçilen bölümün özgü konuları. */
+  agac: AgacDugumu[];
+}
+
+export interface AgacDugumu {
+  kod: string;
+  baslik: string;
+  metin: string;
+  belge: string;
+  sayfa: number | null;
+  ekler: OlcutEki[];
+  altlar: AgacDugumu[];
+}
+
+/** Çerçevenin ölçüt ağacı, ek öğeleriyle (saf). Özgü konular yalnız seçilen bölümlerden gelir. */
+export function olcutAgaci(cerceve: Cerceve, secilenBolumler: readonly string[]): AgacDugumu[] {
+  const ana = cerceve.kaynak?.dosya ?? "";
+  const kur = (o: Cerceve["olcutler"][number]): AgacDugumu => ({
+    kod: o.kod,
+    baslik: o.baslik,
+    metin: o.metin,
+    belge: belgeAdi(o.kaynakDosya ?? ana),
+    sayfa: o.kaynakSayfa,
+    ekler: olcutEkleri(cerceve.kod, o.kod, secilenBolumler),
+    altlar: o.altOlcutler.map(kur),
+  });
+  return cerceve.olcutler.map(kur);
+}
+
+/** Ölçüt ağacındaki bütün ek öğe sayısı. */
+export function ekSayisi(agac: readonly AgacDugumu[]): number {
+  return agac.reduce((n, d) => n + d.ekler.length + ekSayisi(d.altlar), 0);
 }
 
 async function programYukle(tx: Islem, programId: string) {
@@ -257,6 +327,7 @@ export function durumKur(g: {
   const kat = sonDurumlar(liste, "ders_kategorisi");
   const pck = sonDurumlar(liste, "pc_kurul");
   const yer = sonDurumlar(liste, "secmeli_yer");
+  const ozgu = sonDurumlar(liste, "ozgu_bolum").get(OZGU_ANAHTARI) ?? { karar: null, oneri: null };
   const bologna = okuma?.veri ?? null;
 
   // Tabloya yalnız karar girer; öneri girmez (ilke 3).
@@ -289,6 +360,8 @@ export function durumKur(g: {
     if (!d.zorunlu && d.yariyil !== null) yariyillar.add(d.yariyil);
   }
   const ozet = cerceveOzeti(cerceve);
+  const secilen = Array.isArray(ozgu.karar?.deger) ? ozgu.karar.deger : [];
+  const bolumAdlari = new Map((ozet.ozgu?.bolumler ?? []).map((b) => [b.kod, b.baslik]));
   return {
     program: p,
     cerceve: ozet,
@@ -301,6 +374,14 @@ export function durumKur(g: {
         : [],
       secmeliYer: [...yariyillar].sort((a, b) => a - b).map((y) => satir(yer, String(y), `${y}. yarıyıl`)),
     },
+    ozguSecimi: ozet.ozgu
+      ? {
+          anahtar: OZGU_ANAHTARI,
+          etiket: secilen.length ? secilen.map((k) => bolumAdlari.get(k) ?? k).join("; ") : ozet.ozgu.ad,
+          ...ozgu,
+        }
+      : null,
+    agac: olcutAgaci(cerceve, secilen),
   };
 }
 
@@ -348,8 +429,18 @@ async function denetle(
   tx: Islem,
   g: z.infer<typeof EslemeTemeli>,
   cerceve: Cerceve,
-): Promise<{ cerceveKod: string | null; deger: string | string[] | number; kanitId: string }> {
+): Promise<{ cerceveKod: string | null; deger: string | string[] | number; kanitId: string | null }> {
   const ozet = cerceveOzeti(cerceve);
+  if (g.tur === "ozgu_bolum") {
+    // Seçim Bologna verisine bağlı değildir; yalnız çerçevenin bölüm listesinden yapılır.
+    if (!ozet.ozgu) throw gecersiz("Bu çerçevede disipline ya da programa özgü içerik yok.");
+    const gecerli = new Set(ozet.ozgu.bolumler.map((b) => b.kod));
+    if (g.anahtar !== OZGU_ANAHTARI || !Array.isArray(g.deger) || !g.deger.length)
+      throw gecersiz(`En az bir ${ozet.ozgu.bolumAdi} seçin.`);
+    if (g.deger.some((k) => !gecerli.has(k)))
+      throw gecersiz(`Seçilen ${ozet.ozgu.bolumAdi} bu çerçevede yok. Listeden seçin.`);
+    return { cerceveKod: cerceve.kod, deger: [...new Set(g.deger)].sort(), kanitId: null };
+  }
   const [okuma] = await okumalar(tx, g.programId, 1);
   if (!okuma) throw gecersiz("Bu programın Bologna verisi aktarılmadı. Önce ders bilgi paketini aktarın.");
   const v = okuma.veri;

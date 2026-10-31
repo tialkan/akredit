@@ -11,10 +11,19 @@ import {
   type MatrisDegeri,
 } from "@akredit/cekirdek";
 import {
+  belgeAdi,
   type Cerceve,
   DOGRULANMADI,
+  EPDAD_DERECELENDIRME_ANAHTARI,
   type KaynakBelge,
   type Olcut,
+  type OlcutEki,
+  type OzguKaynak,
+  olcutEkleri,
+  ozguBagi,
+  ozguBolumListesi,
+  PROGRAM_BELGELERI,
+  PROGRAM_CERCEVELERI,
   tumOlcutler,
   YOKAK_KIDR_3_2_1,
   YOKAK_KURUMSAL_3_3,
@@ -60,7 +69,6 @@ export class AracHatasi extends Error {}
 
 // ---------------------------------------------------------------- Çerçeve yardımcıları
 
-const CERCEVE = YOKAK_KURUMSAL_3_3;
 const BELGE_ADI: Record<string, string> = {
   [YOKAK_KURUMSAL_3_3.kaynak?.dosya ?? ""]:
     "YÖKAK Değerlendirme Programları Kılavuzu 3.3, Ek-1 Dereceli Değerlendirme Anahtarı",
@@ -68,6 +76,55 @@ const BELGE_ADI: Record<string, string> = {
 };
 for (const e of YOKAK_KURUMSAL_3_3.ekKaynaklar)
   if (e.dosya && !BELGE_ADI[e.dosya]) BELGE_ADI[e.dosya] = "YÖKAK Değerlendirme Ölçütleri 3.1";
+for (const b of Object.values(PROGRAM_BELGELERI)) if (b.dosya && !BELGE_ADI[b.dosya]) BELGE_ADI[b.dosya] = b.not;
+
+/** Aranabilir çerçeveler: YÖKAK kurumsal 3.3 (varsayılan) ve resmî belgeden alınan program çerçeveleri. */
+const CERCEVELER: readonly Cerceve[] = [YOKAK_KURUMSAL_3_3, ...PROGRAM_CERCEVELERI];
+const CERCEVE_KODLARI = CERCEVELER.map((c) => c.kod) as [string, ...string[]];
+const cerceveGirdisi = z
+  .enum(CERCEVE_KODLARI)
+  .default(YOKAK_KURUMSAL_3_3.kod)
+  .describe(
+    `Çerçeve kodu. Varsayılan YÖKAK (${YOKAK_KURUMSAL_3_3.kod}). Program akreditasyonu: ${PROGRAM_CERCEVELERI.map((c) => c.kod).join(", ")}.`,
+  );
+const cerceveBul = (kod: string): Cerceve => CERCEVELER.find((c) => c.kod === kod) ?? YOKAK_KURUMSAL_3_3;
+
+/** Düzey tanımı belgeden ayrılamayan gösterge için dönen değer; tanım uydurulmaz. */
+export const OKUNAMADI = "Belgeden okunamadı";
+
+function ozguKaynagi(k: OzguKaynak): Kaynak {
+  const b = Object.values(PROGRAM_BELGELERI).find((x) => x.dosya === k.dosya);
+  return {
+    ad: belgeAdi(k.dosya),
+    adres: b?.adres ?? DEPO,
+    sayfa: k.sayfa,
+    sha256: k.sha256,
+    ...(b?.erisimTarihi ? { erisimTarihi: b.erisimTarihi } : {}),
+  };
+}
+
+function ekYaz(e: OlcutEki) {
+  if (e.tur === "gosterge")
+    return {
+      tur: "gosterge" as const,
+      no: e.no,
+      metin: e.metin,
+      duzeyler: EPDAD_DERECELENDIRME_ANAHTARI.duzeyler.map((d) => ({
+        duzey: d.ad,
+        metin: e.duzeyler ? e.duzeyler[d.kod] : OKUNAMADI,
+      })),
+      kaynakSayfa: e.kaynak.sayfa,
+    };
+  return { tur: "ozgu_konu" as const, bolum: e.bolumKod, grup: e.grup, metin: e.metin, kaynakSayfa: e.kaynak.sayfa };
+}
+
+/** Çerçevenin bütün ek öğeleri (bütün bölümler dahil; arama içindir, seçim değildir). */
+function tumEkler(c: Cerceve): { olcutKod: string; e: OlcutEki }[] {
+  const bolumler = ozguBolumListesi(c.kod).map((b) => b.kod);
+  return tumOlcutler(c.olcutler).flatMap((o) =>
+    olcutEkleri(c.kod, o.kod, bolumler).map((e) => ({ olcutKod: o.kod, e })),
+  );
+}
 
 function belgeKaynagi(c: Cerceve, dosya: string | null | undefined, sayfa: number | null): Kaynak {
   const belgeler: KaynakBelge[] = [...(c.kaynak ? [c.kaynak] : []), ...c.ekKaynaklar];
@@ -105,14 +162,16 @@ const metinGoster = (o: Olcut) => (o.metinDurumu === "dogrulanmadi" ? DOGRULANMA
 
 const olcutAra = arac({
   ad: "olcut_ara",
-  baslik: "YÖKAK ölçütü ara",
+  baslik: "Ölçüt ara (YÖKAK ve program akreditasyonu)",
   aciklama:
-    "YÖKAK 3.3 ölçüt ağacında (ana başlık, ölçüt, alt ölçüt) kod, başlık ya da metinde geçen ifadeye göre arar. Metinler resmî belgeden çıkarılmıştır; belgeden alınamayan metin DOĞRULANMADI olarak döner.",
+    "YÖKAK 3.3 ya da bir program akreditasyonu çerçevesinin (MÜDEK, FEDEK, SABAK, EPDAD) ölçüt ağacında kod, başlık ya da metinde geçen ifadeye göre arar. Program çerçevelerinde EPDAD göstergeleri ile MÜDEK EK-1 ve FEDEK programa özgü konular da aranır. Metinler resmî belgeden çıkarılmıştır; belgeden alınamayan metin DOĞRULANMADI olarak döner.",
   girdi: z.object({
     sorgu: z.string().trim().min(1).max(200).describe("Aranacak ifade ya da kod, ör. 'paydaş katılımı' ya da 'B.3'"),
+    cerceve: cerceveGirdisi,
     en_fazla: z.number().int().min(1).max(50).default(10).describe("En çok kaç sonuç dönsün (1-50)"),
   }),
-  calistir: ({ sorgu, en_fazla }) => {
+  calistir: ({ sorgu, cerceve, en_fazla }) => {
+    const CERCEVE = cerceveBul(cerceve);
     const s = sorgu.toLocaleLowerCase("tr");
     const kelimeler = s.split(/\s+/u).filter(Boolean);
     const hepsi = tumOlcutler(CERCEVE.olcutler);
@@ -133,9 +192,21 @@ const olcutAra = arac({
       .filter((x) => x.puan > 0)
       .sort((a, b) => b.puan - a.puan || hepsi.indexOf(a.o) - hepsi.indexOf(b.o));
     const secilen = puanli.slice(0, en_fazla);
+    // Ek öğeler (gösterge, özgü konu): her sözcük metinde ya da bölüm başlığında geçmeli; ölçütlerden sonra.
+    const ekler = tumEkler(CERCEVE)
+      .map((x) => {
+        const m = x.e.metin.toLocaleLowerCase("tr");
+        const b = x.e.tur === "ozgu_konu" ? x.e.bolumBaslik.toLocaleLowerCase("tr") : "";
+        const tutan = kelimeler.filter((k) => m.includes(k) || b.includes(k));
+        return { ...x, tam: tutan.length === kelimeler.length, puan: kelimeler.filter((k) => m.includes(k)).length };
+      })
+      .filter((x) => x.tam)
+      .sort((a, b) => b.puan - a.puan);
+    const ekSecilen = ekler.slice(0, Math.max(0, en_fazla - secilen.length));
     return {
       sonuc: {
         cerceve: `${CERCEVE.ad} ${CERCEVE.surum}`,
+        cerceveKod: CERCEVE.kod,
         toplamEslesme: puanli.length,
         olcutler: secilen.map(({ o }) => ({
           kod: o.kod,
@@ -145,11 +216,23 @@ const olcutAra = arac({
           ozet: metinGoster(o).slice(0, 240),
           kaynakSayfa: o.kaynakSayfa,
         })),
+        toplamEkEslesme: ekler.length,
+        ekler: ekSecilen.map(({ olcutKod, e }) => ({
+          olcutKod,
+          tur: e.tur,
+          ...(e.tur === "gosterge" ? { no: e.no } : { bolum: e.bolumKod }),
+          ozet: e.metin.slice(0, 240),
+          kaynakSayfa: e.kaynak.sayfa,
+        })),
       },
       kaynak: [
-        ...new Map(
-          secilen.map(({ o }) => [o.kaynakDosya ?? "", olcutKaynagi(CERCEVE, { ...o, kaynakSayfa: null })]),
-        ).values(),
+        ...new Map<string, Kaynak>([
+          ...secilen.map(({ o }): [string, Kaynak] => [
+            o.kaynakDosya ?? CERCEVE.kaynak?.dosya ?? "",
+            olcutKaynagi(CERCEVE, { ...o, kaynakSayfa: null }),
+          ]),
+          ...ekSecilen.map(({ e }): [string, Kaynak] => [e.kaynak.dosya, { ...ozguKaynagi(e.kaynak), sayfa: null }]),
+        ]).values(),
       ],
     };
   },
@@ -157,13 +240,40 @@ const olcutAra = arac({
 
 const olcutGetir = arac({
   ad: "olcut_getir",
-  baslik: "YÖKAK ölçütünü getir",
+  baslik: "Ölçütü getir (YÖKAK ve program akreditasyonu)",
   aciklama:
-    "Bir ölçütün resmî metnini, kaynak belgesini, sayfasını ve belgenin SHA-256 özetini döndürür. Alt ölçütlerin listesi ve üst ölçüt de gelir. Belgeden alınamayan metin DOĞRULANMADI olarak döner; tahminle doldurulmaz.",
-  girdi: z.object({ kod: z.string().trim().min(1).max(20).describe("Ölçüt kodu, ör. 'A', 'B.1' ya da 'B.1.2'") }),
-  calistir: ({ kod }) => {
+    "Bir ölçütün resmî metnini, kaynak belgesini, sayfasını ve belgenin SHA-256 özetini döndürür. Alt ölçütlerin listesi ve üst ölçüt de gelir. EPDAD alt standartlarında göstergeler ve dörtlü düzey tanımları gelir (belgeden ayrılamayan tanım 'Belgeden okunamadı' döner). MÜDEK 5.1 ve FEDEK 10.1'de disipline ya da programa özgü bölümlerin listesi gelir; bölüm kodu verilirse o bölümün konuları da gelir. Belgeden alınamayan metin DOĞRULANMADI olarak döner; tahminle doldurulmaz.",
+  girdi: z.object({
+    kod: z
+      .string()
+      .trim()
+      .min(1)
+      .max(20)
+      .describe("Ölçüt kodu, ör. 'A', 'B.1', 'B.1.2'; program çerçevesinde ör. '5.1' ya da '1.1.1'"),
+    cerceve: cerceveGirdisi,
+    bolum: z
+      .string()
+      .trim()
+      .min(1)
+      .max(60)
+      .optional()
+      .describe(
+        "MÜDEK 5.1 ya da FEDEK 10.1 için bölüm kodu, ör. 'bilgisayar-yazilim'. Verilmezse yalnız bölüm listesi döner.",
+      ),
+  }),
+  calistir: ({ kod, cerceve, bolum }) => {
+    const CERCEVE = cerceveBul(cerceve);
     const o = olcutBul(CERCEVE, kod);
-    const ustKod = o.kod.includes(".") ? o.kod.slice(0, o.kod.lastIndexOf(".")) : null;
+    const bag = ozguBagi(CERCEVE.kod);
+    const bolumler = bag?.olcutKod === o.kod ? ozguBolumListesi(CERCEVE.kod) : [];
+    if (bolum && !bolumler.some((b) => b.kod === bolum))
+      throw new AracHatasi(
+        bolumler.length
+          ? `"${bolum.slice(0, 40)}" kodlu bölüm yok. Kodu bu aracın bölüm listesinden seçin.`
+          : `${o.kod} ölçütünde disipline ya da programa özgü bölüm yok.`,
+      );
+    const ekler = olcutEkleri(CERCEVE.kod, o.kod, bolum ? [bolum] : []);
+    const ust = tumOlcutler(CERCEVE.olcutler).find((x) => x.altOlcutler.includes(o)) ?? null;
     return {
       sonuc: {
         cerceve: `${CERCEVE.ad} ${CERCEVE.surum}`,
@@ -172,12 +282,28 @@ const olcutGetir = arac({
         duzey: duzey(o.kod),
         metin: metinGoster(o),
         metinDurumu: o.metinDurumu,
-        ust: ustKod ? { kod: ustKod, baslik: olcutBul(CERCEVE, ustKod).baslik } : null,
+        ust: ust ? { kod: ust.kod, baslik: ust.baslik } : null,
         altOlcutler: o.altOlcutler.map((a) => ({ kod: a.kod, baslik: a.baslik })),
         olgunlukDuzeyiVar: Boolean(o.olgunlukTanimlari?.length),
         uzmanDogrulamasi: CERCEVE.dogrulandi ? "yapıldı" : "bekliyor",
+        ...(bolumler.length
+          ? {
+              ozguBolumler: {
+                ad: bag?.ad,
+                not: "Programın hangi bölüme girdiğini kurum seçer; bu araç seçim yapmaz.",
+                bolumler: bolumler.map((b) => ({ kod: b.kod, baslik: b.baslik, kaynakSayfa: b.kaynak.sayfa })),
+              },
+            }
+          : {}),
+        ...(ekler.length ? { ekler: ekler.map(ekYaz) } : {}),
+        ...(ekler.some((e) => e.tur === "gosterge")
+          ? { derecelendirme: EPDAD_DERECELENDIRME_ANAHTARI.duzeyler.map((d) => d.ad) }
+          : {}),
       },
-      kaynak: [olcutKaynagi(CERCEVE, o)],
+      kaynak: [
+        olcutKaynagi(CERCEVE, o),
+        ...new Map(ekler.map((e) => [e.kaynak.dosya, { ...ozguKaynagi(e.kaynak), sayfa: null }])).values(),
+      ],
     };
   },
 });
@@ -189,6 +315,7 @@ const olgunlukDuzeyleri = arac({
     "Bir alt ölçütün (ör. 'B.1.2') dereceli değerlendirme anahtarındaki 1-5 olgunluk düzeyi metinlerini ve belgedeki örnek kanıtları döndürür. Düzeyi siz ya da kurumunuz belirler; bu araç düzey önermez.",
   girdi: z.object({ kod: z.string().trim().min(1).max(20).describe("Alt ölçüt kodu, ör. 'B.1.2'") }),
   calistir: ({ kod }) => {
+    const CERCEVE = YOKAK_KURUMSAL_3_3;
     const o = olcutBul(CERCEVE, kod);
     if (duzey(o.kod) !== "alt_olcut")
       throw new AracHatasi(

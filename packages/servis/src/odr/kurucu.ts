@@ -3,7 +3,16 @@
 // değerlerle yazılır ve denetimden geçer; denetimi geçmeyen cümle rapora girmez, yerine [EKSİK] yazılır.
 
 import { atifYaz } from "@akredit/cekirdek";
-import { type Cerceve, DOGRULANMADI, dogrulamaRozeti, type Olcut, tumOlcutler } from "@akredit/cerceveler";
+import {
+  belgeAdi,
+  type Cerceve,
+  DOGRULANMADI,
+  dogrulamaRozeti,
+  type Olcut,
+  olcutEkleri,
+  ozguBagi,
+  tumOlcutler,
+} from "@akredit/cerceveler";
 import { cumleDenetle, cumlelereBol, type DenetimKaynaklari } from "./denetim.ts";
 
 export interface OnayliKanit {
@@ -49,6 +58,25 @@ export interface OdrGirdisi {
   hesaplar: HesapKaynagi[];
   surecKayitlari: SurecKaydi[];
   ekMetinler?: EkMetin[];
+  /**
+   * Kurumun seçtiği disiplin ya da program kodları (MÜDEK EK-1, FEDEK programa özgü ölçütler). Akredit
+   * seçmez; seçim yoksa ilgili ölçütte EKSİK yazılır.
+   */
+  ozguBolumleri?: string[];
+}
+
+/**
+ * Ölçüt altındaki resmî öğe (özgü konu ya da EPDAD göstergesi). Metin belgeden gelir; karşılandığına dair
+ * cümle yazılmaz, her öğe kanıt bağlanana kadar EKSİK yer tutucusuyla durur.
+ */
+export interface OdrEki {
+  kimlik: string;
+  /** "Gösterge 2" ya da bölüm başlığı (ve varsa alt başlık). */
+  etiket: string;
+  metin: string;
+  kaynak: string;
+  /** Yalnız göstergede: düzey tanımları belgeden okunamadıysa false. */
+  duzeyTanimi?: boolean;
 }
 
 export interface OdrParagraf {
@@ -67,6 +95,8 @@ export interface OdrOlcutu {
   paragraflar: OdrParagraf[];
   /** Kapsama durumu: onaylı kanıt var mı. */
   kapsandi: boolean;
+  /** Ölçüt altındaki resmî öğeler; eski sürümlerde yok. */
+  ekler?: OdrEki[];
 }
 
 export interface OdrBolumu {
@@ -139,6 +169,17 @@ export function odrKur(g: OdrGirdisi): OdrTaslagi {
     return { metin, eksik: d.eksik, kanitOzetleri: d.kanitOzetleri, hesapKimlikleri: d.hesapKimlikleri };
   };
 
+  const bag = ozguBagi(c.kod);
+  const secilen = g.ozguBolumleri ?? [];
+  const ekleriKur = (o: Olcut): OdrEki[] =>
+    olcutEkleri(c.kod, o.kod, secilen).map((e) => ({
+      kimlik: e.kimlik,
+      etiket: e.tur === "gosterge" ? `Gösterge ${e.no}` : e.grup ? `${e.bolumBaslik}, ${e.grup}` : e.bolumBaslik,
+      metin: e.metin,
+      kaynak: `${belgeAdi(e.kaynak.dosya)}, s. ${e.kaynak.sayfa}`,
+      ...(e.tur === "gosterge" ? { duzeyTanimi: e.duzeyler !== null } : {}),
+    }));
+
   const olcutYaz = (o: Olcut): OdrOlcutu => {
     const kanitlar = g.kanitlar.filter((x) => x.olcutKodlari.includes(o.kod));
     const p: OdrParagraf[] = [];
@@ -166,6 +207,23 @@ export function odrKur(g: OdrGirdisi): OdrTaslagi {
           p.push({ metin: cumle, eksik: false, kanitOzetleri: d.kanitOzetleri, hesapKimlikleri: d.hesapKimlikleri });
         else cikarilanCumle++;
       }
+    const ekler = ekleriKur(o);
+    if (bag && bag.olcutKod === o.kod && !secilen.length) {
+      p.push(paragraf(`[EKSİK: Programın ${bag.bolumAdi} seçimi yapılmadı; ${bag.ad} rapora eklenemedi.]`));
+      eksikler.push({
+        olcutKod: o.kod,
+        baslik: o.baslik,
+        neden: `${bag.ad}: ${bag.bolumAdi} seçilmedi`,
+        gereksinimler: [],
+      });
+    }
+    if (ekler.length)
+      eksikler.push({
+        olcutKod: o.kod,
+        baslik: o.baslik,
+        neden: `${ekler.length} resmî öğenin kanıtı bağlanmadı`,
+        gereksinimler: [],
+      });
     const altlarda = altAgac(o)
       .slice(1)
       .some((a) => g.kanitlar.some((x) => x.olcutKodlari.includes(a.kod)));
@@ -191,6 +249,7 @@ export function odrKur(g: OdrGirdisi): OdrTaslagi {
       kanitSayisi: kanitlar.length,
       paragraflar: p,
       kapsandi,
+      ...(ekler.length ? { ekler } : {}),
     };
   };
 

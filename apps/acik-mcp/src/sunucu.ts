@@ -10,7 +10,7 @@ export const SUNUCU_ADI = "akredit-acik";
 export const SUNUCU_SURUMU = "0.1.0";
 
 export const SUNUCU_TALIMATI =
-  "Akredit açık araçları: YÖKAK ölçüt metni ve olgunluk düzeyleri, Bologna ders bilgisi denetimi, ÇK/PÇ sağlanma hesabı, öz değerlendirme iskeleti, rapor dil denetimi. Araçlar salt okumadır, kurum verisine erişmez, model çağırmaz. Kişisel veri (ad, numara, e-posta, telefon) göndermeyin; görülürse çağrı reddedilir. Ölçüt metnini yalnız olcut_getir sonucundan alıntılayın; DOĞRULANMADI işaretli metni tahminle doldurmayın. Sayıları yalnız araç sonucundan alın. Öz değerlendirme iskeleti metin içermez: kanıtı olmayan cümleyi EKSİK bırakın. Akredit'in YÖKAK ile bağı yoktur.";
+  "Akredit açık araçları: YÖKAK ve program akreditasyonu (MÜDEK, FEDEK, SABAK, EPDAD) ölçüt metni, EPDAD göstergeleri, YÖKAK olgunluk düzeyleri, Bologna ders bilgisi denetimi, ÇK/PÇ sağlanma hesabı, öz değerlendirme iskeleti, rapor dil denetimi. Araçlar salt okumadır, kurum verisine erişmez, model çağırmaz. Kişisel veri (ad, numara, e-posta, telefon) göndermeyin; görülürse çağrı reddedilir. Ölçüt metnini yalnız olcut_getir sonucundan alıntılayın; DOĞRULANMADI ya da 'Belgeden okunamadı' işaretli metni tahminle doldurmayın. Programın disiplinini ya da programa özgü bölümünü siz tahmin etmeyin, kurum seçer. Sayıları yalnız araç sonucundan alın. Öz değerlendirme iskeleti metin içermez: kanıtı olmayan cümleyi EKSİK bırakın. Akredit'in YÖKAK ile bağı yoktur.";
 
 export interface AcikSunucuSecenekleri {
   simdi?: () => Date;

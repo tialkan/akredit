@@ -14,7 +14,24 @@ export const ILETILER: Record<string, string> = {
   oneri_istendi: "Öneri istendi. Hazır olunca eşlemelerde onaysız olarak görünür; sayfayı birazdan yenileyin.",
   oneri_ornek: "Örnek veri kipinde öneri istenmez.",
   oneri_hata: "Öneri istenemedi. Bologna verisinin aktarıldığından emin olun ve yeniden deneyin.",
+  ozgu_kaydedildi: "Seçiminiz kaydedildi. Ölçüt ağacı seçtiğiniz bölümün konularıyla güncellendi.",
+  ozgu_secim: "En az bir seçim yapın. Seçim yapılmazsa ilgili konular raporda EKSİK kalır.",
+  ozgu_hata: "Seçim kaydedilemedi. Sayfayı yenileyip yeniden deneyin.",
 };
+
+/** Disiplin ya da program seçim formundaki seçili kodlar (yalnız listede olanlar, tekrarsız, sıralı). */
+export function ozguSecimleri(f: FormData, gecerli: readonly string[]): string[] {
+  const izinli = new Set(gecerli);
+  return [...new Set(f.getAll("bolum").filter((x): x is string => typeof x === "string" && izinli.has(x)))].sort();
+}
+
+/** Ağaçtaki öğenin kaynağı: "Belge adı, s. 12". */
+export function kaynakYeri(belge: string, sayfa: number | null): string {
+  return sayfa === null ? belge : `${belge}, s. ${sayfa}`;
+}
+
+/** Düzey tanımı belgeden okunamayan gösterge için gösterilen metin; tanım uydurulmaz. */
+export const OKUNAMADI = "Belgeden okunamadı";
 
 /** Seçilen çerçeve; tanınmayan değer ilk çerçeveye düşer. */
 export function cerceveSec(deger: unknown, cerceveler: readonly { kod: string }[]): string {
@@ -201,7 +218,7 @@ export const ORNEK_BOLOGNA: ProgramBolognaVerisi = {
 };
 
 /** Kurgu kararlar: bir ders eşlemesi; öteki dersler EKSİK kalır, birinde YZ önerisi bekler. */
-export function ornekKayitlari(dersKodlari: readonly string[]): T.EslemeKaydi[] {
+export function ornekKayitlari(dersKodlari: readonly string[], ozguBolum?: string): T.EslemeKaydi[] {
   const zaman = new Date("2026-10-02T09:00:00Z");
   const ilk = dersKodlari[0];
   if (!ilk) return [];
@@ -231,5 +248,16 @@ export function ornekKayitlari(dersKodlari: readonly string[]): T.EslemeKaydi[] 
       },
     },
   ];
+  if (ozguBolum)
+    kayitlar.push({
+      tur: "ozgu_bolum",
+      anahtar: "bolum",
+      deger: [ozguBolum],
+      durum: "karar",
+      uretici: "kisi",
+      kararVeren: "Örnek Program Sorumlusu",
+      dayanak: "Örnek bölüm kurulu kararı",
+      zaman,
+    });
   return kayitlar;
 }

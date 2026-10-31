@@ -11,6 +11,7 @@ import {
   aracCalistir,
   type GunlukKaydi,
   kisiselVeriTurleri,
+  OKUNAMADI,
 } from "../src/index.ts";
 
 const SIMDI = () => new Date("2026-10-30T10:00:00Z");
@@ -123,6 +124,43 @@ describe("araçlar", () => {
   it("olcut_ara kodla tam eşleşmeyi öne alır", () => {
     const r = calistir("olcut_ara", { sorgu: "B.3" });
     expect((r.veri.sonuc as { olcutler: { kod: string }[] }).olcutler[0]?.kod).toBe("B.3");
+  });
+
+  it("program çerçevesi: EPDAD alt standardında göstergeler ve dört düzey; okunamayan tanım uydurulmaz", () => {
+    const r = calistir("olcut_getir", { kod: "2.1.1", cerceve: "epdad-ogretmen" });
+    expect(r.hata).toBe(false);
+    const s = r.veri.sonuc as {
+      ust: { kod: string } | null;
+      ekler: { tur: string; no: number; duzeyler: { duzey: string; metin: string }[] }[];
+      derecelendirme: string[];
+    };
+    expect(s.ust?.kod).toBe("2");
+    expect(s.derecelendirme).toEqual(["İleri Düzeyde", "Oldukça Gelişmiş", "Gelişmeye Açık", "Başlangıç Düzeyinde"]);
+    // 2.1.1/1'in düzey tanımları belgeden ayrılamadı (cerceveler testi): dördü de "Belgeden okunamadı".
+    expect(s.ekler[0]?.duzeyler.map((d) => d.metin)).toEqual(Array(4).fill(OKUNAMADI));
+    const k = r.veri.kaynak as { sha256?: string | null }[];
+    expect(k.every((x) => /^[0-9a-f]{64}$/u.test(x.sha256 ?? ""))).toBe(true);
+  });
+
+  it("program çerçevesi: MÜDEK 5.1 bölüm listesi verir, seçim yapmaz; bölüm verilince konular gelir", () => {
+    const liste = calistir("olcut_getir", { kod: "5.1", cerceve: "mudek-lisans" });
+    const s = liste.veri.sonuc as { ozguBolumler: { bolumler: { kod: string }[] }; ekler?: unknown[] };
+    expect(s.ozguBolumler.bolumler).toHaveLength(26);
+    expect(s.ekler).toBeUndefined();
+    const konu = calistir("olcut_getir", { kod: "5.1", cerceve: "mudek-lisans", bolum: "bilgisayar-yazilim" });
+    const e = (konu.veri.sonuc as { ekler: { tur: string; kaynakSayfa: number }[] }).ekler;
+    expect(e[0]).toMatchObject({ tur: "ozgu_konu", kaynakSayfa: 11 });
+    const yanlis = calistir("olcut_getir", { kod: "5.2", cerceve: "mudek-lisans", bolum: "bilgisayar-yazilim" });
+    expect(yanlis.hata).toBe(true);
+  });
+
+  it("olcut_ara program çerçevesinde ek öğe (FEDEK programa özgü madde) bulur; varsayılan YÖKAK", () => {
+    const r = calistir("olcut_ara", { sorgu: "Alman Tarihi", cerceve: "fedek-lisans" });
+    const s = r.veri.sonuc as { cerceveKod: string; ekler: { olcutKod: string; tur: string; bolum: string }[] };
+    expect(s.cerceveKod).toBe("fedek-lisans");
+    expect(s.ekler[0]).toMatchObject({ olcutKod: "10.1", tur: "ozgu_konu", bolum: "alman-dili-ve-edebiyati" });
+    const v = calistir("olcut_ara", { sorgu: "B.3" }).veri.sonuc as { cerceveKod: string };
+    expect(v.cerceveKod).toBe("yokak-kurumsal");
   });
 
   it("öz değerlendirme iskeleti metin yazmaz, alt ölçütleri EKSİK verir", () => {

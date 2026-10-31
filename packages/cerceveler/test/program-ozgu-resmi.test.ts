@@ -167,7 +167,11 @@ describe("EPDAD öğretmen eğitimi 1.1 göstergeleri ve dereceli puanlama anaht
     // 2.1.1: 5, 2.1.2: 4, 2.2.1: 5, 2.2.2: 2, 2.3.1: 6, 2.3.2: 2, 2.3.3: 3, 3.1.1: 2, 3.2.1: 4, 3.3.1: 3,
     // 4.1.1: 7, 4.2.1: 5, 4.2.2: 5, 4.3.1: 4, 5.1.1: 5, 5.1.2: 8, 5.1.3: 4, 5.1.4: 4, 5.1.5: 3, 5.2.1: 5,
     // 5.2.2: 3, 5.3.1: 2, 6.1.1: 3, 6.1.2: 3, 6.2.1: 4, 6.2.2: 3, 6.2.3: 3, 6.3.1: 6, 7.1.1: 6, 7.2.1: 5,
-    // 7.3.1: 2). Fark DOĞRULANMADI. 7.2.1'in 1. göstergesi s. 55-56 arasında bölünmüş, hücre sınırı belgeden
+    // 7.3.1: 2). 2026-10-31'de ayrıca PDF'deki sözcük konumlarından (pdfplumber) gösterge sütunundaki "n."
+    // numaraları okuma sırasıyla yeniden sayıldı: 158 numara bulundu, üçü gösterge değil standart alanı
+    // başlığıydı (s. 17 "2.", s. 29 "4.", s. 53 "7."), ikisi okunamadı (1.1.1/1 harf harf bölünmüş, 5.2.1/2);
+    // sonuç yine 157 ve her alt standartta numaralar 1'den boşluksuz. Kılavuzdaki 158 tablolarla
+    // karşılanamadı; fark DOĞRULANMADI. 7.2.1'in 1. göstergesi s. 55-56 arasında bölünmüş, hücre sınırı belgeden
     // güvenle ayrılamadı; alınmadı → 156.
     expect(EPDAD_GOSTERGELERI).toHaveLength(156);
     expect(altStandartGostergeleri("7.2.1").map((g) => g.no)).toEqual([2, 3, 4, 5]);

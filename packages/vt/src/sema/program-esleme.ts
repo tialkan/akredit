@@ -15,7 +15,7 @@ export const programEsleme = pgTable("program_esleme", {
     .references(() => program.id),
   /** Seçmeli yer sayısında boş; öteki türlerde çerçeve kodu. */
   cerceveKod: text("cerceve_kod"),
-  /** "ders_kategorisi" | "pc_kurul" | "secmeli_yer" */
+  /** "ders_kategorisi" | "pc_kurul" | "secmeli_yer" | "ozgu_bolum" (0132 göçü) */
   tur: text("tur").notNull(),
   /** Ders kodu, program çıktısı kodu ya da yarıyıl. */
   anahtar: text("anahtar").notNull(),

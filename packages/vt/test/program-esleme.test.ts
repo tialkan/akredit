@@ -105,6 +105,19 @@ describe("program_esleme", () => {
     await ekle(KURUM_A, karar(KURUM_A, programA, a.kisi, { tur: "pc_kurul", anahtar: "P1", deger: ["3.C1", "3.C2"] }));
   });
 
+  it("disiplin ya da program seçimi (0132): anahtar 'bolum', boş olmayan kod dizisi", async () => {
+    const ok = karar(KURUM_A, programA, a.kisi, { tur: "ozgu_bolum", anahtar: "bolum", deger: ["bilgisayar-yazilim"] });
+    await ekle(KURUM_A, ok);
+    for (const bozuk of [
+      { ...ok, deger: [] },
+      { ...ok, deger: "bilgisayar-yazilim" },
+      { ...ok, anahtar: "FIZ101" },
+      { ...ok, cerceveKod: null },
+      { ...ok, kararVerenKisiId: null },
+    ])
+      expect(hataKodu(await reddedilir(() => ekle(KURUM_A, bozuk)))).toBe("23514");
+  });
+
   it("kiracı yalıtımı: başka kurumun kişisi ya da programı kullanılamaz, kayıtlar görünmez", async () => {
     const e1 = await reddedilir(() => ekle(KURUM_A, karar(KURUM_A, programA, bk.kisi)));
     expect(hataMetni(e1)).toMatch(/bu kurumda değil/u);

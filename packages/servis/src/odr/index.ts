@@ -26,6 +26,7 @@ import {
   ziyaretPaketiSayfalari,
 } from "./belge.ts";
 import { bolumMetni, type HesapKaynagi, type OdrTaslagi, type OnayliKanit, odrKur, type SurecKaydi } from "./kurucu.ts";
+import { OZGU_ANAHTARI } from "./tablolar/index.ts";
 
 export * from "./belge.ts";
 export * from "./denetim.ts";
@@ -382,6 +383,25 @@ async function raporYukle(tx: Islem, id: string) {
   return r;
 }
 
+/** Kurumun son disiplin ya da program seçimi (`program_esleme`, yalnız karar); yoksa boş. */
+async function ozguSecimi(tx: Islem, programId: string, cerceveKod: string): Promise<string[]> {
+  const r = await tx
+    .select({ deger: sema.programEsleme.deger })
+    .from(sema.programEsleme)
+    .where(
+      and(
+        eq(sema.programEsleme.programId, programId),
+        eq(sema.programEsleme.cerceveKod, cerceveKod),
+        eq(sema.programEsleme.tur, "ozgu_bolum"),
+        eq(sema.programEsleme.anahtar, OZGU_ANAHTARI),
+        eq(sema.programEsleme.durum, "karar"),
+      ),
+    )
+    .orderBy(desc(sema.programEsleme.sira))
+    .limit(1);
+  return z.array(z.string()).safeParse(r[0]?.deger).data ?? [];
+}
+
 // ---------------------------------------------------------------------------------------------------------
 // İşlevler
 
@@ -403,6 +423,7 @@ export async function olustur(b: ServisBaglami, girdi: unknown): Promise<OdrDuru
       hesaplar: hesap ? [hesap] : [],
       surecKayitlari: await surecKayitlari(tx, kanitlar),
       ...(g.ekMetinler ? { ekMetinler: g.ekMetinler } : {}),
+      ozguBolumleri: await ozguSecimi(tx, p.id, cerceve.kod),
     });
     let r = await odrRaporu(tx, p.id, cerceve.kod);
     if (!r) {

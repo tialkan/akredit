@@ -2,13 +2,19 @@
 // eşlemelerden üretilir; model kullanılmaz. Verisi olmayan hücre EKSİK yazılır ve nedeni görünür. Eşlemeyi
 // Akredit tahmin etmez: öneri yalnız gösterilir, tabloya kurum kullanıcısının kararı girer.
 
-import type { Hucre, UretilenTablo } from "@akredit/cerceveler";
+import {
+  belgeAdi,
+  EPDAD_DERECELENDIRME_ANAHTARI,
+  type Hucre,
+  type OlcutEki,
+  type UretilenTablo,
+} from "@akredit/cerceveler";
 import type { odrTablolari as T } from "@akredit/servis";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { BosDurum, KirintiYolu, SayfaBasligi } from "../../../../../bilesenler/temel.tsx";
 import { panelVeriKaynagi } from "../../../../../veri/sunucu.ts";
-import { eslemeKaydet, oneriIste } from "./eylem.ts";
+import { eslemeKaydet, oneriIste, ozguSecimKaydet } from "./eylem.ts";
 import {
   cerceveSec,
   degerMetni,
@@ -19,6 +25,8 @@ import {
   type KaynakBaglantisi,
   kararOzeti,
   kaynakBaglantilari,
+  kaynakYeri,
+  OKUNAMADI,
   oneriKaynaklari,
   pcOnDegeri,
 } from "./gorunum.ts";
@@ -160,6 +168,9 @@ function Gorunum({
           <a href="#eslemeler" className={dugme()}>
             Eşlemelere git
           </a>
+          <a href="#olcut-agaci" className={dugme()}>
+            Ölçüt ağacına git
+          </a>
         </div>
       </section>
 
@@ -183,6 +194,8 @@ function Gorunum({
       ))}
 
       <EslemeFormu durum={durum} oneri={oneri} />
+      <OzguSecimi durum={durum} />
+      <OlcutAgaci durum={durum} />
     </>
   );
 }
@@ -562,6 +575,183 @@ function EslemeFormu({ durum, oneri }: { durum: T.ProgramTablolari; oneri: T.yzO
           </button>
         </div>
       </form>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------------------------------------
+// Disiplin ya da program seçimi ve ölçüt ağacı
+
+function OzguSecimi({ durum }: { durum: T.ProgramTablolari }) {
+  const o = durum.cerceve.ozgu;
+  const s = durum.ozguSecimi;
+  if (!o || !s) return null;
+  const secili = new Set(Array.isArray(s.karar?.deger) ? s.karar.deger : []);
+  return (
+    <section id="ozgu" aria-labelledby="ozgu-baslik" className="mb-10">
+      <h2 id="ozgu-baslik" className="text-lg">
+        {o.ad}: {o.bolumAdi} seçimi
+      </h2>
+      <p className="mt-1 max-w-3xl text-sm text-soluk">
+        Programın hangi {o.bolumAdi} kümesine girdiğini kurum seçer; Akredit program adından tahmin etmez. Seçilen
+        kümenin konuları Ölçüt {o.olcutKod} altında görünür ve rapor iskeletine EKSİK olarak girer. Program birden çok
+        kümeye giriyorsa hepsini seçin. Önceki seçim silinmez, yeni seçim geçerli olur.
+      </p>
+      <p className="mt-2 text-sm">
+        Geçerli seçim:{" "}
+        {s.karar ? (
+          <>
+            {s.etiket}
+            <span className="mt-1 block text-xs text-soluk">{kararOzeti(s.karar)}</span>
+          </>
+        ) : (
+          <span className="inline-block rounded-sm border border-dashed border-risk-yuksek px-1 text-risk-yuksek">
+            EKSİK
+          </span>
+        )}
+      </p>
+      <form action={ozguSecimKaydet} className="mt-4 rounded-sm border border-cizgi bg-yuzey p-4">
+        <input type="hidden" name="program" value={durum.program.id} />
+        <input type="hidden" name="cerceve" value={durum.cerceve.kod} />
+        <fieldset>
+          <legend className="text-sm">Bu programın girdiği {o.bolumAdi} kümeleri</legend>
+          <div className="mt-2 grid gap-1 md:grid-cols-2">
+            {o.bolumler.map((b) => (
+              <label key={b.kod} className="flex min-h-11 items-start gap-2 py-1 text-sm">
+                <input
+                  type="checkbox"
+                  name="bolum"
+                  value={b.kod}
+                  defaultChecked={secili.has(b.kod)}
+                  className={`mt-0.5 size-5 shrink-0 ${odak}`}
+                />
+                <span>
+                  {b.baslik}
+                  <span className="block text-xs text-soluk">Kaynak: {kaynakYeri(b.belge, b.sayfa)}</span>
+                </span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+        <div className="mt-4 max-w-xl">
+          <label className="block text-sm">
+            Dayanak (zorunlu)
+            <input
+              name="dayanak"
+              required
+              minLength={3}
+              maxLength={500}
+              aria-describedby="ozgu-dayanak-aciklama"
+              className={alanSinifi}
+            />
+          </label>
+          <p id="ozgu-dayanak-aciklama" className="mt-1 text-sm text-soluk">
+            Örnek: bölüm kurulu kararının tarihi ve sayısı. Seçim adınız ve zamanla kaydedilir.
+          </p>
+          <button type="submit" className={`${dugme(true)} mt-4`}>
+            Seçimi onayla
+          </button>
+        </div>
+      </form>
+    </section>
+  );
+}
+
+function EkOgesi({ e }: { e: OlcutEki }) {
+  const yer = kaynakYeri(belgeAdi(e.kaynak.dosya), e.kaynak.sayfa);
+  if (e.tur === "ozgu_konu")
+    return (
+      <li className="py-2">
+        <span className="block text-xs text-soluk">
+          {e.bolumBaslik}
+          {e.grup ? `, ${e.grup}` : ""}
+        </span>
+        {e.metin}
+        <span className="mt-1 block text-xs text-soluk">Kaynak: {yer}</span>
+      </li>
+    );
+  const duzeyler = EPDAD_DERECELENDIRME_ANAHTARI.duzeyler;
+  return (
+    <li className="py-2">
+      <span className="block">
+        Gösterge {e.no}. {e.metin}
+      </span>
+      <span className="mt-1 block text-xs text-soluk">Kaynak: {yer}</span>
+      <dl className="mt-2 grid gap-x-4 gap-y-1 text-sm sm:grid-cols-[minmax(10rem,auto)_1fr]">
+        {duzeyler.map((d) => (
+          <div key={d.kod} className="contents">
+            <dt className="text-soluk">{d.ad}</dt>
+            <dd>{e.duzeyler ? e.duzeyler[d.kod] : OKUNAMADI}</dd>
+          </div>
+        ))}
+      </dl>
+    </li>
+  );
+}
+
+function Dugum({ d, duzey }: { d: T.AgacDugumu; duzey: number }) {
+  const ekSayisi = d.ekler.length;
+  const ekAdi = d.ekler[0]?.tur === "gosterge" ? "gösterge" : "konu";
+  return (
+    <li className="border-t border-cizgi py-2">
+      <details open={duzey === 0}>
+        <summary className={`min-h-11 cursor-pointer py-2 ${odak}`}>
+          {d.kod} {d.baslik}
+          {ekSayisi ? ` (${ekSayisi} ${ekAdi})` : ""}
+        </summary>
+        <div className="pb-2 pl-4">
+          {d.metin && d.metin !== d.baslik ? <p className="text-sm">{d.metin}</p> : null}
+          <p className="mt-1 text-xs text-soluk">Kaynak: {kaynakYeri(d.belge, d.sayfa)}</p>
+          {ekSayisi ? (
+            <ol className="mt-2 divide-y divide-cizgi text-sm" aria-label={`${d.kod} ${ekAdi} listesi`}>
+              {d.ekler.map((e) => (
+                <EkOgesi key={e.kimlik} e={e} />
+              ))}
+            </ol>
+          ) : null}
+          {d.altlar.length ? (
+            <ul className="mt-2">
+              {d.altlar.map((a) => (
+                <Dugum key={a.kod} d={a} duzey={duzey + 1} />
+              ))}
+            </ul>
+          ) : null}
+        </div>
+      </details>
+    </li>
+  );
+}
+
+function OlcutAgaci({ durum }: { durum: T.ProgramTablolari }) {
+  const o = durum.cerceve.ozgu;
+  const gosterge = durum.agac.some(function ara(d: T.AgacDugumu): boolean {
+    return d.ekler.some((e) => e.tur === "gosterge") || d.altlar.some(ara);
+  });
+  return (
+    <section id="olcut-agaci" aria-labelledby="agac-baslik" className="mb-10">
+      <h2 id="agac-baslik" className="text-lg">
+        Ölçüt ağacı
+      </h2>
+      <p className="mt-1 max-w-3xl text-sm text-soluk">
+        Ölçüt metinleri ve altındaki öğeler resmî belgeden alınmıştır; her öğenin belgesi ve sayfası yazılıdır.
+        {o && !durum.ozguSecimi?.karar
+          ? ` ${o.ad} için ${o.bolumAdi} seçilmediğinden Ölçüt ${o.olcutKod} altında konu gösterilmez.`
+          : ""}
+        {gosterge
+          ? ` Göstergeler dörtlü dereceli anahtarla değerlendirilir. Düzey tanımı belgeden ayrılamayan göstergede "${OKUNAMADI}" yazar.`
+          : ""}
+      </p>
+      {gosterge ? (
+        <p className="mt-2 text-xs text-soluk">
+          Dereceli anahtar: {EPDAD_DERECELENDIRME_ANAHTARI.duzeyler.map((d) => d.ad).join(", ")}. Kaynak:{" "}
+          {kaynakYeri(belgeAdi(EPDAD_DERECELENDIRME_ANAHTARI.kaynak.dosya), EPDAD_DERECELENDIRME_ANAHTARI.kaynak.sayfa)}
+        </p>
+      ) : null}
+      <ul className="mt-4">
+        {durum.agac.map((d) => (
+          <Dugum key={d.kod} d={d} duzey={0} />
+        ))}
+      </ul>
     </section>
   );
 }

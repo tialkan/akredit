@@ -1,6 +1,6 @@
 # İP-47: Program akreditasyonu tablo dönüştürücüsü (MÜDEK, FEDEK, EPDAD, SABAK)
 
-- **Durum:** inceleme
+- **Durum:** tamam
 - **Faz:** 8
 - **Bağımlılık:** İP-11, İP-19 (ikisi de incelemede)
 - **Sahip olduğu yollar:** `packages/cerceveler/src/program-tablolari/**`, `packages/servis/src/odr/tablolar/**`, `packages/belge/src/tablo-sablon*.ts`, `apps/web/src/app/panel/programlar/[id]/tablolar/**`, `docs/raporlar/IP-47.md`
@@ -60,3 +60,11 @@ Program akreditasyon kuruluşları öz değerlendirme raporunda belirli tablolar
   - E2E: web `AKREDIT_ORNEK_VERI=1` ile derlendi; Playwright masaüstü 174/174, telefon ve performans geçti (performans ilk koşuda başka iş yükü altında bir sayfada bütçeyi aştı, tek başına yeniden koşuda 18/18). portal.spec (Raporlar menüsü) dahil bozuk test yoktu. Yeni `apps/web/e2e/program-tablolari.spec.ts` (3 test: çerçeve seçimi, hücre kaynağı, Öneri iste, eşleme onayı yalnız klavyeyle; axe WCAG 2.2 AA) ve sayfa `e2e/sayfalar.ts` listesinde (genel axe ve klavye testleri).
   - Ek resmî içerik (`program-tablolari/ozgu-ham.ts` belgeden betikle, `ozgu.ts`): MÜDEK EK-1 26 disiplin, 172 konu; FEDEK programa özgü 27 program, 242 madde; EPDAD 156 gösterge (138'inde dört düzey tanımı) ve dörtlü dereceli puanlama anahtarı. Her öğe dosya, SHA-256 ve sayfa taşır; test metni kaynak sayfada birebir arar (cerceveler 88 test).
   - Kalan: EPDAD kılavuzu 158 gösterge diyor, tablolarda 157 sayıldı (DOĞRULANMADI); 7.2.1/1 iki sayfaya bölündüğü için alınmadı; 18 göstergenin düzey tanımı ayrılamadı (null). Ek içerik panele ve ölçüt ağacına bağlanmadı.
+- 2026-10-31 (son kalan, ek içeriğin bağlanması): Durum tamam.
+  - Bağ belgeden: MÜDEK EK-1 → Ölçüt 5.1 (metni EK-1 konularını ister), FEDEK programa özgü → 10.1, EPDAD göstergeleri → alt standart. `cerceveler` `olcutEkleri`, `ozguBagi`, `ozguBolumListesi`, `belgeAdi` (saf).
+  - Seçim: `program_esleme` yeni tür `ozgu_bolum` (anahtar `bolum`, değer bölüm kodları dizisi; göç 0132). Kurum seçer, Akredit tahmin etmez; karar yalnız oturumla, adı, zamanı ve dayanağıyla günlüğe. API anahtarı reddedilir.
+  - Panel: tablolar sayfasında disiplin ya da program seçimi formu ve ölçüt ağacı (her ölçüt ve öğe belge adı ve sayfasıyla; EPDAD'da dört düzey, tanımı null olan göstergede "Belgeden okunamadı").
+  - ÖDR Word: ilgili ölçüt altında öğe tablosu, her satır [EKSİK]; seçim yoksa ölçütte EKSİK paragrafı ve Ek B'de eksik. Metin yazılmaz.
+  - Açık MCP: `olcut_ara` ve `olcut_getir` `cerceve` girdisi alır (varsayılan YÖKAK); göstergeler, düzeyler ve özgü bölüm ve konular salt okuma döner.
+  - 158/157: PDF'deki sözcük konumlarından gösterge numaraları yeniden sayıldı, yine 157 (ayrıntı testte). DOĞRULANMADI kalır.
+  - Testler: cerceveler 93, vt 80, servis 488, web 319, acik-mcp 19, isci 70; e2e masaüstü 182/182 (`AKREDIT_ORNEK_VERI=1`).

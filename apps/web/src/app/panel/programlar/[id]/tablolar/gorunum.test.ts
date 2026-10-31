@@ -8,8 +8,10 @@ import {
   kararIstekleri,
   kaynakBaglantilari,
   kaynakMetni,
+  kaynakYeri,
   ORNEK_BOLOGNA,
   ornekKayitlari,
+  ozguSecimleri,
 } from "./gorunum.ts";
 
 const ornekDurum = (cerceveKod: string) => {
@@ -96,5 +98,31 @@ describe("program tabloları sayfası", () => {
       "#esleme-yer-2",
     ]);
     expect(eslemeCapasi("ders", "MAT 101")).toBe("esleme-ders-MAT_101");
+  });
+});
+
+describe("disiplin ya da program seçimi", () => {
+  it("yalnız listedeki kodlar, tekrarsız ve sıralı alınır", () => {
+    const f = new FormData();
+    for (const v of ["b", "a", "b", "uydurma"]) f.append("bolum", v);
+    expect(ozguSecimleri(f, ["a", "b", "c"])).toEqual(["a", "b"]);
+    expect(ozguSecimleri(new FormData(), ["a"])).toEqual([]);
+  });
+
+  it("örnek kipte seçilen disiplinin konuları 5.1 altında; seçim yoksa konu yok", () => {
+    const cerceve = odrTablolari.cerceveGerekli("mudek-lisans");
+    const kur = (kod?: string) =>
+      odrTablolari.durumKur({
+        program: { id: "p1", ad: "Örnek program" },
+        cerceve,
+        okuma: null,
+        kayitlar: ornekKayitlari(["MTB"], kod),
+      });
+    expect(odrTablolari.ekSayisi(kur().agac)).toBe(0);
+    const d = kur("bilgisayar-yazilim");
+    expect(d.ozguSecimi?.karar?.kararVeren).toBe("Örnek Program Sorumlusu");
+    expect(odrTablolari.ekSayisi(d.agac)).toBeGreaterThan(0);
+    expect(kaynakYeri("Belge", 11)).toBe("Belge, s. 11");
+    expect(kaynakYeri("Belge", null)).toBe("Belge");
   });
 });
