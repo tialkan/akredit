@@ -5,16 +5,24 @@ import { usePathname } from "next/navigation";
 
 const BAGLANTILAR: { href: string; ad: string }[] = [
   { href: "/degerlendirici", ad: "Kanıt odası" },
+  { href: "/degerlendirici/kanit/rapor", ad: "Raporlar" },
   { href: "/degerlendirici/soru", ad: "Soru sor" },
 ];
+
+const RAPOR = "/degerlendirici/kanit/rapor";
+
+/** Menüde etkin bağlantı: kanıt sayfaları kanıt odasına, rapor sayfaları raporlara aittir. */
+export function etkinMi(yol: string, href: string): boolean {
+  const rapor = yol === RAPOR || yol.startsWith(`${RAPOR}/`);
+  if (href === "/degerlendirici") return yol === href || (yol.startsWith("/degerlendirici/kanit") && !rapor);
+  if (href === RAPOR) return rapor;
+  return yol === href || yol.startsWith(`${href}/`);
+}
 
 /** Değerlendirici menüsü: bulunulan sayfa `aria-current` ile ve görsel olarak belirtilir. */
 export function PortalMenusu() {
   const yol = usePathname() ?? "";
-  const etkin = (href: string) =>
-    href === "/degerlendirici"
-      ? yol === href || yol.startsWith("/degerlendirici/kanit")
-      : yol === href || yol.startsWith(`${href}/`);
+  const etkin = (href: string) => etkinMi(yol, href);
   return (
     <nav aria-label="Değerlendirici menüsü">
       <ul className="flex gap-2 text-sm">

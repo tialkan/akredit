@@ -19,6 +19,7 @@ import { z } from "zod";
 import { gunluge, islem, type ServisBaglami } from "../baglam.ts";
 import { gostergeVerisi } from "../gosterge.ts";
 import { ServisHatasi } from "../hata.ts";
+import { dilDenetimi } from "../rapor.ts";
 import { pukoKayitlari, vtPukoDeposu } from "./index.ts";
 
 /** Kararından önce yönetici özetinin görülmesi gereken öneri türleri: dış gönderim (nihai raporun gönderimi). */
@@ -60,14 +61,37 @@ async function nihaiOneri(tx: Islem, oneriId: string) {
   return o;
 }
 
-/** Bir dış gönderim önerisinin kararından önce gösterilecek özet. */
-export async function oneriYoneticiOzeti(b: ServisBaglami, oneriId: string): Promise<YoneticiOzeti> {
+/** Yönetici özeti ve gönderilecek raporun yayım uyarısı (İP-44 dil denetimi). */
+export type OneriYoneticiOzeti = YoneticiOzeti & {
+  /** Raporda kararı verilmemiş yüksek önemli dil bulgusu varsa uyarı metni; yoksa null. */
+  yayimUyarisi: string | null;
+  raporId: string | null;
+};
+
+/** Önerinin hedefi bir raporsa raporun güncel yayım uyarısı (salt okunur, modelsiz). */
+async function raporUyarisi(b: ServisBaglami, o: { hedefTuru: string | null; hedefId: string | null }) {
+  if (o.hedefTuru !== "rapor" || !o.hedefId) return { raporId: null, yayimUyarisi: null };
+  try {
+    return { raporId: o.hedefId, yayimUyarisi: (await dilDenetimi(b, o.hedefId)).yayimUyarisi };
+  } catch (e) {
+    // Rapor kaydı yoksa denetlenecek metin de yoktur; özet uyarısız gösterilir.
+    if (e instanceof ServisHatasi && e.kod === "bulunamadi") return { raporId: null, yayimUyarisi: null };
+    throw e;
+  }
+}
+
+/**
+ * Bir dış gönderim önerisinin kararından önce gösterilecek özet. Gönderilen raporda açık yüksek önemli dil
+ * bulgusu varsa yayım uyarısı da döner; karar ekranı onaydan önce bu uyarının okunduğunu ister.
+ */
+export async function oneriYoneticiOzeti(b: ServisBaglami, oneriId: string): Promise<OneriYoneticiOzeti> {
   if (!z.uuid().safeParse(oneriId).success) throw new ServisHatasi("bulunamadi", "Öneri bulunamadı.");
-  return islem(b, async (tx, gerekli) => {
-    await nihaiOneri(tx, oneriId);
+  const { ozet, o } = await islem(b, async (tx, gerekli) => {
+    const o = await nihaiOneri(tx, oneriId);
     await gerekli("rapor.gonder", { tur: "kurum", id: b.aktor.kurumId });
-    return kurumYoneticiOzeti(tx, b.aktor.kurumId);
+    return { ozet: await kurumYoneticiOzeti(tx, b.aktor.kurumId), o };
   });
+  return { ...ozet, ...(await raporUyarisi(b, o)) };
 }
 
 export const OzetGorulduGirdisi = z.object({ oneriId: z.uuid(), imza: z.string().min(1).max(200) }).strict();
@@ -80,13 +104,22 @@ export async function yoneticiOzetiGoruldu(b: ServisBaglami, girdi: unknown): Pr
   if (b.aktor.tur !== "oturum")
     throw new ServisHatasi("yetki_yok", "Özeti yalnız oturum açmış kişi görmüş sayılır; API anahtarıyla olmaz.");
   const g = OzetGorulduGirdisi.parse(girdi);
+  const o = await islem(b, (tx) => nihaiOneri(tx, g.oneriId));
+  // Görülen yayım uyarısı da günlüğe girer: karar veren açık dil bulgusunu bilerek onaylamış olur.
+  const uyari = await raporUyarisi(b, o);
   return islem(b, async (tx, gerekli) => {
     await nihaiOneri(tx, g.oneriId);
     await gerekli("rapor.gonder", { tur: "kurum", id: b.aktor.kurumId });
     const ozet = await kurumYoneticiOzeti(tx, b.aktor.kurumId);
     if (ozet.imza !== g.imza)
       throw new ServisHatasi("kural_ihlali", "Özet siz açtıktan sonra değişti. Sayfayı yenileyip güncel özeti görün.");
-    await gunluge(tx, b, OZET_GORULDU_EYLEMI, { tur: "oneri", id: g.oneriId }, { imza: ozet.imza });
+    await gunluge(
+      tx,
+      b,
+      OZET_GORULDU_EYLEMI,
+      { tur: "oneri", id: g.oneriId },
+      { imza: ozet.imza, yayimUyarisi: uyari.yayimUyarisi },
+    );
     return { imza: ozet.imza, zaman: b.simdi().toISOString() };
   });
 }

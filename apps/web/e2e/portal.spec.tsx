@@ -120,12 +120,12 @@ test("portal: kanıt odası klavyeyle gezilir, menüde bulunulan sayfa bildirili
   expect(sira).toEqual([
     "Akredit ana sayfa",
     "Kanıt odası",
+    "Raporlar",
     "Soru sor",
     "arama",
     "olcut",
     "Süz",
     "Öğrenci memnuniyet anketi 2025",
-    "Toplantı tutanağı",
   ]);
   // Odak her öğede görünür (WCAG 2.4.7): odak halkası çizilir.
   const halka = await page.evaluate(() => getComputedStyle(document.activeElement as Element).outlineStyle);
