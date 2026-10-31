@@ -30,6 +30,8 @@ jobs:
       - name: pnpm
         run: corepack enable && corepack prepare --activate
       - run: pnpm install --frozen-lockfile
+      - name: Tarayıcı (Bologna yazma bağlayıcısının uçtan uca testi için)
+        run: pnpm --filter @akredit/web exec playwright install --with-deps chromium
       - name: Biçim, tip ve testler
         env:
           NO_COLOR: "1"
