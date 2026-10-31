@@ -224,7 +224,7 @@ export interface VeriKaynagi {
 
   kararVer(girdi: KararGirdisi): Promise<IslemSonucu<Karar<OneriIcerigi>>>;
   /** Dış gönderim kararından önce gösterilen özet (İP-39). Onay, özet görülmeden verilemez. */
-  yoneticiOzeti(oneriId: OneriId): Promise<IslemSonucu<YoneticiOzeti>>;
+  yoneticiOzeti(oneriId: OneriId): Promise<IslemSonucu<KararOzeti>>;
   /** "Özet görüldü" kaydı: özetin imzasıyla günlüğe yazılır. */
   ozetGoruldu(oneriId: OneriId, imza: string): Promise<IslemSonucu<{ imza: string; zaman: string }>>;
   /** Yalnız düşük ve orta riskli öneriler toplu onaylanır; yüksek risk varsa hiçbiri onaylanmaz. */
@@ -248,3 +248,6 @@ export interface YurtDisiMetni {
   surum: string;
   ozet: string;
 }
+
+/** Dış gönderim karar ekranının özeti: yönetici özeti ve gönderilen raporun yayım uyarısı (İP-44). */
+export type KararOzeti = YoneticiOzeti & { yayimUyarisi?: string | null; raporId?: string | null };

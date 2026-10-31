@@ -5,6 +5,7 @@ import { and, eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { type Ornek, ortam } from "../test/yardimci.ts";
 import { kararVer } from "./oneri.ts";
+import * as yoneticiOzeti from "./puko/yonetici-ozeti.ts";
 import * as rapor from "./rapor.ts";
 
 let o: Awaited<ReturnType<typeof ortam>>;
@@ -71,6 +72,38 @@ describe("dil denetimi", () => {
     ]);
     expect(d.acikYuksek).toBe(1);
     expect(d.yayimUyarisi).toContain("1 yüksek önemli");
+  });
+
+  it("yayım uyarısı dış gönderim karar ekranının özetine gelir ve görüldü kaydına yazılır (İP-44)", async () => {
+    const y = await o.baglam(a, a.yonetici);
+    const oneriId = await kiraciIslemi(o.db, a.kurumId, async (tx) => {
+      const [x] = await tx
+        .insert(sema.oneri)
+        .values({
+          kurumId: a.kurumId,
+          tur: "dis_gonderim",
+          hedefTuru: "rapor",
+          hedefId: raporId,
+          icerik: { baslik: "Raporu gönder", metin: "Kurum adına beyan." },
+          gerekce: "Dış kuruma son gönderim insan kararıdır.",
+          ureticiTuru: "kural",
+          uretici: { kural: "test" },
+          risk: "yuksek",
+        })
+        .returning();
+      return x?.id as string;
+    });
+    const ozet = await yoneticiOzeti.oneriYoneticiOzeti(y, oneriId);
+    expect(ozet.raporId).toBe(raporId);
+    expect(ozet.yayimUyarisi).toContain("1 yüksek önemli");
+    await yoneticiOzeti.yoneticiOzetiGoruldu(y, { oneriId, imza: ozet.imza });
+    const [g] = await kiraciIslemi(o.db, a.kurumId, (tx) =>
+      tx
+        .select()
+        .from(sema.gunluk)
+        .where(and(eq(sema.gunluk.eylem, "yonetici_ozeti.goruldu"), eq(sema.gunluk.hedefId, oneriId))),
+    );
+    expect((g?.ayrinti as { yayimUyarisi?: string } | undefined)?.yayimUyarisi).toContain("yüksek önemli");
   });
 
   it("bulgular rapor kaydına bir kez öneri olarak eklenir, metin değişmez, günlüğe yazılır", async () => {

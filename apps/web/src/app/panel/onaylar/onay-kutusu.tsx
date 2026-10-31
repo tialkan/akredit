@@ -64,7 +64,7 @@ export function OnayKutusu({
     o: OneriGorunumu;
     sonuc: KararSonucuSecimi;
     ek: KararEki;
-    ozet: YoneticiOzetiVerisi;
+    ozet: YoneticiOzetiVerisi & { yayimUyarisi?: string | null };
   } | null>(null);
   const [kanit, setKanit] = useState<Atif | null>(null);
   const [politika, setPolitika] = useState<OneriGorunumu | null>(null);
@@ -503,6 +503,7 @@ export function OnayKutusu({
         {ozetIstegi ? (
           <YoneticiOzeti
             ozet={ozetIstegi.ozet}
+            yayimUyarisi={ozetIstegi.ozet.yayimUyarisi ?? null}
             baslik="Özet"
             dugme={ozetIstegi.sonuc === "duzeltildi" ? "Düzelterek onayla" : "Gönderimi onayla"}
             onayla={(imza) => void ozetGorulduVeKarar(imza)}

@@ -16,9 +16,12 @@ export function YoneticiOzeti({
   ozet,
   baslik = "Yönetici özeti",
   dugme = "Raporu onayla",
+  yayimUyarisi = null,
   onayla,
 }: {
   ozet: Ozet;
+  /** Gönderilen raporda açık yüksek önemli dil bulgusu varsa uyarı (İP-44). Onaydan önce okunduğu işaretlenir. */
+  yayimUyarisi?: string | null;
   baslik?: string;
   /** Onay düğmesinin metni. */
   dugme?: string;
@@ -26,7 +29,12 @@ export function YoneticiOzeti({
   onayla: (gorulenImza: string) => void;
 }) {
   const [gorulme, setGorulme] = useState<{ imza: string; zaman: string } | null>(null);
-  const kapi = nihaiOnayKapisi(ozet, gorulme);
+  const [uyariOkundu, setUyariOkundu] = useState(false);
+  const ozetKapisi = nihaiOnayKapisi(ozet, gorulme);
+  const kapi =
+    ozetKapisi.gecerli && yayimUyarisi && !uyariOkundu
+      ? { gecerli: false as const, neden: "Yayım uyarısını okuduğunuzu işaretleyin." }
+      : ozetKapisi;
   return (
     <section aria-labelledby="yonetici-ozeti-baslik" className="rounded border border-cizgi bg-yuzey p-4">
       <h2 id="yonetici-ozeti-baslik" className="text-lg font-bold">
@@ -92,6 +100,16 @@ export function YoneticiOzeti({
       <p className="mt-3 text-sm text-soluk">
         Değişmeyen gösterge: {ozet.degismeyen}. Önceki değeri olmayan gösterge: {ozet.karsilastirilamayan}.
       </p>
+      {yayimUyarisi ? (
+        <div role="alert" className="mt-4 rounded-sm border border-risk-yuksek bg-risk-yuksek-zemin p-3">
+          <p>{yayimUyarisi}</p>
+          <IsaretKutusu
+            etiket="Yayım uyarısını okudum; açık dil bulgularını bilerek karar veriyorum"
+            checked={uyariOkundu}
+            onChange={(e) => setUyariOkundu(e.currentTarget.checked)}
+          />
+        </div>
+      ) : null}
       <div className="mt-4 flex flex-wrap items-center gap-4">
         <IsaretKutusu
           etiket="Özeti okudum"
