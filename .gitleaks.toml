@@ -8,7 +8,7 @@ useDefault = true
 [allowlist]
 description = "Sahte test anahtarları ve uydurma test değerleri (gerçek sisteme bağlı değil)"
 regexTarget = "line"
-regexes = ['''uydurma'''']
+regexes = ['''uydurma''']
 paths = [
   '''^apps/web/src/kimlik/test/fixtures/idp-anahtar\.pem$''',
   '''^apps/web/src/kimlik/test/fixtures/idp-sertifika\.pem$''',
