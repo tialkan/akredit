@@ -1,4 +1,4 @@
-// İP-35 uçtan uca: "Kurumunuzu açın" → e-posta doğrulaması → giriş → kurulum sihirbazı (anahtar, yurt dışı
+// İP-35 uçtan uca (barındırma açık sunucuda, AKREDIT_BARINDIRMA=1; kapalısı barindirma.spec.ts): "Kurumunuzu açın" → e-posta doğrulaması → giriş → kurulum sihirbazı (anahtar, yurt dışı
 // kararı, Bologna'dan program, hoca daveti, çerçeve) → birim yönetimi. Gerçek arka uç (boş PGlite) ile çalışır.
 // Sihirbaz ekranlarının 1440 px görüntüleri docs/marka/ altına yazılır.
 

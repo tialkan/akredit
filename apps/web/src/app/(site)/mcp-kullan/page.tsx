@@ -131,8 +131,9 @@ export default function McpKullan() {
         <Metin>
           <p>
             Bu bağlantı kurumunuzun verisine erişmez: kanıt, ders dosyası, karar ve rapor kaydı yoktur. Kanıta bağlı
-            rapor, onay kutusu ve değiştirilemez günlük Akredit panelinde çalışır. Kurumunuzda denemek için{" "}
-            <Link href="/pilot">pilot kurum başvurusu</Link> yapın.
+            rapor, onay kutusu ve değiştirilemez günlük Akredit platformunda çalışır. Platform açık kaynaktır, kurumunuz
+            kendi sunucusuna kurabilir. akredit.org'da kurumlara barındırılan hizmet sponsor bulunana kadar sunulmuyor.
+            Platformu uydurma veriyle <Link href="/deneyin">hesap açmadan deneyebilirsiniz</Link>.
           </p>
         </Metin>
       </Bolum>

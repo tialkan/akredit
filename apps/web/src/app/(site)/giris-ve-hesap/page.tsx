@@ -102,7 +102,13 @@ export default function GirisVeHesap() {
           </Link>
         </p>
       </Bolum>
-      <Bolum no={4} id="baslangic" baslik="Kurum nasıl başlar" zemin>
+      <Bolum
+        no={4}
+        id="baslangic"
+        baslik="Kurum nasıl başlar"
+        not="Kendi kurulumunuzda böyle başlar. akredit.org'da kurum açma, sponsor bulunana kadar kapalı."
+        zemin
+      >
         <ol className="space-y-4">
           <li>
             <p className="font-semibold">1. Kurumu açın</p>

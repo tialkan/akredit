@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { dugmeSinifi } from "../../bilesenler/dugme.tsx";
 import { Logo } from "../../bilesenler/logo.tsx";
+import { barindirmaAcik } from "../../site/barindirma.ts";
 import { ALT_MENU, DURUM_NOTU, UST_MENU } from "../../site/icerik.ts";
 
 function MenuListesi({ sinif }: { sinif: string }) {
@@ -40,14 +41,17 @@ export default function SiteYerlesimi({ children }: { children: ReactNode }) {
               Deneyin
             </Link>
             <Link
-              href="/kurum-ac"
+              href="/mcp-kullan"
               className="hidden min-h-11 items-center px-2 font-semibold text-vurgu underline underline-offset-4 sm:inline-flex"
             >
-              Kurumunuzu açın
+              Yapay zekânıza ekleyin
             </Link>
-            <Link href="/giris" className={dugmeSinifi("ikincil", "kucuk", "min-h-11 rounded-sm")}>
-              Giriş
-            </Link>
+            {/* Kurum girişi yalnız barındırılan hizmet açıkken görünür (ADR 0008). */}
+            {barindirmaAcik() ? (
+              <Link href="/giris" className={dugmeSinifi("ikincil", "kucuk", "min-h-11 rounded-sm")}>
+                Giriş
+              </Link>
+            ) : null}
             {/* Dar ekranda menü: betiksiz açılır kapanır öğe. */}
             <details className="relative xl:hidden">
               <summary className="inline-flex min-h-11 cursor-pointer list-none items-center rounded-sm border border-cizgi-guclu px-3 font-semibold [&::-webkit-details-marker]:hidden">

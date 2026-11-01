@@ -1,6 +1,6 @@
 # İP-27: Güvenlik sertleştirme ve bağımsız denetim
 
-- **Durum:** inceleme
+- **Durum:** askıda (sponsor)
 - **Faz:** 5
 - **Bağımlılık:** İP-09 … İP-26
 - **Sahip olduğu yollar:** `docs/guvenlik/**`, ilgili paketlerde düzeltmeler, `docs/raporlar/IP-27.md`
@@ -43,3 +43,4 @@ Sızma testi bir hizmet alımıdır (kullanıcı listesi).
   üretime çıkılmaz" kural olarak `docs/guvenlik/README.md`'ye yazıldı; "kiracı yalıtımı sızma testinde
   ayrıca sınanır" dış denetim kapsamına zorunlu bölüm olarak kondu, sınama insan işine bağlı.
 - 2026-10-30 (inceleme kapanışı, dal `inceleme/kapanis`): Bağımsız inceleme. `pnpm verify` adımları temiz (ölçüt 3 işaretlendi). Açık bulgular: G-27-3 (düşük, imaj özeti), G-27-4 (düşük), D8-3, D8-4 (orta, İP-43), D8-8 kısmen, D8-9, D8-12 (düşük); kritik ya da yüksek açık bulgu yok. İnsan bekleyen: bağımsız sızma testi hizmet alımı (kiracı yalıtımı zorunlu bölüm, `docs/guvenlik/dis-denetim-kapsami.md`) ve bulguların kapatılması. Durum inceleme.
+- 2026-11-01 (kurucu kararı, ADR 0008): Barındırılan kurum hizmeti sponsor bulunana kadar askıda. Bu İP'nin kalan işi barındırmaya ve insana bağlı olduğundan durum askıda (sponsor). Kod silinmedi; geri açma koşulu ADR'de.

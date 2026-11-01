@@ -7,7 +7,8 @@ test.describe("tanıtım sitesi", () => {
   test("ana sayfa ve menü", async ({ page }) => {
     await page.goto("/");
     await expect(page).toHaveTitle(/Akredit/);
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("Siz yalnız onaylarsınız");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("kendi yapay zekânızda");
+    await expect(page.getByRole("heading", { name: "Platform", level: 2 })).toBeVisible();
     await expect(page.getByRole("heading", { name: "İşi kim yapar" })).toBeVisible();
     const menu = page.getByRole("navigation", { name: "Site menüsü" });
     for (const [ad, baslik] of [

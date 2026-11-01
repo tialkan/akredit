@@ -2,11 +2,14 @@
 
 import { ortamdanEpostaAyari, smtpTasiyici } from "@akredit/surec";
 import { ortamdanPilotAlicisi, pilotBasvurusuIsle } from "../../../pilot/basvuru.ts";
+import { barindirmaAcik, barindirmaKapaliYaniti } from "../../../site/barindirma.ts";
 import { tekiller } from "../_ortak/sunucu.ts";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(istek: Request): Promise<Response> {
+  // Barındırılan hizmet askıdayken yeni kayıt alınmaz (src/site/barindirma.ts).
+  if (!barindirmaAcik()) return barindirmaKapaliYaniti();
   const { db, kimlik } = await tekiller();
   let ham: unknown = null;
   try {

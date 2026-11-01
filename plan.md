@@ -1,5 +1,7 @@
 # Akredit ana planı
 
+> **Karar (kurucu, 2026-11-01).** Asıl odak herkese açık MCP'dir (akredit.org/mcp, `apps/acik-mcp`). Barındırılan kurum hizmeti (kurum açma, pilot başvurusu, kurum girişi ve paneli) sponsor bulunana kadar askıdadır; `AKREDIT_BARINDIRMA=1` olmadan kapalıdır. Yazılım tamamlandı ve açık kaynaktır (Apache-2.0); isteyen kurum kendi sunucusuna kurabilir. Demo (/deneyin, sentetik Örnek Üniversitesi) açık kalır. Ayrıntı: `docs/adr/0008-mcp-odagi-barindirma-askida.md`.
+
 - **Sürüm:** 1 (2026-10-23)
 - **Sahibi:** Tarık İsmet ALKAN · Kulular Teknoloji
 - **Yayın adresi:** akredit.org
@@ -128,7 +130,7 @@ Tarihler hedeftir. Yazılım işleri ajanlarla hızlı ilerler; hız sınırın�
 
 ## 8. İş paketleri
 
-Durumlar: **hazır** (başlanabilir), **devam**, **inceleme**, **tamam**, **bekliyor** (bağımlılık var).
+Durumlar: **hazır** (başlanabilir), **devam**, **inceleme**, **tamam**, **bekliyor** (bağımlılık var), **askıda (sponsor)** (kod tarafı yazıldı ya da yazılabilir; kalan iş barındırılan hizmete ve insana bağlı, sponsor bulunana kadar beklemede; ADR 0008).
 
 | İP | Ad | Faz | Durum | Bağımlılık |
 |---|---|---|---|---|
@@ -139,7 +141,7 @@ Durumlar: **hazır** (başlanabilir), **devam**, **inceleme**, **tamam**, **bekl
 | [05](plan/ip/IP-05-baglayicilar.md) | Bağlayıcılar I (Bologna, OBS not aktarımı) | 1 | tamam | — |
 | [06](plan/ip/IP-06-olcme-motoru.md) | Ölçme motoru (ÇK/PÇ) | 1 | tamam | — |
 | [07](plan/ip/IP-07-web-iskeleti.md) | Web iskeleti, tasarım sistemi, onay kutusu arayüzü | 1 | tamam | — |
-| [08](plan/ip/IP-08-gelistirme-altyapisi.md) | Geliştirme altyapısı ve CI | 1 | inceleme | — |
+| [08](plan/ip/IP-08-gelistirme-altyapisi.md) | Geliştirme altyapısı ve CI | 1 | tamam | — |
 | [09](plan/ip/IP-09-kimlik-ve-yetki.md) | Kimlik doğrulama, kiracı ve yetki | 2 | tamam | 02, 07 |
 | [10](plan/ip/IP-10-kanit-hatti.md) | Kanıt hattı ve nesne deposu | 2 | tamam | 02, 03, 04 |
 | [11](plan/ip/IP-11-cerceveler.md) | Akreditasyon çerçeve kütüphanesi | 2 | tamam | 01, araştırma |
@@ -154,18 +156,18 @@ Durumlar: **hazır** (başlanabilir), **devam**, **inceleme**, **tamam**, **bekl
 | [20](plan/ip/IP-20-kidr-bidr.md) | BİDR, KİDR, olgunluk değerlendirmesi | 4 | tamam | 11, 12, 14 |
 | [21](plan/ip/IP-21-gostergeler.md) | Göstergeler ve stratejik plan | 4 | tamam | 05, 12 |
 | [22](plan/ip/IP-22-degerlendirici-portali.md) | Değerlendirici portalı, sanal kanıt odası | 4 | tamam | 09, 10, 12 |
-| [23](plan/ip/IP-23-baglayicilar-2.md) | Bağlayıcılar II (AVESİS, YÖK Atlas, UBYS, EBYS, e-posta, bulut) | 4 | inceleme | 05, 10 |
+| [23](plan/ip/IP-23-baglayicilar-2.md) | Bağlayıcılar II (AVESİS, YÖK Atlas, UBYS, EBYS, e-posta, bulut) | 4 | askıda (sponsor) | 05, 10 |
 | [24](plan/ip/IP-24-cli-birlesmesi.md) | CLI ve Claude Code eklentisinin birleşmesi | 4 | tamam | 01, 12 |
 | [25](plan/ip/IP-25-mcp-sunucusu.md) | MCP sunucusu | 4 | tamam | 12, 13 |
-| [26](plan/ip/IP-26-uretim-altyapisi.md) | Üretim altyapısı ve akredit.org | 5 | inceleme | 08 |
-| [27](plan/ip/IP-27-guvenlik-denetimi.md) | Güvenlik sertleştirme ve bağımsız denetim | 5 | inceleme | 09-26 |
-| [28](plan/ip/IP-28-kvkk-hukuk.md) | KVKK ve hukuk paketi | 5 | inceleme | araştırma |
-| [29](plan/ip/IP-29-belgeler-egitim.md) | Kullanıcı belgeleri ve eğitim | 5 | inceleme | 07+ |
-| [30](plan/ip/IP-30-pilot.md) | Pilot ve iş yükü ölçümü | 5 | bekliyor | Faz 3 |
+| [26](plan/ip/IP-26-uretim-altyapisi.md) | Üretim altyapısı ve akredit.org | 5 | askıda (sponsor) | 08 |
+| [27](plan/ip/IP-27-guvenlik-denetimi.md) | Güvenlik sertleştirme ve bağımsız denetim | 5 | askıda (sponsor) | 09-26 |
+| [28](plan/ip/IP-28-kvkk-hukuk.md) | KVKK ve hukuk paketi | 5 | askıda (sponsor) | araştırma |
+| [29](plan/ip/IP-29-belgeler-egitim.md) | Kullanıcı belgeleri ve eğitim | 5 | askıda (sponsor) | 07+ |
+| [30](plan/ip/IP-30-pilot.md) | Pilot ve iş yükü ölçümü | 5 | askıda (sponsor) | Faz 3 |
 | [31](plan/ip/IP-31-erisilebilirlik-performans.md) | Erişilebilirlik ve performans | 5 | tamam | 07, 12 |
 | [32](plan/ip/IP-32-kiyaslama.md) | Kurumlar arası kıyaslama | 6 | tamam | 20, 21 |
 | [33](plan/ip/IP-33-mobil-onay.md) | Mobil onay ve bildirim | 6 | tamam | 13 |
-| [34](plan/ip/IP-34-kurum-ici-kurulum.md) | Kurum içi kurulum ve yerel model | 6 | inceleme | 26 |
+| [34](plan/ip/IP-34-kurum-ici-kurulum.md) | Kurum içi kurulum ve yerel model | 6 | askıda (sponsor) | 26 |
 | [35](plan/ip/IP-35-kurum-acilisi.md) | Kurum açılışı, kurulum sihirbazı, kurum anahtarı fabrikası | 6 | tamam | 09, 12, 23 |
 | [36](plan/ip/IP-36-isci-calisma.md) | İşçi giriş noktası, zamanlanmış işler, gerçek veri kipi | 6 | tamam | 10, 14, 35 |
 | [37](plan/ip/IP-37-arastirma-ve-paket.md) | Web araştırma, Bologna eksik giderme, Word paketi | 7 | tamam | 03, 10, 15, 16 |
@@ -177,7 +179,7 @@ Durumlar: **hazır** (başlanabilir), **devam**, **inceleme**, **tamam**, **bekl
 | [43](plan/ip/IP-43-sinav-kagidi-taramasi.md) | Toplu sınav kağıdı taraması (yerel model) | 8 | tamam | 10, 06 |
 | [44](plan/ip/IP-44-cumleden-kanita.md) | Cümleden kanıta tek tık, rapor dil denetimi | 8 | tamam | 19, 20 |
 | [45](plan/ip/IP-45-hesapsiz-belge-isteme.md) | İdari birimlerden hesapsız belge isteme | 8 | tamam | 10, 14 |
-| [46](plan/ip/IP-46-toplantidan-tutanaga.md) | Toplantıdan tutanağa ve EBYS taslağına akış | 8 | bekliyor | 18, 23 |
+| [46](plan/ip/IP-46-toplantidan-tutanaga.md) | Toplantıdan tutanağa ve EBYS taslağına akış | 8 | askıda (sponsor) | 18, 23 |
 | [47](plan/ip/IP-47-program-akreditasyonu-tablolari.md) | Program akreditasyonu tablo dönüştürücüsü | 8 | tamam | 11, 19 |
 | [48](plan/ip/IP-48-saha-ziyareti-hazirligi.md) | Saha ziyareti hazırlık simülatörü | 8 | tamam | 22 |
 | [49](plan/ip/IP-49-acik-mcp.md) | Herkese açık Akredit MCP sunucusu ve tanıtımı | 8 | inceleme | 25, 42 |

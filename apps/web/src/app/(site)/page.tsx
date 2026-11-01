@@ -1,3 +1,4 @@
+import { ACIK_ARACLAR } from "@akredit/acik-mcp";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { dugmeSinifi } from "../../bilesenler/dugme.tsx";
@@ -16,6 +17,7 @@ import {
   VAAT_CERCEVESI,
 } from "../../site/icerik.ts";
 import { OnayOnizleme } from "../../site/onay-onizleme.tsx";
+import { PlatformDurumu } from "../../site/platform-durumu.tsx";
 import { sayfaUstVerisi } from "../../site/yapisal.ts";
 
 export const metadata: Metadata = sayfaUstVerisi(SAYFALAR.ana);
@@ -47,6 +49,7 @@ const DAYANAKLAR: DayanakKaynagi[] = [
 
 const yokak = yokakOzeti();
 const DOKUNUS = DONEM_AKISI.reduce((t, a) => t + a.dokunus, 0);
+const MCP_ADRESI = "https://akredit.org/mcp";
 const BAG = "font-semibold text-vurgu underline underline-offset-4";
 
 /** İlk ekranın arkasındaki on iki sütunluk ince ızgara: yönetmelik ve rapor sayfasının dizgi ızgarası. Süstür. */
@@ -76,35 +79,29 @@ export default function AnaSayfa() {
             <p className="sayilar flex items-baseline gap-3 text-soluk">
               {/* Bölüm işareti ve numarası bölünmez boşlukla bağlıdır; dar ekranda satıra kırılmaz (İP-42). */}
               <span className="paragraf-no shrink-0 whitespace-nowrap text-lg" aria-hidden>
-                {"§ 0"}
+                {"§ 0"}
               </span>
-              <span className="text-lg">Üniversiteler için açık kaynak kalite güvencesi ve akreditasyon yazılımı.</span>
+              <span className="text-lg">Ücretsiz, hesapsız, kendi yapay zekânızla. Yalnız okur ve hesaplar.</span>
             </p>
-            <h1 className="mt-6 text-[2.6rem] leading-[1.03] tracking-[-0.03em] text-vurgu sm:text-[3.9rem] xl:text-[4.35rem]">
+            <h1 className="mt-6 text-[2.4rem] leading-[1.05] tracking-[-0.03em] text-vurgu sm:text-[3.5rem] xl:text-[3.9rem]">
               {SAYFALAR.ana.baslik}
             </h1>
-            <p className="mt-5 font-serif text-[1.5rem] leading-snug font-semibold text-metin sm:text-[1.85rem]">
-              {VAAT_CERCEVESI}
-            </p>
-            <p className="mt-5 max-w-[56ch] text-lg">
-              Akredit kanıtı kurumun sistemlerinden toplar, sayıları hesaplar, raporu yazar ve süreci takip eder. Kanıtı
-              olmayan olgusal cümle rapora girmez, EKSİK olarak işaretlenir.
-              <Dayanak n={1} /> Öğretim elemanına sıfır evrak işi kalır: önüne gelen karara kanıtıyla bakar ve tek
-              dokunuşla karar verir. Olgunluk düzeyi ve dış kuruma gönderim gibi kararlar hiçbir zaman otomatik
-              verilmez.
-              <Dayanak n={2} />
+            <p className="mt-6 max-w-[56ch] text-lg">
+              Claude, ChatGPT, Cursor ya da VS Code'a tek bir adres ekleyin:{" "}
+              <code className="rounded-sm border border-cizgi bg-zemin px-1.5 py-0.5 font-mono text-[0.92em] break-all">
+                {MCP_ADRESI}
+              </code>
+              . Asistanınız YÖKAK, MÜDEK, FEDEK, EPDAD ve SABAK ölçütlerinin resmî metnine kaynağıyla bakar. Bologna
+              ders bilgisini ve rapor dilini denetler, anonim puan tablosundan ÇK ve PÇ sağlanma düzeyini hesaplar.
+              <Dayanak n={6} />
             </p>
             <p className="mt-4 max-w-[56ch] text-soluk">
-              İlk etapta ücretsizdir. Yapay zekâ için kurum kendi OpenRouter anahtarını bir kez girer; kullanım ücreti
-              kurumun hesabına yansır.
-              <Dayanak n={3} />
+              Hesap açmanız gerekmez, ücret yoktur. Araçlar karar vermez, imza atmaz, bir yere göndermez. Kişisel veri
+              göndermeyin: sunucu görürse işlemi yapmaz.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
-              <Link href="/pilot" className={dugmeSinifi("birincil", "orta", "rounded-sm")}>
-                Pilot kurum olun
-              </Link>
-              <Link href="/nasil-calisir" className={`inline-flex min-h-11 items-center ${BAG}`}>
-                Nasıl çalıştığını okuyun
+              <Link href="/mcp-kullan" className={dugmeSinifi("birincil", "orta", "rounded-sm")}>
+                Yapay zekânıza ekleyin
               </Link>
               <Link href="/deneyin" className={`inline-flex min-h-11 items-center ${BAG}`}>
                 Hesap açmadan deneyin
@@ -114,7 +111,63 @@ export default function AnaSayfa() {
               </Link>
             </div>
           </div>
-          <div className="lg:col-span-5 lg:mt-20">
+          <div className="lg:col-span-5 lg:mt-16">
+            <h2 className="text-xl font-semibold text-metin">Araçlar</h2>
+            <ul className="mt-3 border-b border-cizgi">
+              {ACIK_ARACLAR.map((a) => (
+                <li key={a.ad} className="border-t border-cizgi py-2">
+                  {a.baslik}
+                </li>
+              ))}
+            </ul>
+            <div className="mt-8">
+              <PlatformDurumu />
+            </div>
+          </div>
+          <Olculer
+            className="lg:col-span-12"
+            ogeler={[
+              { deger: yokak.olcutSayisi, ad: "YÖKAK ölçütü, resmî metinden", dayanak: 6, tekrar: true },
+              { deger: yokak.altOlcutSayisi, ad: "alt ölçüt, resmî metinden", dayanak: 6, tekrar: true },
+              { deger: ACIK_ARACLAR.length, ad: "araç, ücretsiz ve hesapsız" },
+            ]}
+          />
+        </div>
+      </section>
+
+      <Bolum
+        id="platform"
+        baslik="Platform"
+        not="Yazılım tamamlandı ve açık kaynak. Barındırılan hizmet sponsor bulunana kadar askıda."
+        zemin
+      >
+        <div className="grid gap-x-10 gap-y-8 xl:grid-cols-[1fr_22rem]">
+          <div>
+            <p className="font-serif text-[1.5rem] leading-snug font-semibold text-metin sm:text-[1.75rem]">
+              {VAAT_CERCEVESI}
+            </p>
+            <p className="mt-5 max-w-[60ch] text-lg">
+              Akredit platformu kanıtı kurumun sistemlerinden toplar, sayıları hesaplar, raporu yazar ve süreci takip
+              eder. Kanıtı olmayan olgusal cümle rapora girmez, EKSİK olarak işaretlenir.
+              <Dayanak n={1} /> Öğretim elemanı önüne gelen karara kanıtıyla bakar ve tek dokunuşla karar verir.
+              Olgunluk düzeyi ve dış kuruma gönderim gibi kararlar hiçbir zaman otomatik verilmez.
+              <Dayanak n={2} />
+            </p>
+            <p className="mt-4 max-w-[60ch] text-soluk">
+              Yazılım ücretsizdir. Kendi kurulumunuzda yapay zekâ için kurum kendi OpenRouter anahtarını bir kez girer;
+              kullanım ücreti kurumun hesabına yansır.
+              <Dayanak n={3} /> Kurumlara akredit.org üzerinden barındırılan hizmet sponsor bulunana kadar sunulmuyor.
+              Demoyu hesap açmadan deneyebilir, yazılımı kendi sunucunuza kurabilirsiniz.
+            </p>
+            <Olculer
+              className="mt-8"
+              ogeler={[
+                { deger: AKIS.length, ad: "adım: kanıttan günlüğe", dayanak: 1, tekrar: true },
+                { deger: DOKUNUS, ad: "dokunuş: örnek bir dönemde hocaya kalan", dayanak: 5 },
+              ]}
+            />
+          </div>
+          <div>
             <OnayOnizleme />
             <p className="mt-3 text-sm text-soluk">
               Her karar adla, zamanla ve dayanağıyla günlüğe eklenir. Kayıt iz bırakmadan değiştirilemez: her değişiklik
@@ -122,17 +175,8 @@ export default function AnaSayfa() {
               <Dayanak n={4} />
             </p>
           </div>
-          <Olculer
-            className="lg:col-span-12"
-            ogeler={[
-              { deger: yokak.olcutSayisi, ad: "YÖKAK ölçütü, resmî metinden", dayanak: 6 },
-              { deger: yokak.altOlcutSayisi, ad: "alt ölçüt, resmî metinden", dayanak: 6, tekrar: true },
-              { deger: AKIS.length, ad: "adım: kanıttan günlüğe", dayanak: 1, tekrar: true },
-              { deger: DOKUNUS, ad: "dokunuş: örnek bir dönemde hocaya kalan", dayanak: 5 },
-            ]}
-          />
         </div>
-      </section>
+      </Bolum>
 
       <Bolum
         no={1}
@@ -261,7 +305,13 @@ export default function AnaSayfa() {
         </p>
       </Bolum>
 
-      <Bolum no={6} id="kazanc" baslik="Hedefi ölçerek koyun" not="Hedef yazılıdır, sonuç pilotta ölçülecek." zemin>
+      <Bolum
+        no={6}
+        id="kazanc"
+        baslik="Hedefi ölçerek koyun"
+        not="Hedef yazılıdır. Ölçüm, yazılımı kullanan bir kurumla yapılacak."
+        zemin
+      >
         <div className="metin-sayfa [&>*:first-child]:mt-0">
           <p>
             Bologna sayfası, ders dosyası, ÇK ve PÇ hesabı, anket analizi, tutanak ve öz değerlendirme raporu bugün
@@ -269,13 +319,11 @@ export default function AnaSayfa() {
           </p>
           <p>
             Hedef, öğretim elemanının dönemlik kalite işini yalnız kararlardan oluşan 15 dakikanın altına indirmektir.
-            Pilot uygulamada onay ekranında geçen süreyle ölçülecek, sonuç bu sitede yayımlanacak.
+            Bu hedef henüz ölçülmedi. Ölçüm pilot uygulamada onay ekranında geçen süreyle yapılacak. Pilot, barındırılan
+            hizmetle birlikte sponsor bulunana kadar askıda.
           </p>
           <p>
-            <Link href="/pilot" className={BAG}>
-              Pilot kurum olarak başvurun
-            </Link>
-            . Modüllerin bugünkü durumu{" "}
+            Modüllerin bugünkü durumu{" "}
             <Link href="/ne-yapar" className={BAG}>
               Ne yapar
             </Link>{" "}
@@ -288,34 +336,7 @@ export default function AnaSayfa() {
         </div>
       </Bolum>
 
-      <Bolum
-        no={7}
-        id="mcp"
-        baslik="Kendi yapay zekânızla kullanın"
-        not="Ücretsiz, hesapsız, salt okuma. Kurum verisine erişmez."
-      >
-        <div className="metin-sayfa [&>*:first-child]:mt-0">
-          <p>
-            Claude, ChatGPT, Cursor ya da VS Code'a tek bir adres ekleyin:{" "}
-            <code className="rounded-sm border border-cizgi bg-zemin px-1.5 py-0.5 font-mono text-[0.92em]">
-              https://akredit.org/mcp
-            </code>
-            . Asistanınız YÖKAK ölçütlerinin resmî metnine ve olgunluk düzeylerine kaynağıyla bakar, Bologna ders
-            bilgisini ve rapor dilini denetler, anonim puan tablosundan ÇK ve PÇ sağlanma düzeyini hesaplar.
-          </p>
-          <p>
-            Araçlar yalnız okur ve hesaplar; karar, imza ve gönderim yoktur. Kişisel veri göndermeyin: sunucu görürse
-            işlemi yapmaz. Kanıta bağlı rapor ve onay kutusu kurumun panelinde çalışır.
-          </p>
-          <p>
-            <Link href="/mcp-kullan" className={BAG}>
-              Araçlar ve ekleme adımları
-            </Link>
-          </p>
-        </div>
-      </Bolum>
-
-      <Bolum no={8} id="sayfalar" baslik="Ayrıntıları okuyun" zemin>
+      <Bolum no={7} id="sayfalar" baslik="Ayrıntıları okuyun">
         <ul className="grid gap-x-10 sm:grid-cols-2">
           {[
             SAYFALAR.neYapar,
