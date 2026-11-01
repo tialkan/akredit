@@ -88,7 +88,7 @@ export default function AnaSayfa() {
             </h1>
             <p className="mt-6 max-w-[56ch] text-lg">
               Claude, ChatGPT, Cursor ya da VS Code'a tek bir adres ekleyin:{" "}
-              <code className="rounded-sm border border-cizgi bg-zemin px-1.5 py-0.5 font-mono text-[0.92em] break-all">
+              <code className="rounded-sm border border-cizgi bg-zemin px-1.5 py-0.5 font-mono text-[0.92em] whitespace-nowrap">
                 {MCP_ADRESI}
               </code>
               . Asistanınız YÖKAK, MÜDEK, FEDEK, EPDAD ve SABAK ölçütlerinin resmî metnine kaynağıyla bakar. Bologna
