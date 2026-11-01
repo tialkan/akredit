@@ -1,6 +1,6 @@
 # İP-23: Bağlayıcılar II
 
-- **Durum:** inceleme
+- **Durum:** askıda (sponsor)
 - **Faz:** 4
 - **Bağımlılık:** İP-05, İP-10
 - **Sahip olduğu yollar:** `packages/baglayicilar/src/{avesis,yokatlas,ubys,ebys,eposta,bulut}/**`, `docs/raporlar/IP-23.md`
@@ -34,3 +34,4 @@ Canlı sayfa yapısına erişim gerekir; bulut ortamında ağ kısıtlıysa kull
 - 2026-10-27: Uygulandı (dal `ip/23-baglayicilar-2`). AVESİS (açık profil + tarayıcı ajanı arayüzü), YÖK Atlas (genel bilgiler paneli, doluluk deterministik), UBYS/OBS not listesi, EBYS (e-Yazışma paketi + evrak listesi), ham MIME ayrıştırıcı + IMAP (XOAUTH2, EXAMINE, BODY.PEEK), Google Drive / OneDrive eşitleme, AES-256-GCM belirteç kasası ve yenileme. Ortak hız sınırlayıcı ve kullanım koşulu notu (`avesis/istek.ts`). 43 yeni test, ağsız. Testler ve kayıtlı örnekler sahiplik kuralı gereği `src/<bağlayıcı>/` altında. Kurumların kullanım koşulları ve sayfa yapıları DOĞRULANMADI; canlı örnek ölçütü açık. Ayrıntı: `docs/raporlar/IP-23.md`.
 - 2026-10-28: Canlı doğrulama (dal `ip/23-canli-dogrulama`). EBYÜ canlı sayfalarına göre Bologna (sayısal ders kodu, TYYÇ 14/12 satır, başlıksız alan yüzdesi, e-posta ayıklama; CLI'ye de aynı düzeltme), YÖK Atlas (JSON API, doluluk null) ve AVESİS (yeni seçiciler, araştırma alanları DOĞRULANMADI) güncellendi. Yapılar doğrulandı, kullanım koşulları DOĞRULANMADI. Ayrıntı: `docs/raporlar/IP-23.md`.
 - 2026-10-30 (inceleme kapanışı, dal `inceleme/kapanis`): Bağımsız inceleme. Bologna, YÖK Atlas ve AVESİS yapıları 2026-10-28'de canlı sayfalardan doğrulandı. İnsan bekleyen: UBYS/OBS dışa aktarımı, EBYS (e-Yazışma paketi, evrak listesi), IMAP kutusu, Google Drive ve OneDrive için kurumdan alınmış anonimleştirilmiş canlı örnek; kurum sistemlerinin kullanım koşullarının okunması. Bu ortamda ağ kapalı. Durum inceleme.
+- 2026-11-01 (kurucu kararı, ADR 0008): Barındırılan kurum hizmeti sponsor bulunana kadar askıda. Bu İP'nin kalan işi barındırmaya ve insana bağlı olduğundan durum askıda (sponsor). Kod silinmedi; geri açma koşulu ADR'de.

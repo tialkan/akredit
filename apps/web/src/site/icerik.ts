@@ -38,10 +38,10 @@ export const SAYFALAR = {
   ana: {
     yol: "/",
     ad: "Ana sayfa",
-    baslik: "Akreditasyon dosyasını sistem hazırlar. Siz yalnız onaylarsınız.",
-    title: "Akredit: kalite ve akreditasyon işlerini kanıtla hazırlayan açık kaynak platform",
+    baslik: "Akreditasyon ölçütleri ve denetimleri, kendi yapay zekânızda.",
+    title: "Akredit: akreditasyon ölçütleri ve denetimleri kendi yapay zekânızda, ücretsiz ve hesapsız",
     aciklama:
-      "Akredit akreditasyon dosyasını kanıttan hazırlar: toplar, hesaplar, yazar, takip eder. Hocaya sıfır evrak işi kalır; beyan ve karar yetkili kişidedir.",
+      "akredit.org/mcp adresini yapay zekânıza ekleyin: YÖKAK, MÜDEK, FEDEK, EPDAD, SABAK ölçütleri, Bologna denetimi, ÇK/PÇ hesabı, dil denetimi. Platform açık kaynaktır.",
   },
   neYapar: {
     yol: "/ne-yapar",
@@ -120,7 +120,8 @@ export const SAYFALAR = {
     ad: "İletişim",
     baslik: "İletişim",
     title: "İletişim",
-    aciklama: "Akredit proje sahibine ulaşma yolu, pilot uygulama durumu ve güvenlik açığı bildirimi.",
+    aciklama:
+      "Akredit proje sahibine ulaşma yolu, sponsorluk ve barındırılan hizmetin durumu, güvenlik açığı bildirimi.",
   },
   mcpKullan: {
     yol: "/mcp-kullan",
@@ -166,7 +167,7 @@ export const SAYFALAR = {
     baslik: "Kurumunuzu açın",
     title: "Kurumunuzu açın: kurumsal e-postayla doğrulama ve kurulum sihirbazı",
     aciklama:
-      "Akredit'te kurumunuzu teknik yardım almadan açın: kurumsal e-posta doğrulaması, OpenRouter anahtarı, Bologna'dan program ve ders önerisi, hocaların daveti.",
+      "Kurum açma adımları: kurumsal e-posta doğrulaması, OpenRouter anahtarı, Bologna'dan program önerisi, hocaların daveti. Barındırılan hizmet şu an askıda.",
   },
   yolHaritasi: {
     yol: "/yol-haritasi",
@@ -178,11 +179,11 @@ export const SAYFALAR = {
   },
   pilot: {
     yol: "/pilot",
-    ad: "Pilot başvurusu",
-    baslik: "Pilot kurum olun",
-    title: "Pilot başvurusu: Akredit'i kurumunuzda gerçek veriyle deneyin",
+    ad: "Pilot uygulama",
+    baslik: "Pilot uygulama",
+    title: "Pilot başvurusu: barındırılan hizmet sponsor bulunana kadar askıda",
     aciklama:
-      "Akredit'i kurumunuzda gerçek veriyle deneyen ilk kurumlardan olun. Kurum, birim, rol ve hangi süreçle başlamak istediğinizi yazın; size dönüş yapılır.",
+      "Pilot uygulama ve barındırılan kurum hizmeti sponsor bulunana kadar askıda. Yazılım hazır ve açık kaynak; demo açık, kurum kendi sunucusuna kurabilir.",
   },
   belgeler: {
     yol: "/belgeler",
@@ -230,9 +231,22 @@ export const ALT_MENU: { baslik: string; sayfalar: SayfaBilgisi[] }[] = [
   { baslik: "Proje", sayfalar: [SAYFALAR.acikKaynak, SAYFALAR.iletisim] },
 ];
 
-// Dayanak: İP-35 (kurum açılışı, kurulum sihirbazı, davet uçtan uca testli). Panel sayfaları örnek kipte derlenir.
+// Dayanak: kurucu kararı 2026-11-01 (docs/adr/0008). Barındırma bayrağı: src/site/barindirma.ts.
 export const DURUM_NOTU =
-  "Akredit geliştirme aşamasındadır. Kurum açılışı, kurulum sihirbazı ve hoca daveti çalışır. Panel kurumun kendi kayıtlarıyla açılır. Arka plan işleri kendiliğinden çalışır: gelen belgeler okunur ve ölçüt önerisi onayınıza düşer, süreç hatırlatmaları gider. Panelden toplu belge yükleme ve bağlayıcıları açma ekranları henüz yok.";
+  "Platform tamamlandı ve açık kaynaktır. Kurumlara barındırılan hizmet, sponsor bulunana kadar sunulmuyor. Demo ve kendi yapay zekânızla kullanılan araçlar açık.";
+
+/** Ana sayfadaki ve askıdaki sayfalardaki "Durum" notu (kurucu kararı 2026-11-01). Sade, kısa maddeler. */
+export const PLATFORM_DURUMU: string[] = [
+  "Platform tamamlandı. Yazılım açık kaynaktır (Apache-2.0).",
+  "İsteyen kurum yazılımı kendi sunucusuna kurabilir.",
+  "Demo açık: uydurma veriyle kurulmuş Örnek Üniversitesi'ni hesap açmadan deneyebilirsiniz.",
+  "Kurumlara barındırılan hizmet sponsor bulunana kadar sunulmuyor. Kurum açma, pilot başvurusu ve kurum girişi şimdilik kapalı.",
+  "Gerçek kurum verisiyle pilot henüz yapılmadı.",
+];
+
+/** Sponsor çağrısı. İletişim kanalı /iletisim sayfasındakidir; yeni adres yazılmaz. */
+export const SPONSOR_CAGRISI =
+  "Barındırma giderini üstlenip hizmetin kurumlara açılmasını sağlamak isterseniz iletişim sayfasındaki kanaldan yazın.";
 
 /**
  * "Kurumunuzu açın" adımları. Dayanak: apps/web/src/kimlik/kurum-acilisi.ts, packages/servis/src/kurum-acilisi.ts,
@@ -331,12 +345,12 @@ export type ModulDurumu = "yayinda" | "pilotta" | "yapimda";
 export const DURUM_ADI: Record<ModulDurumu, { ad: string; anlam: string }> = {
   yayinda: {
     ad: "Yayında",
-    anlam: "Kurumunuzu açınca panelde kullanılır. Otomatik testlerle sınanır.",
+    anlam: "Yazılımda çalışır, demoda ve kendi kurulumunuzda kullanılır. Otomatik testlerle sınanır.",
   },
   pilotta: {
     ad: "Pilotta doğrulanıyor",
     anlam:
-      "Yazıldı ve kayıtlı örneklerle sınandı. Gerçek kurum verisiyle doğrulaması pilot uygulamada yapılacak ya da bir ekranı eksik.",
+      "Yazıldı ve kayıtlı örneklerle sınandı. Gerçek kurum verisiyle doğrulaması henüz yapılmadı ya da bir ekranı eksik.",
   },
   yapimda: {
     ad: "Yapım aşamasında",
@@ -735,7 +749,7 @@ export const SSS: { soru: string; cevap: string }[] = [
   {
     soru: "Akredit ücretli mi?",
     cevap:
-      "İlk etapta ücretsizdir. Yapay zekâ kullanımının ücreti, kurumun kendi OpenRouter hesabına yansır. Kurum içi model kullanan kurum için bu ücret yoktur.",
+      "Yazılım ücretsiz ve açık kaynaktır. Kendi yapay zekânızla kullanılan araçlar da ücretsizdir, hesap gerekmez. Kendi kurulumunuzda yapay zekâ ücreti kurumun OpenRouter hesabına yansır; kurum içi model kullanılırsa bu ücret yoktur.",
   },
   {
     soru: "Akredit akreditasyon almamızı sağlar mı?",
@@ -770,7 +784,7 @@ export const SSS: { soru: string; cevap: string }[] = [
   {
     soru: "Şu an kullanabilir miyiz?",
     cevap:
-      "Kurumunuzu Kurumunuzu açın sayfasından açabilir, kurulum sihirbazıyla birim, program ve hocaları tanımlayabilirsiniz. Belge işleme, süreç hatırlatmaları ve düzenli eşitlemeler arka planda kendiliğinden çalışır. Geliştirme sürüyor: bağlayıcıları açma ve toplu belge yükleme ekranları henüz yok, bağlayıcılar canlı kurum sistemlerinde pilotla denenmedi.",
+      "Üç yol var. Ölçüt ve denetim araçlarını kendi yapay zekânıza ekleyip hemen kullanabilirsiniz. Demoyu hesap açmadan deneyebilirsiniz. Yazılımı kendi sunucunuza kurabilirsiniz. Kurumlara barındırılan hizmet sponsor bulunana kadar sunulmuyor; kurum açma ve pilot başvurusu kapalı.",
   },
   {
     soru: "Web araması nasıl çalışır, ne kadar tutar?",
@@ -785,12 +799,12 @@ export const SSS: { soru: string; cevap: string }[] = [
   {
     soru: "MÜDEK ya da başka program akreditasyonları destekleniyor mu?",
     cevap:
-      "Henüz değil. MÜDEK için resmî belge kütüphaneye eklenmedi, ölçüt ağacı boştur. Ölçüt metni hafızadan yazılmadığı için belge alınmadan eklenmeyecek.",
+      "Evet. MÜDEK, FEDEK, EPDAD ve SABAK ölçütleri resmî belgelerinden alınmıştır; kaynak belge, sayfa ve dosya özetiyle gelir. Belgeden alınamayan metin DOĞRULANMADI olarak gösterilir, hafızadan yazılmaz.",
   },
   {
     soru: "Hesap nasıl açılır?",
     cevap:
-      "Kurumun ilk yöneticisi, kurumsal e-postasını doğrulayarak kurumu açar. Diğer herkes davetle katılır: yönetici sizi kurumsal e-posta adresinizle davet eder. Parola yoktur.",
+      "Kendi kurulumunuzda kurumun ilk yöneticisi kurumsal e-postasını doğrulayarak kurumu açar, diğer herkes davetle katılır. Parola yoktur. akredit.org'da kurum açma, barındırılan hizmet askıda olduğu için kapalıdır.",
   },
 ];
 
@@ -1127,8 +1141,11 @@ export const KONUM_TABLOSU: { sistem: string; baglanti: string; sinir: string }[
 
 // ---------------------------------------------------------------- Yol haritası (İP-42)
 
-/** plan.md §8, İP-38…49, sade dille. Dalga plan tablosundaki durumdan alınmıştır (2026-10-30). */
-export const YOL_HARITASI: { no: number; ad: string; metin: string; dalga: "tamam" | "simdi" | "sonra" }[] = [
+/** Yol haritası dalgaları; "askida": barındırılan hizmete bağlı, sponsor bulunana kadar bekleyen iş (ADR 0008). */
+export type YolDalgasi = "tamam" | "simdi" | "sonra" | "askida";
+
+/** plan.md §8, İP-38…49, sade dille. Dalga plan tablosundaki durumdan alınmıştır (2026-11-01). */
+export const YOL_HARITASI: { no: number; ad: string; metin: string; dalga: YolDalgasi }[] = [
   {
     no: 38,
     ad: "Sessiz devir",
@@ -1184,7 +1201,7 @@ export const YOL_HARITASI: { no: number; ad: string; metin: string; dalga: "tama
     no: 46,
     ad: "Toplantıdan tutanağa",
     metin: "Toplantı kaydından tutanak taslağı ve EBYS yazısı taslağı hazırlanır.",
-    dalga: "sonra",
+    dalga: "askida",
   },
   {
     no: 47,

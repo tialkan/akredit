@@ -9,7 +9,7 @@ export default function Iletisim() {
   return (
     <>
       <YapisalVeri sayfa={SAYFALAR.iletisim} />
-      <SayfaBasi sayfa={SAYFALAR.iletisim} ozet="Görüş, pilot katılımı ve güvenlik bildirimleri için." />
+      <SayfaBasi sayfa={SAYFALAR.iletisim} ozet="Görüş, sponsorluk ve güvenlik bildirimleri için." />
       <Bolum id="sahip" baslik="Proje sahibi">
         <Metin>
           <p>
@@ -17,9 +17,15 @@ export default function Iletisim() {
           </p>
         </Metin>
       </Bolum>
-      <Bolum id="pilot" baslik="Pilot uygulama" zemin>
+      <Bolum id="sponsor" baslik="Sponsorluk" zemin>
         <Metin>
-          <p>Pilot uygulama için başvuru yolu henüz açılmadı. Açıldığında bu sayfada duyurulacak.</p>
+          <p>
+            Platform tamamlandı ve açık kaynaktır. Kurumlara barındırılan hizmet, pilot uygulama ve kurum açma sponsor
+            bulunana kadar askıda.
+          </p>
+          <p>
+            Barındırma giderini üstlenip hizmetin kurumlara açılmasını sağlamak isterseniz yukarıdaki kanaldan yazın.
+          </p>
         </Metin>
       </Bolum>
       <Bolum id="guvenlik" baslik="Güvenlik açığı bildirimi">

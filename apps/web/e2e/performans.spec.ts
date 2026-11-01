@@ -109,7 +109,7 @@ test.describe("yavaş 3G ve telefon", () => {
   test.use({ viewport: { width: 360, height: 740 }, isMobile: true, hasTouch: true });
 
   for (const [yol, baslik] of [
-    ["/", /onaylarsınız/i],
+    ["/", /yapay zekânızda/i],
     ["/giris", /giriş/i],
     ["/panel/onaylar", /onay/i],
   ] as const) {

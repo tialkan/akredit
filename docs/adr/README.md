@@ -10,3 +10,5 @@ Her önemli teknik ya da ürün kararı kısa bir kayıtla yazılır: bağlam, k
 | [0004](0004-sifir-is-yuku-ve-insan-karari.md) | "Sıfır iş yükü" ile insan kararının birlikte tasarlanması |
 | [0005](0005-turkce-alan-adlandirmasi.md) | Alan modelinde Türkçe (ASCII) adlandırma |
 | [0006](0006-dis-ornek-kanit-degildir.md) | Başka kurumdan örnek ayrı bir türdür ve kanıt değildir |
+| [0007](0007-sessiz-devir-ve-varsayilan-onay.md) | Sessiz devir ve süreli varsayılan onay |
+| [0008](0008-mcp-odagi-barindirma-askida.md) | Herkese açık MCP odağı, barındırılan hizmetin askıya alınması |

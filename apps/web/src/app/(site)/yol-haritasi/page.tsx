@@ -10,6 +10,11 @@ const DALGALAR = [
   { dalga: "simdi", baslik: "Şimdi yapılanlar", not: "Bu işler sürüyor." },
   { dalga: "sonra", baslik: "Sıradakiler", not: "Şimdiki işler bitince başlar." },
   {
+    dalga: "askida",
+    baslik: "Askıdakiler",
+    not: "Barındırılan kurum hizmetine bağlı. Sponsor bulunana kadar bekliyor.",
+  },
+  {
     dalga: "tamam",
     baslik: "Tamamlananlar",
     not: "Kabul ölçütleri karşılandı. Pilot ve canlı kullanım ayrıca izlenir.",
@@ -54,9 +59,9 @@ export default function YolHaritasi() {
           >
             proje planında
           </a>
-          . Pilot uygulamaya katılmak için{" "}
+          . Barındırılan hizmetin durumu ve sponsor çağrısı{" "}
           <Link href="/pilot" className="font-semibold text-vurgu underline underline-offset-4">
-            başvurun
+            pilot sayfasında
           </Link>
           .
         </p>

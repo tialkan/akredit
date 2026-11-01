@@ -161,8 +161,10 @@ describe("İP-42: vaat, roller, durum, depo yolları", () => {
     for (const y of YOL_HARITASI) {
       const satir = plan.split("\n").find((s) => new RegExp(`^\\| \\[?${y.no}\\b`, "u").test(s)) ?? "";
       expect(satir, `İP-${y.no}`).not.toBe("");
-      // "Tamam": planda tamam; "şimdi": sürüyor ya da incelemede; "sonra": bekliyor ya da hazır.
+      // "Tamam": planda tamam; "şimdi": sürüyor ya da incelemede; "sonra": bekliyor ya da hazır;
+      // "askıda": barındırılan hizmete bağlı, sponsor bulunana kadar bekliyor (ADR 0008).
       expect(y.dalga === "tamam", `İP-${y.no}`).toBe(/\| tamam \|/u.test(satir));
+      expect(y.dalga === "askida", `İP-${y.no}`).toBe(/\| askıda \(sponsor\) \|/u.test(satir));
       expect(y.dalga === "simdi", `İP-${y.no}`).toBe(/\| (devam|inceleme) \|/u.test(satir));
       expect(y.dalga === "sonra", `İP-${y.no}`).toBe(/\| (bekliyor|hazır) \|/u.test(satir));
     }

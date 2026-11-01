@@ -1,6 +1,6 @@
 # İP-28: KVKK ve hukuk paketi
 
-- **Durum:** inceleme
+- **Durum:** askıda (sponsor)
 - **Faz:** 5
 - **Bağımlılık:** araştırma
 - **Sahip olduğu yollar:** `docs/hukuk/**`, `apps/web/src/app/(site)/{kvkk,gizlilik,kosullar}/**`, `docs/raporlar/IP-28.md`
@@ -33,3 +33,4 @@ Hukuki metinlerin son hali avukat onayı gerektirir; Akredit taslak üretir.
 - 2026-10-23: İP tanımlandı. Başlamadan önce kapsamı güncel mimariye göre ayrıntılandır.
 - 2026-10-27: `docs/hukuk/` altında taslak hukuk paketi yazıldı (kaynaklar, uyum analizi, veri işleme sözleşmesi şablonu, aydınlatma metinleri, gizlilik, çerez, kullanım koşulları, saklama-imha, envanter, VERBİS, yurt dışı aktarım). Mevzuat bilgileri web kaynaklarından erişim tarihiyle alındı; resmî metni okunamayanlar `DOĞRULANMADI`. Site: `/kvkk` güncellendi, `/gizlilik` ve `/kosullar` eklendi (taslak uyarılı). Karar: silme talebi = takma ad eşlemesi ve anahtarın silinmesi + günlüğe yeni kayıt. Kalan: avukat incelemesi; silme akışı kodu ve testi (`packages/vt`), kurum YZ ayarı ve kaydı, dışa aktarma, erişim günlüğü ekranı (İP yolları dışında, sonraki İP).
 - 2026-10-30 (inceleme kapanışı, dal `inceleme/kapanis`): Bağımsız inceleme. Silme ölçütü İP-40'ta karşılandı: `packages/vt/test/kriptografik-silme.test.ts` › "anahtar silinince şifreli değer çözülemez; günlük yalnız uzar, zincir sağlam" (işaretlendi). `pnpm verify` adımları temiz (işaretlendi). İnsan bekleyen: `docs/hukuk/` ve kurum hukuk paketinin bir avukatça incelenmesi. Durum inceleme.
+- 2026-11-01 (kurucu kararı, ADR 0008): Barındırılan kurum hizmeti sponsor bulunana kadar askıda. Bu İP'nin kalan işi barındırmaya ve insana bağlı olduğundan durum askıda (sponsor). Kod silinmedi; geri açma koşulu ADR'de.

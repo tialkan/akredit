@@ -1,4 +1,4 @@
-// İP-42 uçtan uca: pilot başvurusu gerçek arka uçla (boş PGlite, SMTP yok → kaydedilir, "alındı" döner),
+// İP-42 uçtan uca: pilot başvurusu (barındırma açık sunucuda, AKREDIT_BARINDIRMA=1; kapalısı barindirma.spec.ts) gerçek arka uçla (boş PGlite, SMTP yok → kaydedilir, "alındı" döner),
 // 375 px'te ana sayfa "§" işaretinin kırılmaması, sitede depo yolu görünmemesi ve 375/1440 ekran görüntüleri
 // (docs/tasarim/ekranlar/*-ip42-*.png).
 
@@ -20,7 +20,7 @@ test.describe("pilot başvurusu", () => {
 
   test("form doldurulur, sunucu kaydeder, 'alındı' gösterilir", async ({ page }) => {
     await page.goto("/pilot");
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Pilot kurum olun");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Pilot uygulama");
     await axe(page);
     await page.getByLabel("Kurumun adı").fill("Uydurma Pilot Üniversitesi");
     await page.getByLabel("Birim").fill("Mühendislik Fakültesi");

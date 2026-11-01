@@ -1,6 +1,6 @@
 # İP-08: Geliştirme altyapısı ve sürekli entegrasyon
 
-- **Durum:** inceleme
+- **Durum:** tamam
 - **Faz:** 1
 - **Bağımlılık:** yok
 - **Sahip olduğu yollar:** `.github/**`, `infra/gelistirme/**`, `docs/gelistirme.md`, `.env.ornek`, `docs/raporlar/IP-08.md`
@@ -34,3 +34,4 @@ CI iş akışı iskelette yazıldı (orkestratör). Docker ve geliştirme ortam�
 - 2026-10-23: İP tanımlandı. Başlamadan önce kapsamı güncel mimariye göre ayrıntılandır.
 - 2026-10-27: Önceki kısım: `ci.yml` (verify Node 22/24, web derlemesi, Playwright) orkestratörce yazılmıştı. Bu oturumda eklendi: CI'ya gerçek PostgreSQL 17 + pgvector işi (`infra/gelistirme/goc.ts`, `vt-sinama.ts`: eşzamanlı göç ve 40 bağlantıdan eşzamanlı günlük yazımı, `sira` boşluksuz, zincir doğrulanır; İP-02 raporunun isteği), Docker imaj işi (derleme, imaj dosya sisteminde gitleaks, kök olmayan kullanıcı denetimi), git geçmişinde gitleaks, bağımlılık incelemesi (yüksek önem, GPL/AGPL), `codeql.yml`, `dependabot.yml` (npm, actions, docker; haftalık, gruplu). `infra/gelistirme/docker-compose.yml` (PostgreSQL 17 + pgvector, `goc`, MinIO + nesne kilitli kova, Mailpit), `.env.ornek`, `web.Dockerfile`/`isci.Dockerfile` (çok aşamalı, `node` kullanıcısı, sağlık denetimi, ayrı `.dockerignore`), `docs/gelistirme.md`. Karar: Dockerfile'lar şimdilik `infra/gelistirme/` altında; üretim dağıtımı İP-26. Kalan: CI'nın ana dalda yeşil görülmesi, compose ve imajların Docker Hub erişimli bir makinede denenmesi.
 - 2026-10-30 (inceleme kapanışı, dal `inceleme/kapanis`): Bağımsız inceleme. Kod tarafı tamam (`pnpm check`, `pnpm typecheck`, testler temiz). İnsan bekleyen: GitHub Actions işleri ana dalda hiç başlamıyor: `gh run view 41038336154` "The job was not started because recent account payments have failed or your spending limit needs to be increased". Depo sahibinin GitHub faturalandırmasını düzeltmesi, sonra CI'nın yeşil görülmesi; `docker compose up` ve imaj derlemesinin Docker Hub erişimli makinede denenmesi. Durum inceleme.
+- 2026-11-01 (kurucu kararı): CI ana dalda yeşil (CI, Yayın, CodeQL işleri; `gh run` 41252100346, 2026-10-31). İmaj derlemesi ve gizli bilgi taraması CI `imajlar` işinde, göçler `postgres` işinde geçiyor. Durum tamam.

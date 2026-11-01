@@ -18,6 +18,9 @@ export const SUNUCU_ORTAMI: Record<string, string> = {
   AKREDIT_KIMLIK_GIZLI: "e2e-yalniz-test-icin-sabit-gizli-deger-0000",
   AKREDIT_VT_DIZIN: VT_DIZINI,
   AKREDIT_TEST_KIPI: "1",
+  // Ana test sunucusu barındırılan hizmeti açık sınar (kurum açılışı, pilot formu). Kapalı varsayılan, ayrı bir
+  // sunucuda (KAPALI_ORTAMI) sınanır (ADR 0008).
+  AKREDIT_BARINDIRMA: "1",
   // Panel sayfaları örnek veriyle sınanır; derleme de `AKREDIT_ORNEK_VERI=1` ile yapılmalı (ci.yml).
   AKREDIT_ORNEK_VERI: "1",
   AKREDIT_TEST_EPOSTA_DIZINI: EPOSTA_DIZINI,
@@ -27,4 +30,21 @@ export const SUNUCU_ORTAMI: Record<string, string> = {
   AKREDIT_BOLOGNA_YEREL_IZIN: "1",
   // 32 baytlık sabit test anahtarı (base64). Gerçek bir kurulumda kullanılmaz.
   AKREDIT_ANAHTAR_KASASI: Buffer.alloc(32, 7).toString("base64"),
+};
+
+/**
+ * Barındırma bayrağı kapalı (üretimdeki varsayılan) ikinci sunucu (ADR 0008). Aynı derlemeyi kullanır; kendi
+ * veritabanı dizini vardır, çünkü PGlite dizini tek süreçlidir.
+ */
+export const KAPALI_PORT = Number(process.env.E2E_KAPALI_PORT ?? PORT + 2);
+export const KAPALI_ADRESI = `http://localhost:${KAPALI_PORT}`;
+export const KAPALI_KOK = join(tmpdir(), `akredit-e2e-${KAPALI_PORT}`);
+export const KAPALI_ORTAMI: Record<string, string> = {
+  ...SUNUCU_ORTAMI,
+  AKREDIT_BARINDIRMA: "0",
+  AKREDIT_ADRES: KAPALI_ADRESI,
+  AKREDIT_VT_DIZIN: join(KAPALI_KOK, "vt"),
+  AKREDIT_TEST_EPOSTA_DIZINI: join(KAPALI_KOK, "eposta"),
+  AKREDIT_DEPO_DIZINI: join(KAPALI_KOK, "kanit"),
+  E2E_KOK: KAPALI_KOK,
 };

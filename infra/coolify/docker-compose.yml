@@ -25,6 +25,9 @@ services:
       AKREDIT_ONAY_GIZLI: ${SERVICE_BASE64_64_ONAY}
       # İP-41: hesapsız deneme (/deneyin) ve sentetik Örnek Üniversitesi. Kapatmak için 0.
       AKREDIT_DEMO: ${AKREDIT_DEMO:-1}
+      # ADR 0008: barındırılan kurum hizmeti (kurum açma, pilot başvurusu, kurum girişi) sponsor bulunana kadar
+      # askıda. Varsayılan 0 (kapalı); 1 açar. Demo ve /mcp bu bayraktan etkilenmez.
+      AKREDIT_BARINDIRMA: ${AKREDIT_BARINDIRMA:-0}
       AKREDIT_ANKET_GIZLI: ${SERVICE_BASE64_64_ANKET}
       # İP-45: hesapsız belge isteme bağlantılarının HMAC anahtarı (Coolify üretir).
       AKREDIT_ISTEK_GIZLI: ${SERVICE_BASE64_64_ISTEK}

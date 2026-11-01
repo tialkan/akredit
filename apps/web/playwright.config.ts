@@ -1,7 +1,7 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { defineConfig, devices } from "@playwright/test";
-import { BOLOGNA_PORT, SUNUCU_ORTAMI } from "./e2e/yardim/ortam.ts";
+import { BOLOGNA_PORT, KAPALI_ORTAMI, KAPALI_PORT, SUNUCU_ORTAMI } from "./e2e/yardim/ortam.ts";
 
 // Bu ortamda tarayıcılar önceden kuruludur; indirme yapılmaz.
 process.env.PLAYWRIGHT_BROWSERS_PATH ??= "/opt/pw-browsers";
@@ -40,6 +40,14 @@ export default defineConfig({
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
       env: SUNUCU_ORTAMI,
+    },
+    // Barındırma bayrağı kapalı (üretim varsayılanı) aynı derleme: kurum açma, pilot ve giriş kapalı (ADR 0008).
+    {
+      command: `node e2e/yardim/hazirla.ts && pnpm exec next start -p ${KAPALI_PORT} -H 127.0.0.1`,
+      url: `http://127.0.0.1:${KAPALI_PORT}`,
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000,
+      env: KAPALI_ORTAMI,
     },
     {
       command: "node e2e/yardim/bologna-sunucu.ts",

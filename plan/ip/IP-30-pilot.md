@@ -1,6 +1,6 @@
 # İP-30: Pilot ve iş yükü ölçümü
 
-- **Durum:** bekliyor
+- **Durum:** askıda (sponsor)
 - **Faz:** 5
 - **Bağımlılık:** Faz 3 İP'leri
 - **Sahip olduğu yollar:** `docs/pilot/**`, `docs/raporlar/IP-30.md`
@@ -29,3 +29,4 @@ Pilot kurum izni ve etik onay gereksinimi (gerekirse) kullanıcı işidir.
 ## Günlük
 
 - 2026-10-23: İP tanımlandı. Başlamadan önce kapsamı güncel mimariye göre ayrıntılandır.
+- 2026-11-01 (kurucu kararı, ADR 0008): Barındırılan kurum hizmeti sponsor bulunana kadar askıda. Bu İP'nin kalan işi barındırmaya ve insana bağlı olduğundan durum askıda (sponsor). Kod silinmedi; geri açma koşulu ADR'de.
