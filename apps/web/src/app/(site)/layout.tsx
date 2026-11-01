@@ -84,16 +84,18 @@ export default function SiteYerlesimi({ children }: { children: ReactNode }) {
               <div key={g.baslik}>
                 <h2 className="font-semibold text-metin">{g.baslik}</h2>
                 <ul className="mt-2">
-                  {g.sayfalar.map((s) => (
-                    <li key={s.yol}>
-                      <Link
-                        href={s.yol}
-                        className="inline-flex min-h-8 items-center text-soluk underline-offset-4 hover:text-vurgu hover:underline"
-                      >
-                        {s.ad}
-                      </Link>
-                    </li>
-                  ))}
+                  {g.sayfalar
+                    .filter((s) => barindirmaAcik() || s.yol !== "/kurum-ac")
+                    .map((s) => (
+                      <li key={s.yol}>
+                        <Link
+                          href={s.yol}
+                          className="inline-flex min-h-8 items-center text-soluk underline-offset-4 hover:text-vurgu hover:underline"
+                        >
+                          {s.ad}
+                        </Link>
+                      </li>
+                    ))}
                 </ul>
               </div>
             ))}
