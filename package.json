@@ -20,7 +20,7 @@
     "verify": "pnpm check && pnpm typecheck && pnpm test"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.6.2",
+    "@biomejs/biome": "^2.6.4",
     "@types/node": "^22.18.0",
     "typescript": "~6.0.3",
     "vitest": "^4.1.12"
