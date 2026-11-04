@@ -42,6 +42,8 @@ export interface AcikArac<S extends z.ZodObject = z.ZodObject> {
    * yalnız atılan alanların adları döner. Ayıklamadan sonra kalan girdi yine denetlenir.
    */
   onAyikla?: (girdi: unknown) => { girdi: unknown; atilan: string[] };
+  /** Künye kuralıyla denetlenen alan adları: altındaki yazar adları kişisel veri sayılmaz (e-posta, telefon yine sayılır). */
+  kunyeAlanlari?: readonly string[];
   calistir: (girdi: z.infer<S>, b: AracBaglami) => AracSonucu;
 }
 
