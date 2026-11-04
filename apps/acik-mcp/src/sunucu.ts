@@ -4,17 +4,20 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { ACIK_ARACLAR, type AcikArac, AKREDIT_NOTU, type AracBaglami, AracHatasi, DEPO } from "./araclar.ts";
-import { kisiselVeriIletisi, kisiselVeriTurleri } from "./kisisel-veri.ts";
+import { GIRIS_BILGISI_ILETISI, girisBilgisiVar, kisiselVeriIletisi, kisiselVeriTurleri } from "./kisisel-veri.ts";
 import { ACIK_ISTEMLER, type AcikIstem, istemSemasi } from "./promptlar.ts";
 
 export const SUNUCU_ADI = "akredit-acik";
-export const SUNUCU_SURUMU = "0.2.0";
+export const SUNUCU_SURUMU = "0.3.0";
 
 export const SUNUCU_TALIMATI = [
   "Akredit açık araçları öğretim elemanlarına kalite ve akreditasyon işlerinde yardım eder: Bologna ders paketi denetimi ve doldurma, öğrenme çıktısı yazma, ÇK/PÇ hesabı, YÖKAK ve program akreditasyonu (MÜDEK, FEDEK, SABAK, EPDAD) ölçüt ve kanıt rehberi, rapor dil denetimi.",
-  "Hoca ne yapacağını söylemediyse 'baslangic' istemindeki odak menüsünü göster. Her adımda kısa bir soru ve 2-3 numaralı seçenek ver; hoca tek rakam ya da harfle seçer; 'hepsi 1' gibi toplu onayı kabul et. Her yanıttaki sonrakiAdim önerisine uy.",
+  "Hoca ne yapacağını söylemediyse 'basla' istemindeki odak menüsünü göster ('baslangic' aynı istemdir).",
+  "Giriş bilgisi: hocadan kullanıcı adı, parola, doğrulama kodu ya da çerez asla isteme; hoca yazarsa kullanma, araçlara gönderme, silmesini ve parolasını değiştirmesini öner. Hoca giriş bilgisini yalnız OBS'nin kendi ekranına kendisi yazar. CAPTCHA'yı hoca çözer. OBS'de Kaydet ya da Gönder düğmesine hoca basar.",
+  "Tarayıcı aracın varsa OBS sayfasını okuyup formu doldurabilirsin; yoksa ya da engel çıkarsa engel_coz ve kurulum_yardimi araçlarının adımlarını hocaya sırayla, tek tek göster.",
+  "Seçenek verirken: Her adımda kısa bir soru ve 2-3 numaralı seçenek ver; hoca tek rakam ya da harfle seçer; 'hepsi 1' gibi toplu onayı kabul et. Her yanıttaki sonrakiAdim önerisine uy.",
   "Sunucu model çağırmaz ve metin üretmez: seçenekleri sen yazarsın, sunucu kural ve kalıp verir, denetler ve sayıları hesaplar. Sayıları yalnız araç sonucundan al.",
-  "Kişisel veri (ad, numara, e-posta, telefon) göndermeyin; görülürse çağrı reddedilir. Ölçüt metnini yalnız olcut_getir sonucundan alıntılayın; DOĞRULANMADI ya da 'Belgeden okunamadı' işaretli metni tahminle doldurmayın. Programın disiplinini kurum seçer. Kanıtı olmayan cümle EKSİK kalır. Kitap, kişi, tarih uydurmayın.",
+  "Kişisel veri (ad, numara, e-posta, telefon) göndermeyin; görülürse çağrı reddedilir. Kaynakçadaki yazar adları yayımlanmış künyedir, kaynak alanlarında serbesttir. Kaynak önerirken yalnız hocanın verdiği ya da kendi web aracınla doğruladığın eseri öner. Ölçüt metnini yalnız olcut_getir sonucundan alıntılayın; DOĞRULANMADI ya da 'Belgeden okunamadı' işaretli metni tahminle doldurmayın. Programın disiplinini kurum seçer. Kanıtı olmayan cümle EKSİK kalır. Kitap, kişi, tarih uydurmayın.",
   "Sunucu adres çekmez: Bologna sayfasını hoca yapıştırır ya da siz kendi web aracınızla okursunuz. Kayıt, onay ve gönderim hocadadır. Akredit'in YÖKAK ile bağı yoktur.",
 ].join(" ");
 
@@ -38,7 +41,9 @@ export function aracCalistir(
 ): { veri: Record<string, unknown>; hata: boolean } {
   const ayik = a.onAyikla ? a.onAyikla(girdi) : { girdi, atilan: [] as string[] };
   girdi = ayik.girdi;
-  const turler = kisiselVeriTurleri(girdi);
+  if (girisBilgisiVar(girdi))
+    return { veri: { hata: GIRIS_BILGISI_ILETISI, kod: "giris_bilgisi", not: AKREDIT_NOTU }, hata: true };
+  const turler = kisiselVeriTurleri(girdi, a.kunyeAlanlari);
   if (turler.length)
     return {
       veri: {

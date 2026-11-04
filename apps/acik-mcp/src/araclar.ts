@@ -25,7 +25,10 @@ import {
 import { type CkPcMatrisi, dersiOlc, HESAP_SURUMU } from "@akredit/olcme";
 import { z } from "zod";
 import { BOLOGNA_ARACLARI, bolognaDenetleAraci } from "./bologna.ts";
+import { kaynakBicimleAraci } from "./kaynak.ts";
+import { notTablosuAyristirAraci } from "./not-tablosu.ts";
 import { type AcikArac, AracHatasi, arac, DEPO, type Kaynak, KOD_KAYNAGI } from "./temel.ts";
+import { engelCozAraci, kurulumYardimiAraci } from "./yardim.ts";
 
 export * from "./temel.ts";
 
@@ -520,6 +523,10 @@ export const ACIK_ARACLAR: readonly AcikArac[] = [
   ozDegerlendirmeIskeleti,
   bolognaDenetleAraci,
   ...BOLOGNA_ARACLARI,
+  kaynakBicimleAraci,
+  notTablosuAyristirAraci,
   ckPcHesapla,
   raporDilDenetle,
+  kurulumYardimiAraci,
+  engelCozAraci,
 ] as unknown as readonly AcikArac[];

@@ -3,7 +3,11 @@
 
 export * from "./araclar.ts";
 export * from "./bologna.ts";
+export * from "./genel-ayristir.ts";
 export * from "./http.ts";
+export * from "./kaynak.ts";
 export * from "./kisisel-veri.ts";
+export * from "./not-tablosu.ts";
 export * from "./promptlar.ts";
 export * from "./sunucu.ts";
+export * from "./yardim.ts";

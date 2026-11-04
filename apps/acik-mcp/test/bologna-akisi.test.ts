@@ -56,11 +56,11 @@ const CIKTILAR = [
 ].map(([tr, tur], i) => ({ kod: `Ö${i + 1}`, tr, tur }));
 
 describe("istemler (prompts)", () => {
-  it("SDK istemcisi altı istemi listeler; başlangıç odak menüsünü ve ortak kuralları taşır", async () => {
+  it("SDK istemcisi yedi istemi listeler; basla odak menüsünü ve ortak kuralları taşır", async () => {
     const c = await baglan();
     const { prompts } = await c.listPrompts();
     expect(prompts.map((p) => p.name).sort()).toEqual(
-      ["baslangic", "bologna_doldur", "cikti_yaz", "ck_pc_hesabi", "dil_denetimi", "olcut_rehberi"].sort(),
+      ["basla", "baslangic", "bologna_doldur", "cikti_yaz", "ck_pc_hesabi", "dil_denetimi", "olcut_rehberi"].sort(),
     );
     for (const p of prompts) {
       expect(p.title).toBeTruthy();
@@ -68,8 +68,11 @@ describe("istemler (prompts)", () => {
       // Bütün bağımsız değişkenler isteğe bağlı: istem tek tıkla çalışır.
       for (const a of p.arguments ?? []) expect(a.required).toBeFalsy();
     }
-    const r = await c.getPrompt({ name: "baslangic", arguments: {} });
+    const r = await c.getPrompt({ name: "basla", arguments: {} });
     const metin = istemMetni(r);
+    // Geriye uyum: baslangic aynı metni verir, açıklaması "basla ile aynı" der.
+    expect(istemMetni(await c.getPrompt({ name: "baslangic", arguments: {} }))).toBe(metin);
+    expect(prompts.find((p) => p.name === "baslangic")?.description).toMatch(/^basla ile aynı/u);
     expect(metin).toContain("Bugün neye odaklanalım?");
     for (const n of [
       "1) Bologna",
@@ -86,7 +89,7 @@ describe("istemler (prompts)", () => {
 
   it("odak numarası verilince yalnız o akış döner; ders kodu metne girer ve sınırlanır", async () => {
     const c = await baglan();
-    const r = await c.getPrompt({ name: "baslangic", arguments: { odak: "1" } });
+    const r = await c.getPrompt({ name: "basla", arguments: { odak: "1" } });
     const metin = istemMetni(r);
     expect(metin).toContain("Odak: Bologna ders bilgi paketini denetle");
     expect(metin).not.toContain("Odak: ÇK ve PÇ");
@@ -178,7 +181,9 @@ describe("bologna_alan_rehberi", () => {
     expect(s.alanlar[0].sinir).toEqual({ enAzCikti: 8, enCokCikti: 12 });
     const y = calistir("bologna_alan_rehberi", { alan: "yetkililer" });
     expect(String(y.veri.sonrakiAdim)).toMatch(/kendisinin yazmasını/u);
-    expect(ALANLAR.kaynaklar.mcpTasir).toBe(false);
+    // Kaynaklar künyedir: MCP taşır. Yetkililer kişi adıdır: taşımaz.
+    expect(ALANLAR.kaynaklar.mcpTasir).toBe(true);
+    expect(ALANLAR.yetkililer.mcpTasir).toBe(false);
   });
 
   it("Bloom örnek fiilleriyle yazılan her çıktı taslak denetiminden geçer", () => {
@@ -318,7 +323,7 @@ describe("bologna_ayristir", () => {
   it("tablosuz metin açık iletiyle reddedilir; hoca adı olan canlı sayfa kişisel veri iletisiyle reddedilir", () => {
     const d = calistir("bologna_ayristir", { html: "Bu yalnız düz bir metindir, tablo yoktur." });
     expect(d.hata).toBe(true);
-    expect(String(d.veri.hata)).toMatch(/HTML kaynağını/u);
+    expect(String(d.veri.hata)).toMatch(/Sayfa tanınmadı/u);
   });
 
   it("gerçek sayfada kişi satırlarını ve e-postayı ayrıştırmadan önce atar, yanıtta yalnız alan adlarını söyler", () => {
@@ -327,10 +332,16 @@ describe("bologna_ayristir", () => {
     const atilan = String(canli.veri.atilanKisiselVeri);
     expect(atilan).toMatch(/Dersi Verenler/u);
     expect(atilan).toMatch(/Dersin Yardımcıları/u);
-    expect(atilan).toMatch(/Kaynaklar/u);
+    expect(atilan).not.toMatch(/Kaynaklar/u);
     const metin = JSON.stringify(canli.veri);
-    for (const ad of ["ÖRNEKOĞLU", "KURGUN", "hayal.kurgun", "Kurgu Yazar"]) expect(metin).not.toContain(ad);
-    expect(sonuc(canli).bolognaDenetleGirdisi.ders).toMatchObject({ akts: 6, tul: "4+0+0" });
+    for (const ad of ["ÖRNEKOĞLU", "KURGUN", "hayal.kurgun"]) expect(metin).not.toContain(ad);
+    // Kaynak künyesi atılmaz: yazar adı yayımlanmış künyedir.
+    expect(sonuc(canli).bolognaDenetleGirdisi.ders).toMatchObject({
+      akts: 6,
+      tul: "4+0+0",
+      kaynaklar: ["Kurgu Yazar, Kurgu Anayasa Hukuku Kitabı"],
+      kaynakSayisi: 1,
+    });
   });
 
   it("ayıklamadan sonra kalan kişisel veri yine reddedilir; telefon da atılır", () => {
