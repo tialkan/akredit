@@ -30,10 +30,12 @@ Herkes, hesap açmadan ve ücretsiz, kendi yapay zekâ asistanıyla (Claude, Cha
 - [x] Boyut, hız, CORS, GET davranışı (test).
 - [x] Site kuralları (em dash, yasak ifade, sol şerit) ve yol haritası testi geçer.
 - [ ] Canlı ortamda gerçek istemcilerle (Claude, ChatGPT, Cursor, VS Code) bağlantı denemesi.
-- [ ] npm yayını (kurucu kararı).
+- [x] npm yayını (`@akredit/acik-mcp`).
+- [x] Hoca akışı: MCP istemleri (`baslangic` ve beş odak) ve Bologna doldurma araçları, SDK istemcisiyle uçtan uca (test).
 
 ## Günlük
 
 - 2026-10-30: İP dosyası yazıldı ve uygulandı, durum inceleme. Ayrıntı: `docs/raporlar/IP-49.md`.
 - 2026-10-30 (kapanış): npm yayınına hazır derleme eklendi (`scripts/derle.ts`, `tsconfig.build.json`; iş alanı paketleri `dist`e gömülür, dış bağımlılık SDK ve zod; `publishConfig` ile `bin`/`exports` `dist`e). `pnpm pack` paketi `npx` ile stdio el sıkışması, araç listesi ve çağrıyla denendi; yayın yapılmadı. Ters vekilde hız sınırı notu: `docs/isletim/acik-mcp-hiz-siniri.md`. Kalan, insan işi: canlı istemcilerle bağlantı denemesi, npm kapsamı ve yayın kararı, vekil sınırının sunucuda kurulması. Durum inceleme.
 - 2026-10-31: npm sayfası için kısa Türkçe `apps/acik-mcp/README.md` yazıldı (araçlar, salt okuma notu, Claude, Claude Code, Cursor, VS Code ve yerel çalıştırma adımları, YÖKAK ile bağı olmadığı). Adımlar IP-49 raporundaki doğrulanmış belgelere dayanır; ChatGPT adımı tam doğrulanmadığı için README'ye alınmadı. Pakette `files` zaten `README.md` içerir.
+- 2026-11-04: Hoca gözünden eleştiri yazıldı (`docs/raporlar/mcp-hoca-deneyimi.md`). Sürüm 0.2.0: altı istem (`baslangic`, `bologna_doldur`, `cikti_yaz`, `ck_pc_hesabi`, `olcut_rehberi`, `dil_denetimi`); yeni araçlar `bologna_ayristir` (yapıştırılan Proliz HTML'i, ağsız), `bologna_alan_rehberi`, `bologna_taslak_denetle`, `bologna_kopya_metni`; `bologna_denetle` alan listesi; her yanıtta `sonrakiAdim`; kısa araç açıklamaları. Seçenekleri asistan üretir, sunucu kural verir, denetler, sayıları hesaplar. `@akredit/baglayicilar` yalnız `./bologna-ayristir` alt yoluyla dışa açıldı ve npm derlemesine gömüldü. /mcp-kullan ve README'ye İlk 2 dakika ve örnek konuşma eklendi; npm paketinin yayımlandığı yazıldı. Kalan: istemlerin ChatGPT ve Cursor'da canlı denenmesi.
