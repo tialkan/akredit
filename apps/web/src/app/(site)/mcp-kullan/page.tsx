@@ -10,9 +10,9 @@ export const metadata: Metadata = sayfaUstVerisi(SAYFALAR.mcpKullan);
 /** Herkese açık uç nokta. Araç ve istem listesi aşağıda doğrudan sunucunun kodundan okunur, elle yazılmaz. */
 const MCP_ADRESI = "https://akredit.org/mcp";
 
-/** Bologna doldurma örnek konuşması. Ders kurgudur; asistanın yanıtları kısaltılmıştır. */
+/** Bologna doldurma örnek konuşması. Ders, kurum ve kişiler kurgudur; asistanın yanıtları kısaltılmıştır. */
 const ORNEK_KONUSMA: { kim: "Hoca" | "Asistan"; metin: string }[] = [
-  { kim: "Hoca", metin: "/baslangic" },
+  { kim: "Hoca", metin: "basla" },
   {
     kim: "Asistan",
     metin:
@@ -22,25 +22,92 @@ const ORNEK_KONUSMA: { kim: "Hoca" | "Asistan"; metin: string }[] = [
   {
     kim: "Asistan",
     metin:
-      "Ders sayfasını nasıl alalım?\n1) Bologna sayfasının adresini verin, ben okuyayım (önerilen)\n2) Sayfanın kaynağını yapıştırın\n3) Sıfırdan: ders adı, AKTS ve T+U+L yeter",
+      "Önce bir kural: kullanıcı adınızı ve parolanızı yalnız OBS'nin kendi giriş ekranına, kendiniz yazın. Bana asla yazmayın.\nOBS adresiniz nedir?",
   },
-  { kim: "Hoca", metin: "1, KRG101 Kurgu Bilimine Giriş sayfasının adresi" },
+  { kim: "Hoca", metin: "obs.kurgu.edu.tr" },
   {
     kim: "Asistan",
     metin:
-      "Dersi Verenler, Dersin Yardımcıları ve Kaynaklar kişisel veri olduğu için ayrıştırmadan önce atıldı, hiçbir yere yazılmadı.\nKRG101 için 6 alan doldurulmalı: 1) Dersin amacı (boş) 2) Öğrenme çıktıları (2 çıktı var, 8-12 olmalı) 3) Haftalık akış (3 hafta var) 4) Ders yapısı (boş) 5) Katkı tablosu (boş) 6) Kaynaklar.\nNasıl ilerleyelim?\n1) Hepsini sırayla dolduralım (önerilen)\n2) Yalnız boş olanlar\n3) Numaraları kendim seçeyim",
+      'OBS giriş ekranını kenardaki tarayıcıda açtım. Bilgilerinizi oraya yazın. Bitince bana yalnız "girdim" yazın.',
+  },
+  { kim: "Hoca", metin: "girdim" },
+  {
+    kim: "Asistan",
+    metin: "Dersleriniz:\n1) KRG204 Kurgu Ölçme Yöntemleri\n2) KRG305 Kurgu Veri Çözümlemesi\nHangisi?",
   },
   { kim: "Hoca", metin: "1" },
   {
     kim: "Asistan",
     metin:
-      'Dersin amacı için üç seçenek, üçü de kurallardan geçti (60-120 kelime):\nA) Kavram ağırlıklı: "Bu dersin amacı, öğrencilere kurgu biliminin temel kavramlarını..." (78 kelime, önerilen)\nB) Uygulama ağırlıklı (84 kelime)\nC) Proje ağırlıklı (91 kelime)',
+      "Bologna sayfasını okudum. Dersi veren satırı kişisel veri olduğu için atıldı.\n9 alan eksik ya da zayıf: 1) Dersin amacı (boş) 2) Dersin içeriği (8 kelime) 3) Öğrenme çıktıları (2 var, 8-12 olmalı) 4) Haftalık akış (3 hafta var) 5) Kaynaklar (1 var, en az 2) ...\nNasıl ilerleyelim?\n1) Hepsini sırayla dolduralım (önerilen)\n2) Yalnız boş olanlar\n3) Numaraları kendim seçeyim",
   },
-  { kim: "Hoca", metin: "hepsi A" },
+  { kim: "Hoca", metin: "1" },
   {
     kim: "Asistan",
     metin:
-      "Kalan alanlarda hep A seçeneğiyle ilerledim ve her birini denetledim. İş yükü: toplam 150 saat, hedef 5 AKTS x 30 = 150, uyumlu. Kaynakları ve ders yetkililerini OBS'de kendiniz yazın; kitap adı uydurmuyorum.\nOBS'ye kopyalanacak metin hazır: Ders Bilgileri, Öğrenme Çıktıları, Ders Akışı, Prg.Çıktısına Katkısı sırasıyla.\n1) OBS'ye yapıştırdım, yeniden denetle\n2) Bir alanı değiştir\n3) Başka ders",
+      'Dersin amacı için üç seçenek, üçü de kurallardan geçti (60-120 kelime):\n1) Kavram ağırlıklı: "Bu ders kurgu ölçme yöntemlerini tanıtır..." (66 kelime, önerilen)\n2) Uygulama ağırlıklı (74 kelime)\n3) Proje ağırlıklı (81 kelime)',
+  },
+  { kim: "Hoca", metin: "hepsi 1" },
+  {
+    kim: "Asistan",
+    metin:
+      "Kalan alanlarda hep 1. seçenekle ilerledim ve her birini denetledim. İş yükü: toplam 150 saat, hedef 5 AKTS x 30 = 150, uyumlu.\nKalan 1 alan: Kaynaklar. Derste kullandığınız ikinci kitabın adı ve yazarı nedir?",
+  },
+  { kim: "Hoca", metin: "Can Deneme, Kurgu ölçme el kitabı, 2023, Kurgu Yayınları" },
+  {
+    kim: "Asistan",
+    metin:
+      "Künye: Deneme, C. (2023). Kurgu ölçme el kitabı. Kurgu Yayınları.\nKalan alan yok. OBS'ye nasıl yazalım?\n1) Formu ben doldurayım, Kaydet'e siz basın (önerilen)\n2) Alan alan kopyalayıp yapıştırın",
+  },
+  { kim: "Hoca", metin: "1" },
+  {
+    kim: "Asistan",
+    metin:
+      'Ders Bilgileri sekmesini doldurdum. Alanlara göz atın, Kaydet düğmesine siz basın, sonra "kaydettim" yazın.',
+  },
+  { kim: "Hoca", metin: "kaydettim" },
+  {
+    kim: "Asistan",
+    metin: "Sayfayı yeniden okudum ve denetledim: tamamlandı.\n1) Başka ders\n2) Bir alanı değiştir\n3) Bitir",
+  },
+];
+
+/** Hiç bilmeyenler için adımlar: her adım tek iş ve ekranda ne görüleceği. */
+const ILK_KEZ: { baslik: string; yap: string; gorursunuz: string }[] = [
+  {
+    baslik: "Claude'a Akredit'i ekleyin",
+    yap: `claude.ai'de sol alttaki adınıza tıklayın, Settings (Ayarlar), sonra Connectors (Bağlayıcılar). Add custom connector düğmesine basın. Ad olarak Akredit, adres olarak ${MCP_ADRESI} yazın ve Add deyin.`,
+    gorursunuz: "Bağlayıcı listesinde Akredit.",
+  },
+  {
+    baslik: "basla yazın",
+    yap: "Yeni bir sohbet açın ve yazı kutusuna basla yazın. Bologna için 1 yazın.",
+    gorursunuz: "Beş seçenekli bir menü.",
+  },
+  {
+    baslik: "OBS'nize kendiniz girin",
+    yap: "Asistan OBS adresinizi sorar ve sayfayı kenarda açar. Kullanıcı adınızı ve parolanızı yalnız OBS'nin kendi giriş ekranına, kendiniz yazın. Asistana, sohbete ya da Akredit'e asla yazmayın. Doğrulama kodu ve CAPTCHA da sizindir. Girince asistana yalnız girdim yazın.",
+    gorursunuz: "Ders listeniz sohbette numaralı.",
+  },
+  {
+    baslik: "Kenardaki tarayıcı",
+    yap: "Sayfayı Claude in Chrome eklentisi, Claude masaüstü uygulamasının tarayıcı paneli ya da ChatGPT'nin ajan modu okur. Bunlardan biri yoksa asistan kurulum adımlarını tek tek verir. Menü adları sürüme göre değişebilir.",
+    gorursunuz: "Sohbetin yanında OBS sayfası.",
+  },
+  {
+    baslik: "Seçin",
+    yap: 'Asistan eksik alanları listeler ve her alan için 2-3 seçenek sunar. Bir rakam yazın ya da "hepsi 1" deyin.',
+    gorursunuz: "Her seçimden sonra kaç alan kaldığı.",
+  },
+  {
+    baslik: "OBS'ye yazın",
+    yap: "Tarayıcı aracı varsa asistan formu doldurur; siz alanlara göz atıp Kaydet düğmesine kendiniz basarsınız. Yoksa asistan alan alan kopyalanacak metni verir.",
+    gorursunuz: "OBS'nin kayıt iletisi, sonra asistandan tamamlandı.",
+  },
+  {
+    baslik: "Engel olursa",
+    yap: "Tarayıcı aracı yoksa, site açılmıyorsa, CAPTCHA çıkarsa ya da oturum düşerse asistana ne olduğunu yazın; adım adım çözüm verir. Yedek yol hep var: OBS'de ders sayfasında Ctrl+A, Ctrl+C, sohbete Ctrl+V.",
+    gorursunuz: "Numaralı çözüm adımları.",
   },
 ];
 
@@ -84,19 +151,20 @@ export default function McpKullan() {
               bölümünde.
             </li>
             <li>
-              Yeni bir sohbet açın ve hazır başlangıçlardan <code className={KOD}>baslangic</code> komutunu seçin.
+              Yeni bir sohbet açın ve <code className={KOD}>basla</code> yazın ya da hazır başlangıçlardan seçin.
               Claude'da "+" düğmesinin altında Akredit, Cursor ve Claude Code'da eğik çizgi (/) ile görünür. Komut
               görünmüyorsa "Akredit ile başlayalım" yazmanız yeter.
             </li>
             <li>
               Odağınızı seçin: Bologna paketi, öğrenme çıktısı, ÇK ve PÇ hesabı, ölçüt rehberi ya da dil denetimi.
-              Asistan her adımda 2-3 numaralı seçenek sunar; tek rakamla ya da harfle seçip ilerlersiniz. "hepsi A" gibi
-              bir yanıt kalan adımların hepsine uygulanır.
+              Asistan her adımda 2-3 numaralı seçenek sunar; tek rakamla seçip ilerlersiniz. "hepsi 1" gibi bir yanıt
+              kalan adımların hepsine uygulanır.
             </li>
           </ol>
           <p>
             Seçenekleri sizin asistanınız yazar. Akredit kuralları ve sınırları verir, yazılanı denetler, toplamları
-            kendisi hesaplar. Sonunda OBS'ye alan alan kopyalayacağınız düz metin gelir. Kaydı siz yaparsınız.
+            kendisi hesaplar. OBS'ye siz girersiniz; asistan formu doldurur ya da alan alan kopyalayacağınız metni
+            verir. Kaydet düğmesine siz basarsınız.
           </p>
         </Metin>
         <h3 className="mt-8 text-lg font-semibold text-vurgu">Hazır başlangıçlar</h3>
@@ -113,8 +181,25 @@ export default function McpKullan() {
         </ul>
       </Bolum>
 
-      <Bolum id="ornek" baslik="Örnek: Bologna paketini doldurmak">
-        <p className="text-soluk">Kurgu bir ders üzerinden kısaltılmış bir konuşma.</p>
+      <Bolum id="hic-bilmeyenler" baslik="Hiç bilmeyenler için">
+        <p className="text-soluk">
+          Yapay zekâyı ilk kez kullanıyorsanız bu adımları sırayla izleyin. Her adım tek iştir.
+        </p>
+        <ol className="mt-4 space-y-3">
+          {ILK_KEZ.map((a, n) => (
+            <li key={a.baslik} className="rounded-sm border border-cizgi p-4">
+              <p className="text-lg text-vurgu">
+                {n + 1}. {a.baslik}
+              </p>
+              <p className="mt-1">{a.yap}</p>
+              <p className="mt-1 text-sm text-soluk">Göreceğiniz: {a.gorursunuz}</p>
+            </li>
+          ))}
+        </ol>
+      </Bolum>
+
+      <Bolum id="ornek" baslik="Örnek: Bologna paketini baştan sona doldurmak" zemin>
+        <p className="text-soluk">Kurgu bir ders ve kurgu bir OBS üzerinden kısaltılmış bir konuşma.</p>
         <ol className="mt-4 space-y-3">
           {ORNEK_KONUSMA.map((s, n) => (
             <li
@@ -129,7 +214,7 @@ export default function McpKullan() {
         </ol>
       </Bolum>
 
-      <Bolum id="araclar" baslik="Araçlar" zemin>
+      <Bolum id="araclar" baslik="Araçlar">
         <ul className="grid gap-x-10 sm:grid-cols-2">
           {ACIK_ARACLAR.map((a) => (
             <li key={a.ad} className="border-t border-cizgi py-4">
@@ -143,14 +228,19 @@ export default function McpKullan() {
         </ul>
       </Bolum>
 
-      <Bolum id="kisisel-veri" baslik="Kişisel veri yollamayın">
+      <Bolum id="kisisel-veri" baslik="Parola ve kişisel veri yollamayın" zemin>
         <aside className="rounded-sm border border-cizgi-guclu bg-zemin p-5">
           <p>
+            Parolanızı, doğrulama kodunuzu ve oturum bilgisini hiçbir zaman asistana ya da Akredit'e yazmayın; yalnız
+            OBS'nin kendi giriş ekranına siz yazarsınız. Sunucu böyle bir ifade görürse işlemi yapmaz.
+          </p>
+          <p className="mt-3">
             Öğrenci adı, öğrenci numarası, T.C. kimlik numarası, e-posta ve telefon göndermeyin. Puan tablosunda öğrenci
             yerine "o1", "o2" gibi takma ad kullanın. Sunucu gelen veride böyle bir ifade görürse işlemi yapmaz ve
-            maskelemenizi ister. Tek istisna Bologna sayfasıdır: sayfayı olduğu gibi yapıştırabilirsiniz; Dersi
-            Verenler, Dersin Yardımcıları, Koordinatör ve Kaynaklar satırları ile e-posta ve telefonlar ayrıştırmadan
-            önce bellekte atılır, hiçbir yere yazılmaz ve hangi alanların atıldığı size söylenir.
+            maskelemenizi ister. İki istisna kendiliğinden işler: Bologna sayfasında Dersi Verenler, Dersin Yardımcıları
+            ve Koordinatör satırları ile e-posta ve telefonlar; Excel not tablosunda ad, soyad ve numara sütunları
+            ayrıştırmadan önce bellekte atılır, hiçbir yere yazılmaz ve neyin atıldığı size söylenir. Kaynakçadaki yazar
+            adları yayımlanmış künyedir, kaynak alanında kalır.
           </p>
           <p className="mt-3 text-soluk">
             İstek içeriği kaydedilmez. Kayda yalnız araç adı, süre ve istek boyutu yazılır. Hesap, çerez ve anahtar
@@ -159,7 +249,7 @@ export default function McpKullan() {
         </aside>
       </Bolum>
 
-      <Bolum id="ekleme" baslik="Nasıl eklenir" zemin>
+      <Bolum id="ekleme" baslik="Nasıl eklenir">
         <Metin>
           <h3>Claude (claude.ai ve masaüstü uygulaması)</h3>
           <ol>
@@ -222,7 +312,7 @@ export default function McpKullan() {
         </Metin>
       </Bolum>
 
-      <Bolum id="tam-sistem" baslik="Kurumunuzun verisiyle çalışmak için">
+      <Bolum id="tam-sistem" baslik="Kurumunuzun verisiyle çalışmak için" zemin>
         <Metin>
           <p>
             Bu bağlantı kurumunuzun verisine erişmez: kanıt, ders dosyası, karar ve rapor kaydı yoktur. Kanıta bağlı

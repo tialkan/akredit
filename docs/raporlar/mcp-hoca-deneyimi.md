@@ -70,3 +70,26 @@ Ders yükü yüksek, OBS ve Bologna ekranlarından bıkmış, MCP sözcüğünü
 - Bologna sayfası Proliz dışındaki OBS'lerde (UBYS vb.) ayrıştırılamaz; bu durumda asistan alanları elle verir.
 - Kaynak ve yetkili alanları MCP'de denetlenmez (kişisel veri sınırı); kaynak sayısı yalnız sayı olarak denetlenir.
 - `ck_pc_hesapla` için Excel'den tablo hazırlama hâlâ en zor adım; bir sonraki iş olarak sütun eşleme rehberi önerilir.
+
+## Güncelleme: sürüm 0.3.0 (2026-11-04)
+
+Kurucunun istekleriyle akış, ilk kez yapay zekâ kullanan hoca için uçtan uca kuruldu.
+
+1. Ana istem `basla`. `baslangic` aynı metni verir, açıklaması "basla ile aynı"; site, README, llms.txt ve testler `basla` der.
+2. OBS tarayıcı akışı (`basla` ve `bologna_doldur`, Adım 0): asistan önce giriş kuralını hocaya söyler; tarayıcı aracı varsa (Claude in Chrome, Claude masaüstü tarayıcı paneli, ChatGPT ajan modu) OBS'yi kenarda açar; hoca kullanıcı adı ve parolasını yalnız OBS ekranına kendisi yazar, asistana "girdim" der. Asistan ders listesini ve Bologna sayfasını okur. CAPTCHA'yı ve Kaydet düğmesini hoca yapar. Tarayıcı aracı yoksa kurulum ya da kopyala-yapıştır yedeği (Ctrl+A, Ctrl+C, Ctrl+V).
+3. `kurulum_yardimi` (istemci: Claude web, masaüstü, Claude in Chrome, ChatGPT, Cursor, VS Code, Claude Code) ve `engel_coz` (tarayıcı aracı yok, site açılmıyor, giriş ekranı, CAPTCHA, çerçeve, oturum düştü, sayfa okunamıyor, Kaydet, Akredit görünmüyor): numaralı adımlar, her adımda ne görüleceği; doğrulanmamış menü adları `degisebilir` işaretli.
+4. Giriş bilgisi yasağı kodla da uygulanır: parola, doğrulama kodu, çerez, oturum kimliği ya da erişim belirteci deseni görülen çağrı reddedilir, değer yanıta girmez. `bologna_ayristir` yapıştırılan sayfadaki oturum kimliklerini ve parola kutularını bellekte atar. Bütün istemler aynı giriş kuralını taşır; test, istemlerde giriş bilgisi isteyen cümle olmadığını sınar.
+5. Kaynaklar: künye kuralı. Kaynak alanlarında yazar adı kişisel veri sayılmaz (yayımlanmış künye); e-posta, telefon ve kimlik numarası yine reddedilir. `bologna_ayristir` kaynak satırlarını atmaz, künye listesi olarak verir; yalnız öğretim elemanı ve iletişim satırlarını atar. `kaynak_bicimle` APA 7'ye benzer künyeyi deterministik dizer; eksik bilgiyi [EKSİK] yazar. Asistan yalnız hocanın verdiği ya da kendi web aracıyla doğruladığı eseri önerir.
+6. Proliz dışı sistemler: `bologna_ayristir` önce Proliz'i dener, olmazsa genel ayrıştırıcı (HTML ya da düz metin; Amaç/Objective, İçerik/Content, Öğrenme Çıktıları/Learning Outcomes, Haftalık Konular/Weekly Topics, Değerlendirme/Assessment, AKTS İş Yükü/Workload, Kaynaklar/References, Yöntemler, Ön koşul, Dil, Tür, T+U+L, Kredi, AKTS). Yanıtta bulunan ve bulunamayan alanlar ile güven düzeyi (yüksek, orta, düşük). Kurgu ÜBYS benzeri tablo, düz metin ve İngilizce örneklerle sınandı.
+7. Uçtan uca tamamlama: ayrıştır, eksik listesi, alan başına 2-3 seçenek (varsayılan 1), sunucu denetimi, "hepsi 1", her seçimden sonra `bologna_durum` ile kalan alan sayısı, eksik kalmayınca OBS'ye yazma (tarayıcıyla, Kaydet hocada; ya da `bologna_kopya_metni`), sonra yeniden okuyup "tamamlandı" denetimi. `is_yuku_oner` hedefe tam eşit üç dağılım verir (deterministik; son kalem artığı alır).
+8. ÇK/PÇ: `not_tablosu_ayristir` Excel ya da CSV yapıştırmasından ad, soyad ve numara sütunlarını ayrıştırmadan önce atar, o1, o2 takma adı verir; başlıklardan sınav, soru, tam puan ve ÇK eşlemesini sezer ("Vize S1 (ÇK1) /20"); eksikleri listeler; sütun eşleme rehberi yanıtta.
+9. Site /mcp-kullan ve README: "Hiç bilmeyenler için" yedi adım ve kurgu ders ile OBS girişinden "tamamlandı"ya kadar örnek konuşma.
+
+Testler: acik-mcp 56 test (yeni: genel ayrıştırıcı, künye kuralı, kaynak biçimi, iş yükü, not tablosu, kurulum ve engel, giriş bilgisi yasağı, SDK istemcisiyle tam Bologna turu: ayrıştır, eksik, hepsi 1, tamamlandı).
+
+### Kalanlar (0.3.0)
+
+- Tarayıcı akışı canlı istemcilerde (Claude in Chrome, Claude masaüstü, ChatGPT ajan modu) gerçek bir OBS ile denenmedi. Menü ve düğme adları `degisebilir` işaretli; doğrulanınca işaret kaldırılmalı.
+- Genel ayrıştırıcı etiket eşlemeye dayanır; etiketsiz ya da görsel düzene dayalı sayfalarda alan bulamayabilir. O zaman güven "düşük" döner ve asistan alanları hocaya sorar.
+- Katkı tablosu ve ders yapısı genel ayrıştırıcıda okunmaz; Proliz sayfasında okunur.
+- `is_yuku_oner` oranları Akredit'in örnek oranlarıdır, resmî değildir.
