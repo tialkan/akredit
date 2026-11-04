@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@akredit/cekirdek": "workspace:*",
-    "docx": "^9.14.0",
+    "docx": "^9.15.1",
     "exceljs": "^4.4.0",
     "fflate": "^0.8.3",
     "unpdf": "^1.9.1"
