@@ -75,7 +75,7 @@ export class AdresKovasi {
   }
 }
 
-/** Gövdeden günlüğe yazılacak tek bilgi: yöntem ve (tools/call ise) araç adı. İçerik okunmaz. */
+/** Gövdeden günlüğe yazılacak tek bilgi: yöntem ve (tools/call ya da prompts/get ise) araç ya da istem adı. İçerik okunmaz. */
 function yontemVeArac(govde: unknown): { yontem: string; arac: string | null } {
   const ilk = Array.isArray(govde) ? govde[0] : govde;
   if (!ilk || typeof ilk !== "object") return { yontem: "gecersiz", arac: null };
@@ -84,7 +84,10 @@ function yontemVeArac(govde: unknown): { yontem: string; arac: string | null } {
   const ad = (ilk as { params?: { name?: unknown } }).params?.name;
   return {
     yontem,
-    arac: yontem === "tools/call" && typeof ad === "string" ? ad.replace(/[^a-z_]/gu, "").slice(0, 40) : null,
+    arac:
+      (yontem === "tools/call" || yontem === "prompts/get") && typeof ad === "string"
+        ? ad.replace(/[^a-z_]/gu, "").slice(0, 40)
+        : null,
   };
 }
 

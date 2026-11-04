@@ -1,5 +1,5 @@
 // npm yayını için derleme (İP-49). Node, node_modules içindeki .ts dosyalarında tip ayıklama yapmadığından paket
-// JavaScript olarak yayınlanır. tsc bu paketi ve kullandığı iş alanı paketlerini (cekirdek, cerceveler, olcme, yz)
+// JavaScript olarak yayınlanır. tsc bu paketi ve kullandığı iş alanı paketlerini (cekirdek, cerceveler, olcme, yz; baglayicilar'dan yalnız Bologna ayrıştırıcısı)
 // `dist/` altına derler; iş alanı paketleri npm'de olmadığı için `@akredit/<paket>` içe aktarmaları derlenmiş
 // kopyaya göreli yola çevrilir. Dış bağımlılık yalnız MCP SDK ve zod'dur. Yayın yapılmaz; bu betik yalnız derler.
 //
@@ -14,6 +14,7 @@ const KOK = join(import.meta.dirname, "..");
 const DIST = join(KOK, "dist");
 /** Gömülen iş alanı paketleri ve derlenmiş giriş dosyaları (dist'e göre). */
 export const GOMULU: Record<string, string> = {
+  "@akredit/baglayicilar/bologna-ayristir": "packages/baglayicilar/src/bologna-proliz/ayristir.js",
   "@akredit/cekirdek": "packages/cekirdek/src/index.js",
   "@akredit/cerceveler": "packages/cerceveler/src/index.js",
   "@akredit/olcme": "packages/olcme/src/index.js",
@@ -30,7 +31,7 @@ function dosyalar(d: string): string[] {
 
 /** `from "@akredit/x"` ve `import("@akredit/x")` belirteçlerini derlenmiş kopyaya göreli yola çevirir. */
 export function belirtecleriCevir(metin: string, dosyaYolu: string): string {
-  return metin.replace(/(["'])(@akredit\/[a-z-]+)\1/gu, (tam, tirnak: string, ad: string) => {
+  return metin.replace(/(["'])(@akredit\/[a-z-]+(?:\/[a-z-]+)?)\1/gu, (tam, tirnak: string, ad: string) => {
     const hedef = GOMULU[ad];
     if (!hedef) throw new Error(`${relative(DIST, dosyaYolu)}: gömülmeyen iş alanı paketi ${ad}`);
     let g = relative(dirname(dosyaYolu), join(DIST, hedef)).split(sep).join("/");

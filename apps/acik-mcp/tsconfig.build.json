@@ -12,6 +12,7 @@
   },
   "include": [
     "src/**/*.ts",
+    "../../packages/baglayicilar/src/bologna-proliz/ayristir.ts",
     "../../packages/cekirdek/src/**/*.ts",
     "../../packages/cerceveler/src/**/*.ts",
     "../../packages/olcme/src/**/*.ts",

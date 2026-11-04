@@ -1,6 +1,6 @@
 {
   "name": "@akredit/acik-mcp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "license": "Apache-2.0",
   "description": "Herkese açık Akredit MCP sunucusu: hesapsız, salt okuma, deterministik araçlar (ölçüt, Bologna denetimi, ÇK/PÇ hesabı, rapor dil denetimi). Kurum verisine erişmez, model çağırmaz.",
@@ -9,7 +9,8 @@
     "model-context-protocol",
     "akreditasyon",
     "kalite-guvencesi",
-    "bologna"
+    "bologna",
+    "akts"
   ],
   "homepage": "https://akredit.org/mcp-kullan",
   "engines": {
@@ -39,6 +40,7 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@akredit/baglayicilar": "workspace:*",
     "@akredit/cekirdek": "workspace:*",
     "@akredit/cerceveler": "workspace:*",
     "@akredit/olcme": "workspace:*",

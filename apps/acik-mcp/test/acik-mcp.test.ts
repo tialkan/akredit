@@ -34,12 +34,16 @@ const calistir = (ad: string, girdi: unknown) => {
 };
 
 describe("uçtan uca (SDK istemcisi)", () => {
-  it("araç listesi yedi salt okuma aracı döner", async () => {
+  it("araç listesi on bir salt okuma aracı döner", async () => {
     const c = await baglan();
     const { tools } = await c.listTools();
     expect(tools.map((t) => t.name).sort()).toEqual(
       [
+        "bologna_alan_rehberi",
+        "bologna_ayristir",
         "bologna_denetle",
+        "bologna_kopya_metni",
+        "bologna_taslak_denetle",
         "ck_pc_hesapla",
         "olcut_ara",
         "olcut_getir",

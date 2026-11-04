@@ -6,7 +6,8 @@
   "description": "Kurum sistemleri ve açık veri kaynakları bağlayıcıları: Bologna (Proliz), OBS not aktarımı, YÖK Atlas, AVESİS.",
   "license": "Apache-2.0",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./bologna-ayristir": "./src/bologna-proliz/ayristir.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p .",
