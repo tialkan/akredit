@@ -51,7 +51,7 @@ const bolognaAkisi = (dersKodu: string) =>
     "",
     "Akış:",
     "1. Sayfayı al. Sor: Ders sayfasını nasıl alalım? 1) Bologna sayfasının adresini ver, kendi web aracımla okuyayım (önerilen, web aracın varsa) 2) Sayfanın kaynağını ya da metnini yapıştır 3) Sıfırdan: ders adı, AKTS ve T+U+L yeter.",
-    "   Göndermeden önce Dersi Verenler, Dersin Yardımcıları ve yetkili satırlarını, kaynaklardaki yazar adlarını ve e-postaları çıkar.",
+    "   Sayfa HTML'i olduğu gibi bologna_ayristir'e gidebilir: kişi satırlarını, e-posta ve telefonu araç kendisi atar ve hangi alanları attığını söyler; bunu hocaya tek cümleyle bildir. Başka araçlara kişi adı gönderme.",
     "   HTML varsa bologna_ayristir ile çöz. Program çıktıları sayfası da varsa onu da ayrıştır ve P kodlarını sakla; P kodlarını asla ezberden yazma.",
     "2. Denetle. bologna_denetle'yi çağır. Sonucu tek tabloda göster: numara, alan, durum (boş, zayıf, tamam), kısa neden.",
     "   Sor: 1) hepsini sırayla dolduralım (önerilen) 2) yalnız boş olanlar 3) numaraları kendim seçeyim.",

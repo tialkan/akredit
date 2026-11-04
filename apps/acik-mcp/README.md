@@ -45,6 +45,7 @@ Asistan:  Bugün neye odaklanalım? 1) Bologna paketi 2) Öğrenme çıktısı 3
 Hoca:     1
 Asistan:  Ders sayfasını nasıl alalım? 1) Adresi verin, ben okuyayım (önerilen) 2) Kaynağını yapıştırın 3) Sıfırdan
 Hoca:     1, KRG101 Kurgu Bilimine Giriş sayfası
+Asistan:  (Dersi Verenler, Dersin Yardımcıları ve Kaynaklar kişisel veri olduğu için ayrıştırmadan önce atıldı.)
 Asistan:  6 alan doldurulmalı: 1) Amaç (boş) 2) Çıktılar (2 var, 8-12 olmalı) 3) Haftalar (3 var) ...
           1) Hepsini sırayla (önerilen) 2) Yalnız boşlar 3) Kendim seçeyim
 Hoca:     1
@@ -60,7 +61,7 @@ Asistan:  İş yükü 150 saat, hedef 5 x 30 = 150, uyumlu. Kaynakları ve yetki
 - Hesap ve anahtar gerekmez. Kurum verisine erişmez, hiçbir yere yazmaz, yapay zekâ modeli çağırmaz.
 - Ölçüt metinleri resmî belgeden alınmıştır. Her yanıt kaynağını (belge adresi, sayfa, SHA-256) taşır. Belgeden alınamayan metin DOĞRULANMADI olarak döner.
 - Sayılar yalnız hesaptan gelir; araçlar metin uydurmaz.
-- Araçlara öğrenci adı, numarası ya da başka kişisel veri göndermeyin; görülürse çağrı reddedilir. Bologna sayfasında Dersi Verenler ve Dersin Yardımcıları satırlarını çıkarın. Bağladığınız yapay zekâ hizmeti girdiyi kendi koşullarıyla işler.
+- Araçlara öğrenci adı, numarası ya da başka kişisel veri göndermeyin; görülürse çağrı reddedilir. Bologna sayfasını olduğu gibi yapıştırabilirsiniz: `bologna_ayristir` Dersi Verenler, Dersin Yardımcıları, Koordinatör ve Kaynaklar satırlarını, e-posta ve telefonları ayrıştırmadan önce bellekte atar, hiçbir yere yazmaz ve yanıtta hangi alanları attığını söyler. Ondan sonra da kişisel veri kalırsa çağrı reddedilir. Bağladığınız yapay zekâ hizmeti girdiyi kendi koşullarıyla işler.
 - Sunucu adres çekmez. Bologna sayfasını siz yapıştırırsınız ya da asistanınız kendi web aracıyla okur.
 
 ## Bağlantı

@@ -37,6 +37,11 @@ export interface AcikArac<S extends z.ZodObject = z.ZodObject> {
   sonrakiAdim: string;
   /** Kişisel veri reddinde iletiye eklenecek, bu araca özgü ipucu. */
   kisiselVeriIpucu?: string;
+  /**
+   * Kişisel veri denetiminden önce, yalnız bellekte çalışan ayıklama. Atılan değerler hiçbir yere yazılmaz;
+   * yalnız atılan alanların adları döner. Ayıklamadan sonra kalan girdi yine denetlenir.
+   */
+  onAyikla?: (girdi: unknown) => { girdi: unknown; atilan: string[] };
   calistir: (girdi: z.infer<S>, b: AracBaglami) => AracSonucu;
 }
 

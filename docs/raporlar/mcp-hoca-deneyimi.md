@@ -50,7 +50,7 @@ Ders yükü yüksek, OBS ve Bologna ekranlarından bıkmış, MCP sözcüğünü
 - Sunucu model çağırmaz. Bu yüzden seçenekleri (amaç metni, çıktı cümleleri, haftalık konular) sunucu üretemez. Tasarım: asistan üretir, sunucu kural, kalıp ve sınır verir, üretileni denetler, sayıları hesaplar. Bu ayrım her araç yanıtında ve istemde açıkça yazılı olmalı.
 - Sayılar (iş yükü toplamı, AKTS başına saat, değerlendirme toplamı, ders süresi satırı) yalnız sunucu hesabından alınır. Asistan toplamı kendisi yazmaz.
 - Sunucu rastgele adres çekmez (SSRF). Bologna sayfası ya hoca tarafından yapıştırılır ya da asistanın kendi web aracıyla okunur. Ayrıştırıcı yalnız yapıştırılan HTML'i işler, ağ yoktur.
-- Kişisel veri reddi esnemez. Bologna sayfasındaki "Dersi Verenler", "Dersin Yardımcıları" satırları ve kaynaklardaki yazar adları gönderilmeden önce asistan tarafından çıkarılır. Ret iletisi bunu açıkça söylemeli. Kaynaklar ve yetkililer bu yüzden MCP'nin kopya metninde yoktur; hoca OBS'ye kendisi yazar.
+- Kişisel veri reddi esnemez. Bologna sayfasındaki "Dersi Verenler", "Dersin Yardımcıları" satırları ve kaynaklardaki yazar adları gönderilmeden önce çıkarılır. Güncelleme: `bologna_ayristir` bu bilinen kişi satırlarını, e-posta ve telefonları ayrıştırmadan önce bellekte atar, yazmaz, atılan alan adlarını yanıtta söyler; kalan metin yine KVKK desenlerine takılırsa reddeder. Diğer araçlarda ret aynen sürer. Kaynaklar ve yetkililer bu yüzden MCP'nin kopya metninde yoktur; hoca OBS'ye kendisi yazar.
 - Uydurma yok: kaynak kitap, ISBN, kişi ve tarih uydurulmaz. Hocanın vermediği bilgi EKSİK kalır. Resmî AKTS ya da YÖKAK metni hafızadan yazılmaz; rehberdeki kurallar Akredit'in iç kurallarıdır ve öyle etiketlenir.
 - OBS'ye son kayıt hocanındır. MCP yazmaz, göndermez.
 

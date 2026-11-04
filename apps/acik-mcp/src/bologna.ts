@@ -869,13 +869,53 @@ const taslakDenetleAraci = arac({
 
 // ---------------------------------------------------------------- bologna_ayristir
 
+/** Bologna sayfasında kişi adı taşıyan satırlar: ilk hücre bu etiketlerden biriyse satır atılır. */
+const KISI_SATIRI =
+  /^(Dersi Veren(ler)?|Dersin Yardımcıları|Dersin Koordinatörü|Koordinatör|Dersin Yetkilileri|Yetkililer|Sorumlu|Kaynaklar|Instructors?|Assistants?|Coordinator|Course Coordinator|Resources)(\s|:|$)/iu;
+const EPOSTA = /[\p{L}\p{N}._%+-]+@[\p{L}\p{N}.-]+\.\p{L}{2,}/gu;
+const TELEFON = /(\+90[\s-]?)?\(?0?\d{3}\)?[\s-]?\d{3}[\s-]?\d{2}[\s-]?\d{2}(?!\d)/gu;
+const hucreMetni = (h: string) =>
+  h
+    .replace(/<[^>]*>/gu, " ")
+    .replace(/&nbsp;/gu, " ")
+    .replace(/\s+/gu, " ")
+    .trim();
+
+/** Yapıştırılan HTML'den kişi satırlarını, e-posta ve telefonları bellekte atar; yalnız atılanların adlarını döndürür. */
+export function bolognaKisiselAyikla(html: string): { html: string; atilan: string[] } {
+  const atilan = new Set<string>();
+  let h = html.replace(/<tr\b[\s\S]*?<\/tr>/giu, (tr) => {
+    const ilk = tr.match(/<t[dh]\b[^>]*>([\s\S]*?)<\/t[dh]>/iu)?.[1];
+    const etiket = ilk ? hucreMetni(ilk) : "";
+    if (!KISI_SATIRI.test(etiket)) return tr;
+    atilan.add(etiket.slice(0, 40));
+    return "";
+  });
+  h = h.replace(EPOSTA, () => {
+    atilan.add("e-posta adresleri");
+    return "";
+  });
+  h = h.replace(TELEFON, () => {
+    atilan.add("telefon numaraları");
+    return "";
+  });
+  return { html: h, atilan: [...atilan] };
+}
+
 const ayristirAraci = arac({
   ad: "bologna_ayristir",
   baslik: "Bologna sayfasını ayrıştır",
   aciklama:
     "Yapıştırılan Bologna (Proliz) ders sayfası ya da program çıktıları sayfası HTML'ini çözer ve bologna_denetle girdisine çevirir. Adres çekmez; yalnız yapıştırılan metni okur.",
   sonrakiAdim: "Çıkan ders verisini bologna_denetle'ye verin (girdi hazır: bolognaDenetleGirdisi).",
-  kisiselVeriIpucu: BOLOGNA_KISISEL_IPUCU,
+  kisiselVeriIpucu:
+    "Bilinen kişi satırları, e-posta ve telefon atıldıktan sonra da kişisel veri kaldı. O kısımları çıkarıp yeniden gönderin.",
+  onAyikla: (g) => {
+    const html = (g as { html?: unknown } | null)?.html;
+    if (typeof html !== "string") return { girdi: g, atilan: [] };
+    const r = bolognaKisiselAyikla(html);
+    return { girdi: { ...(g as object), html: r.html }, atilan: r.atilan };
+  },
   girdi: z.object({
     html: z
       .string()

@@ -319,10 +319,32 @@ describe("bologna_ayristir", () => {
     const d = calistir("bologna_ayristir", { html: "Bu yalnız düz bir metindir, tablo yoktur." });
     expect(d.hata).toBe(true);
     expect(String(d.veri.hata)).toMatch(/HTML kaynağını/u);
+  });
+
+  it("gerçek sayfada kişi satırlarını ve e-postayı ayrıştırmadan önce atar, yanıtta yalnız alan adlarını söyler", () => {
     const canli = calistir("bologna_ayristir", { html: oku("bologna-canli/ders-1106285.html") });
-    expect(canli.hata).toBe(true);
-    expect(canli.veri.kod).toBe("kisisel_veri");
-    expect(String(canli.veri.hata)).toMatch(/Dersin Yardımcıları/u);
+    expect(canli.hata).toBe(false);
+    const atilan = String(canli.veri.atilanKisiselVeri);
+    expect(atilan).toMatch(/Dersi Verenler/u);
+    expect(atilan).toMatch(/Dersin Yardımcıları/u);
+    expect(atilan).toMatch(/Kaynaklar/u);
+    const metin = JSON.stringify(canli.veri);
+    for (const ad of ["ÖRNEKOĞLU", "KURGUN", "hayal.kurgun", "Kurgu Yazar"]) expect(metin).not.toContain(ad);
+    expect(sonuc(canli).bolognaDenetleGirdisi.ders).toMatchObject({ akts: 6, tul: "4+0+0" });
+  });
+
+  it("ayıklamadan sonra kalan kişisel veri yine reddedilir; telefon da atılır", () => {
+    const html = `<table><tr><td>Yarıyıl</td><td>Kodu</td></tr><tr><td>1</td><td>KRG101</td></tr>
+<tr><td>Dersi Veren</td><td>Prof. Dr. Deniz Ak</td></tr><tr><td>İletişim</td><td>0312 555 12 34</td></tr>
+<tr><td>Not</td><td>Sorular için Prof. Dr. Ece Kurgu ile görüşün.</td></tr></table>`;
+    const r = calistir("bologna_ayristir", { html });
+    expect(r.hata).toBe(true);
+    expect(r.veri.kod).toBe("kisisel_veri");
+    expect(String(r.veri.hata)).toMatch(/atıldıktan sonra da/u);
+    expect(JSON.stringify(r.veri)).not.toContain("Ece");
+    // Diğer araçlarda davranış aynı: ayıklama yok, doğrudan ret.
+    const d = calistir("rapor_dil_denetle", { metin: "Dersi Veren: Prof. Dr. Deniz Ak" });
+    expect(d.veri.kod).toBe("kisisel_veri");
   });
 });
 
