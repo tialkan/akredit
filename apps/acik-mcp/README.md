@@ -5,7 +5,7 @@ Yükseköğretimde kalite güvencesi ve akreditasyon işleri için herkese açı
 ## İlk 2 dakika
 
 1. Asistanınıza `https://akredit.org/mcp` adresini ekleyin (aşağıda "Bağlantı") ya da yerelde `npx -y @akredit/acik-mcp` çalıştırın.
-2. Yeni sohbette `basla` yazın ya da hazır başlangıçlardan `basla` komutunu seçin. Claude'da "+" altında Akredit, Cursor ve Claude Code'da eğik çizgi (/) ile görünür. Görünmüyorsa "Akredit ile başlayalım" yazın.
+2. Yeni sohbette `akredit` yazın ya da hazır başlangıçlardan `akredit` komutunu seçin. Claude'da "+" altında Akredit, Cursor ve Claude Code'da eğik çizgi (/) ile görünür. Görünmüyorsa "Akredit ile başlayalım" yazın.
 3. Odağınızı seçin. Asistan her adımda 2-3 numaralı seçenek sunar; tek rakamla seçersiniz. "hepsi 1" kalan adımların hepsine uygulanır.
 
 ## Hiç bilmeyenler için
@@ -13,7 +13,7 @@ Yükseköğretimde kalite güvencesi ve akreditasyon işleri için herkese açı
 Yapay zekâyı ilk kez kullanıyorsanız bu adımları sırayla izleyin. Her adım tek iştir. Menü adları sürüme göre biraz farklı olabilir.
 
 1. Claude'a Akredit'i ekleyin. claude.ai'de sol alttaki adınıza tıklayın, Settings (Ayarlar), sonra Connectors (Bağlayıcılar). Add custom connector düğmesine basın. Ad: Akredit. Adres: `https://akredit.org/mcp`. Add deyin. Listede Akredit görünür.
-2. Yeni sohbet açın ve `basla` yazın. Ekranda beş seçenekli bir menü görürsünüz. Bologna için 1 yazın.
+2. Yeni sohbet açın ve `akredit` yazın. Ekranda hangi aracı kullanmak istediğinizi soran bir menü görürsünüz. Bologna için 1 yazın.
 3. OBS'nize kendiniz girin. Asistan OBS adresinizi sorar ve tarayıcı aracı varsa sayfayı kenarda açar. Kullanıcı adınızı ve parolanızı yalnız OBS'nin kendi giriş ekranına, kendiniz yazın. Asistana, sohbete ya da Akredit'e asla yazmayın. Doğrulama kodu ve "Ben robot değilim" kutusu da sizindir. Girince asistana yalnız "girdim" yazın.
 4. Kenardaki tarayıcı. Claude in Chrome eklentisi, Claude masaüstü uygulamasının tarayıcı paneli ya da ChatGPT'nin ajan modu sayfayı okuyabilir. Asistan ders listenizi numaralı gösterir, siz dersin numarasını yazarsınız.
 5. Seçin. Asistan eksik alanları listeler ve her alan için 2-3 seçenek sunar. Bir rakam yazın ya da "hepsi 1" deyin. Her seçimden sonra kaç alan kaldığını söyler.
@@ -24,8 +24,8 @@ Yapay zekâyı ilk kez kullanıyorsanız bu adımları sırayla izleyin. Her ad�
 
 | İstem | Ne yapar |
 |---|---|
-| `basla` | Odak menüsü: Bologna paketi, öğrenme çıktısı, ÇK/PÇ hesabı, ölçüt rehberi, dil denetimi. |
-| `baslangic` | `basla` ile aynı; eski adıdır, geriye uyum için durur. |
+| `akredit` | Araç menüsü: önce hangi aracı kullanacağınızı sorar (Bologna paketi, öğrenme çıktısı, ÇK/PÇ hesabı, ölçüt rehberi, dil denetimi ya da başka bir araç). |
+| `basla`, `baslangic` | `akredit` ile aynı. |
 | `bologna_doldur` | OBS'nize kendiniz girersiniz; asistan Bologna sayfanızı okur, eksikleri seçenekle tamamlar, formu doldurur ya da kopya metni verir. Kaydet'e siz basarsınız. |
 | `cikti_yaz` | Ders öğrenme çıktılarını ölçülebilir fiillerle yazar ya da iyileştirir. |
 | `ck_pc_hesabi` | Excel not tablonuzu yapıştırırsınız; ad ve numaralar atılır, ÇK ve PÇ sağlanma düzeyi hesaplanır. |
@@ -59,7 +59,7 @@ Sunucu model çağırmaz ve metin üretmez. Bologna seçeneklerini sizin asistan
 ## Örnek konuşma (kurgu ders)
 
 ```
-Hoca:     basla
+Hoca:     akredit
 Asistan:  Bugün neye odaklanalım? 1) Bologna paketi 2) Öğrenme çıktısı 3) ÇK/PÇ 4) Ölçüt rehberi 5) Dil denetimi
 Hoca:     1
 Asistan:  Önce bir kural: kullanıcı adınızı ve parolanızı yalnız OBS'nin kendi ekranına, kendiniz yazın.

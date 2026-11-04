@@ -165,12 +165,16 @@ const basla = (odak: string) => {
   const secilen = ODAKLAR.find(([no, , ad]) => odak === no || odak === ad);
   if (secilen) return AKISLAR[secilen[2]]?.({}) ?? "";
   return [
-    "Akredit açık araçlarıyla hocaya yardım edeceksin. Önce odağı seçtir.",
+    "Akredit açık araçlarıyla hocaya yardım edeceksin. Önce hangi aracı kullanmak istediğini sor.",
+    "Hoca seçmeden hiçbir akışa başlama: OBS girişi isteme, sayfa açma, araç çağırma.",
     "",
     "Hocaya tam olarak şunu göster ve yanıtını bekle:",
     "",
     "Merhaba. Bugün neye odaklanalım? Numarasını yazmanız yeter.",
     ...ODAKLAR.map(([no, ad]) => `${no}) ${ad}`),
+    `${ODAKLAR.length + 1}) Başka bir şey: tüm araçları kısaca listele`,
+    "",
+    `Seçim ${ODAKLAR.length + 1} ise sunucudaki araçları adlarıyla değil, ne işe yaradıklarıyla birer cümlede numaralı listele ve yeniden seçtir.`,
     "",
     "Seçime göre aşağıdaki akışlardan ilgili olanı izle:",
     "",
@@ -189,20 +193,27 @@ const AKISLAR: Record<string, (a: Record<string, string | undefined>) => string>
 const ile = (govde: string) => `${govde}\n\n${ORTAK_KURALLAR}`;
 
 const BASLA_ACIKLAMASI =
-  "Akredit ile ilk adım. Odağınızı seçin: Bologna paketi, öğrenme çıktısı, ÇK/PÇ hesabı, ölçüt rehberi ya da dil denetimi.";
+  "Akredit ile ilk adım. Önce hangi aracı kullanacağınızı seçersiniz: Bologna paketi, öğrenme çıktısı, ÇK/PÇ hesabı, ölçüt rehberi, dil denetimi ya da başka bir araç.";
 
 export const ACIK_ISTEMLER: readonly AcikIstem[] = [
   {
-    ad: "basla",
-    baslik: "Başla: neye odaklanalım?",
+    ad: "akredit",
+    baslik: "Akredit: hangi aracı kullanalım?",
     aciklama: BASLA_ACIKLAMASI,
     argumanlar: { odak: "İsteğe bağlı: 1-5 arası odak numarası" },
     metin: (a) => ile(basla(kisa(a.odak, 20))),
   },
   {
+    ad: "basla",
+    baslik: "Başla (akredit ile aynı)",
+    aciklama: "akredit ile aynı.",
+    argumanlar: { odak: "İsteğe bağlı: 1-5 arası odak numarası" },
+    metin: (a) => ile(basla(kisa(a.odak, 20))),
+  },
+  {
     ad: "baslangic",
-    baslik: "Başlangıç (basla ile aynı)",
-    aciklama: "basla ile aynı. Eski adıdır, geriye uyum için durur.",
+    baslik: "Başlangıç (akredit ile aynı)",
+    aciklama: "akredit ile aynı. Eski adıdır, geriye uyum için durur.",
     argumanlar: { odak: "İsteğe bağlı: 1-5 arası odak numarası" },
     metin: (a) => ile(basla(kisa(a.odak, 20))),
   },
