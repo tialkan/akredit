@@ -2,7 +2,7 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "baseUrl": ".",
+    "types": ["node"],
     "paths": {
       "next/link": ["./yardim/link.tsx"]
     }
