@@ -1,70 +1,111 @@
-import { ACIK_ARACLAR } from "@akredit/acik-mcp";
+// Ana sayfa: tek amaç (kurucu isteği, İP-49). Akredit'i yapay zekânıza ekleyin, sonra akredit yazın.
+// Kurulum adımları elle yazılmaz; herkese açık MCP'nin kurulum rehberinden (kurulum_yardimi aracı) okunur.
+// Platform tanıtımı ve diğer her şey /proje sayfasındadır.
+
+import { type Adim, AKREDIT_ODAKLARI } from "@akredit/acik-mcp";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { dugmeSinifi } from "../../bilesenler/dugme.tsx";
-import { Bolum, Dayanak, Dayanaklar, DonemCizelgesi, Olculer, YapisalVeri } from "../../site/bilesenler.tsx";
-import { yokakOzeti } from "../../site/cerceve-ozeti.ts";
-import {
-  AKIS,
-  type DayanakKaynagi,
-  DONEM_AKISI,
-  DORT_ROL,
-  depo,
-  IS_BOLUMU,
-  KONUM_TABLOSU,
-  SAYFALAR,
-  SORUMLULUK,
-  VAAT_CERCEVESI,
-} from "../../site/icerik.ts";
-import { OnayOnizleme } from "../../site/onay-onizleme.tsx";
-import { PlatformDurumu } from "../../site/platform-durumu.tsx";
+import { YapisalVeri } from "../../site/bilesenler.tsx";
+import { SAYFALAR } from "../../site/icerik.ts";
+import { KopyalaKutusu } from "../../site/kopyala.tsx";
+import { GELISTIRICI_ARACLARI, kurulumAdimlari, MCP_ADRESI, UYGULAMALAR, type Uygulama } from "../../site/kurulum.ts";
 import { sayfaUstVerisi } from "../../site/yapisal.ts";
 
 export const metadata: Metadata = sayfaUstVerisi(SAYFALAR.ana);
 
-const DAYANAKLAR: DayanakKaynagi[] = [
+/** Kısa örnek konuşma. Kurgudur; menü, akredit başlangıcının gerçek odak listesinden okunur. */
+const ORNEK: { kim: "Siz" | "Asistan"; metin: string }[] = [
+  { kim: "Siz", metin: "akredit" },
   {
-    baslik: "Kanıtsız iddia ve uydurma yasağı, atıf denetimi, belirlenimci ölçme: değişmez ilkeler.",
-    adres: depo("CLAUDE.md"),
+    kim: "Asistan",
+    metin: [
+      "Bugün neye odaklanalım? Numarasını yazmanız yeter.",
+      ...AKREDIT_ODAKLARI.map((o) => `${o.no}) ${o.ad}`),
+    ].join("\n"),
   },
+  { kim: "Siz", metin: "1" },
   {
-    baslik: "Risk sınıfları ve devredilemeyen kararlar: sıfır iş yükü ve insan kararı kaydı.",
-    adres: depo("docs/adr/0004-sifir-is-yuku-ve-insan-karari.md"),
+    kim: "Asistan",
+    metin:
+      "Önce bir kural: kullanıcı adınızı ve parolanızı yalnız OBS'nin kendi giriş ekranına, kendiniz yazın. Bana yazmayın. OBS adresiniz nedir?",
   },
-  { baslik: "Yapay zekâ anahtarının şifreli saklanması ve kurum anahtarıyla çalışma.", adres: depo("packages/yz") },
-  {
-    baslik: "Yalnız ekleme yapılan günlük ve özet zinciri: veritabanı ve değişmezlik kararı.",
-    adres: depo("docs/adr/0002-veritabani-ve-degismezlik.md"),
-  },
-  {
-    baslik: "Bir dönemin adımları: süreç, Bologna, ders dosyası, anket, toplantı ve rapor iş paketlerinin raporları.",
-    adres: depo("docs/raporlar"),
-  },
-  {
-    baslik: "Ölçüt sayıları resmî kılavuzdan çıkarılan çerçeve verisinden sayılır.",
-    adres: depo("packages/cerceveler"),
-  },
-  { baslik: "Mevcut sistemlerden okunanlar ve okunmayanlar: bağlayıcılar.", adres: depo("packages/baglayicilar") },
+  { kim: "Siz", metin: "obs.kurgu.edu.tr" },
 ];
 
-const yokak = yokakOzeti();
-const DOKUNUS = DONEM_AKISI.reduce((t, a) => t + a.dokunus, 0);
-const MCP_ADRESI = "https://akredit.org/mcp";
-const BAG = "font-semibold text-vurgu underline underline-offset-4";
+const SSS: { soru: string; cevap: string }[] = [
+  {
+    soru: "Akredit araçları görünmüyor",
+    cevap: `Yeni bir sohbet açın; eklediğiniz araç eski sohbette görünmeyebilir. Yazı kutusunun altındaki + düğmesinden ya da araç menüsünden Akredit'in açık olduğuna bakın (adı sizde farklı olabilir). Adresin tam olarak ${MCP_ADRESI} olduğunu denetleyin. Komut görünmüyorsa "Akredit ile başlayalım" yazmanız yeter.`,
+  },
+  {
+    soru: "Ücretli mi?",
+    cevap:
+      "Hayır. Akredit ücretsizdir, hesap açmanız gerekmez. Kullandığınız yapay zekâ hizmetinin kendi planı ayrıca geçerlidir; özel araç ekleme her planda açık olmayabilir.",
+  },
+  {
+    soru: "Yazdıklarım nereye gidiyor?",
+    cevap:
+      "Akredit yalnız okur ve hesaplar. İstek içeriği kaydedilmez; kayda yalnız araç adı, süre ve istek boyutu yazılır. Öğrenci adı ve numarası, parola ya da doğrulama kodu göndermeyin. Kullandığınız yapay zekâ hizmetinin kendi veri politikası ayrıca geçerlidir.",
+  },
+  {
+    soru: "ChatGPT'de olmuyor",
+    cevap:
+      "ChatGPT'de araç eklemek için ayarlarda geliştirici kipinin açık olması gerekir. İş ve kurum hesaplarında bu ayarı yönetici açar; açamıyorsanız yöneticinize sorun ya da Claude ile deneyin.",
+  },
+];
 
-/** İlk ekranın arkasındaki on iki sütunluk ince ızgara: yönetmelik ve rapor sayfasının dizgi ızgarası. Süstür. */
-function BelgeIzgarasi() {
+const BAG = "text-vurgu underline underline-offset-4";
+
+function AdimListesi({ adimlar }: { adimlar: Adim[] }) {
   return (
-    <div aria-hidden className="belge-izgara hidden lg:block">
-      <div className="mx-auto h-full max-w-6xl px-4">
-        <div className="grid h-full grid-cols-12 gap-x-8">
-          {Array.from({ length: 12 }, (_, i) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: sabit, sırası değişmeyen süs çizgileri
-            <span key={i} className="border-x border-cizgi/45" />
-          ))}
-        </div>
+    <ol className="mt-4 grid gap-3">
+      {adimlar.map((a) => (
+        <li key={a.no} className="grid grid-cols-[2.25rem_1fr] gap-x-2">
+          <span className="paragraf-no text-xl leading-7" aria-hidden>
+            {a.no}.
+          </span>
+          <div>
+            <p>
+              <span className="sr-only">{a.no}. </span>
+              {a.yap}
+            </p>
+            {a.goreceginiz ? <p className="text-soluk">Göreceğiniz: {a.goreceginiz}</p> : null}
+            {a.degisebilir ? <p className="text-soluk">Menünün adı sizde biraz farklı olabilir.</p> : null}
+          </div>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function UygulamaBolumu({ u }: { u: Uygulama }) {
+  return (
+    <details id={`kur-${u.kimlik}`} open={u.acik} className="group rounded-sm border border-cizgi-guclu bg-yuzey">
+      <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-4 py-2 text-xl text-vurgu [&::-webkit-details-marker]:hidden">
+        <span>{u.ad}</span>
+        <span aria-hidden className="text-2xl leading-none transition-transform group-open:rotate-45">
+          +
+        </span>
+      </summary>
+      <div className="border-t border-cizgi px-4 pt-2 pb-5">
+        {u.komut ? <KopyalaKutusu etiket="Tek satırlık komut" metin={u.komut} /> : null}
+        <KopyalaKutusu etiket="Akredit'in adresi" metin={MCP_ADRESI} />
+        <AdimListesi adimlar={kurulumAdimlari(u)} />
+        {u.ek ? <p className="mt-3 text-soluk">{u.ek}</p> : null}
       </div>
-    </div>
+    </details>
+  );
+}
+
+function AdimBasligi({ no, id, children }: { no: number; id: string; children: string }) {
+  return (
+    <h2 id={id} className="flex items-baseline gap-3 text-[1.9rem] leading-tight text-vurgu sm:text-[2.3rem]">
+      <span className="paragraf-no shrink-0 whitespace-nowrap" aria-hidden>
+        {`Adım ${no}`}
+      </span>
+      <span className="sr-only">{`Adım ${no}: `}</span>
+      <span>{children}</span>
+    </h2>
   );
 }
 
@@ -72,293 +113,93 @@ export default function AnaSayfa() {
   return (
     <>
       <YapisalVeri sayfa={SAYFALAR.ana} />
-      <section className="relative border-b border-cizgi bg-yuzey">
-        <BelgeIzgarasi />
-        <div className="relative mx-auto grid max-w-6xl gap-x-8 gap-y-12 px-4 pt-10 pb-12 sm:pt-14 lg:grid-cols-12 lg:pt-14">
-          <div className="lg:col-span-7">
-            <p className="sayilar flex items-baseline gap-3 text-soluk">
-              {/* Bölüm işareti ve numarası bölünmez boşlukla bağlıdır; dar ekranda satıra kırılmaz (İP-42). */}
-              <span className="paragraf-no shrink-0 whitespace-nowrap text-lg" aria-hidden>
-                {"§ 0"}
-              </span>
-              <span className="text-lg">Ücretsiz, hesapsız, kendi yapay zekânızla. Yalnız okur ve hesaplar.</span>
-            </p>
-            <h1 className="mt-6 text-[2.4rem] leading-[1.05] tracking-[-0.03em] text-vurgu sm:text-[3.5rem] xl:text-[3.9rem]">
-              {SAYFALAR.ana.baslik}
-            </h1>
-            <p className="mt-6 max-w-[56ch] text-lg">
-              Claude, ChatGPT, Cursor ya da VS Code'a tek bir adres ekleyin:{" "}
-              <code className="rounded-sm border border-cizgi bg-zemin px-1.5 py-0.5 font-mono text-[0.92em] whitespace-nowrap">
-                {MCP_ADRESI}
-              </code>
-              . Asistanınız YÖKAK, MÜDEK, FEDEK, EPDAD ve SABAK ölçütlerinin resmî metnine kaynağıyla bakar. Bologna
-              ders bilgisini ve rapor dilini denetler, anonim puan tablosundan ÇK ve PÇ sağlanma düzeyini hesaplar.
-              <Dayanak n={6} />
-            </p>
-            <p className="mt-4 max-w-[56ch] text-soluk">
-              Hesap açmanız gerekmez, ücret yoktur. Araçlar karar vermez, imza atmaz, bir yere göndermez. Kişisel veri
-              göndermeyin: sunucu görürse işlemi yapmaz.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
-              <Link href="/mcp-kullan" className={dugmeSinifi("birincil", "orta", "rounded-sm")}>
-                Yapay zekânıza ekleyin
-              </Link>
-              <Link href="/deneyin" className={`inline-flex min-h-11 items-center ${BAG}`}>
-                Hesap açmadan deneyin
-              </Link>
-              <Link href="/panel/onaylar" className={`inline-flex min-h-11 items-center ${BAG}`}>
-                Örnek onay kutusunu açın
-              </Link>
-            </div>
-          </div>
-          <div className="lg:col-span-5 lg:mt-16">
-            <h2 className="text-xl font-semibold text-metin">Araçlar</h2>
-            <ul className="mt-3 border-b border-cizgi">
-              {ACIK_ARACLAR.map((a) => (
-                <li key={a.ad} className="border-t border-cizgi py-2">
-                  {a.baslik}
-                </li>
-              ))}
-            </ul>
-            <div className="mt-8">
-              <PlatformDurumu />
-            </div>
-          </div>
-          <Olculer
-            className="lg:col-span-12"
-            ogeler={[
-              { deger: yokak.olcutSayisi, ad: "YÖKAK ölçütü, resmî metinden", dayanak: 6, tekrar: true },
-              { deger: yokak.altOlcutSayisi, ad: "alt ölçüt, resmî metinden", dayanak: 6, tekrar: true },
-              { deger: ACIK_ARACLAR.length, ad: "araç, ücretsiz ve hesapsız" },
-            ]}
-          />
+      <section aria-labelledby="ana-baslik" className="border-b border-cizgi bg-yuzey">
+        <div className="mx-auto max-w-3xl px-4 pt-10 pb-10 sm:pt-14">
+          <h1 id="ana-baslik" className="text-[2.3rem] leading-[1.08] tracking-[-0.025em] text-vurgu sm:text-[3.2rem]">
+            {SAYFALAR.ana.baslik}
+          </h1>
+          <p className="mt-5 text-xl">
+            Ücretsiz ve açık kaynak. Hesap açmanız gerekmez. Claude ya da ChatGPT'ye bir kez ekleyin, sonra akredit
+            yazarak başlayın.
+          </p>
         </div>
       </section>
 
-      <Bolum
-        id="platform"
-        baslik="Platform"
-        not="Yazılım tamamlandı ve açık kaynak. Barındırılan hizmet sponsor bulunana kadar askıda."
-        zemin
-      >
-        <div className="grid gap-x-10 gap-y-8 xl:grid-cols-[1fr_22rem]">
-          <div>
-            <p className="font-serif text-[1.5rem] leading-snug font-semibold text-metin sm:text-[1.75rem]">
-              {VAAT_CERCEVESI}
-            </p>
-            <p className="mt-5 max-w-[60ch] text-lg">
-              Akredit platformu kanıtı kurumun sistemlerinden toplar, sayıları hesaplar, raporu yazar ve süreci takip
-              eder. Kanıtı olmayan olgusal cümle rapora girmez, EKSİK olarak işaretlenir.
-              <Dayanak n={1} /> Öğretim elemanı önüne gelen karara kanıtıyla bakar ve tek dokunuşla karar verir.
-              Olgunluk düzeyi ve dış kuruma gönderim gibi kararlar hiçbir zaman otomatik verilmez.
-              <Dayanak n={2} />
-            </p>
-            <p className="mt-4 max-w-[60ch] text-soluk">
-              Yazılım ücretsizdir. Kendi kurulumunuzda yapay zekâ için kurum kendi OpenRouter anahtarını bir kez girer;
-              kullanım ücreti kurumun hesabına yansır.
-              <Dayanak n={3} /> Kurumlara akredit.org üzerinden barındırılan hizmet sponsor bulunana kadar sunulmuyor.
-              Demoyu hesap açmadan deneyebilir, yazılımı kendi sunucunuza kurabilirsiniz.
-            </p>
-            <Olculer
-              className="mt-8"
-              ogeler={[
-                { deger: AKIS.length, ad: "adım: kanıttan günlüğe", dayanak: 1, tekrar: true },
-                { deger: DOKUNUS, ad: "dokunuş: örnek bir dönemde hocaya kalan", dayanak: 5 },
-              ]}
-            />
+      <section id="kurulum" aria-labelledby="adim-1" className="bg-zemin">
+        <div className="mx-auto max-w-3xl px-4 py-10 text-lg sm:py-14">
+          <AdimBasligi no={1} id="adim-1">
+            Akredit'i yapay zekânıza ekleyin
+          </AdimBasligi>
+          <p className="mt-3">Kullandığınız uygulamayı açın ve adımları sırayla izleyin.</p>
+          <div className="mt-6 grid gap-3">
+            {UYGULAMALAR.map((u) => (
+              <UygulamaBolumu key={u.kimlik} u={u} />
+            ))}
           </div>
-          <div>
-            <OnayOnizleme />
-            <p className="mt-3 text-sm text-soluk">
-              Her karar adla, zamanla ve dayanağıyla günlüğe eklenir. Kayıt iz bırakmadan değiştirilemez: her değişiklik
-              yeni kayıt olarak görünür, kayıtlar özet zinciriyle birbirine bağlıdır.
-              <Dayanak n={4} />
-            </p>
+          <h3 className="mt-8 text-xl text-metin">Bilgisayar kullananlar için</h3>
+          <p className="mt-1 text-soluk">Geliştirici araçları: uçbirim ve kod düzenleyiciler.</p>
+          <div className="mt-3 grid gap-3">
+            {GELISTIRICI_ARACLARI.map((u) => (
+              <UygulamaBolumu key={u.kimlik} u={u} />
+            ))}
           </div>
         </div>
-      </Bolum>
+      </section>
 
-      <Bolum
-        no={1}
-        id="is-bolumu"
-        baslik="İşi kim yapar"
-        not="Veri toplama, hesap, yazım ve takip sistemde. Pedagojik ve kurumsal karar insanda."
-      >
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[34rem] border-collapse text-left">
-            <caption className="sr-only">İşin sistem ile insan arasındaki bölümü</caption>
-            <thead>
-              <tr className="border-b-2 border-cizgi-guclu">
-                <th scope="col" className="py-2 pr-4">
-                  İş
-                </th>
-                <th scope="col" className="py-2 pr-4">
-                  Sistem
-                </th>
-                <th scope="col" className="py-2">
-                  Size kalan
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {IS_BOLUMU.map((s) => (
-                <tr key={s.alan} className="border-b border-cizgi align-top">
-                  <th scope="row" className="w-32 py-3 pr-4 font-semibold">
-                    {s.alan}
-                  </th>
-                  <td className="py-3 pr-4 text-soluk">{s.sistem}</td>
-                  <td className={`py-3 ${s.alan === "Karar" ? "font-semibold text-petrol" : ""}`}>{s.insan}</td>
-                </tr>
+      <section aria-labelledby="adim-2" className="border-t border-cizgi bg-yuzey">
+        <div className="mx-auto max-w-3xl px-4 py-10 text-lg sm:py-14">
+          <AdimBasligi no={2} id="adim-2">
+            akredit yazın
+          </AdimBasligi>
+          <ol className="mt-4 grid list-decimal gap-2 pl-7">
+            <li>Yeni bir sohbet açın.</li>
+            <li>Yazı kutusuna akredit yazıp gönderin.</li>
+            <li>Asistan hangi aracı kullanmak istediğinizi sorar. Numarasını yazarak seçin.</li>
+          </ol>
+          <figure className="mt-6 rounded-sm border border-cizgi bg-zemin p-4 sm:p-5">
+            <figcaption className="text-base text-soluk">
+              Örnek konuşma (kurgudur, sizde biraz farklı olabilir)
+            </figcaption>
+            <dl className="mt-3 grid gap-3">
+              {ORNEK.map((s, i) => (
+                // biome-ignore lint/suspicious/noArrayIndexKey: sabit, sırası değişmeyen örnek konuşma
+                <div key={i} className="grid gap-x-3 sm:grid-cols-[5.5rem_1fr]">
+                  <dt className={s.kim === "Siz" ? "text-petrol" : "text-soluk"}>{s.kim}</dt>
+                  <dd className="whitespace-pre-line">{s.metin}</dd>
+                </div>
               ))}
-            </tbody>
-          </table>
-        </div>
-        <aside aria-labelledby="sorumluluk" className="mt-8 rounded-sm border border-cizgi-guclu bg-zemin p-5">
-          <h3 id="sorumluluk" className="text-lg font-semibold text-vurgu">
-            Sorumluluk kimde
-          </h3>
-          <p className="mt-2">{SORUMLULUK}</p>
-        </aside>
-      </Bolum>
-
-      <Bolum no={2} id="roller" baslik="Kim için ne yapar" not="Dört karar verici, dört ayrı soru." zemin>
-        <ul className="grid gap-px overflow-hidden rounded-sm border border-cizgi bg-cizgi sm:grid-cols-2">
-          {DORT_ROL.map((r) => (
-            <li key={r.kimlik} className="bg-yuzey p-5">
-              <Link
-                href={`/kimler-icin#${r.kimlik}`}
-                className="inline-flex min-h-11 items-center text-xl font-semibold text-vurgu underline underline-offset-4"
-              >
-                {r.ad}
-              </Link>
-              <p className="mt-1 text-soluk">{r.kisa}</p>
-            </li>
-          ))}
-        </ul>
-      </Bolum>
-
-      <Bolum no={3} id="donem" baslik="Bir dönem nasıl geçer" not="Bir öğretim elemanının dönemi, örnek bir takvimle.">
-        <DonemCizelgesi adimlar={DONEM_AKISI} />
-        <p className="mt-2 text-sm text-soluk">
-          Adımların kaynağı:
-          <Dayanak n={5} tekrar />
-        </p>
-      </Bolum>
-
-      <Bolum no={4} id="akis" baslik="Bir önerinin yolu" not="Her öneri aynı altı adımdan geçer." zemin>
-        <ol className="grid gap-px overflow-hidden rounded-sm border border-cizgi bg-cizgi sm:grid-cols-2 lg:grid-cols-3">
-          {AKIS.map((a, i) => (
-            <li key={a.ad} className="bg-yuzey p-5">
-              <p className="paragraf-no text-[2rem] leading-none" aria-hidden>
-                {i + 1}
-              </p>
-              <p className={`mt-3 text-lg font-semibold ${a.ad === "Onay" ? "text-petrol" : ""}`}>{a.ad}</p>
-              <p className="mt-1 text-soluk">{a.metin}</p>
-            </li>
-          ))}
-        </ol>
-        <p className="mt-5">
-          <Link href="/nasil-calisir" className={BAG}>
-            Akışın ayrıntısı, risk düzeyleri ve yetki devri
-          </Link>
-        </p>
-      </Bolum>
-
-      <Bolum
-        no={5}
-        id="konum"
-        baslik="Mevcut sistemlerin üstünde çalışır"
-        not="Akredit hiçbir sistemin yerine geçmez. Kurumun kullandığı sistemlerden okur."
-      >
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[40rem] border-collapse text-left">
-            <caption className="sr-only">Mevcut sistemlerle bağlantı</caption>
-            <thead>
-              <tr className="border-b-2 border-cizgi-guclu">
-                <th scope="col" className="py-2 pr-4">
-                  Sistem
-                </th>
-                <th scope="col" className="py-2 pr-4">
-                  Nasıl bağlanır
-                </th>
-                <th scope="col" className="py-2">
-                  Sınır
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {KONUM_TABLOSU.map((k) => (
-                <tr key={k.sistem} className="border-b border-cizgi align-top">
-                  <th scope="row" className="py-3 pr-4 font-semibold">
-                    {k.sistem}
-                  </th>
-                  <td className="py-3 pr-4">{k.baglanti}</td>
-                  <td className="py-3 text-soluk">{k.sinir}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <p className="mt-4 text-sm text-soluk">
-          Her bağlayıcının okuduğu ve okumadığı Ne yapar sayfasında.
-          <Dayanak n={7} />
-        </p>
-      </Bolum>
-
-      <Bolum
-        no={6}
-        id="kazanc"
-        baslik="Hedefi ölçerek koyun"
-        not="Hedef yazılıdır. Ölçüm, yazılımı kullanan bir kurumla yapılacak."
-        zemin
-      >
-        <div className="metin-sayfa [&>*:first-child]:mt-0">
-          <p>
-            Bologna sayfası, ders dosyası, ÇK ve PÇ hesabı, anket analizi, tutanak ve öz değerlendirme raporu bugün
-            dönem başına saatler alıyor. Bu işin büyük kısmı veri taşıma, hesap ve yazımdır. Bunları sistem yapar.
-          </p>
-          <p>
-            Hedef, öğretim elemanının dönemlik kalite işini yalnız kararlardan oluşan 15 dakikanın altına indirmektir.
-            Bu hedef henüz ölçülmedi. Ölçüm pilot uygulamada onay ekranında geçen süreyle yapılacak. Pilot, barındırılan
-            hizmetle birlikte sponsor bulunana kadar askıda.
-          </p>
-          <p>
-            Modüllerin bugünkü durumu{" "}
-            <Link href="/ne-yapar" className={BAG}>
-              Ne yapar
-            </Link>{" "}
-            sayfasında, sıradaki işler{" "}
-            <Link href="/yol-haritasi" className={BAG}>
-              Yol haritası
-            </Link>{" "}
-            sayfasında.
+            </dl>
+          </figure>
+          <p
+            role="note"
+            className="mt-5 rounded-sm border border-risk-orta bg-risk-orta-zemin px-4 py-3 text-risk-orta"
+          >
+            Bologna için OBS'ye girerken kullanıcı adınızı ve parolanızı yalnız OBS'nin kendi ekranına yazın; asistana
+            ve sohbete asla yazmayın.
           </p>
         </div>
-      </Bolum>
+      </section>
 
-      <Bolum no={7} id="sayfalar" baslik="Ayrıntıları okuyun">
-        <ul className="grid gap-x-10 sm:grid-cols-2">
-          {[
-            SAYFALAR.neYapar,
-            SAYFALAR.kimler,
-            SAYFALAR.cerceveler,
-            SAYFALAR.yz,
-            SAYFALAR.giris,
-            SAYFALAR.guvenlik,
-            SAYFALAR.sinirlar,
-            SAYFALAR.yolHaritasi,
-            SAYFALAR.mcpKullan,
-          ].map((s) => (
-            <li key={s.yol} className="border-t border-cizgi py-4">
-              <Link href={s.yol} className="text-lg font-semibold text-vurgu underline-offset-4 hover:underline">
-                {s.ad}
-              </Link>
-              <p className="mt-1 text-soluk">{s.aciklama}</p>
-            </li>
-          ))}
-        </ul>
-      </Bolum>
-      <Dayanaklar ogeler={DAYANAKLAR} />
+      <section aria-labelledby="takildiniz" className="border-t border-cizgi bg-zemin">
+        <div className="mx-auto max-w-3xl px-4 py-10 text-lg sm:py-14">
+          <h2 id="takildiniz" className="text-[1.75rem] leading-tight text-vurgu">
+            Takıldınız mı?
+          </h2>
+          <div className="mt-4 grid gap-2">
+            {SSS.map((s) => (
+              <details key={s.soru} className="rounded-sm border border-cizgi bg-yuzey">
+                <summary className="flex min-h-12 cursor-pointer items-center px-4 py-2">{s.soru}</summary>
+                <p className="border-t border-cizgi px-4 py-3">{s.cevap}</p>
+              </details>
+            ))}
+          </div>
+          <p className="mt-6">
+            <Link href="/mcp-kullan" className={`inline-flex min-h-11 items-center ${BAG}`}>
+              Ayrıntılı kurulum rehberi ve bütün araçlar
+            </Link>
+          </p>
+        </div>
+      </section>
     </>
   );
 }

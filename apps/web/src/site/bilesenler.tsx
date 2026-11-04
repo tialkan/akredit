@@ -31,7 +31,10 @@ export function SayfaBasi({
         <nav aria-label="Konum" className="text-sm text-soluk">
           <ol className="flex flex-wrap gap-x-2">
             <li>
-              <Link href="/" className="underline underline-offset-4 hover:text-vurgu">
+              <Link
+                href="/"
+                className="inline-flex min-h-11 items-center underline underline-offset-4 hover:text-vurgu"
+              >
                 Ana sayfa
               </Link>
             </li>

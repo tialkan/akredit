@@ -24,22 +24,34 @@ async function durumNotuVar(page: Page) {
 test.describe("barındırma kapalı (varsayılan)", () => {
   test.use({ baseURL: KAPALI_ADRESI, viewport: { width: 1440, height: 900 } });
 
-  test("ana sayfa: ilk ekranda MCP ve durum notu; başlıkta giriş ve kurum açma yok", async ({ page }) => {
+  test("ana sayfa: ilk ekranda iki adım ve MCP adresi; başlıkta giriş ve kurum açma yok", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-      "Akreditasyon ölçütleri ve denetimleri, kendi yapay zekânızda.",
+      "Akreditasyon ve Bologna yardımcısı, kendi yapay zekânızda.",
     );
-    const ilk = page.locator("main section").first();
-    await expect(ilk.getByText("https://akredit.org/mcp", { exact: true })).toBeInViewport();
-    await expect(ilk).toContainText("YÖKAK, MÜDEK, FEDEK, EPDAD ve SABAK");
-    await expect(ilk.getByRole("link", { name: "Yapay zekânıza ekleyin" })).toHaveAttribute("href", "/mcp-kullan");
-    await durumNotuVar(page);
+    await expect(page.getByRole("heading", { level: 2, name: /Akredit'i yapay zekânıza ekleyin/u })).toBeInViewport();
+    await expect(page.locator("#kur-claude").getByText("https://akredit.org/mcp", { exact: true })).toBeVisible();
     const ust = page.locator("header").first();
     await expect(ust.getByRole("link", { name: "Giriş", exact: true })).toHaveCount(0);
     await expect(ust.getByRole("link", { name: "Kurumunuzu açın" })).toHaveCount(0);
-    await expect(ust.getByRole("link", { name: "Deneyin", exact: true })).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "Site menüsü" }).getByRole("link")).toHaveText([
+      "Nasıl kurulur",
+      "Proje ayrıntıları",
+      "İletişim",
+    ]);
     await expect(page.getByRole("link", { name: /Pilot kurum/u })).toHaveCount(0);
     await axe(page);
+  });
+
+  test("proje ayrıntıları: askıdaki sayfalar Askıda, durum notu ve sponsor çağrısı var", async ({ page }) => {
+    await page.goto("/proje");
+    for (const y of ["/kurum-ac", "/pilot", "/giris", "/giris-ve-hesap"])
+      await expect(page.locator(`[data-proje-sayfasi="${y}"] [data-durum]`), y).toHaveText("Askıda");
+    await expect(page.locator('[data-proje-sayfasi="/mcp-kullan"] [data-durum]')).toHaveText("Çalışıyor");
+    await durumNotuVar(page);
+    await axe(page);
+    await page.goto("/pilot");
+    await expect(page.locator("[data-sayfa-durumu] [data-durum]")).toHaveText("Askıda");
   });
 
   test("kurum açma: form yok, durum ve sponsor çağrısı var", async ({ page }) => {
@@ -82,8 +94,8 @@ test.describe("barındırma kapalı (varsayılan)", () => {
   });
 
   test("demo etkilenmez: rol seçimi panele götürür", async ({ page }) => {
-    await page.goto("/");
-    await page.getByRole("link", { name: "Hesap açmadan deneyin" }).click();
+    await page.goto("/proje");
+    await page.getByRole("link", { name: "Demo: Örnek Üniversitesi" }).click();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Hesap açmadan deneyin");
     await expect(page.getByRole("button", { name: "Öğretim elemanı olarak dene" })).toBeVisible();
   });

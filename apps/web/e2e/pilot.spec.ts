@@ -1,5 +1,5 @@
 // İP-42 uçtan uca: pilot başvurusu (barındırma açık sunucuda, AKREDIT_BARINDIRMA=1; kapalısı barindirma.spec.ts) gerçek arka uçla (boş PGlite, SMTP yok → kaydedilir, "alındı" döner),
-// 375 px'te ana sayfa "§" işaretinin kırılmaması, sitede depo yolu görünmemesi ve 375/1440 ekran görüntüleri
+// 375 px'te ana sayfa ve proje ayrıntılarında taşma olmaması (İP-49), sitede depo yolu görünmemesi ve 375/1440 ekran görüntüleri
 // (docs/tasarim/ekranlar/*-ip42-*.png).
 
 import { join } from "node:path";
@@ -54,45 +54,59 @@ test.describe("pilot başvurusu", () => {
 });
 
 test.describe("İP-42 site metni", () => {
-  test("375 px: ana sayfa başındaki § işareti numarasıyla tek satırda", async ({ page }) => {
-    await page.setViewportSize({ width: 375, height: 812 });
-    await page.goto("/");
-    const isaret = page.locator("main .paragraf-no").first();
-    await expect(isaret).toHaveText("§ 0");
-    const kutu = await isaret.boundingBox();
-    const satir = await isaret.evaluate((e) => Number.parseFloat(getComputedStyle(e).lineHeight));
-    expect(kutu?.height ?? 0).toBeLessThan(satir * 1.5);
-    const tasma = await page.evaluate(
-      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-    );
-    // Taşma olursa ileti taşan öğeleri (kaydırma kabı içindekiler hariç) adıyla söyler.
-    const tasanlar = await page.evaluate(() =>
-      [...document.querySelectorAll("body *")]
-        .filter((e) => e.getBoundingClientRect().right > document.documentElement.clientWidth + 1)
-        .filter((e) => !e.closest("[class*='overflow-x-auto']"))
-        .slice(0, 6)
-        .map((e) => `${e.tagName.toLowerCase()}.${String(e.className).slice(0, 50)}`),
-    );
-    expect(tasma, tasanlar.join(" | ")).toBeLessThanOrEqual(0);
-  });
+  for (const yol of ["/", "/proje", "/kvkk"]) {
+    test(`375 px: ${yol} taşmaz, dokunma alanları en az 44 px`, async ({ page }) => {
+      await page.setViewportSize({ width: 375, height: 812 });
+      await page.goto(yol);
+      // Ana sayfada bütün açılır bölümler açılır; açık hâlde de taşma olmamalı.
+      await page.evaluate(() => {
+        for (const d of document.querySelectorAll("details")) d.open = true;
+      });
+      const tasma = await page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      );
+      // Taşma olursa ileti taşan öğeleri (kaydırma kabı içindekiler hariç) adıyla söyler.
+      const tasanlar = await page.evaluate(() =>
+        [...document.querySelectorAll("body *")]
+          .filter((e) => e.getBoundingClientRect().right > document.documentElement.clientWidth + 1)
+          .filter((e) => !e.closest("[class*='overflow-x-auto']"))
+          .slice(0, 6)
+          .map((e) => `${e.tagName.toLowerCase()}.${String(e.className).slice(0, 50)}`),
+      );
+      expect(tasma, tasanlar.join(" | ")).toBeLessThanOrEqual(0);
+      // Hukuk metninin içindeki satır içi bağlantılar sayılmaz; denetim ana yoldaki sayfalar içindir.
+      if (yol === "/kvkk") return;
+      const kucukler = await page.evaluate(() =>
+        [...document.querySelectorAll<HTMLElement>("header a, header button, main a, main button, main summary")]
+          .filter((e) => e.getClientRects().length > 0 && !e.closest("p, dd, li p"))
+          .filter((e) => e.getBoundingClientRect().height < 44)
+          .map((e) => (e.textContent ?? "").trim().slice(0, 40)),
+      );
+      expect(kucukler).toEqual([]);
+    });
+  }
 
-  test("ana sayfadan dört role yönlendirme", async ({ page }) => {
-    await page.goto("/");
-    const roller = page.locator("section").filter({ has: page.getByRole("heading", { name: "Kim için ne yapar" }) });
+  test("kimler için: dört rol bölümü", async ({ page }) => {
+    await page.goto("/kimler-icin");
     for (const ad of ["Rektörlük", "Kalite komisyonu", "Bölüm başkanı", "Öğretim elemanı"])
-      await expect(roller.getByRole("link", { name: ad, exact: true })).toBeVisible();
-    await roller.getByRole("link", { name: "Bölüm başkanı", exact: true }).click();
-    await expect(page).toHaveURL(/\/kimler-icin#bolum-baskani$/u);
-    await expect(page.getByRole("heading", { level: 2, name: "Bölüm başkanı" })).toBeVisible();
+      await expect(page.getByRole("heading", { level: 2, name: ad, exact: true })).toBeVisible();
   });
 
   test("tanıtım sayfalarında depo yolu görünmez; dayanaklar GitHub'a bağlanır", async ({ page }) => {
-    for (const yol of ["/", "/nasil-calisir", "/yapay-zeka", "/giris-ve-hesap", "/ne-yapar", "/kimler-icin"]) {
+    for (const yol of [
+      "/",
+      "/proje",
+      "/nasil-calisir",
+      "/yapay-zeka",
+      "/giris-ve-hesap",
+      "/ne-yapar",
+      "/kimler-icin",
+    ]) {
       await page.goto(yol);
       const metin = await page.locator("body").innerText();
       expect(metin, yol).not.toMatch(/\b(?:packages|apps|docs|infra)\/|\.(?:tsx?|sql)\b|CLAUDE\.md/u);
     }
-    await page.goto("/");
+    await page.goto("/nasil-calisir");
     const bag = page.locator("#dayanak-1 a").last();
     await expect(bag).toHaveAttribute("href", /^https:\/\/github\.com\/tialkan\/akredit\//u);
   });
@@ -112,6 +126,7 @@ test.describe("İP-42 site metni", () => {
       await page.emulateMedia({ reducedMotion: "reduce" });
       for (const [yol, ad] of [
         ["/", "ana-sayfa"],
+        ["/proje", "proje"],
         ["/kimler-icin", "kimler-icin"],
         ["/ne-yapar", "ne-yapar"],
         ["/yol-haritasi", "yol-haritasi"],

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { DEPO_ADRESI, PLATFORM_DURUMU, SPONSOR_CAGRISI } from "./icerik.ts";
 
-const BAG = "font-semibold text-vurgu underline underline-offset-4";
+const BAG = "text-vurgu underline underline-offset-4";
 
 export function PlatformDurumu({ baslikId = "platform-durumu" }: { baslikId?: string }) {
   return (

@@ -1,26 +1,32 @@
 # Akredit
 
-> Akredit, Türk yükseköğretiminde akreditasyon dosyasını kanıttan hazırlayan açık kaynak (Apache-2.0) bir platformdur. Sıfır evrak angaryası, tam akademik irade: veri toplama, hesap, yazım ve takip sistemde; pedagojik ve kurumsal karar insanda. Kanıtı olmayan olgusal cümle rapora girmez, EKSİK olarak işaretlenir. Sayılar belirlenimci hesaptan gelir. Resmî beyan ve sorumluluk onaylayan kurum yetkilisindedir; Akredit kurum adına beyanda bulunmaz. Akredit mevcut sistemlerin (OBS, EBYS, AVESİS) yerine geçmez, üstünde çalışır. Yazılım tamamlandı; kurumlara barındırılan hizmet sponsor bulunana kadar askıdadır. Herkese açık MCP sunucusu ücretsizdir.
+> Akredit, Türk yükseköğretimi için ücretsiz ve açık kaynak (Apache-2.0) bir akreditasyon ve Bologna yardımcısıdır. Kullanıcı kendi yapay zekâsına (Claude, ChatGPT, Claude Code, Cursor, VS Code) herkese açık MCP sunucusunu https://akredit.org/mcp ekler, yeni sohbette akredit yazar; asistan hangi aracın kullanılacağını sorar, kullanıcı rakamla seçer. Hesap gerekmez, sunucu yalnız okur ve hesaplar, kişisel veri ve parola kabul etmez. Kurumlara barındırılan hizmet sponsor bulunana kadar askıdadır.
 
-Önemli sınırlar: Akredit akreditasyon sonucu için garanti vermez. YÖKAK, MÜDEK, YÖK ya da başka bir kuruluşla bağı yoktur. İlk etapta ücretsizdir; yapay zekâ kullanımı için kurum kendi OpenRouter anahtarını getirir ya da kurum içi model kullanır.
+Önemli sınırlar: Akredit akreditasyon sonucu için garanti vermez. YÖKAK, MÜDEK, YÖK ya da başka bir kuruluşla bağı yoktur. OBS'ye girişte kullanıcı adı ve parola yalnız OBS'nin kendi ekranına, kullanıcının kendisi tarafından yazılır.
 
-## Sayfalar
+## Başlangıç
 
-- [Ne yapar](https://akredit.org/ne-yapar): modüller ve her birinin bugünkü durumu; ne girer, ne çıkar, öğretim elemanına ne kalır
-- [Nasıl çalışır](https://akredit.org/nasil-calisir): kanıt, hesap, atıflı taslak, denetim, onay, günlük; risk düzeyleri ve yetki devri
-- [Kimler için](https://akredit.org/kimler-icin): rektörlük, kalite komisyonu, bölüm başkanı, öğretim elemanı; yetki tablosu
-- [Desteklenen çerçeveler](https://akredit.org/cerceveler): YÖKAK 3.3 (4 başlık, 14 ölçüt, 46 alt ölçüt), KİDR 3.2.1, MÜDEK, FEDEK, EPDAD ve SABAK
-- [Yapay zekâ ve anahtar](https://akredit.org/yapay-zeka): OpenRouter anahtarının nerede girildiği ve nasıl şifreli saklandığı, modele giden veri, maskeleme, yurt dışı izni
-- [Giriş ve hesap](https://akredit.org/giris-ve-hesap): parolasız giriş, kurum tek oturumu, yalnız davetle hesap
-- [Güvenlik ve KVKK](https://akredit.org/guvenlik): iz bırakmadan değiştirilemeyen kayıt, kurum yalıtımı, KVKK silme hakkı; hukuk metinleri taslaktır
+- [Ana sayfa](https://akredit.org/): iki adım; Akredit'i yapay zekânıza ekleyin (Claude, ChatGPT, geliştirici araçları; Claude Code için claude mcp add --transport http akredit https://akredit.org/mcp), sonra akredit yazın
+- [Ayrıntılı kurulum ve araçlar](https://akredit.org/mcp-kullan): YÖKAK, MÜDEK, FEDEK, EPDAD ve SABAK ölçüt metni ve olgunluk düzeyleri, Bologna denetimi ve uçtan uca doldurma, ÇK/PÇ hesabı, öz değerlendirme iskeleti, rapor dil denetimi; npm paketi @akredit/acik-mcp
+- [Proje ayrıntıları](https://akredit.org/proje): bütün sayfalar ve durumları (çalışıyor, askıda, taslak)
+- [İletişim](https://akredit.org/iletisim)
+
+## Projenin devam eden ayrıntıları
+
+- [Demo](https://akredit.org/deneyin): uydurma veriyle Örnek Üniversitesi; çalışıyor
+- [Ne yapar](https://akredit.org/ne-yapar): platform modülleri ve durumları
+- [Nasıl çalışır](https://akredit.org/nasil-calisir): kanıt, hesap, atıflı taslak, denetim, onay, günlük
+- [Kimler için](https://akredit.org/kimler-icin): rektörlük, kalite komisyonu, bölüm başkanı, öğretim elemanı
+- [Desteklenen çerçeveler](https://akredit.org/cerceveler): YÖKAK 3.3 (4 başlık, 14 ölçüt, 46 alt ölçüt), KİDR 3.2.1
+- [Yapay zekâ ve anahtar](https://akredit.org/yapay-zeka): kurum anahtarı, modele giden veri, maskeleme
 - [Sınırlar](https://akredit.org/sinirlar): Akredit'in yapmadıkları
 - [Yol haritası](https://akredit.org/yol-haritasi): şimdi yapılan ve sıradaki işler
-- [Kendi yapay zekânızla (MCP)](https://akredit.org/mcp-kullan): herkese açık, hesapsız, salt okuma MCP sunucusu https://akredit.org/mcp; YÖKAK, MÜDEK, FEDEK, EPDAD ve SABAK ölçüt metni ve olgunluk düzeyleri, Bologna denetimi ve uçtan uca doldurma (Proliz ve diğer OBS sayfaları, iş yükü önerisi, künye biçimleme), hazır başlangıç (akredit: önce hangi aracın kullanılacağını sorar), OBS'ye hocanın kendisi girdiği tarayıcı akışı ve kurulum rehberi, ÇK/PÇ hesabı ve not tablosu ayrıştırma, öz değerlendirme iskeleti, rapor dil denetimi; parola ve doğrulama kodu hiç kabul etmez; kişisel veri kabul etmez, kurum verisine erişmez; npm paketi @akredit/acik-mcp
-- [Pilot](https://akredit.org/pilot): barındırılan hizmet sponsor bulunana kadar askıda
 - [Sık sorulan sorular](https://akredit.org/sss)
+- [Güvenlik ve KVKK](https://akredit.org/guvenlik): hukuk metinleri taslaktır
+- [Kurum açma](https://akredit.org/kurum-ac), [Pilot](https://akredit.org/pilot), [Giriş ve hesap](https://akredit.org/giris-ve-hesap): barındırılan hizmetle birlikte askıda
 
 ## İsteğe bağlı
 
-- [Kılavuzlar](https://akredit.org/belgeler)
+- [Kılavuzlar](https://akredit.org/belgeler): taslak
+- [KVKK](https://akredit.org/kvkk), [Gizlilik](https://akredit.org/gizlilik), [Kullanım koşulları](https://akredit.org/kosullar): taslak
 - [Açık kaynak](https://akredit.org/acik-kaynak)
-- [İletişim](https://akredit.org/iletisim)

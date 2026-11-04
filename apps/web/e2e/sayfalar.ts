@@ -2,6 +2,9 @@
 // Değerlendirici portalı örnek kipte "kapalı" durumunu gösterir; dolu hâli ayrıca sınanır.
 export const SAYFALAR = [
   "/",
+  "/proje",
+  "/mcp-kullan",
+  "/deneyin",
   "/ne-yapar",
   "/nasil-calisir",
   "/kimler-icin",

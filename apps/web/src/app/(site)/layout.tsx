@@ -3,102 +3,70 @@ import type { ReactNode } from "react";
 import { dugmeSinifi } from "../../bilesenler/dugme.tsx";
 import { Logo } from "../../bilesenler/logo.tsx";
 import { barindirmaAcik } from "../../site/barindirma.ts";
-import { ALT_MENU, DURUM_NOTU, UST_MENU } from "../../site/icerik.ts";
+import { DEPO_ADRESI, SAYFALAR, UST_MENU } from "../../site/icerik.ts";
+import { SayfaDurumu } from "../../site/sayfa-durumu.tsx";
 
-function MenuListesi({ sinif }: { sinif: string }) {
-  return (
-    <ul className={sinif}>
-      {UST_MENU.map((m) => (
-        <li key={m.yol}>
-          <Link
-            href={m.yol}
-            className="inline-flex min-h-11 items-center rounded-sm px-2 whitespace-nowrap text-metin hover:bg-yuzey-2 hover:text-vurgu"
-          >
-            {m.ad}
-          </Link>
-        </li>
-      ))}
-    </ul>
-  );
-}
+const ALT_BAG = "inline-flex min-h-11 items-center text-metin underline underline-offset-4 hover:text-vurgu";
 
 export default function SiteYerlesimi({ children }: { children: ReactNode }) {
+  const barindirma = barindirmaAcik();
   return (
     <div className="flex min-h-screen flex-col bg-yuzey">
       <header className="border-b border-cizgi bg-yuzey">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-2 gap-y-1 px-4 py-2 sm:gap-x-4">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-1 px-4 py-2">
           <Link href="/" aria-label="Akredit ana sayfa" className="inline-flex min-h-11 items-center">
             <Logo />
           </Link>
-          <nav aria-label="Site menüsü" className="hidden flex-1 xl:block">
-            <MenuListesi sinif="flex justify-end" />
+          {/* Üç öğe: dar ekranda logonun altına iner, açılır menü gerekmez (İP-49). */}
+          <nav aria-label="Site menüsü" className="w-full sm:ml-auto sm:w-auto">
+            <ul className="flex flex-wrap gap-x-1 sm:justify-end">
+              {UST_MENU.map((m) => (
+                <li key={m.yol}>
+                  <Link
+                    href={m.yol}
+                    className="inline-flex min-h-11 items-center rounded-sm px-2 text-lg whitespace-nowrap text-metin hover:bg-yuzey-2 hover:text-vurgu"
+                  >
+                    {m.ad}
+                  </Link>
+                </li>
+              ))}
+              {/* Kurum girişi yalnız barındırılan hizmet açıkken görünür (ADR 0008). */}
+              {barindirma ? (
+                <li>
+                  <Link href="/giris" className={dugmeSinifi("ikincil", "kucuk", "min-h-11 rounded-sm")}>
+                    Giriş
+                  </Link>
+                </li>
+              ) : null}
+            </ul>
           </nav>
-          <div className="ml-auto flex items-center gap-1 sm:gap-2 xl:ml-2">
-            <Link
-              href="/deneyin"
-              className="inline-flex min-h-11 items-center px-2 font-semibold text-vurgu underline underline-offset-4"
-            >
-              Deneyin
-            </Link>
-            <Link
-              href="/mcp-kullan"
-              className="hidden min-h-11 items-center px-2 font-semibold text-vurgu underline underline-offset-4 sm:inline-flex"
-            >
-              Yapay zekânıza ekleyin
-            </Link>
-            {/* Kurum girişi yalnız barındırılan hizmet açıkken görünür (ADR 0008). */}
-            {barindirmaAcik() ? (
-              <Link href="/giris" className={dugmeSinifi("ikincil", "kucuk", "min-h-11 rounded-sm")}>
-                Giriş
-              </Link>
-            ) : null}
-            {/* Dar ekranda menü: betiksiz açılır kapanır öğe. */}
-            <details className="relative xl:hidden">
-              <summary className="inline-flex min-h-11 cursor-pointer list-none items-center rounded-sm border border-cizgi-guclu px-3 font-semibold [&::-webkit-details-marker]:hidden">
-                Menü
-              </summary>
-              <nav
-                aria-label="Kısa menü"
-                className="absolute right-0 z-20 mt-2 w-64 rounded-sm border border-cizgi bg-yuzey p-2"
-              >
-                <MenuListesi sinif="grid" />
-              </nav>
-            </details>
-          </div>
         </div>
       </header>
       <main id="icerik" className="flex-1">
+        <SayfaDurumu barindirma={barindirma} />
         {children}
       </main>
       <footer className="border-t border-cizgi bg-zemin">
-        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 lg:grid-cols-[17rem_1fr] lg:gap-x-12">
-          <div className="text-sm text-soluk">
-            <Logo />
-            <p className="mt-3">
-              Apache-2.0 lisanslı açık kaynak yazılım. Hiçbir akreditasyon kuruluşunun resmî aracı değildir.
-            </p>
-            <p className="mt-3">{DURUM_NOTU}</p>
-          </div>
-          <nav aria-label="Alt menü" className="grid grid-cols-2 gap-8 text-sm sm:grid-cols-4">
-            {ALT_MENU.map((g) => (
-              <div key={g.baslik}>
-                <h2 className="font-semibold text-metin">{g.baslik}</h2>
-                <ul className="mt-2">
-                  {g.sayfalar
-                    .filter((s) => barindirmaAcik() || s.yol !== "/kurum-ac")
-                    .map((s) => (
-                      <li key={s.yol}>
-                        <Link
-                          href={s.yol}
-                          className="inline-flex min-h-8 items-center text-soluk underline-offset-4 hover:text-vurgu hover:underline"
-                        >
-                          {s.ad}
-                        </Link>
-                      </li>
-                    ))}
-                </ul>
-              </div>
-            ))}
+        <div className="mx-auto grid max-w-6xl gap-4 px-4 py-8 text-base text-soluk">
+          <p>Akredit açık kaynaktır (Apache-2.0). YÖKAK ya da başka bir akreditasyon kuruluşuyla bağı yoktur.</p>
+          <nav aria-label="Alt menü">
+            <ul className="flex flex-wrap gap-x-6">
+              <li>
+                <Link href={SAYFALAR.proje.yol} className={ALT_BAG}>
+                  {SAYFALAR.proje.ad}
+                </Link>
+              </li>
+              <li>
+                <Link href={SAYFALAR.iletisim.yol} className={ALT_BAG}>
+                  {SAYFALAR.iletisim.ad}
+                </Link>
+              </li>
+              <li>
+                <a href={DEPO_ADRESI} className={ALT_BAG}>
+                  Kaynak kodu (GitHub)
+                </a>
+              </li>
+            </ul>
           </nav>
         </div>
       </footer>

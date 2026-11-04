@@ -4,34 +4,101 @@ const grup = (page: Page, ad: RegExp) =>
   page.locator("section").filter({ has: page.getByRole("heading", { name: ad }) });
 
 test.describe("tanıtım sitesi", () => {
-  test("ana sayfa ve menü", async ({ page }) => {
+  test("ana sayfa: yalnız iki adım ve SSS; menü üç öğe", async ({ page }) => {
     await page.goto("/");
     await expect(page).toHaveTitle(/Akredit/);
     await expect(page.getByRole("heading", { level: 1 })).toContainText("kendi yapay zekânızda");
-    await expect(page.getByRole("heading", { name: "Platform", level: 2 })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "İşi kim yapar" })).toBeVisible();
+    await expect(page.locator("main h2")).toHaveText([
+      /Adım 1.*Akredit'i yapay zekânıza ekleyin/u,
+      /Adım 2.*akredit yazın/u,
+      "Takıldınız mı?",
+    ]);
+    // Eski tanıtım bölümleri ana sayfadan kalktı.
+    for (const ad of ["Platform", "İşi kim yapar", "Kim için ne yapar", "Bir dönem nasıl geçer"])
+      await expect(page.getByRole("heading", { name: ad, exact: true })).toHaveCount(0);
+    // Claude varsayılan açık, diğerleri kapalı; geliştirici araçları en sonda.
+    const kutular = page.locator("#kurulum details");
+    await expect(kutular).toHaveCount(5);
+    await expect(page.locator("#kur-claude")).toHaveAttribute("open", "");
+    for (const k of ["chatgpt", "claude-code", "cursor", "vscode"])
+      await expect(page.locator(`#kur-${k}`)).not.toHaveAttribute("open");
+    await expect(kutular.last()).toHaveAttribute("id", "kur-vscode");
+    await expect(page.locator("#kur-claude ol > li")).toHaveCount(5);
+    await expect(page.locator("#kur-claude")).toContainText("Add custom connector");
+    await page.locator("#kur-claude-code summary").click();
+    await expect(page.locator("#kur-claude-code")).toContainText(
+      "claude mcp add --transport http akredit https://akredit.org/mcp",
+    );
+    await expect(page.getByText("parolanızı yalnız OBS'nin kendi ekranına yazın")).toBeVisible();
+    await expect(page.locator("main details:not([id])")).toHaveCount(4);
+    await expect(page.getByRole("link", { name: "Ayrıntılı kurulum rehberi ve bütün araçlar" })).toHaveAttribute(
+      "href",
+      "/mcp-kullan",
+    );
+
     const menu = page.getByRole("navigation", { name: "Site menüsü" });
+    await expect(menu.getByRole("link")).toHaveText(["Nasıl kurulur", "Proje ayrıntıları", "İletişim", "Giriş"]);
     for (const [ad, baslik] of [
-      ["Ne yapar", "Ne yapar"],
-      ["Nasıl çalışır", "Nasıl çalışır"],
-      ["Kimler için", "Kimler için"],
-      ["Çerçeveler", "Desteklenen çerçeveler"],
-      ["Yapay zekâ ve anahtar", "Yapay zekâ ve kendi anahtarınız"],
-      ["Güvenlik ve KVKK", "Güvenlik ve kişisel veriler"],
-      ["SSS", "Sık sorulan sorular"],
+      ["Nasıl kurulur", "Akredit araçlarını kendi yapay zekânızla kullanın"],
+      ["Proje ayrıntıları", "Projenin devam eden ayrıntıları"],
+      ["İletişim", "İletişim"],
     ] as const) {
       await menu.getByRole("link", { name: ad, exact: true }).click();
       await expect(page.getByRole("heading", { level: 1 })).toHaveText(baslik);
     }
     const alt = page.getByRole("navigation", { name: "Alt menü" });
-    for (const [ad, baslik] of [
-      ["Sınırlar", "Akredit neyi yapmaz"],
-      ["Giriş ve hesap", "Giriş ve hesap"],
-      ["Açık kaynak", "Açık kaynak"],
-      ["İletişim", "İletişim"],
-    ] as const) {
-      await alt.getByRole("link", { name: ad, exact: true }).click();
-      await expect(page.getByRole("heading", { level: 1 })).toHaveText(baslik);
+    await expect(alt.getByRole("link", { name: "Kaynak kodu (GitHub)" })).toHaveAttribute(
+      "href",
+      "https://github.com/tialkan/akredit",
+    );
+    await expect(page.locator("footer")).toContainText("YÖKAK ya da başka bir akreditasyon kuruluşuyla bağı yoktur");
+    await alt.getByRole("link", { name: "Proje ayrıntıları", exact: true }).click();
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Projenin devam eden ayrıntıları");
+  });
+
+  test("kopyala düğmesi klavyeyle çalışır ve sonucu söyler", async ({ page, context }) => {
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+    await page.goto("/");
+    const dugme = page.locator("#kur-claude").getByRole("button", { name: "Kopyala" });
+    await dugme.focus();
+    await page.keyboard.press("Enter");
+    await expect(page.locator("#kur-claude").getByText("Kopyalandı.")).toBeVisible();
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("https://akredit.org/mcp");
+    // Claude Code: açılır bölüm klavyeyle açılır, komut boşluk tuşuyla kopyalanır.
+    await page.locator("#kur-claude-code summary").focus();
+    await page.keyboard.press("Enter");
+    await page.locator("#kur-claude-code").getByRole("button", { name: "Kopyala" }).first().focus();
+    await page.keyboard.press("Space");
+    await expect(page.locator("#kur-claude-code").getByText("Kopyalandı.")).toBeVisible();
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+      "claude mcp add --transport http akredit https://akredit.org/mcp",
+    );
+  });
+
+  test("proje ayrıntıları: gruplar, durum etiketleri ve geri bağlantı", async ({ page }) => {
+    await page.goto("/proje");
+    const durum = (yol: string) => page.locator(`[data-proje-sayfasi="${yol}"] [data-durum]`);
+    // Ana sunucu barındırma açık kipte (AKREDIT_BARINDIRMA=1): askıdaki sayfalar bu kurulumda çalışır görünür.
+    // Kapalı kip (üretim varsayılanı, "Askıda") barindirma.spec.ts'te sınanır.
+    for (const y of ["/mcp-kullan", "/deneyin", "/ne-yapar", "/sss", "/pilot"])
+      await expect(durum(y), y).toHaveText("Çalışıyor");
+    for (const y of ["/kvkk", "/gizlilik", "/kosullar", "/belgeler"]) await expect(durum(y), y).toHaveText("Taslak");
+    await expect(page.locator("main h2")).toContainText([
+      "Kendi yapay zekânızla kullanım",
+      "Platformu tanıtan sayfalar",
+      "Barındırılan kurum hizmeti",
+      "Güven ve hukuk metinleri",
+    ]);
+    await page.locator('[data-proje-sayfasi="/kvkk"] a').click();
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Kişisel verilerin korunması");
+    const serit = page.locator("[data-sayfa-durumu]");
+    await expect(serit.locator("[data-durum]")).toHaveText("Taslak");
+    await serit.getByRole("link", { name: "Proje ayrıntıları" }).click();
+    await expect(page).toHaveURL(/\/proje$/u);
+    // Ana yoldaki sayfalarda şerit yok.
+    for (const y of ["/", "/mcp-kullan", "/iletisim"]) {
+      await page.goto(y);
+      await expect(page.locator("[data-sayfa-durumu]"), y).toHaveCount(0);
     }
   });
 
@@ -41,6 +108,8 @@ test.describe("tanıtım sitesi", () => {
     expect(robots).toMatch(/Disallow: \/panel/);
     const harita = await (await request.get("/sitemap.xml")).text();
     expect(harita).toContain("https://akredit.org/yapay-zeka");
+    expect(harita).toContain("https://akredit.org/proje");
+    expect(await (await request.get("/llms.txt")).text()).toContain("https://akredit.org/proje");
     expect((await request.get("/llms.txt")).status()).toBe(200);
     await page.goto("/sss");
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://akredit.org/sss");
@@ -48,12 +117,15 @@ test.describe("tanıtım sitesi", () => {
     expect(ld).toContain('"FAQPage"');
   });
 
-  test("dar ekranda menü açılır", async ({ page }) => {
+  test("dar ekranda menü doğrudan görünür, açılır menü yok", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 800 });
     await page.goto("/");
-    await page.getByText("Menü", { exact: true }).click();
-    await page.getByRole("navigation", { name: "Kısa menü" }).getByRole("link", { name: "Ne yapar" }).click();
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Ne yapar");
+    await expect(page.getByText("Menü", { exact: true })).toHaveCount(0);
+    await page
+      .getByRole("navigation", { name: "Site menüsü" })
+      .getByRole("link", { name: "Proje ayrıntıları" })
+      .click();
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Projenin devam eden ayrıntıları");
   });
 
   test("KVKK sayfası taslak olduğunu söyler", async ({ page }) => {
