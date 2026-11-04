@@ -457,11 +457,11 @@ describe("giriş bilgisi yasağı", () => {
     expect(calistir("rapor_dil_denetle", { metin: "Parola politikası güncellendi." }).hata).toBe(false);
   });
 
-  it("sunucu talimatı giriş bilgisini yasaklar ve basla'yı gösterir", async () => {
+  it("sunucu talimatı giriş bilgisini yasaklar ve akredit'i gösterir", async () => {
     const c = await baglan();
     const talimat = c.getInstructions() ?? "";
     expect(talimat).toMatch(/parola, doğrulama kodu ya da çerez asla isteme/u);
-    expect(talimat).toMatch(/'basla'/u);
+    expect(talimat).toMatch(/'akredit'/u);
     expect(c.getServerVersion()?.version).toBe(SUNUCU_SURUMU);
     expect(SUNUCU_SURUMU).toBe("0.3.0");
     await c.close();

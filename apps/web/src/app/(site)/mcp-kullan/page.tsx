@@ -12,7 +12,7 @@ const MCP_ADRESI = "https://akredit.org/mcp";
 
 /** Bologna doldurma örnek konuşması. Ders, kurum ve kişiler kurgudur; asistanın yanıtları kısaltılmıştır. */
 const ORNEK_KONUSMA: { kim: "Hoca" | "Asistan"; metin: string }[] = [
-  { kim: "Hoca", metin: "basla" },
+  { kim: "Hoca", metin: "akredit" },
   {
     kim: "Asistan",
     metin:
@@ -80,8 +80,8 @@ const ILK_KEZ: { baslik: string; yap: string; gorursunuz: string }[] = [
     gorursunuz: "Bağlayıcı listesinde Akredit.",
   },
   {
-    baslik: "basla yazın",
-    yap: "Yeni bir sohbet açın ve yazı kutusuna basla yazın. Bologna için 1 yazın.",
+    baslik: "akredit yazın",
+    yap: "Yeni bir sohbet açın ve yazı kutusuna akredit yazın. Asistan hangi aracı kullanmak istediğinizi sorar; Bologna için 1 yazın.",
     gorursunuz: "Beş seçenekli bir menü.",
   },
   {
@@ -151,7 +151,7 @@ export default function McpKullan() {
               bölümünde.
             </li>
             <li>
-              Yeni bir sohbet açın ve <code className={KOD}>basla</code> yazın ya da hazır başlangıçlardan seçin.
+              Yeni bir sohbet açın ve <code className={KOD}>akredit</code> yazın ya da hazır başlangıçlardan seçin.
               Claude'da "+" düğmesinin altında Akredit, Cursor ve Claude Code'da eğik çizgi (/) ile görünür. Komut
               görünmüyorsa "Akredit ile başlayalım" yazmanız yeter.
             </li>

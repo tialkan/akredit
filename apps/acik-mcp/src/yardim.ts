@@ -67,7 +67,7 @@ const BAGLAYICI: Record<Istemci, HamAdim[]> = {
       true,
     ],
     [
-      "Yazı kutusuna basla yazın ya da + menüsünden Akredit altındaki basla başlangıcını seçin.",
+      "Yazı kutusuna akredit yazın ya da + menüsünden Akredit altındaki akredit başlangıcını seçin.",
       "Odak menüsü: 1-5 arası seçenek.",
     ],
   ],
@@ -79,7 +79,7 @@ const BAGLAYICI: Record<Istemci, HamAdim[]> = {
       true,
     ],
     [`Add custom connector ile ad Akredit, adres ${MCP_ADRESI} olarak ekleyin.`, "Listede Akredit görünür.", true],
-    ["Yeni sohbette basla yazın.", "Odak menüsü."],
+    ["Yeni sohbette akredit yazın.", "Odak menüsü."],
   ],
   claude_chrome: [
     ["Önce Claude'a Akredit bağlayıcısını ekleyin (Claude web adımları).", "Sohbette Akredit açık."],
@@ -92,7 +92,7 @@ const BAGLAYICI: Record<Istemci, HamAdim[]> = {
     ["Yapboz simgesinden Claude'u sabitleyin (iğne simgesi).", "Claude simgesi araç çubuğunda kalır.", true],
     ["Simgeye tıklayın, Claude hesabınızla oturum açın.", "Tarayıcının kenarında Claude paneli açılır.", true],
     [
-      "OBS sayfanızı aynı pencerede açın; panelde basla yazın.",
+      "OBS sayfanızı aynı pencerede açın; panelde akredit yazın.",
       "Asistan OBS sayfasını okumak için izin ister; siz onaylarsınız.",
     ],
     [
@@ -114,7 +114,7 @@ const BAGLAYICI: Record<Istemci, HamAdim[]> = {
       true,
     ],
     ["İş ve kurum hesaplarında bu ayarı yönetici açar; açamıyorsanız yöneticinize sorun.", undefined, true],
-    ["Yeni sohbette Akredit'i seçin ve basla yazın.", "Odak menüsü."],
+    ["Yeni sohbette Akredit'i seçin ve akredit yazın.", "Odak menüsü."],
   ],
   cursor: [
     ["Cursor'da Settings (Ayarlar), ardından MCP bölümünü açın.", "MCP sunucu listesi.", true],
@@ -123,13 +123,13 @@ const BAGLAYICI: Record<Istemci, HamAdim[]> = {
       "Akredit yeşil noktayla görünür.",
       true,
     ],
-    ["Sohbet panelinde eğik çizgi (/) yazın ve basla seçin.", "Odak menüsü."],
+    ["Sohbet panelinde eğik çizgi (/) yazın ve akredit seçin.", "Odak menüsü."],
   ],
   vscode: [
     ["Komut paletini açın (Ctrl+Shift+P, Mac'te Cmd+Shift+P).", "Üstte arama kutusu."],
     ["MCP: Add Server yazıp seçin, HTTP türünü seçin.", "Adres soran kutu.", true],
     [`Adres olarak ${MCP_ADRESI}, ad olarak akredit yazın.`, "Akredit sunucu listesinde."],
-    ["Copilot sohbetinde ajan (Agent) kipini seçin, eğik çizgiyle basla komutunu çalıştırın.", "Odak menüsü.", true],
+    ["Copilot sohbetinde ajan (Agent) kipini seçin, eğik çizgiyle akredit komutunu çalıştırın.", "Odak menüsü.", true],
   ],
   claude_code: [
     [
@@ -137,7 +137,7 @@ const BAGLAYICI: Record<Istemci, HamAdim[]> = {
       "Added HTTP MCP server iletisi.",
     ],
     ["claude komutuyla oturumu açın, /mcp ile Akredit'in bağlı olduğunu denetleyin.", "akredit: connected.", true],
-    ["Eğik çizgiyle basla komutunu seçin.", "Odak menüsü."],
+    ["Eğik çizgiyle akredit komutunu seçin.", "Odak menüsü."],
   ],
 };
 
@@ -331,7 +331,7 @@ const ENGEL_ADIMLARI: Record<Engel, { ad: string; adimlar: HamAdim[]; yedek: boo
     yedek: false,
   },
   akredit_gorunmuyor: {
-    ad: "Akredit araçları ya da basla komutu görünmüyor",
+    ad: "Akredit araçları ya da akredit komutu görünmüyor",
     adimlar: [
       ["Yeni bir sohbet açın; bağlayıcı eski sohbette görünmeyebilir.", undefined],
       ["Yazı kutusunun altındaki + ya da araç menüsünden Akredit'in açık olduğunu denetleyin.", undefined, true],

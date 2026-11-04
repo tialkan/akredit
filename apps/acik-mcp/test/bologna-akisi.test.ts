@@ -56,11 +56,20 @@ const CIKTILAR = [
 ].map(([tr, tur], i) => ({ kod: `Ö${i + 1}`, tr, tur }));
 
 describe("istemler (prompts)", () => {
-  it("SDK istemcisi yedi istemi listeler; basla odak menüsünü ve ortak kuralları taşır", async () => {
+  it("SDK istemcisi sekiz istemi listeler; akredit odak menüsünü ve ortak kuralları taşır", async () => {
     const c = await baglan();
     const { prompts } = await c.listPrompts();
     expect(prompts.map((p) => p.name).sort()).toEqual(
-      ["basla", "baslangic", "bologna_doldur", "cikti_yaz", "ck_pc_hesabi", "dil_denetimi", "olcut_rehberi"].sort(),
+      [
+        "akredit",
+        "basla",
+        "baslangic",
+        "bologna_doldur",
+        "cikti_yaz",
+        "ck_pc_hesabi",
+        "dil_denetimi",
+        "olcut_rehberi",
+      ].sort(),
     );
     for (const p of prompts) {
       expect(p.title).toBeTruthy();
@@ -68,11 +77,16 @@ describe("istemler (prompts)", () => {
       // Bütün bağımsız değişkenler isteğe bağlı: istem tek tıkla çalışır.
       for (const a of p.arguments ?? []) expect(a.required).toBeFalsy();
     }
-    const r = await c.getPrompt({ name: "basla", arguments: {} });
+    const r = await c.getPrompt({ name: "akredit", arguments: {} });
     const metin = istemMetni(r);
-    // Geriye uyum: baslangic aynı metni verir, açıklaması "basla ile aynı" der.
+    // Geriye uyum: basla ve baslangic aynı metni verir, açıklamaları "akredit ile aynı" der.
     expect(istemMetni(await c.getPrompt({ name: "baslangic", arguments: {} }))).toBe(metin);
-    expect(prompts.find((p) => p.name === "baslangic")?.description).toMatch(/^basla ile aynı/u);
+    expect(istemMetni(await c.getPrompt({ name: "basla", arguments: {} }))).toBe(metin);
+    // Önce araç sorulur; seçimden önce hiçbir akış (OBS girişi dahil) başlamaz.
+    expect(metin).toContain("Önce hangi aracı kullanmak istediğini sor.");
+    expect(metin).toContain("Hoca seçmeden hiçbir akışa başlama");
+    expect(metin).toMatch(/6\) Başka bir şey: tüm araçları kısaca listele/u);
+    expect(prompts.find((p) => p.name === "baslangic")?.description).toMatch(/^akredit ile aynı/u);
     expect(metin).toContain("Bugün neye odaklanalım?");
     for (const n of [
       "1) Bologna",
