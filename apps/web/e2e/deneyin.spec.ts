@@ -5,9 +5,9 @@ import { expect, test } from "@playwright/test";
 // gerçek kurumlara erişememe) `src/demo/demo.test.ts` ile sınanır.
 
 test.describe("deneyin", () => {
-  test("ana sayfadan rol seçerek panele, şerit ve rehber turuyla", async ({ page }) => {
-    await page.goto("/");
-    await page.getByRole("link", { name: "Hesap açmadan deneyin" }).click();
+  test("proje ayrıntılarından rol seçerek panele, şerit ve rehber turuyla", async ({ page }) => {
+    await page.goto("/proje");
+    await page.getByRole("link", { name: "Demo: Örnek Üniversitesi" }).click();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Hesap açmadan deneyin");
     for (const ad of [
       "Öğretim elemanı olarak dene",
@@ -32,9 +32,12 @@ test.describe("deneyin", () => {
     await expect(page.getByText("Örnek veri, gerçek kurum değildir.")).toBeVisible();
   });
 
-  test("site menüsünde Deneyin bağlantısı", async ({ page }) => {
-    await page.goto("/nasil-calisir");
-    await page.getByRole("link", { name: "Deneyin", exact: true }).click();
-    await expect(page).toHaveURL(/\/deneyin$/u);
+  test("demo ana sayfada değil, proje ayrıntılarında; demo sayfasında durum şeridi", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.locator('main a[href="/deneyin"]')).toHaveCount(0);
+    await page.goto("/deneyin");
+    const serit = page.locator("[data-sayfa-durumu]");
+    await expect(serit.locator("[data-durum]")).toHaveText("Çalışıyor");
+    await expect(serit.getByRole("link", { name: "Proje ayrıntıları" })).toHaveAttribute("href", "/proje");
   });
 });

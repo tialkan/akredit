@@ -10,18 +10,23 @@ import {
   DURUM_ADI,
   depo,
   EYLEM_ADI,
+  gecerliDurum,
   KONUM_TABLOSU,
   MODUL_DURUMU_DAYANAGI,
   MODULLER,
+  PROJE_GRUPLARI,
+  projeSayfasi,
   ROL_ADI,
   ROL_ANLATIMLARI,
   ROL_KARARI,
   SAYFALAR,
   SORUMLULUK,
   SSS,
+  UST_MENU,
   VAAT_CERCEVESI,
   YOL_HARITASI,
 } from "./icerik.ts";
+import { GELISTIRICI_ARACLARI, kurulumAdimlari, MCP_ADRESI, UYGULAMALAR } from "./kurulum.ts";
 import { sayfaUstVerisi, sssVerisi, yapisalVeri } from "./yapisal.ts";
 
 describe("çerçeve özeti", () => {
@@ -102,7 +107,7 @@ describe("İP-42: vaat, roller, durum, depo yolları", () => {
 
   it("sayfa dayanak listelerinde depo yolu yalnız bağlantıda durur", () => {
     const kok = join(import.meta.dirname, "../app/(site)");
-    for (const sayfa of ["page.tsx", "nasil-calisir/page.tsx", "yapay-zeka/page.tsx", "giris-ve-hesap/page.tsx"]) {
+    for (const sayfa of ["nasil-calisir/page.tsx", "yapay-zeka/page.tsx", "giris-ve-hesap/page.tsx"]) {
       const metin = readFileSync(join(kok, sayfa), "utf8");
       const liste = metin.slice(
         metin.indexOf("const DAYANAKLAR"),
@@ -189,5 +194,69 @@ describe("hareket ve önizleme (tasarım v2)", () => {
   it("dayanak vurgusu her dayanak numarası için tanımlı (1-9)", () => {
     for (let n = 1; n <= 9; n++)
       expect(css).toContain(`a[href="#dayanak-${n}"]:is(:hover, :focus-visible)) #dayanak-${n}`);
+  });
+});
+
+describe("İP-49: sade site, iki adım ve proje ayrıntıları", () => {
+  it("üst menü yalnız üç öğe: Nasıl kurulur, Proje ayrıntıları, İletişim", () => {
+    expect(UST_MENU).toEqual([
+      { ad: "Nasıl kurulur", yol: "/mcp-kullan" },
+      { ad: "Proje ayrıntıları", yol: "/proje" },
+      { ad: "İletişim", yol: "/iletisim" },
+    ]);
+  });
+
+  it("kurulum adımları MCP rehberinden gelir: 4-5 adım ya da daha az, adres içerir, akredit yazma adımı yok", () => {
+    for (const u of [...UYGULAMALAR, ...GELISTIRICI_ARACLARI]) {
+      const adimlar = kurulumAdimlari(u);
+      expect(adimlar.length, u.kimlik).toBe(u.adet);
+      expect(adimlar.length, u.kimlik).toBeLessThanOrEqual(5);
+      expect(adimlar.map((a) => a.no)).toEqual(adimlar.map((_, i) => i + 1));
+      // Adımlardan biri adresi ya da komutu verir (Claude Code: komut adresi içerir).
+      expect(
+        adimlar.some((a) => a.yap.includes(MCP_ADRESI)),
+        u.kimlik,
+      ).toBe(true);
+      // "akredit yazın" ikinci adımdır; birinci adımın listesine girmez.
+      expect(
+        adimlar.filter((a) => a.goreceginiz === "Odak menüsü." || /yeni sohbet/iu.test(a.yap)),
+        u.kimlik,
+      ).toEqual([]);
+    }
+    expect(UYGULAMALAR[0]?.acik).toBe(true);
+    expect(GELISTIRICI_ARACLARI[0]?.komut).toBe("claude mcp add --transport http akredit https://akredit.org/mcp");
+  });
+
+  it("ana yoldan çekilen her sayfa proje ayrıntılarında bir kez ve durumuyla listelenir", () => {
+    const yollar = PROJE_GRUPLARI.flatMap((g) => g.sayfalar.map((s) => s.yol));
+    expect(new Set(yollar).size).toBe(yollar.length);
+    const anaYol = new Set(["/", "/proje", "/iletisim"]);
+    for (const s of Object.values(SAYFALAR)) if (!anaYol.has(s.yol)) expect(yollar, s.yol).toContain(s.yol);
+    for (const y of ["/deneyin", "/giris"]) expect(yollar).toContain(y);
+  });
+
+  it("durumlar ADR 0008 ve plan.md ile tutarlı", () => {
+    const durum = (y: string) => projeSayfasi(y)?.durum;
+    // ADR 0008 madde 2: kurum açma, pilot ve kurum girişi askıda. Madde 3: demo ve MCP çalışır.
+    for (const y of ["/kurum-ac", "/kurum-ac/dogrula", "/pilot", "/giris"]) expect(durum(y), y).toBe("askida");
+    for (const y of ["/deneyin", "/mcp-kullan"]) expect(durum(y), y).toBe("calisiyor");
+    // Hukuk metinleri avukat incelemesinden geçmedi; İP-28 ve İP-29 askıda (sponsor).
+    for (const y of ["/kvkk", "/gizlilik", "/kosullar", "/belgeler", "/belgeler/hoca"])
+      expect(durum(y), y).toBe("taslak");
+    const plan = readFileSync(join(import.meta.dirname, "../../../../plan.md"), "utf8");
+    for (const no of [28, 29, 30])
+      expect(
+        plan.split("\n").find((s) => s.startsWith(`| [${no}]`)),
+        `İP-${no}`,
+      ).toMatch(/\| askıda \(sponsor\) \|/u);
+  });
+
+  it("barındırma açık bir kurulumda askıdaki sayfa çalışıyor görünür, diğerleri değişmez", () => {
+    const pilot = projeSayfasi("/pilot");
+    const kvkk = projeSayfasi("/kvkk");
+    if (!pilot || !kvkk) throw new Error("kayıt yok");
+    expect(gecerliDurum(pilot, false).durum).toBe("askida");
+    expect(gecerliDurum(pilot, true).durum).toBe("calisiyor");
+    expect(gecerliDurum(kvkk, true).durum).toBe("taslak");
   });
 });

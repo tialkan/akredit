@@ -141,6 +141,11 @@ const BAGLAYICI: Record<Istemci, HamAdim[]> = {
   ],
 };
 
+/** Bağlayıcı ekleme adımları; site (akredit.org ana sayfası) aynı adımları buradan okur. */
+export function baglayiciAdimlari(istemci: Istemci): Adim[] {
+  return numarala(BAGLAYICI[istemci]);
+}
+
 const TARAYICI: Record<Istemci, HamAdim[]> = {
   claude_web: [
     [

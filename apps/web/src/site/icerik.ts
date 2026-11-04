@@ -38,10 +38,10 @@ export const SAYFALAR = {
   ana: {
     yol: "/",
     ad: "Ana sayfa",
-    baslik: "Akreditasyon ölçütleri ve denetimleri, kendi yapay zekânızda.",
-    title: "Akredit: akreditasyon ölçütleri ve denetimleri kendi yapay zekânızda, ücretsiz ve hesapsız",
+    baslik: "Akreditasyon ve Bologna yardımcısı, kendi yapay zekânızda.",
+    title: "Akredit: akreditasyon ve Bologna yardımcısı, kendi yapay zekânızda, ücretsiz",
     aciklama:
-      "akredit.org/mcp adresini yapay zekânıza ekleyin: YÖKAK, MÜDEK, FEDEK, EPDAD, SABAK ölçütleri, Bologna denetimi, ÇK/PÇ hesabı, dil denetimi. Platform açık kaynaktır.",
+      "İki adımda başlayın: akredit.org/mcp adresini Claude ya da ChatGPT'ye ekleyin, sonra akredit yazın. Ücretsiz, açık kaynak, hesap gerekmez.",
   },
   neYapar: {
     yol: "/ne-yapar",
@@ -193,43 +193,147 @@ export const SAYFALAR = {
     aciklama:
       "Öğretim elemanı, kalite birimi ve bilgi işlem için görev kılavuzları: karar vermek, belge eklemek, ders dosyası, rapor taslakları.",
   },
+  proje: {
+    yol: "/proje",
+    ad: "Proje ayrıntıları",
+    baslik: "Projenin devam eden ayrıntıları",
+    title: "Proje ayrıntıları: hangi bölüm çalışıyor, hangisi askıda ya da taslak",
+    aciklama:
+      "Akredit'in bütün sayfaları ve dürüst durumları: çalışan araçlar ve demo, sponsor bulunana kadar askıdaki kurum hizmeti, taslak hukuk metinleri.",
+  },
 } as const satisfies Record<string, SayfaBilgisi>;
 
-/** Üst menü: en çok yedi öğe. */
-export const UST_MENU = [
-  SAYFALAR.neYapar,
-  SAYFALAR.nasil,
-  SAYFALAR.kimler,
-  SAYFALAR.cerceveler,
-  SAYFALAR.yz,
-  SAYFALAR.guvenlik,
-  SAYFALAR.sss,
+/** Üst menü: yalnız üç öğe (kurucu isteği, İP-49). Kurulum ana yoldur; geri kalan her şey proje ayrıntılarındadır. */
+export const UST_MENU: { ad: string; yol: string }[] = [
+  { ad: "Nasıl kurulur", yol: SAYFALAR.mcpKullan.yol },
+  { ad: SAYFALAR.proje.ad, yol: SAYFALAR.proje.yol },
+  { ad: SAYFALAR.iletisim.ad, yol: SAYFALAR.iletisim.yol },
 ];
 
-/** Alt menü: bütün sayfalar, gruplu. */
-export const ALT_MENU: { baslik: string; sayfalar: SayfaBilgisi[] }[] = [
+/** Proje ayrıntılarındaki durum etiketi. Dayanak: plan.md §8 ve ADR 0008. */
+export type ProjeDurumu = "calisiyor" | "askida" | "taslak";
+
+export const PROJE_DURUM_ADI: Record<ProjeDurumu, string> = {
+  calisiyor: "Çalışıyor",
+  askida: "Askıda",
+  taslak: "Taslak",
+};
+
+export interface ProjeSayfasi {
+  yol: string;
+  ad: string;
+  aciklama: string;
+  durum: ProjeDurumu;
+  /** Sayfanın üstünde ve listede gösterilen kısa durum notu. */
+  not: string;
+}
+
+const BILGI_NOTU =
+  "Bilgi sayfası. Anlattığı platform yazılım olarak hazır, kurumlara barındırılan hizmet olarak sunulmuyor.";
+
+/**
+ * Ana yoldan çekilen sayfalar, gruplu ve durumlu. Sayfalar silinmez; her birinin üstünde bu not görünür.
+ * Askıda: ADR 0008 madde 2 (kurum açma, pilot, giriş). Taslak: hukuk metinleri avukat incelemesinden geçmedi,
+ * İP-28 askıda (sponsor); kılavuzlar ilk sürümdür, İP-29 askıda (sponsor). Çalışıyor: MCP (İP-49), demo (İP-41).
+ */
+export const PROJE_GRUPLARI: { baslik: string; not: string; sayfalar: ProjeSayfasi[] }[] = [
   {
-    baslik: "Ürün",
-    sayfalar: [SAYFALAR.neYapar, SAYFALAR.nasil, SAYFALAR.kimler, SAYFALAR.cerceveler, SAYFALAR.yolHaritasi],
-  },
-  {
-    baslik: "Kullanım",
+    baslik: "Kendi yapay zekânızla kullanım",
+    not: "Bugün herkesin kullanabildiği bölüm.",
     sayfalar: [
-      SAYFALAR.pilot,
-      SAYFALAR.kurumAc,
-      SAYFALAR.mcpKullan,
-      SAYFALAR.yz,
-      SAYFALAR.giris,
-      SAYFALAR.belgeler,
-      SAYFALAR.sss,
+      {
+        ...SAYFALAR.mcpKullan,
+        ad: "Ayrıntılı kurulum ve araçlar",
+        durum: "calisiyor",
+        not: "Herkese açık, ücretsiz, hesapsız. Ana sayfadaki iki adımın ayrıntısı.",
+      },
+      {
+        yol: "/deneyin",
+        ad: "Demo: Örnek Üniversitesi",
+        aciklama: "Uydurma veriyle kurulmuş örnek kurumda bir rol seçip paneli ve onay kutusunu deneyin.",
+        durum: "calisiyor",
+        not: "Hesap açmadan açılır. Veriler uydurmadır, gerçek kurum değildir.",
+      },
     ],
   },
   {
-    baslik: "Güven",
-    sayfalar: [SAYFALAR.guvenlik, SAYFALAR.sinirlar, SAYFALAR.kvkk, SAYFALAR.gizlilik, SAYFALAR.kosullar],
+    baslik: "Platformu tanıtan sayfalar",
+    not: "Kurumlar için yazılmış tam platformun anlatımı.",
+    sayfalar: [
+      SAYFALAR.neYapar,
+      SAYFALAR.nasil,
+      SAYFALAR.kimler,
+      SAYFALAR.cerceveler,
+      SAYFALAR.yz,
+      SAYFALAR.sinirlar,
+      SAYFALAR.sss,
+      SAYFALAR.yolHaritasi,
+      SAYFALAR.acikKaynak,
+    ].map((s) => ({ ...s, durum: "calisiyor" as const, not: BILGI_NOTU })),
   },
-  { baslik: "Proje", sayfalar: [SAYFALAR.acikKaynak, SAYFALAR.iletisim] },
+  {
+    baslik: "Barındırılan kurum hizmeti",
+    not: "Sponsor bulunana kadar askıda. Yazılım hazır, kod silinmedi.",
+    sayfalar: [
+      {
+        ...SAYFALAR.kurumAc,
+        durum: "askida",
+        not: "Sponsor bulunana kadar yeni kurum kaydı alınmıyor.",
+      },
+      {
+        ...SAYFALAR.pilot,
+        durum: "askida",
+        not: "Başvuru alınmıyor. Gerçek kurum verisiyle pilot henüz yapılmadı.",
+      },
+      {
+        yol: "/giris",
+        ad: "Kurum girişi",
+        aciklama: "Kurum hesabıyla panele giriş ekranı.",
+        durum: "askida",
+        not: "Kurum hesabıyla giriş alınmıyor. Demo için hesap gerekmez.",
+      },
+      {
+        ...SAYFALAR.giris,
+        durum: "askida",
+        not: "Anlattığı giriş yolu barındırılan hizmetle birlikte askıda.",
+      },
+    ],
+  },
+  {
+    baslik: "Güven ve hukuk metinleri",
+    not: "Hukuk metinleri avukat incelemesinden geçmedi.",
+    sayfalar: [
+      {
+        ...SAYFALAR.guvenlik,
+        durum: "calisiyor",
+        not: "Bilgi sayfası. İçindeki hukuk metinlerine yapılan atıflar taslaktır.",
+      },
+      ...[SAYFALAR.kvkk, SAYFALAR.gizlilik, SAYFALAR.kosullar].map((s) => ({
+        ...s,
+        durum: "taslak" as const,
+        not: "Taslak metin. Avukat incelemesinden geçmedi; hukuk paketi işi sponsor bulunana kadar askıda.",
+      })),
+      {
+        ...SAYFALAR.belgeler,
+        durum: "taslak",
+        not: "Kılavuzların ilk sürümü. Panel için yazıldı; belge ve eğitim işi sponsor bulunana kadar askıda.",
+      },
+    ],
+  },
 ];
+
+/** Barındırma bayrağı açık bir kurulumda askıdaki sayfalar çalışır; etiket bayrağa göre dürüst kalır (ADR 0008). */
+export function gecerliDurum(s: ProjeSayfasi, barindirma: boolean): { durum: ProjeDurumu; not: string } {
+  if (barindirma && s.durum === "askida")
+    return { durum: "calisiyor", not: "Bu kurulumda barındırılan hizmet açık. akredit.org'da askıda." };
+  return { durum: s.durum, not: s.not };
+}
+
+/** Bir yolun proje ayrıntılarındaki kaydı. Alt yollar (ör. /belgeler/hoca, /kurum-ac/dogrula) üst sayfanınkini alır. */
+export function projeSayfasi(yol: string): ProjeSayfasi | undefined {
+  const hepsi = PROJE_GRUPLARI.flatMap((g) => g.sayfalar);
+  return hepsi.find((s) => s.yol === yol) ?? hepsi.find((s) => yol.startsWith(`${s.yol}/`));
+}
 
 // Dayanak: kurucu kararı 2026-11-01 (docs/adr/0008). Barındırma bayrağı: src/site/barindirma.ts.
 export const DURUM_NOTU =

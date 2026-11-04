@@ -62,6 +62,9 @@ const ODAKLAR = [
   ["5", "Öz değerlendirme metninin dil denetimi", "dil_denetimi"],
 ] as const;
 
+/** akredit başlangıcının sorduğu odak menüsü; site örnek konuşmayı buradan okur. */
+export const AKREDIT_ODAKLARI: readonly { no: string; ad: string }[] = ODAKLAR.map(([no, ad]) => ({ no, ad }));
+
 /** OBS'ye tarayıcıyla giriş: Bologna akışının ilk adımı. */
 const obsGirisi = () =>
   [
