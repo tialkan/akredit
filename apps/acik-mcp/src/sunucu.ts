@@ -36,6 +36,8 @@ export function aracCalistir(
   girdi: unknown,
   b: AracBaglami,
 ): { veri: Record<string, unknown>; hata: boolean } {
+  const ayik = a.onAyikla ? a.onAyikla(girdi) : { girdi, atilan: [] as string[] };
+  girdi = ayik.girdi;
   const turler = kisiselVeriTurleri(girdi);
   if (turler.length)
     return {
@@ -65,6 +67,11 @@ export function aracCalistir(
       veri: {
         sonuc: s.sonuc,
         sonrakiAdim: s.sonrakiAdim ?? a.sonrakiAdim,
+        ...(ayik.atilan.length
+          ? {
+              atilanKisiselVeri: `Şu alanlar kişisel veri olduğu için ayrıştırmadan önce atıldı, hiçbir yere yazılmadı: ${ayik.atilan.join(", ")}.`,
+            }
+          : {}),
         kaynak: s.kaynak,
         not: AKREDIT_NOTU,
         kod_deposu: DEPO,

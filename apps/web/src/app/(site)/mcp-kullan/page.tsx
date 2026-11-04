@@ -28,7 +28,7 @@ const ORNEK_KONUSMA: { kim: "Hoca" | "Asistan"; metin: string }[] = [
   {
     kim: "Asistan",
     metin:
-      "KRG101 için 6 alan doldurulmalı: 1) Dersin amacı (boş) 2) Öğrenme çıktıları (2 çıktı var, 8-12 olmalı) 3) Haftalık akış (3 hafta var) 4) Ders yapısı (boş) 5) Katkı tablosu (boş) 6) Kaynaklar.\nNasıl ilerleyelim?\n1) Hepsini sırayla dolduralım (önerilen)\n2) Yalnız boş olanlar\n3) Numaraları kendim seçeyim",
+      "Dersi Verenler, Dersin Yardımcıları ve Kaynaklar kişisel veri olduğu için ayrıştırmadan önce atıldı, hiçbir yere yazılmadı.\nKRG101 için 6 alan doldurulmalı: 1) Dersin amacı (boş) 2) Öğrenme çıktıları (2 çıktı var, 8-12 olmalı) 3) Haftalık akış (3 hafta var) 4) Ders yapısı (boş) 5) Katkı tablosu (boş) 6) Kaynaklar.\nNasıl ilerleyelim?\n1) Hepsini sırayla dolduralım (önerilen)\n2) Yalnız boş olanlar\n3) Numaraları kendim seçeyim",
   },
   { kim: "Hoca", metin: "1" },
   {
@@ -148,7 +148,9 @@ export default function McpKullan() {
           <p>
             Öğrenci adı, öğrenci numarası, T.C. kimlik numarası, e-posta ve telefon göndermeyin. Puan tablosunda öğrenci
             yerine "o1", "o2" gibi takma ad kullanın. Sunucu gelen veride böyle bir ifade görürse işlemi yapmaz ve
-            maskelemenizi ister.
+            maskelemenizi ister. Tek istisna Bologna sayfasıdır: sayfayı olduğu gibi yapıştırabilirsiniz; Dersi
+            Verenler, Dersin Yardımcıları, Koordinatör ve Kaynaklar satırları ile e-posta ve telefonlar ayrıştırmadan
+            önce bellekte atılır, hiçbir yere yazılmaz ve hangi alanların atıldığı size söylenir.
           </p>
           <p className="mt-3 text-soluk">
             İstek içeriği kaydedilmez. Kayda yalnız araç adı, süre ve istek boyutu yazılır. Hesap, çerez ve anahtar
