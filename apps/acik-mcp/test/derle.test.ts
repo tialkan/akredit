@@ -38,6 +38,7 @@ describe("belirtecleriCevir", () => {
       /gömülmeyen iş alanı paketi @akredit\/vt/u,
     );
     expect(Object.keys(GOMULU).sort()).toEqual([
+      "@akredit/baglayicilar/bologna-ayristir",
       "@akredit/cekirdek",
       "@akredit/cerceveler",
       "@akredit/olcme",

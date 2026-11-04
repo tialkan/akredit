@@ -3,13 +3,7 @@
 // alınamayan metin DOĞRULANMADI olarak döner. Sayılar yalnız @akredit/olcme hesabından gelir (ilke 2).
 // Öz değerlendirme iskeleti metin yazmaz: her bölüm EKSİK işaretiyle ve gereken kanıt türleriyle döner (ilke 1).
 
-import {
-  type BolognaDersSayfasi,
-  type BolognaVerisi,
-  bolognaDenetle,
-  dilDenetle,
-  type MatrisDegeri,
-} from "@akredit/cekirdek";
+import { dilDenetle, type MatrisDegeri } from "@akredit/cekirdek";
 import {
   belgeAdi,
   type Cerceve,
@@ -30,42 +24,10 @@ import {
 } from "@akredit/cerceveler";
 import { type CkPcMatrisi, dersiOlc, HESAP_SURUMU } from "@akredit/olcme";
 import { z } from "zod";
+import { BOLOGNA_ARACLARI, bolognaDenetleAraci } from "./bologna.ts";
+import { type AcikArac, AracHatasi, arac, DEPO, type Kaynak, KOD_KAYNAGI } from "./temel.ts";
 
-export const DEPO = "https://github.com/tialkan/akredit";
-
-/** Her yanıtta yer alan not. */
-export const AKREDIT_NOTU =
-  "Akredit bağımsız, açık kaynak bir araçtır; YÖKAK ile bağı yoktur. Sonuçlar resmî değerlendirme yerine geçmez; beyan ve karar kurumdadır.";
-
-export interface Kaynak {
-  ad: string;
-  adres: string;
-  sayfa?: number | null;
-  sha256?: string | null;
-  erisimTarihi?: string;
-}
-
-export interface AracSonucu {
-  sonuc: unknown;
-  kaynak: Kaynak[];
-}
-
-export interface AracBaglami {
-  simdi: () => Date;
-}
-
-export interface AcikArac<S extends z.ZodObject = z.ZodObject> {
-  ad: string;
-  baslik: string;
-  aciklama: string;
-  girdi: S;
-  calistir: (girdi: z.infer<S>, b: AracBaglami) => AracSonucu;
-}
-
-const arac = <S extends z.ZodObject>(a: AcikArac<S>): AcikArac<S> => a;
-
-/** Araç girdisi hatası: kullanıcıya gösterilecek Türkçe ileti. */
-export class AracHatasi extends Error {}
+export * from "./temel.ts";
 
 // ---------------------------------------------------------------- Çerçeve yardımcıları
 
@@ -141,8 +103,6 @@ function belgeKaynagi(c: Cerceve, dosya: string | null | undefined, sayfa: numbe
 
 const olcutKaynagi = (c: Cerceve, o: Olcut) => belgeKaynagi(c, o.kaynakDosya, o.kaynakSayfa);
 
-const KOD_KAYNAGI = (yol: string, ad: string): Kaynak => ({ ad, adres: `${DEPO}/tree/main/${yol}` });
-
 function olcutBul(c: Cerceve, kod: string): Olcut {
   const k = kod.trim().toLocaleUpperCase("tr").replace(/\.$/u, "");
   const o = tumOlcutler(c.olcutler).find((x) => x.kod === k);
@@ -164,7 +124,8 @@ const olcutAra = arac({
   ad: "olcut_ara",
   baslik: "Ölçüt ara (YÖKAK ve program akreditasyonu)",
   aciklama:
-    "YÖKAK 3.3 ya da bir program akreditasyonu çerçevesinin (MÜDEK, FEDEK, SABAK, EPDAD) ölçüt ağacında kod, başlık ya da metinde geçen ifadeye göre arar. Program çerçevelerinde EPDAD göstergeleri ile MÜDEK EK-1 ve FEDEK programa özgü konular da aranır. Metinler resmî belgeden çıkarılmıştır; belgeden alınamayan metin DOĞRULANMADI olarak döner.",
+    "YÖKAK ya da program akreditasyonu (MÜDEK, FEDEK, SABAK, EPDAD) ölçütlerinde sözcük ya da kodla arar. Metinler resmî belgeden alınır; alınamayan metin DOĞRULANMADI döner.",
+  sonrakiAdim: "Hocaya en uygun 2-3 sonucu numaralı gösterin; seçtiği ölçütün tam metni için olcut_getir'i çağırın.",
   girdi: z.object({
     sorgu: z.string().trim().min(1).max(200).describe("Aranacak ifade ya da kod, ör. 'paydaş katılımı' ya da 'B.3'"),
     cerceve: cerceveGirdisi,
@@ -242,7 +203,9 @@ const olcutGetir = arac({
   ad: "olcut_getir",
   baslik: "Ölçütü getir (YÖKAK ve program akreditasyonu)",
   aciklama:
-    "Bir ölçütün resmî metnini, kaynak belgesini, sayfasını ve belgenin SHA-256 özetini döndürür. Alt ölçütlerin listesi ve üst ölçüt de gelir. EPDAD alt standartlarında göstergeler ve dörtlü düzey tanımları gelir (belgeden ayrılamayan tanım 'Belgeden okunamadı' döner). MÜDEK 5.1 ve FEDEK 10.1'de disipline ya da programa özgü bölümlerin listesi gelir; bölüm kodu verilirse o bölümün konuları da gelir. Belgeden alınamayan metin DOĞRULANMADI olarak döner; tahminle doldurulmaz.",
+    "Bir ölçütün resmî metnini kaynak belge, sayfa ve dosya özetiyle getirir; üst ve alt ölçütler, EPDAD göstergeleri, MÜDEK ve FEDEK programa özgü bölümleri de gelir. Metin tahminle doldurulmaz.",
+  sonrakiAdim:
+    "Alt ölçütse olgunluk_duzeyleri ile düzeyleri ve örnek kanıtları gösterin. Hocaya sorun: 1) örnek kanıtlar 2) başka ölçüt 3) öz değerlendirme iskeleti.",
   girdi: z.object({
     kod: z
       .string()
@@ -312,7 +275,9 @@ const olgunlukDuzeyleri = arac({
   ad: "olgunluk_duzeyleri",
   baslik: "Alt ölçüt olgunluk düzeyleri ve örnek kanıtlar",
   aciklama:
-    "Bir alt ölçütün (ör. 'B.1.2') dereceli değerlendirme anahtarındaki 1-5 olgunluk düzeyi metinlerini ve belgedeki örnek kanıtları döndürür. Düzeyi siz ya da kurumunuz belirler; bu araç düzey önermez.",
+    "Bir YÖKAK alt ölçütünün (ör. B.1.2) 1-5 olgunluk düzeyi metinlerini ve örnek kanıtlarını getirir. Düzey önermez; düzeye kurum kanıtla karar verir.",
+  sonrakiAdim:
+    "Örnek kanıtları hocanın elindekilerle eşleştirin: her kanıt için 1) var 2) yok 3) emin değilim diye sorun. Yok olanlar EKSİK kalır.",
   girdi: z.object({ kod: z.string().trim().min(1).max(20).describe("Alt ölçüt kodu, ör. 'B.1.2'") }),
   calistir: ({ kod }) => {
     const CERCEVE = YOKAK_KURUMSAL_3_3;
@@ -347,7 +312,8 @@ const ozDegerlendirmeIskeleti = arac({
   ad: "oz_degerlendirme_iskeleti",
   baslik: "Öz değerlendirme raporu iskeleti",
   aciklama:
-    "KİDR 3.2.1 şablonuna göre rapor bölümlerini, her bölümün ölçüt ve alt ölçütlerini ve gereken örnek kanıtları döndürür. Metin yazmaz: her alt ölçüt EKSİK işaretiyle gelir, kanıt bağlandıkça doldurulur.",
+    "Öz değerlendirme raporunun (KİDR 3.2.1) bölümlerini, alt ölçütlerini ve gereken örnek kanıtları verir. Metin yazmaz; her bölüm EKSİK gelir.",
+  sonrakiAdim: "Hocanın yazdığı bölüm metnini rapor_dil_denetle ile denetleyin. Kanıtı olmayan cümle EKSİK kalır.",
   girdi: z.object({
     bolum: z
       .enum(["A", "B", "C", "D"])
@@ -394,108 +360,6 @@ const ozDegerlendirmeIskeleti = arac({
   },
 });
 
-// ---------------------------------------------------------------- Bologna denetimi
-
-const sayiYaDaBos = z.number().nullable().default(null);
-const BolognaDersGirdisi = z.object({
-  kod: z.string().trim().min(1).max(30),
-  ad: z.string().max(200).optional(),
-  zorunlu: z.boolean().default(true),
-  yariyil: z.number().int().min(1).max(16).nullable().default(null),
-  tul: z.string().max(20).optional().describe("Teori+Uygulama+Laboratuvar, ör. '2+1+0'"),
-  kredi: sayiYaDaBos,
-  akts: sayiYaDaBos,
-  guncelleme: z.string().max(20).optional().describe("Son güncelleme tarihi, GG.AA.YYYY"),
-  ciktilar: z
-    .array(z.object({ kod: z.string().max(20), metin: z.string().max(1000) }))
-    .max(40)
-    .default([]),
-  degerlendirme: z
-    .array(z.object({ ad: z.string().max(200), sayi: sayiYaDaBos, katki: sayiYaDaBos }))
-    .max(40)
-    .default([]),
-  isyuku: z
-    .array(z.object({ ad: z.string().max(200), sayi: sayiYaDaBos, sure: sayiYaDaBos, toplam: sayiYaDaBos }))
-    .max(40)
-    .default([]),
-  dersYapisi: z
-    .array(z.object({ alan: z.string().max(200), yuzde: sayiYaDaBos }))
-    .max(20)
-    .default([]),
-  haftalar: z.number().int().min(0).max(30).default(0).describe("Haftalık konu satırı sayısı"),
-  katki: z
-    .record(z.string().max(20), z.record(z.string().max(20), z.string().max(5)))
-    .default({})
-    .describe("Ders çıktısı ya da 'Tüm' satırı → program çıktısı kodu → katkı değeri ('1'-'5', '' ya da '-')"),
-});
-
-const bolognaDenetleAraci = arac({
-  ad: "bologna_denetle",
-  baslik: "Bologna ders bilgisini denetle",
-  aciklama:
-    "Yapıştırdığınız ders bilgi paketi verisini (AKTS, iş yükü, değerlendirme, öğrenme çıktıları, katkı tablosu) Akredit'in Bologna kurallarıyla denetler: AKTS-iş yükü uyumu, değerlendirme toplamı, eksik çıktı, güncellik, matris tutarlılığı. Kurallar resmî ölçüt değildir; tutarsızlığı işaretler, kararı komisyon verir.",
-  girdi: z.object({
-    ders: BolognaDersGirdisi,
-    programCiktilari: z
-      .array(z.object({ kod: z.string().max(20), metin: z.string().max(1000) }))
-      .max(40)
-      .optional()
-      .describe("Program çıktıları; verilirse program düzeyindeki kurallar da çalışır"),
-    matrisSatiri: z
-      .record(z.string().max(20), z.string().max(5))
-      .optional()
-      .describe("Program matrisinde bu dersin satırı: program çıktısı kodu → değer"),
-    aktsSaat: z
-      .tuple([z.number().min(1), z.number().max(60)])
-      .optional()
-      .describe("AKTS başına saat aralığı; varsayılan [25, 30]"),
-  }),
-  calistir: ({ ders, programCiktilari, matrisSatiri, aktsSaat }, b) => {
-    const sayfa: BolognaDersSayfasi & { kod: string } = {
-      ...ders,
-      ad: ders.ad ?? ders.kod,
-      bilgiler: {},
-    };
-    const pkodlar = Object.keys(matrisSatiri ?? {});
-    const veri: BolognaVerisi = {
-      adres: "kullanici-girdisi",
-      okundu: b.simdi().toISOString(),
-      programCiktilari: programCiktilari ?? [],
-      matris: {
-        pkodlar,
-        dersler: matrisSatiri
-          ? [
-              {
-                kod: ders.kod,
-                ad: ders.ad ?? ders.kod,
-                zorunlu: ders.zorunlu,
-                grup: null,
-                yariyil: ders.yariyil,
-                grupBasligi: false,
-                degerler: matrisSatiri,
-              },
-            ]
-          : [],
-      },
-      tyycIsaret: null,
-      dersler: [{ ...sayfa, zorunlu: ders.zorunlu, bos: false, kaynak: "kullanici-girdisi" }],
-    };
-    let bulgular = bolognaDenetle(veri, { simdi: b.simdi().getTime(), ...(aktsSaat ? { aktsSaat } : {}) });
-    // Program düzeyi kuralları yalnız program çıktıları verildiyse anlamlıdır.
-    if (!programCiktilari) bulgular = bulgular.filter((x) => x.konu !== "-");
-    return {
-      sonuc: {
-        ders: ders.kod,
-        hataSayisi: bulgular.filter((x) => x.duzey === "hata").length,
-        uyariSayisi: bulgular.filter((x) => x.duzey === "uyari").length,
-        bulgular,
-        not: "Kurallar Akredit'in iç kurallarıdır, resmî ölçüt değildir. Düzeltme kararını ders sorumlusu ve komisyon verir.",
-      },
-      kaynak: [KOD_KAYNAGI("packages/cekirdek/src/bologna/denetim.ts", "Akredit Bologna denetim kuralları")],
-    };
-  },
-});
-
 // ---------------------------------------------------------------- ÇK/PÇ sağlanma hesabı
 
 const kimlik = z.string().trim().min(1).max(30);
@@ -505,7 +369,9 @@ const ckPcHesapla = arac({
   ad: "ck_pc_hesapla",
   baslik: "ÇK ve PÇ sağlanma düzeyi hesabı",
   aciklama:
-    "Anonim puan tablosundan ders öğrenme çıktısı (ÇK) başarısını ve program çıktısı (PÇ) sağlanma düzeyini hesaplar (@akredit/olcme). Öğrenci kimliği yerine 'o1', 'o2' gibi takma ad kullanın; numara ve ad kabul edilmez. Öğrenci bazında sonuç dönmez, yalnız toplu değerler döner.",
+    "Takma adlı puan tablosundan ders öğrenme çıktısı (ÇK) başarısını ve program çıktısı (PÇ) sağlanma düzeyini hesaplar. Öğrenci adı ve numarası kabul edilmez; yalnız toplu sonuç döner.",
+  sonrakiAdim:
+    "Sonucu tablo olarak gösterin, sayıları yalnız bu yanıttan alın. Eşiğin altında kalan çıktılar için hocaya sorun: 1) iyileştirme notu yaz 2) başka eşikle yeniden hesapla 3) bitir.",
   girdi: z.object({
     dersKodu: kimlik,
     donem: z.string().trim().min(1).max(40).describe("ör. '2025-2026 Güz'"),
@@ -618,7 +484,9 @@ const raporDilDenetle = arac({
   ad: "rapor_dil_denetle",
   baslik: "Rapor dil denetimi",
   aciklama:
-    "Öz değerlendirme ya da faaliyet raporu metnini dil kurallarıyla denetler: kanıtsız üstünlük ifadesi, ölçüsüz nicelik, yazıyla sayı, öznesiz eylem, dönem ve tarih tutarlılığı. Metni değiştirmez, yalnız işaretler. Paragrafları boş satırla ayırın.",
+    "Rapor metnindeki dil sorunlarını işaretler: kanıtsız üstünlük, ölçüsüz nicelik, öznesiz eylem, dönem ve tarih tutarsızlığı. Metni değiştirmez.",
+  sonrakiAdim:
+    "Her bulgu için 2-3 numaralı düzeltme seçeneği sunun (uydurma sayı ya da kanıt eklemeden); hoca seçince düzeltilmiş metni yeniden denetleyin.",
   girdi: z.object({
     metin: z.string().min(1).max(60_000),
     donem: z
@@ -651,6 +519,7 @@ export const ACIK_ARACLAR: readonly AcikArac[] = [
   olgunlukDuzeyleri,
   ozDegerlendirmeIskeleti,
   bolognaDenetleAraci,
+  ...BOLOGNA_ARACLARI,
   ckPcHesapla,
   raporDilDenetle,
 ] as unknown as readonly AcikArac[];
