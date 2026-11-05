@@ -45,6 +45,11 @@ export interface AcikArac<S extends z.ZodObject = z.ZodObject> {
    * yalnız atılan alanların adları döner. Ayıklamadan sonra kalan girdi yine denetlenir.
    */
   onAyikla?: (girdi: unknown) => { girdi: unknown; atilan: string[]; ileti?: string };
+  /**
+   * Kişisel veri taramasından önce çalışan red denetimi. İleti dönerse çağrı işlenmeden "kisisel_veri" koduyla
+   * reddedilir; değerler hiçbir yere yazılmaz.
+   */
+  onDenetim?: (girdi: unknown) => string | null;
   /** Kişisel veri denetiminin kapsamı; varsayılan "ogrenci" (bkz. kisisel-veri.ts). */
   kisiselVeriKapsami?: KisiselVeriKapsami;
   /** Araç dış ağa (yalnız izinli hostlara) istek atar mı. */

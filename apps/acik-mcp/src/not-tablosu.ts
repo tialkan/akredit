@@ -1,6 +1,10 @@
-// Excel ya da CSV'den yapıştırılan not tablosunu ck_pc_hesapla girdisine hazırlar. Öğrenci kimliği (ad, soyad,
-// numara, e-posta) ayrıştırmadan önce bellekte atılır ve satır sırasına göre o1, o2, ... takma adı verilir; atılan
-// değerler hiçbir yere yazılmaz. Sütun başlıklarından ölçme aracı, soru numarası, tam puan ve ders çıktısı (ÇK)
+// Excel ya da CSV'den yapıştırılan not tablosunu ck_pc_hesapla girdisine hazırlar. Öğrenciler satır sırasına göre
+// o1, o2, ... takma adı alır.
+//
+// Kişisel veri (dış inceleme 2026-11-05): tablo sohbete yapıştırıldığı anda yapay zekâ sağlayıcısına gitmiştir;
+// sunucunun sonradan sütun atması bunu geri almaz. Bu yüzden ad, soyad ya da öğrenci numarası sütunu ya da 9-11
+// haneli bir numara görülürse tablo işlenmez; hoca bu sütunları Excel'de silip yalnız not sütunlarını yapıştırır ya
+// da verinin tarayıcıdan çıkmadığı hesaplayıcıyı kullanır. Değerler hiçbir yere yazılmaz. Sütun başlıklarından ölçme aracı, soru numarası, tam puan ve ders çıktısı (ÇK)
 // eşlemesi sezilir; sezilemeyen bilgi tahmin edilmez, eksikler listesine girer. Sayılar yalnız tablodan okunur.
 
 import { z } from "zod";
@@ -65,6 +69,13 @@ export function kimlikSutunlari(satirlar: string[][]): number[] {
   return sonuc;
 }
 
+/** Kimlik sütunu olmayan tablonun başına o1, o2 takma ad sütunu ekler. Başlıkta zaten takma ad varsa dokunmaz. */
+export function takmaAdEkle(metin: string): string {
+  const { satirlar } = tabloOku(metin);
+  if (satirlar.length < 2 || /^takma ad$/iu.test((satirlar[0]?.[0] ?? "").trim())) return metin;
+  return satirlar.map((r, i) => [i === 0 ? "Takma ad" : `o${i}`, ...r].join("\t")).join("\n");
+}
+
 /** Tablodan kimlik sütunlarını atar, başa o1, o2 takma adı koyar. Yalnız bellekte çalışır. */
 export function notTablosuAyikla(metin: string): { tablo: string; atilan: string[] } {
   const { satirlar } = tabloOku(metin);
@@ -127,11 +138,25 @@ const puanOku = (s: string, ayirac: Ayirac): number | null => {
   return Number.isFinite(n) ? n : null;
 };
 
+/** Kişisel veri görülünce verilen ileti (aynen). */
+export const NOT_TABLOSU_KISISEL_ILETI =
+  "Kişisel veriyi yapay zekâ sohbetine yapıştırmayın: Excel'de Ad, Soyad, Numara sütunlarını silip yalnız not sütunlarını yapıştırın ya da verinin tarayıcınızdan çıkmadığı hesaplayıcıyı kullanın: https://akredit.org/deneyin";
+
+const UZUN_NUMARA = /(?<![\d.,])\d{9,11}(?![\d.,]\d)/u;
+
+/** Tabloda kimlik sütunu (ad, soyad, numara...) ya da 9-11 haneli numara var mı? Varsa red iletisi döner. */
+export function notTablosuKisiselVeri(metin: string): string | null {
+  const { satirlar } = tabloOku(metin);
+  if (satirlar.length >= 2 && kimlikSutunlari(satirlar).length) return NOT_TABLOSU_KISISEL_ILETI;
+  if (satirlar.some((r) => r.some((h) => UZUN_NUMARA.test(h.replace(/\s/gu, ""))))) return NOT_TABLOSU_KISISEL_ILETI;
+  return null;
+}
+
 export const SUTUN_ESLEME_REHBERI = [
   "Excel'de ilk satır başlık olsun: her soru ya da ölçme için bir sütun.",
   "Başlık örnekleri: 'Vize S1 (ÇK1) /20', 'Vize S2 (ÇK2) /30', 'Final S1 ÇK3 /50', 'Ödev ÇK4 /100'.",
   "Başlıkta sınavın adı (Vize, Final, Ödev, Proje, Quiz), soru numarası (S1, Soru 2), ölçtüğü ders çıktısı (ÇK1 ya da Ö1) ve tam puanı (/20 ya da (20p)) olsun.",
-  "Ad, soyad ve numara sütunlarını silmenize gerek yok: araç onları ayrıştırmadan önce atar ve o1, o2 diye takma ad verir. Yine de silerseniz daha iyi olur.",
+  "Ad, Soyad ve Numara sütunlarını yapıştırmadan önce Excel'de silin: yalnız not sütunları gelsin. Kimlik sütunu ya da numara görülürse tablo işlenmez. Öğrenciler o1, o2 diye takma ad alır.",
   "Toplam, Ortalama, Harf sütunları yok sayılır.",
   "Boş, '-' ya da 'G' (girmedi) hücreleri boş puan sayılır.",
   "Tabloyu Excel'de seçip Ctrl+C ile kopyalayın, sohbete Ctrl+V ile yapıştırın.",
@@ -141,26 +166,27 @@ export const notTablosuAyristirAraci = arac({
   ad: "not_tablosu_ayristir",
   baslik: "Not tablosunu ayrıştır",
   aciklama:
-    "Excel ya da CSV'den yapıştırılan not tablosunu ÇK/PÇ hesabına hazırlar. Ad, soyad ve numara sütunlarını ayrıştırmadan önce atar, öğrencilere o1, o2 takma adı verir. Başlıklardan sınav, soru, tam puan ve ders çıktısı eşlemesini sezer; eksikleri listeler.",
+    "Excel ya da CSV'den yapıştırılan not tablosunu ÇK/PÇ hesabına hazırlar. Tabloda yalnız not sütunları olmalı: ad, soyad ya da numara sütunu ya da 9-11 haneli numara görülürse tablo işlenmez. Öğrencilere o1, o2 takma adı verir. Başlıklardan sınav, soru, tam puan ve ders çıktısı eşlemesini sezer; eksikleri listeler.",
   sonrakiAdim:
     "Sezilen eşlemeyi hocaya tablo olarak gösterin ve eksikleri tek tek seçenekle sorun (ör. S3 hangi çıktıyı ölçüyor? 1) Ö2 2) Ö3). Eksik kalmayınca ckPcHesaplaTaslagi'ni ck_pc_hesapla'ya verin.",
-  kisiselVeriIpucu:
-    "Kimlik sütunları atıldıktan sonra da kişisel veri kaldı. Ad ya da numara içeren başka sütun varsa silip yeniden yapıştırın.",
+  kisiselVeriIpucu: NOT_TABLOSU_KISISEL_ILETI,
   kisiselVeriKapsami: "tam",
+  onDenetim: (g) => {
+    const t = (g as { tablo?: unknown } | null)?.tablo;
+    return typeof t === "string" ? notTablosuKisiselVeri(t) : null;
+  },
   onAyikla: (g) => {
+    // Kimlik sütunu yoksa tablo yalnız not sütunlarıdır; başa o1, o2 takma adı eklenir (sütun atılmaz).
     const t = (g as { tablo?: unknown } | null)?.tablo;
     if (typeof t !== "string") return { girdi: g, atilan: [] };
-    const r = notTablosuAyikla(t);
-    return {
-      girdi: { ...(g as object), tablo: r.tablo },
-      atilan: r.atilan,
-      ileti: r.atilan.length
-        ? `Öğrenci kimliği taşıyan sütunlar hesaplamadan önce atıldı, öğrencilere o1, o2 takma adı verildi; hiçbir yere yazılmadı: ${r.atilan.join(", ")}.`
-        : undefined,
-    };
+    return { girdi: { ...(g as object), tablo: takmaAdEkle(t) }, atilan: [] };
   },
   girdi: z.object({
-    tablo: z.string().min(5).max(2_000_000).describe("Excel ya da CSV'den yapıştırılan tablo; ilk satır başlık"),
+    tablo: z
+      .string()
+      .min(5)
+      .max(400_000)
+      .describe("Excel ya da CSV'den yapıştırılan, yalnız not sütunlarından oluşan tablo; ilk satır başlık"),
     tamPuanlar: z
       .record(z.string().max(80), z.number().positive().max(1000))
       .optional()

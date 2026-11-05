@@ -3,16 +3,20 @@
 //
 // Kapsam (İP-49): hocanın kendi sayfasında yayımlanmış görev bilgisi (Dersi Verenler, Koordinatör, iletişim)
 // kişisel veri sayılıp atılmaz; olduğu gibi okunur ve korunur. Araçlar kapsamı kendisi seçer:
-// - "yok": yalnız giriş bilgisi denetlenir (Bologna araçları).
-// - "ogrenci" (varsayılan): öğrenci ve kimlik verisi (T.C. kimlik no, öğrenci numarası, IBAN) reddedilir.
+// - "yok": yalnız giriş bilgisi denetlenir (kaynak doğrulama: künye ve katalog numaraları).
+// - "ogrenci" (varsayılan; Bologna araçları da bunu kullanır): öğrenci ve kimlik verisi (T.C. kimlik no, öğrenci
+//   numarası, IBAN) reddedilir. Yayımlanmış öğretim elemanı adları serbesttir.
 // - "tam": bütün desenler (not tablosu ve ÇK/PÇ: öğrenci adı ve numarası takma adla gelmelidir).
 //
 // Künye kuralı: kaynakçadaki yazar adları yayımlanmış künyedir, kişisel veri sayılmaz. Bu yüzden künye alanlarında
-// (araç bunları adıyla bildirir) kişi adı deseni aranmaz; e-posta, telefon, kimlik numarası gibi öbür desenler
-// yine aranır.
+// (araç bunları adıyla bildirir) kişi adı ve etiketsiz uzun sayı (ISBN, katalog no) deseni aranmaz; e-posta,
+// T.C. kimlik no, IBAN gibi öbür desenler yine aranır.
 //
-// Giriş bilgisi (ilke 8): parola, doğrulama kodu ve oturum çerezi sunucuya hiç girmez. Böyle bir desen görülürse
-// çağrı reddedilir; değer yanıtta tekrarlanmaz.
+// Giriş bilgisi (ilke 8): parola, doğrulama kodu ve oturum çerezi istenmez. Yine de gönderilirse (sunucu isteği
+// almadan bunu engelleyemez) desen görülür görülmez çağrı reddedilir, değer kaydedilmez ve yanıtta tekrarlanmaz.
+//
+// Başarım (dış inceleme 2026-11-05): HTML girdide desenler bütün kaynağa değil, yalnız görünen metne uygulanır
+// (betik, stil, etiket ve öznitelikler önce atılır). Bağlantı adreslerindeki sayılar da böylece numara sayılmaz.
 
 import { maskele, type VeriTuru } from "@akredit/yz";
 
@@ -59,6 +63,16 @@ export type KisiselVeriKapsami = "yok" | "ogrenci" | "tam";
 const OGRENCI_TURLERI: readonly VeriTuru[] = ["TCKN", "ÖĞRENCİ-NO", "IBAN"];
 const TUM_TURLER = Object.keys(TUR_ADI) as VeriTuru[];
 
+/** HTML ise yalnız görünen metni bırakır (betik, stil, yorum, etiket ve öznitelikler atılır). Değilse aynen döner. */
+export function gorunenMetin(x: string): string {
+  if (!/<\/?[a-z][\w-]*[\s>/]/iu.test(x)) return x;
+  return x
+    .replace(/<!--[\s\S]*?-->/gu, " ")
+    .replace(/<(script|style|noscript|template)\b[\s\S]*?<\/\1\s*>/giu, " ")
+    .replace(/<[^>]{0,2000}>/gu, " ")
+    .replace(/&nbsp;/gu, " ");
+}
+
 export function kisiselVeriTurleri(
   girdi: unknown,
   kunyeAnahtarlari: readonly string[] = [],
@@ -66,11 +80,12 @@ export function kisiselVeriTurleri(
 ): string[] {
   if (kapsam === "yok") return [];
   const kapali = kapsam === "ogrenci" ? TUM_TURLER.filter((t) => !OGRENCI_TURLERI.includes(t)) : [];
+  const kunyeKapali = [...new Set<VeriTuru>([...kapali, "KİŞİ", "ÖĞRENCİ-NO"])];
   const turler = new Set<VeriTuru>();
   const m = metinler(girdi, new Set(kunyeAnahtarlari));
-  for (const x of m.genel) for (const e of maskele(x, { kapali }).eslemeler) turler.add(e.tur);
+  for (const x of m.genel) for (const e of maskele(gorunenMetin(x), { kapali }).eslemeler) turler.add(e.tur);
   for (const x of m.kunye)
-    for (const e of maskele(x, { kapali: [...new Set<VeriTuru>([...kapali, "KİŞİ"])] }).eslemeler) turler.add(e.tur);
+    for (const e of maskele(gorunenMetin(x), { kapali: kunyeKapali }).eslemeler) turler.add(e.tur);
   return [...turler].map((t) => TUR_ADI[t]);
 }
 
@@ -111,4 +126,4 @@ export function girisBilgisiAyikla(metin: string): { metin: string; atildi: bool
 }
 
 export const GIRIS_BILGISI_ILETISI =
-  "Gönderdiğiniz veride parola, doğrulama kodu ya da oturum çerezi olabilecek bir ifade var. Bu bilgiler yapay zekâya ve Akredit'e hiç verilmez; yalnız OBS'nin kendi giriş ekranına siz yazarsınız. O kısmı silip yeniden gönderin. Parolanızı bir sohbete yazdıysanız OBS'de değiştirmeniz iyi olur.";
+  "Gönderdiğiniz veride parola, doğrulama kodu ya da oturum çerezi olabilecek bir ifade var. Akredit bu bilgileri istemez; görülen istek reddedildi ve kaydedilmedi. Bunları yalnız OBS'nin kendi giriş ekranına siz yazarsınız. O kısmı silip yeniden gönderin. Parolanızı bir sohbete yazdıysanız OBS'de değiştirmeniz iyi olur.";

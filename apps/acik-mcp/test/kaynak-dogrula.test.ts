@@ -7,9 +7,13 @@ import { ACIK_ARACLAR } from "../src/araclar.ts";
 import {
   baslikEslesir,
   doiTemizle,
+  EN_COK_KAYNAK,
+  ESZAMANLI_DIS_ISTEK,
   IZINLI_HOSTLAR,
   isbnTemizle,
   kaynakDogrulaAraci,
+  kaynakImzasiDogru,
+  sinirliMetin,
   yazarEslesir,
 } from "../src/kaynak-dogrula.ts";
 import { aracCalistirAsenkron } from "../src/sunucu.ts";
@@ -73,7 +77,7 @@ describe("kaynak_dogrula (sahte fetch, kayıtlı örnekler)", () => {
     const r = await calistir({ kaynaklar: [{ doi: "10.5555/kurgu.2020.001" }] }, f);
     expect(r.hata).toBe(false);
     const k = sonuc(r).kaynaklar[0];
-    expect(k.durum).toBe("dogrulandi");
+    expect(k.durum).toBe("katalogda_bulundu");
     expect(k.katalog).toBe("Crossref");
     expect(k.baglanti).toBe("https://doi.org/10.5555/kurgu.2020.001");
     expect(k.kunye).toBe(
@@ -89,7 +93,7 @@ describe("kaynak_dogrula (sahte fetch, kayıtlı örnekler)", () => {
       "www.googleapis.com/books/v1/volumes?q=isbn": ornek("google-isbn.json"),
     });
     const s = sonuc(await calistir({ kaynaklar: [{ isbn: "978-605-00-0001-6" }, { isbn: "9786050000023" }] }, f));
-    expect(s.dogrulanan).toBe(2);
+    expect(s.katalogdaBulunan).toBe(2);
     expect(s.kaynaklar[0]).toMatchObject({
       katalog: "Open Library",
       baglanti: "https://openlibrary.org/books/OL0000001M/Kurgu_veri_cozumlemesi",
@@ -110,7 +114,7 @@ describe("kaynak_dogrula (sahte fetch, kayıtlı örnekler)", () => {
     const s = sonuc(await calistir({ kaynaklar: [{ baslik: "Kurgu ölçme yöntemleri", yazar: "Ece Kurgu" }] }, f));
     // Google'daki kayıt başka eser (Kurgu istatistiği), atlanır; Crossref'teki ikinci kayıt eşleşir.
     expect(s.kaynaklar[0]).toMatchObject({
-      durum: "dogrulandi",
+      durum: "katalogda_bulundu",
       katalog: "Crossref",
       baglanti: "https://doi.org/10.5555/kurgu.2018.007",
     });
@@ -134,26 +138,111 @@ describe("kaynak_dogrula (sahte fetch, kayıtlı örnekler)", () => {
       f,
     );
     const s = sonuc(r);
-    expect(s.dogrulanan).toBe(0);
+    expect(s.katalogdaBulunan).toBe(0);
     for (const k of s.kaynaklar) {
-      expect(k.durum).toBe("dogrulanamadi");
+      expect(k.durum).toBe("bulunamadi");
       expect(k.kunye).toBeUndefined();
       expect(k.baglanti).toBeUndefined();
     }
-    expect(String(r.veri.sonrakiAdim)).toMatch(/asla önermeyin/u);
+    expect(String(r.veri.sonrakiAdim)).toMatch(/asla kendiniz önermeyin/u);
     // Ağ hatası da doğrulanamadı sayılır, uydurma künye yazılmaz.
     const hata = (async () => {
       throw new Error("ağ yok");
     }) as unknown as typeof fetch;
-    expect(sonuc(await calistir({ kaynaklar: [{ doi: "10.5555/x" }] }, hata)).kaynaklar[0].durum).toBe("dogrulanamadi");
+    expect(sonuc(await calistir({ kaynaklar: [{ doi: "10.5555/x" }] }, hata)).kaynaklar[0].durum).toBe("bulunamadi");
   });
 
   it("boyut sınırını aşan yanıt kabul edilmez; girdi şeması DOI, ISBN ya da başlık+yazar ister", async () => {
     const buyuk = `{"message":{"DOI":"10.5555/x","title":["${"a".repeat(1_100_000)}"]}}`;
     const { f } = sahteFetch({ "api.crossref.org": buyuk });
-    expect(sonuc(await calistir({ kaynaklar: [{ doi: "10.5555/x" }] }, f)).kaynaklar[0].durum).toBe("dogrulanamadi");
+    expect(sonuc(await calistir({ kaynaklar: [{ doi: "10.5555/x" }] }, f)).kaynaklar[0].durum).toBe("bulunamadi");
     const g = await calistir({ kaynaklar: [{ baslik: "Yalnız başlık" }] }, f);
     expect(g.hata).toBe(true);
     expect(g.veri.kod).toBe("gecersiz_girdi");
+  });
+
+  it("yanıt akışla okunur: content-length olmadan büyük yanıt sınırda kesilir", async () => {
+    let gonderilen = 0;
+    const akis = new ReadableStream<Uint8Array>({
+      pull(c) {
+        // Her parça 100 KB; sınır 1 MB. Sınırı aşınca okuyucu iptal eder, akış sonsuza kadar okunmaz.
+        gonderilen += 100_000;
+        c.enqueue(new Uint8Array(100_000).fill(32));
+        if (gonderilen > 5_000_000) c.close();
+      },
+    });
+    expect(await sinirliMetin(new Response(akis), 1_000_000)).toBeNull();
+    expect(gonderilen).toBeLessThanOrEqual(1_300_000);
+  });
+});
+
+describe("kaynak_dogrula sıkılaştırma (dış inceleme 2026-11-05)", () => {
+  it("soyad tam belirteç olarak eşleşir; alt dize yetmez", () => {
+    expect(yazarEslesir("Ece Yılmaz", ["Yılmazer, Ece"])).toBe(false);
+    expect(yazarEslesir("Ece Yılmaz", ["Yılmaz, Ece"])).toBe(true);
+    expect(yazarEslesir("Kaya", ["Kayaoğlu, Ali"])).toBe(false);
+  });
+
+  it("iki sözcüklü jenerik başlıkta sözcük kümesi birebir aynı olmalı", () => {
+    expect(baslikEslesir("Veri Yapıları", "Veri Yapıları")).toBe(true);
+    expect(baslikEslesir("Veri Yapıları", "Veri Yapıları ve Algoritmalar")).toBe(false);
+  });
+
+  it("kitap aranırken dergi makalesi kabul edilmez; yıl birebir uymalı", async () => {
+    // crossref-doi.json kurgu bir dergi makalesidir (journal-article, 2020).
+    const { f } = sahteFetch({ "api.crossref.org/works/10.5555": ornek("crossref-doi.json") });
+    const kitap = sonuc(await calistir({ kaynaklar: [{ doi: "10.5555/kurgu.2020.001", tur: "kitap" }] }, f));
+    expect(kitap.kaynaklar[0].durum).toBe("bulunamadi");
+    expect(kitap.kaynaklar[0].neden).toMatch(/dergi makalesi; aranan kitap/u);
+    const yil = sonuc(await calistir({ kaynaklar: [{ doi: "10.5555/kurgu.2020.001", yil: 2019 }] }, f));
+    expect(yil.kaynaklar[0].neden).toMatch(/Katalogdaki yıl 2020, verilen yıl 2019/u);
+    const tamam = sonuc(
+      await calistir({ kaynaklar: [{ doi: "10.5555/kurgu.2020.001", tur: "makale", yil: 2020 }] }, f),
+    );
+    expect(tamam.kaynaklar[0]).toMatchObject({
+      durum: "katalogda_bulundu",
+      kayitTuru: "makale",
+      kimlik_eslesmesi: { yontem: "doi", denetlenen: ["DOI", "kayıt türü", "yıl"] },
+      ders_kaynagi_uygunlugu: "hoca karar verir",
+    });
+  });
+
+  it("sonuçta kimlik eşleşmesi, bibliyografik tamlık ve imza ayrı alanlardır; imza doğrulanabilir", async () => {
+    const { f } = sahteFetch({ "api.crossref.org/works/10.5555": ornek("crossref-doi.json") });
+    const k = sonuc(await calistir({ kaynaklar: [{ doi: "10.5555/kurgu.2020.001" }] }, f)).kaynaklar[0];
+    expect(k.bibliyografik_tamlik).toBe("tam");
+    expect(kaynakImzasiDogru(k.kunye, k.baglanti, k.imza)).toBe(true);
+    expect(kaynakImzasiDogru(`${k.kunye} `, k.baglanti, k.imza)).toBe(false);
+    expect(kaynakImzasiDogru(k.kunye, k.baglanti, "0".repeat(32))).toBe(false);
+  });
+
+  it("bulunamayan kaynak hoca beyanı yolunu söyler; çağrı başına en çok 5 kaynak", async () => {
+    const { f } = sahteFetch({ "www.googleapis.com": '{"totalItems":0}', "api.crossref.org": null });
+    const s = sonuc(await calistir({ kaynaklar: [{ baslik: "Türk Anayasa Hukuku Dersleri", yazar: "Kurgu" }] }, f));
+    expect(s.kaynaklar[0].durum).toBe("bulunamadi");
+    expect(s.kaynaklar[0].hocaBeyani).toMatch(/hoca_beyani/u);
+    const alti = Array.from({ length: 6 }, () => ({ doi: "10.5555/x" }));
+    expect((await calistir({ kaynaklar: alti }, f)).veri.kod).toBe("gecersiz_girdi");
+    expect(EN_COK_KAYNAK).toBe(5);
+  });
+
+  it("süreç genelinde en çok 4 dış istek aynı anda sürer (semafor)", async () => {
+    let anlik = 0;
+    let enCok = 0;
+    const yavas = (async () => {
+      anlik += 1;
+      enCok = Math.max(enCok, anlik);
+      await new Promise((r) => setTimeout(r, 5));
+      anlik -= 1;
+      return new Response("{}", { status: 404 });
+    }) as unknown as typeof fetch;
+    // 3 çağrı x 5 kaynak = 15 dış istek aynı anda başlatılır.
+    await Promise.all(
+      Array.from({ length: 3 }, () =>
+        calistir({ kaynaklar: Array.from({ length: 5 }, (_, i) => ({ doi: `10.5555/s${i}` })) }, yavas),
+      ),
+    );
+    expect(enCok).toBe(ESZAMANLI_DIS_ISTEK);
+    expect(ESZAMANLI_DIS_ISTEK).toBe(4);
   });
 });

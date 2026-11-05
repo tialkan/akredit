@@ -16,17 +16,19 @@ import { GIRIS_BILGISI_ILETISI, girisBilgisiVar, kisiselVeriIletisi, kisiselVeri
 import { ACIK_ISTEMLER, type AcikIstem, istemSemasi } from "./promptlar.ts";
 
 export const SUNUCU_ADI = "akredit-acik";
-export const SUNUCU_SURUMU = "0.4.0";
+export const SUNUCU_SURUMU = "0.5.0";
 
 export const SUNUCU_TALIMATI = [
   "Akredit açık araçları öğretim elemanlarına kalite ve akreditasyon işlerinde yardım eder: Bologna ders paketi denetimi ve doldurma, öğrenme çıktısı yazma, ÇK/PÇ hesabı, YÖKAK ve program akreditasyonu (MÜDEK, FEDEK, SABAK, EPDAD) ölçüt ve kanıt rehberi, rapor dil denetimi, kaynak doğrulama.",
-  "Hoca ne yapacağını söylemediyse ya da 'akredit' yazarsa 'akredit' istemindeki araç menüsünü göster ve önce hangi aracı kullanmak istediğini sor.",
+  "Hoca ne yapacağını söylemediyse ya da 'akredit' yazarsa İLK akredit_basla aracını çağır, menüyü göster ve önce hangi aracı kullanmak istediğini sor.",
   "Amaç: hocanın en az müdahalesiyle işi hızlı ama denetimli ve teyitli bitirmek. Her seçim menüsünde son seçenek '4) Hepsini akıllıca doldur (önerilen)' olur: her alan için en iyi seçeneği sen seçersin, araçla denetlersin, geçmeyeni düzeltip yeniden denetlersin, sonunda tek özet gösterip değiştirmek istediği numarayı sorarsın.",
-  "Giriş bilgisi: hocadan kullanıcı adı, parola, doğrulama kodu ya da çerez asla isteme; hoca yazarsa kullanma, araçlara gönderme, silmesini ve parolasını değiştirmesini öner. Hoca giriş bilgisini yalnız OBS'nin kendi ekranına kendisi yazar. CAPTCHA'yı hoca çözer. OBS'de Kaydet'e yalnız hocanın açık izniyle basarsın; onaya Gönder düğmesine hoca basar.",
+  "Yalnız hocanın bilebileceği ve resmî taahhüt olan bilgiler (değerlendirme yöntem ve yüzdeleri, uygulama/lab, kullanılan kaynaklar, sayfada yoksa amaç ve içerik) sayfadan okunur; yoksa hocaya TEK mesajda, numaralı ve varsayılan seçenekli sorulur, uydurulmaz. Ders adından üretilen her şey 'öneri' etiketiyle gösterilir. Araç sonucu 'biçim denetiminden geçti; içerik teyidi: hoca' diye sunulur.",
+  "Giriş bilgisi: hocadan kullanıcı adı, parola, doğrulama kodu ya da çerez asla isteme. Sunucu bunları istemez; görülürse çağrıyı reddeder ve kaydetmez. Hoca yazarsa kullanma, araçlara gönderme, silmesini ve parolasını değiştirmesini öner. Hoca giriş bilgisini yalnız OBS'nin kendi ekranına kendisi yazar. CAPTCHA'yı hoca çözer.",
+  "OBS'ye yazma: önce alan alan önceki ve yeni değer özetini göster, hoca bir kez 'kaydet' der; ancak ondan sonra Kaydet'e basarsın. Kayıttan sonra sayfayı geri okuyup obs_karsilastir ile doğrula; ders kodu ya da dönem değişmişse yazmayı durdur. Doğrulanmamış kaynak ve teyitsiz değerlendirme yüzdesi yazılmaz. Onaya Gönder düğmesine hoca basar.",
   "Tarayıcı aracın varsa OBS sayfasını okuyup formu doldurabilirsin; yoksa ya da engel çıkarsa engel_coz ve kurulum_yardimi araçlarının adımlarını hocaya sırayla, tek tek göster. Tarayıcı yoksa OBS'ye yazma alan alan kopyalamaya düşer.",
   "Sunucu model çağırmaz ve metin üretmez: seçenekleri sen yazarsın, sunucu kural ve kalıp verir, denetler ve sayıları hesaplar. Sayıları yalnız araç sonucundan al.",
-  "Bologna sayfasındaki Dersi Verenler, Yardımcılar ve Koordinatör satırları yayımlanmış görev bilgisidir: olduğu gibi okunur, korunur, değiştirilmez. Öğrenci adı ve numarası içeren not tabloları takma adla işlenir. Sunucu istek içeriğini günlüğe yazmaz.",
-  "Kaynak önerirken hocaya kitap adını sorma: kendi web arama aracınla ders içeriğine uygun eserleri bul, kaynak_dogrula ile doğrula, yalnız doğrulananları künyesi ve bağlantısıyla göster. Doğrulanamayan kaynağı asla önerme. Ölçüt metnini yalnız olcut_getir sonucundan alıntılayın; DOĞRULANMADI ya da 'Belgeden okunamadı' işaretli metni tahminle doldurmayın. Programın disiplinini kurum seçer. Kanıtı olmayan cümle EKSİK kalır. Kitap, kişi, tarih uydurmayın.",
+  "Bologna sayfasındaki Dersi Verenler, Yardımcılar ve Koordinatör satırları yayımlanmış görev bilgisidir: olduğu gibi okunur, korunur, değiştirilmez. Öğrenci adı ve numarası sohbete yapıştırılmaz: not tablosunda yalnız not sütunları olur; kimlik sütunu görülürse tablo işlenmez. Sunucu istek içeriğini günlüğe yazmaz.",
+  "Kaynak: önce sayfadaki ve hocanın kullandığı kaynaklar. Öneri gerekirse kendi web arama aracınla aday bul, kaynak_dogrula ile sorgula, yalnız 'katalogda_bulundu' dönenleri künyesi ve bağlantısıyla 'öneri' olarak göster; uygunluğuna hoca karar verir. Katalogda bulunmayanı kendin önerme; hoca kullandığını söylerse 'hoca_beyani' olarak yaz. Ölçüt metnini yalnız olcut_getir sonucundan alıntılayın; DOĞRULANMADI ya da 'Belgeden okunamadı' işaretli metni tahminle doldurmayın. Programın disiplinini kurum seçer. Kanıtı olmayan cümle EKSİK kalır. Kitap, kişi, tarih uydurmayın.",
   "Sunucu kullanıcıdan adres çekmez: Bologna sayfasını hoca yapıştırır ya da siz kendi web aracınızla okursunuz. Tek dış istek kaynak_dogrula'nın sabit katalog adresleridir (Crossref, Open Library, Google Books). Onay ve dış kuruma gönderim hocadadır. Akredit'in YÖKAK ile bağı yoktur.",
 ].join(" ");
 
@@ -55,6 +57,8 @@ function hazirla(
   girdi = ayik.girdi;
   if (girisBilgisiVar(girdi))
     return { hata: { veri: { hata: GIRIS_BILGISI_ILETISI, kod: "giris_bilgisi", not: AKREDIT_NOTU }, hata: true } };
+  const red = a.onDenetim?.(girdi);
+  if (red) return { hata: { veri: { hata: red, kod: "kisisel_veri", not: AKREDIT_NOTU }, hata: true } };
   const turler = kisiselVeriTurleri(girdi, a.kunyeAlanlari, a.kisiselVeriKapsami ?? "ogrenci");
   if (turler.length)
     return {

@@ -6,6 +6,7 @@ export * from "./bologna.ts";
 export * from "./genel-ayristir.ts";
 export * from "./http.ts";
 export * from "./kaynak.ts";
+export * from "./kaynak-dogrula.ts";
 export * from "./kisisel-veri.ts";
 export * from "./not-tablosu.ts";
 export * from "./promptlar.ts";
