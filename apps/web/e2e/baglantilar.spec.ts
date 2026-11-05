@@ -68,7 +68,7 @@ test.describe("bağlantılar", () => {
 
   test("iletişim: proje sahibi ve LinkedIn; eski adres yok", async ({ page }) => {
     await page.goto("/iletisim");
-    await expect(page.locator("main")).toContainText("Proje sahibi Tarık İsmet ALKAN. İletişim: LinkedIn");
+    await expect(page.locator("main")).toContainText("Proje sahibi Tarık İsmet ALKAN. İletişim: iletisim@akredit.org ya da LinkedIn");
     await expect(page.locator("main").getByRole("link", { name: "LinkedIn" }).first()).toHaveAttribute(
       "href",
       ILETISIM,
