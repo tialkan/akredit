@@ -1,12 +1,6 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { SAYFALAR } from "../site/icerik.ts";
-import {
-  GUVENLIK_BASLIKLARI,
-  ONBELLEK_DEGERI,
-  ONBELLEKLI_YOLLAR,
-  onbellekPolitikasi,
-  surumBelirle,
-} from "./basliklar.ts";
+import { DURAGAN_ONBELLEK, DURAGAN_YOLLAR, GUVENLIK_BASLIKLARI, surumBelirle } from "./basliklar.ts";
 
 const deger = (ad: string) => GUVENLIK_BASLIKLARI.find((b) => b.key === ad)?.value;
 
@@ -36,32 +30,13 @@ describe("sürüm işareti", () => {
 });
 
 describe("önbellek politikası", () => {
-  it("herkese açık sayfalar kısa süre paylaşılan önbellekte", () => {
-    for (const y of ["/", "/proje", "/iletisim", "/mcp-kullan", "/kvkk", "/belgeler/hoca", "/proje/"])
-      expect(onbellekPolitikasi(y), y).toBe(ONBELLEK_DEGERI);
-    expect(ONBELLEK_DEGERI).toContain("s-maxage=300");
-    expect(ONBELLEK_DEGERI).toContain("stale-while-revalidate");
+  it("durağan varlıklar uzun ve değişmez önbellekte", () => {
+    expect(DURAGAN_ONBELLEK).toContain("max-age=31536000");
+    expect(DURAGAN_ONBELLEK).toContain("immutable");
+    expect(DURAGAN_YOLLAR).toEqual(["/gorsel/:yol*", "/marka/:yol*"]);
   });
-  it("panel, API, MCP, giriş ve formlar önbelleğe alınmaz", () => {
-    for (const y of [
-      "/panel",
-      "/panel/onaylar",
-      "/api/v1/x",
-      "/mcp",
-      "/giris",
-      "/davet",
-      "/kurum-ac",
-      "/pilot",
-      "/deneyin",
-      "/degerlendirici",
-      "/kurulum",
-      "/anket/a/b",
-      "/onay/eposta",
-    ])
-      expect(onbellekPolitikasi(y), y).toBeNull();
-  });
-  it("listedeki her yol sitede gerçek bir sayfa", () => {
-    const yollar = new Set<string>(Object.values(SAYFALAR).map((s) => s.yol));
-    for (const y of ONBELLEKLI_YOLLAR) expect(yollar.has(y), y).toBe(true);
+  it("proxy sayfalara paylaşılan önbellek başlığı vermez (nonce istek başına)", () => {
+    const proxy = readFileSync(new URL("../proxy.ts", import.meta.url), "utf8");
+    expect(proxy).not.toMatch(/s-maxage|Cache-Control/u);
   });
 });

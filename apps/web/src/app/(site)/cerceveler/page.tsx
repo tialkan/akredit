@@ -1,7 +1,7 @@
 import { YOKAK_KIDR_3_2_1 } from "@akredit/cerceveler";
 import type { Metadata } from "next";
 import { Bolum, Metin, SayfaBasi, YapisalVeri } from "../../../site/bilesenler.tsx";
-import { yokakOzeti } from "../../../site/cerceve-ozeti.ts";
+import { programCerceveleri, yokakOzeti } from "../../../site/cerceve-ozeti.ts";
 import { SAYFALAR } from "../../../site/icerik.ts";
 import { sayfaUstVerisi } from "../../../site/yapisal.ts";
 
@@ -27,6 +27,7 @@ function Kaynak({ adres, sha256, erisim }: { adres: string; sha256: string; eris
 export default function Cerceveler() {
   const y = yokakOzeti();
   const k = YOKAK_KIDR_3_2_1;
+  const programlar = programCerceveleri();
   return (
     <>
       <YapisalVeri sayfa={SAYFALAR.cerceveler} />
@@ -81,7 +82,23 @@ export default function Cerceveler() {
           <Kaynak adres={k.kaynak.adres} sha256={k.kaynak.sha256} erisim={k.kaynak.erisimTarihi} />
         ) : null}
       </Bolum>
-      <Bolum id="dogrulama" baslik="Uzman onayı" not="Metin ile belge arasındaki son karar insanda.">
+      <Bolum id="program" baslik="Program akreditasyonu" not="Resmî belgeden alındı, uzman onayı bekliyor.">
+        <ul className="divide-y divide-cizgi border-y border-cizgi">
+          {programlar.map((c) => (
+            <li key={c.kod} className="py-4">
+              <p className="font-semibold">
+                {c.ad} {c.surum}
+              </p>
+              <p className="mt-1 text-soluk">
+                {c.olcutSayisi} ölçüt ve alt ölçüt; {c.resmiMetin} tanesinin metni belgeden alındı.{" "}
+                {c.dogrulandi ? "Uzman onaylı." : "Uzman onayı bekliyor."}
+              </p>
+              <Kaynak adres={c.kaynakAdres} sha256={c.sha256} erisim={c.erisim} />
+            </li>
+          ))}
+        </ul>
+      </Bolum>
+      <Bolum id="dogrulama" baslik="Uzman onayı" not="Metin ile belge arasındaki son karar insanda." zemin>
         <Metin>
           <p>
             Her başlığın ve metnin belgenin kaynak sayfasında birebir geçtiği otomatik testle denetlenir. Yine de hiçbir
@@ -94,12 +111,9 @@ export default function Cerceveler() {
           </p>
         </Metin>
       </Bolum>
-      <Bolum id="henuz-yok" baslik="Henüz yok" zemin>
+      <Bolum id="henuz-yok" baslik="Resmî olmayan">
         <Metin>
           <ul>
-            <li>
-              MÜDEK ve diğer program akreditasyon kuruluşları: resmî belge kütüphaneye eklenmedi, ölçüt ağacı boştur.
-            </li>
             <li>
               Önlisans programları için Akredit'in kendi iç çerçevesi vardır. Bu resmî bir çerçeve değildir ve ekranda
               öyle yazar.

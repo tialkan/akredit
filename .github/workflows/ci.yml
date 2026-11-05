@@ -13,10 +13,38 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Hangi işlerin gerektiğini değişen yollardan bulur. Atlanan işler "skipped" olur ve zorunlu kontrolde başarılı
+  # sayılır. Biçim, tip ve bütün paketlerin testleri (acik-mcp dahil) ve gizli bilgi taraması her zaman çalışır.
+  degisiklik:
+    name: Değişen yollar
+    runs-on: ubuntu-latest
+    outputs:
+      web: ${{ steps.yollar.outputs.web }}
+      isci: ${{ steps.yollar.outputs.isci }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Yolları karşılaştır
+        id: yollar
+        env:
+          TABAN: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          # Taban bilinmiyorsa (yeni dal, zorla itme) her şey çalışır.
+          if ! git cat-file -e "$TABAN^{commit}" 2>/dev/null; then
+            echo "web=true" >> "$GITHUB_OUTPUT"; echo "isci=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          git diff --name-only "$TABAN" "$GITHUB_SHA" > "$RUNNER_TEMP/yollar.txt"
+          ORTAK='^(packages/|pnpm-lock\.yaml|package\.json|pnpm-workspace\.yaml|tsconfig[^/]*\.json|\.github/workflows/ci\.yml)'
+          var() { grep -qE "$1" "$RUNNER_TEMP/yollar.txt" && echo true || echo false; }
+          echo "web=$(var "$ORTAK|^apps/web/|^apps/acik-mcp/|^infra/gelistirme/web\.Dockerfile")" >> "$GITHUB_OUTPUT"
+          echo "isci=$(var "$ORTAK|^apps/isci/|^infra/")" >> "$GITHUB_OUTPUT"
+
   dogrula:
     name: Doğrula (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    needs: degisiklik
     strategy:
       fail-fast: false
       matrix:
@@ -47,6 +75,7 @@ jobs:
             tail -3 "$RUNNER_TEMP/$adim.log"
           done
       - name: Web derlemesi
+        if: needs.degisiklik.outputs.web == 'true'
         run: pnpm --filter @akredit/web build
         env:
           NEXT_TELEMETRY_DISABLED: "1"
@@ -55,7 +84,8 @@ jobs:
     name: Uçtan uca (Playwright)
     runs-on: ubuntu-latest
     timeout-minutes: 25
-    needs: dogrula
+    needs: [degisiklik, dogrula]
+    if: needs.degisiklik.outputs.web == 'true'
     env:
       # playwright.config.ts yerel varsayılanı /opt/pw-browsers; kurulum ve testler aynı dizini kullanmalı.
       PLAYWRIGHT_BROWSERS_PATH: /home/runner/pw-browsers
@@ -88,6 +118,8 @@ jobs:
 
   postgres:
     name: Gerçek PostgreSQL (göçler, eşzamanlı günlük, işçi)
+    needs: degisiklik
+    if: needs.degisiklik.outputs.isci == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     services:
@@ -126,16 +158,26 @@ jobs:
 
   imajlar:
     name: Docker imajları
+    needs: degisiklik
+    # Matris öğesi kendi yolu değişmediyse adımları atlar; iş yine başarılı biter (zorunlu kontrol kırılmaz).
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
         uygulama: [web, isci]
+    env:
+      GEREKLI: ${{ matrix.uygulama == 'web' && needs.degisiklik.outputs.web || needs.degisiklik.outputs.isci }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - name: Atlandı
+        if: env.GEREKLI != 'true'
+        run: echo "${{ matrix.uygulama }} yolları değişmedi; imaj derlenmedi."
+      - if: env.GEREKLI == 'true'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - if: env.GEREKLI == 'true'
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
       - name: İmajı derle
+        if: env.GEREKLI == 'true'
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
@@ -144,6 +186,7 @@ jobs:
           load: true
           push: false
       - name: İmajda gizli bilgi taraması
+        if: env.GEREKLI == 'true'
         run: |
           # İmaj dosya sistemi açılıp taranır; .env, anahtar ya da parola bulunursa iş kalır.
           mkdir imaj && docker export "$(docker create akredit-${{ matrix.uygulama }}:ci)" | tar -x -C imaj
@@ -151,6 +194,7 @@ jobs:
           R="$PWD/gitleaks-imaj.json"; touch "$R"; chmod 666 "$R"
           docker run --rm -v "$PWD/imaj/uygulama:/tara:ro" -v "$R:/rapor.json" -v "$PWD/infra/guvenlik/gitleaks-imaj.toml:/ayar.toml:ro" ghcr.io/gitleaks/gitleaks:v8.28.0 dir /tara --config /ayar.toml --no-banner --redact --report-format json --report-path /rapor.json || { jq -r '.[] | "::error file=\(.File),line=\(.StartLine)::\(.RuleID) \(.Commit[0:7])"' "$R"; exit 1; }
       - name: Kök olmayan kullanıcı denetimi
+        if: env.GEREKLI == 'true'
         run: test "$(docker inspect -f '{{.Config.User}}' akredit-${{ matrix.uygulama }}:ci)" = "node"
 
   gizli-bilgi:

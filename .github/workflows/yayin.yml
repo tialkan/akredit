@@ -29,6 +29,21 @@ jobs:
       surum: ${{ steps.surum.outputs.surum }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: İşçi değişti mi
+        id: isci
+        env:
+          ONCEKI: ${{ github.event.before }}
+        run: |
+          # İşçi (barındırılan hizmet) sponsor bulunana kadar askıda: imajı yalnız ilgili yollar değişince derlenir.
+          # Etiket her zaman derlenir. Önceki commit bilinmiyorsa (yeni dal, zorla itme) derlenir.
+          if [[ "$GITHUB_REF_TYPE" == "tag" ]] || ! git cat-file -e "$ONCEKI^{commit}" 2>/dev/null; then echo "derle=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          if git diff --name-only "$ONCEKI" "$GITHUB_SHA" | grep -qE '^(apps/isci/|packages/|infra/uretim/isci\.Dockerfile|pnpm-lock\.yaml|package\.json|\.github/workflows/yayin\.yml)'; then
+            echo "derle=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "derle=false" >> "$GITHUB_OUTPUT"
+          fi
       - name: Sürüm adı
         id: surum
         run: |
@@ -52,6 +67,7 @@ jobs:
           sbom: true
           tags: ghcr.io/${{ github.repository_owner }}/akredit-web:${{ steps.surum.outputs.surum }}
       - name: İşçi imajı
+        if: steps.isci.outputs.derle == 'true'
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
@@ -59,7 +75,15 @@ jobs:
           push: true
           provenance: true
           sbom: true
-          tags: ghcr.io/${{ github.repository_owner }}/akredit-isci:${{ steps.surum.outputs.surum }}
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/akredit-isci:${{ steps.surum.outputs.surum }}
+            ghcr.io/${{ github.repository_owner }}/akredit-isci:ana-son
+      # Derlenmediyse dağıtım aynı sürüm adını çekebilsin diye son işçi imajı yeni adla etiketlenir (derleme yok).
+      - name: İşçi imajını yeniden etiketle
+        if: steps.isci.outputs.derle != 'true'
+        run: |
+          i="ghcr.io/${{ github.repository_owner }}/akredit-isci"
+          docker buildx imagetools create -t "$i:${{ steps.surum.outputs.surum }}" "$i:ana-son"
 
   hazirlik:
     name: Hazırlığa dağıt
