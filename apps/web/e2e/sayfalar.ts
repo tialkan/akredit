@@ -46,5 +46,6 @@ export const SAYFALAR = [
   "/degerlendirici/soru",
   "/degerlendirici/kanit/kanit-01",
   "/degerlendirici/erisim-gunlugu",
+  "/bakim",
   "/bulunamayan-sayfa",
 ];

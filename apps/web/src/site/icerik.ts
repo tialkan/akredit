@@ -5,6 +5,12 @@
 export const SITE_ADRESI = "https://akredit.org";
 export const SON_GUNCELLEME = "2026-10-28";
 
+export { ILETISIM_ADRESI, PROJE_SAHIBI } from "./iletisim.ts";
+
+/** Demonun dürüst durumu (kurucu kararı, İP-49). /deneyin üstünde ve proje ayrıntılarında aynen görünür. */
+export const DEMO_NOTU =
+  "Demo henüz tamamlanmadı: arka plandaki masrafları karşılayacak sponsor ya da iş birliği bulunamadı.";
+
 /** Açık kaynak deposu. Dayanaklar son kullanıcıya depo yolu yazmaz; bu adrese bağlanır. */
 export const DEPO_ADRESI = "https://github.com/tialkan/akredit";
 
@@ -182,7 +188,7 @@ export const SAYFALAR = {
     baslik: "Pilot uygulama",
     title: "Pilot başvurusu: barındırılan hizmet sponsor bulunana kadar askıda",
     aciklama:
-      "Pilot uygulama ve barındırılan kurum hizmeti sponsor bulunana kadar askıda. Yazılım hazır ve açık kaynak; demo açık, kurum kendi sunucusuna kurabilir.",
+      "Pilot uygulama ve barındırılan kurum hizmeti sponsor bulunana kadar askıda. Yazılım hazır ve açık kaynak; kurum kendi sunucusuna kurabilir. Demo henüz tamamlanmadı.",
   },
   belgeler: {
     yol: "/belgeler",
@@ -198,7 +204,7 @@ export const SAYFALAR = {
     baslik: "Projenin devam eden ayrıntıları",
     title: "Proje ayrıntıları: hangi bölüm çalışıyor, hangisi askıda ya da taslak",
     aciklama:
-      "Akredit'in bütün sayfaları ve dürüst durumları: çalışan araçlar ve demo, sponsor bulunana kadar askıdaki kurum hizmeti, taslak kılavuzlar.",
+      "Akredit'in bütün sayfaları ve dürüst durumları: çalışan araçlar, tamamlanmamış demo, sponsor bulunana kadar askıdaki kurum hizmeti, taslak kılavuzlar.",
   },
 } as const satisfies Record<string, SayfaBilgisi>;
 
@@ -233,7 +239,7 @@ const BILGI_NOTU =
 /**
  * Ana yoldan çekilen sayfalar, gruplu ve durumlu. Sayfalar silinmez; her birinin üstünde bu not görünür.
  * Askıda: ADR 0008 madde 2 (kurum açma, pilot, giriş). Hukuk metinleri avukat incelemesinden geçti ve yayında
- * (kurucu, 05.11.2026). Taslak: kılavuzlar ilk sürümdür, İP-29 askıda (sponsor). Çalışıyor: MCP (İP-49), demo (İP-41).
+ * (kurucu, 05.11.2026). Taslak: kılavuzlar ilk sürümdür, İP-29 askıda (sponsor). Çalışıyor: MCP (İP-49). Demo (İP-41): taslak, sponsor ya da iş birliği bulunamadı (kurucu, İP-49).
  */
 export const PROJE_GRUPLARI: { baslik: string; not: string; sayfalar: ProjeSayfasi[] }[] = [
   {
@@ -250,8 +256,8 @@ export const PROJE_GRUPLARI: { baslik: string; not: string; sayfalar: ProjeSayfa
         yol: "/deneyin",
         ad: "Demo: Örnek Üniversitesi",
         aciklama: "Uydurma veriyle kurulmuş örnek kurumda bir rol seçip paneli ve onay kutusunu deneyin.",
-        durum: "calisiyor",
-        not: "Hesap açmadan açılır. Veriler uydurmadır, gerçek kurum değildir.",
+        durum: "taslak",
+        not: DEMO_NOTU,
       },
     ],
   },
@@ -336,20 +342,20 @@ export function projeSayfasi(yol: string): ProjeSayfasi | undefined {
 
 // Dayanak: kurucu kararı 2026-11-01 (docs/adr/0008). Barındırma bayrağı: src/site/barindirma.ts.
 export const DURUM_NOTU =
-  "Platform tamamlandı ve açık kaynaktır. Kurumlara barındırılan hizmet, sponsor bulunana kadar sunulmuyor. Demo ve kendi yapay zekânızla kullanılan araçlar açık.";
+  "Platform tamamlandı ve açık kaynaktır. Kurumlara barındırılan hizmet, sponsor bulunana kadar sunulmuyor. Kendi yapay zekânızla kullanılan araçlar açık; demo henüz tamamlanmadı.";
 
 /** Ana sayfadaki ve askıdaki sayfalardaki "Durum" notu (kurucu kararı 2026-11-01). Sade, kısa maddeler. */
 export const PLATFORM_DURUMU: string[] = [
   "Platform tamamlandı. Yazılım açık kaynaktır (Apache-2.0).",
   "İsteyen kurum yazılımı kendi sunucusuna kurabilir.",
-  "Demo açık: uydurma veriyle kurulmuş Örnek Üniversitesi'ni hesap açmadan deneyebilirsiniz.",
+  DEMO_NOTU,
   "Kurumlara barındırılan hizmet sponsor bulunana kadar sunulmuyor. Kurum açma, pilot başvurusu ve kurum girişi şimdilik kapalı.",
   "Gerçek kurum verisiyle pilot henüz yapılmadı.",
 ];
 
-/** Sponsor çağrısı. İletişim kanalı /iletisim sayfasındakidir; yeni adres yazılmaz. */
+/** Sponsor çağrısı. İletişim kanalı tektir: ILETISIM_ADRESI (LinkedIn). */
 export const SPONSOR_CAGRISI =
-  "Barındırma giderini üstlenip hizmetin kurumlara açılmasını sağlamak isterseniz iletişim sayfasındaki kanaldan yazın.";
+  "Barındırma giderini üstlenip hizmetin kurumlara açılmasını sağlamak isterseniz LinkedIn üzerinden yazın.";
 
 /**
  * "Kurumunuzu açın" adımları. Dayanak: apps/web/src/kimlik/kurum-acilisi.ts, packages/servis/src/kurum-acilisi.ts,
@@ -887,7 +893,7 @@ export const SSS: { soru: string; cevap: string }[] = [
   {
     soru: "Şu an kullanabilir miyiz?",
     cevap:
-      "Üç yol var. Ölçüt ve denetim araçlarını kendi yapay zekânıza ekleyip hemen kullanabilirsiniz. Demoyu hesap açmadan deneyebilirsiniz. Yazılımı kendi sunucunuza kurabilirsiniz. Kurumlara barındırılan hizmet sponsor bulunana kadar sunulmuyor; kurum açma ve pilot başvurusu kapalı.",
+      "Üç yol var. Ölçüt ve denetim araçlarını kendi yapay zekânıza ekleyip hemen kullanabilirsiniz. Demo henüz tamamlanmadı; çalışan bölümünü hesap açmadan görebilirsiniz. Yazılımı kendi sunucunuza kurabilirsiniz. Kurumlara barındırılan hizmet sponsor bulunana kadar sunulmuyor; kurum açma ve pilot başvurusu kapalı.",
   },
   {
     soru: "Web araması nasıl çalışır, ne kadar tutar?",

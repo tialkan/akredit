@@ -89,8 +89,9 @@ test.describe("tanıtım sitesi", () => {
     const durum = (yol: string) => page.locator(`[data-proje-sayfasi="${yol}"] [data-durum]`);
     // Ana sunucu barındırma açık kipte (AKREDIT_BARINDIRMA=1): askıdaki sayfalar bu kurulumda çalışır görünür.
     // Kapalı kip (üretim varsayılanı, "Askıda") barindirma.spec.ts'te sınanır.
-    for (const y of ["/mcp-kullan", "/deneyin", "/ne-yapar", "/sss", "/pilot"])
-      await expect(durum(y), y).toHaveText("Çalışıyor");
+    for (const y of ["/mcp-kullan", "/ne-yapar", "/sss", "/pilot"]) await expect(durum(y), y).toHaveText("Çalışıyor");
+    // Demo henüz tamamlanmadı (kurucu, İP-49).
+    await expect(durum("/deneyin")).toHaveText("Taslak");
     for (const y of ["/kvkk", "/gizlilik", "/kosullar", "/guvenlik"]) await expect(durum(y), y).toHaveText("Çalışıyor");
     await expect(durum("/belgeler")).toHaveText("Taslak");
     await expect(page.locator("main h2")).toContainText([

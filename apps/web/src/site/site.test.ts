@@ -237,9 +237,14 @@ describe("İP-49: sade site, iki adım ve proje ayrıntıları", () => {
 
   it("durumlar ADR 0008 ve plan.md ile tutarlı", () => {
     const durum = (y: string) => projeSayfasi(y)?.durum;
-    // ADR 0008 madde 2: kurum açma, pilot ve kurum girişi askıda. Madde 3: demo ve MCP çalışır.
+    // ADR 0008 madde 2: kurum açma, pilot ve kurum girişi askıda. MCP çalışır. Demo (kurucu, İP-49): henüz
+    // tamamlanmadı, sponsor ya da iş birliği bulunamadı; notu aynen görünür.
     for (const y of ["/kurum-ac", "/kurum-ac/dogrula", "/pilot", "/giris"]) expect(durum(y), y).toBe("askida");
-    for (const y of ["/deneyin", "/mcp-kullan"]) expect(durum(y), y).toBe("calisiyor");
+    expect(durum("/mcp-kullan")).toBe("calisiyor");
+    expect(durum("/deneyin")).toBe("taslak");
+    expect(projeSayfasi("/deneyin")?.not).toBe(
+      "Demo henüz tamamlanmadı: arka plandaki masrafları karşılayacak sponsor ya da iş birliği bulunamadı.",
+    );
     // Hukuk metinleri avukat incelemesinden geçti ve yayımlandı (kurucu, 05.11.2026); kılavuzlar taslak.
     for (const y of ["/kvkk", "/gizlilik", "/kosullar", "/guvenlik"]) expect(durum(y), y).toBe("calisiyor");
     for (const y of ["/belgeler", "/belgeler/hoca"]) expect(durum(y), y).toBe("taslak");

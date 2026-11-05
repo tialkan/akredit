@@ -18,7 +18,10 @@ async function durumNotuVar(page: Page) {
   await expect(durum).toBeVisible();
   await expect(durum).toContainText("Platform tamamlandı");
   await expect(durum).toContainText("sponsor bulunana kadar sunulmuyor");
-  await expect(durum.getByRole("link", { name: "Sponsor olmak için iletişim" })).toHaveAttribute("href", "/iletisim");
+  await expect(durum.getByRole("link", { name: "Sponsor olmak için iletişim: LinkedIn" })).toHaveAttribute(
+    "href",
+    "https://www.linkedin.com/in/tialkan/",
+  );
 }
 
 test.describe("barındırma kapalı (varsayılan)", () => {

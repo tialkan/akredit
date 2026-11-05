@@ -1,6 +1,6 @@
 # Akredit
 
-> Akredit, Türk yükseköğretimi için ücretsiz ve açık kaynak (Apache-2.0) bir akreditasyon ve Bologna yardımcısıdır. Kullanıcı kendi yapay zekâsına (Claude, ChatGPT, Claude Code, Cursor, VS Code) herkese açık MCP sunucusunu https://akredit.org/mcp ekler, yeni sohbette akredit yazar; asistan hangi aracın kullanılacağını sorar, kullanıcı rakamla seçer. Hesap gerekmez, sunucu yalnız okur ve hesaplar, kişisel veri ve parola kabul etmez. Kurumlara barındırılan hizmet sponsor bulunana kadar askıdadır.
+> Akredit, Türk yükseköğretimi için ücretsiz ve açık kaynak (Apache-2.0) bir akreditasyon ve Bologna yardımcısıdır. Kullanıcı kendi yapay zekâsına (Claude, ChatGPT, Claude Code, Cursor, VS Code) herkese açık MCP sunucusunu https://akredit.org/mcp ekler, yeni sohbette akredit yazar; asistan hangi aracın kullanılacağını sorar, kullanıcı rakamla seçer. Hesap gerekmez, sunucu yalnız okur, hesaplar ve kaynakları açık kataloglarda doğrular; parola, doğrulama kodu ve oturum çerezi kabul etmez, öğrenci verisini takma adla işler. Her menüde "4) Hepsini akıllıca doldur" seçeneği vardır: asistan doldurur, sunucu denetler, sonunda tek özet gösterilir. Kurumlara barındırılan hizmet sponsor bulunana kadar askıdadır.
 
 Önemli sınırlar: Akredit akreditasyon sonucu için garanti vermez. YÖKAK, MÜDEK, YÖK ya da başka bir kuruluşla bağı yoktur. OBS'ye girişte kullanıcı adı ve parola yalnız OBS'nin kendi ekranına, kullanıcının kendisi tarafından yazılır.
 
@@ -9,11 +9,11 @@
 - [Ana sayfa](https://akredit.org/): iki adım; Akredit'i yapay zekânıza ekleyin (Claude, ChatGPT, geliştirici araçları; Claude Code için claude mcp add --transport http akredit https://akredit.org/mcp), sonra akredit yazın
 - [Ayrıntılı kurulum ve araçlar](https://akredit.org/mcp-kullan): YÖKAK, MÜDEK, FEDEK, EPDAD ve SABAK ölçüt metni ve olgunluk düzeyleri, Bologna denetimi ve uçtan uca doldurma, ÇK/PÇ hesabı, öz değerlendirme iskeleti, rapor dil denetimi; npm paketi @akredit/acik-mcp
 - [Proje ayrıntıları](https://akredit.org/proje): bütün sayfalar ve durumları (çalışıyor, askıda, taslak)
-- [İletişim](https://akredit.org/iletisim)
+- [İletişim](https://akredit.org/iletisim): proje sahibi Tarık İsmet ALKAN, LinkedIn (https://www.linkedin.com/in/tialkan/)
 
 ## Projenin devam eden ayrıntıları
 
-- [Demo](https://akredit.org/deneyin): uydurma veriyle Örnek Üniversitesi; çalışıyor
+- [Demo](https://akredit.org/deneyin): uydurma veriyle Örnek Üniversitesi; henüz tamamlanmadı, arka plandaki masrafları karşılayacak sponsor ya da iş birliği bulunamadı
 - [Ne yapar](https://akredit.org/ne-yapar): platform modülleri ve durumları
 - [Nasıl çalışır](https://akredit.org/nasil-calisir): kanıt, hesap, atıflı taslak, denetim, onay, günlük
 - [Kimler için](https://akredit.org/kimler-icin): rektörlük, kalite komisyonu, bölüm başkanı, öğretim elemanı

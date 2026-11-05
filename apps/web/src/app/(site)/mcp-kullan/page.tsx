@@ -39,31 +39,25 @@ const ORNEK_KONUSMA: { kim: "Hoca" | "Asistan"; metin: string }[] = [
   {
     kim: "Asistan",
     metin:
-      "Bologna sayfasını okudum. Dersi veren satırı kişisel veri olduğu için atıldı.\n9 alan eksik ya da zayıf: 1) Dersin amacı (boş) 2) Dersin içeriği (8 kelime) 3) Öğrenme çıktıları (2 var, 8-12 olmalı) 4) Haftalık akış (3 hafta var) 5) Kaynaklar (1 var, en az 2) ...\nNasıl ilerleyelim?\n1) Hepsini sırayla dolduralım (önerilen)\n2) Yalnız boş olanlar\n3) Numaraları kendim seçeyim",
+      "Bologna sayfasını okudum.\n9 alan eksik ya da zayıf: 1) Dersin amacı (boş) 2) Dersin içeriği (8 kelime) 3) Öğrenme çıktıları (2 var, 8-12 olmalı) 4) Haftalık akış (3 hafta var) 5) Kaynaklar (1 var, en az 2) ...\nNasıl ilerleyelim?\n1) Alan alan seçenek göstereyim\n2) Yalnız boş olanlar\n3) Numaraları kendim seçeyim\n4) Hepsini akıllıca doldur (önerilen)",
+  },
+  { kim: "Hoca", metin: "4" },
+  {
+    kim: "Asistan",
+    metin:
+      'Şu alanları şöyle doldurdum, hepsi denetimden geçti:\n1) Dersin amacı: "Bu ders kurgu ölçme yöntemlerini tanıtır..." (66 kelime)\n2) Dersin içeriği ... 4) Haftalık akış: 14 hafta\nİş yükü: toplam 150 saat, hedef 5 AKTS x 30 = 150, uyumlu.\n5) Kaynaklar: ders içeriğine uygun iki eser buldum, ikisi de katalogda doğrulandı:\nDeneme, C. (2019). Kurgu istatistiği. Kurgu Akademi. (bağlantısıyla)\nDeğiştirmek istediğiniz alanın numarasını yazın; yoksa devam diyebilirsiniz. Bunları daha sonra da kolayca güncelleyebilirsiniz.',
+  },
+  { kim: "Hoca", metin: "devam" },
+  {
+    kim: "Asistan",
+    metin:
+      "OBS'ye nasıl yazalım?\n1) Formu ben doldurayım, Kaydet'e siz basın\n2) Formu ben doldurup kaydedeyim (her sekmeden önce evet isterim)\n3) Alan alan kopyalayın\n4) Hepsini akıllıca doldur ve kaydet (önerilen)",
   },
   { kim: "Hoca", metin: "1" },
   {
     kim: "Asistan",
     metin:
-      'Dersin amacı için üç seçenek, üçü de kurallardan geçti (60-120 kelime):\n1) Kavram ağırlıklı: "Bu ders kurgu ölçme yöntemlerini tanıtır..." (66 kelime, önerilen)\n2) Uygulama ağırlıklı (74 kelime)\n3) Proje ağırlıklı (81 kelime)',
-  },
-  { kim: "Hoca", metin: "hepsi 1" },
-  {
-    kim: "Asistan",
-    metin:
-      "Kalan alanlarda hep 1. seçenekle ilerledim ve her birini denetledim. İş yükü: toplam 150 saat, hedef 5 AKTS x 30 = 150, uyumlu.\nKalan 1 alan: Kaynaklar. Derste kullandığınız ikinci kitabın adı ve yazarı nedir?",
-  },
-  { kim: "Hoca", metin: "Can Deneme, Kurgu ölçme el kitabı, 2023, Kurgu Yayınları" },
-  {
-    kim: "Asistan",
-    metin:
-      "Künye: Deneme, C. (2023). Kurgu ölçme el kitabı. Kurgu Yayınları.\nKalan alan yok. OBS'ye nasıl yazalım?\n1) Formu ben doldurayım, Kaydet'e siz basın (önerilen)\n2) Alan alan kopyalayıp yapıştırın",
-  },
-  { kim: "Hoca", metin: "1" },
-  {
-    kim: "Asistan",
-    metin:
-      'Ders Bilgileri sekmesini doldurdum. Alanlara göz atın, Kaydet düğmesine siz basın, sonra "kaydettim" yazın.',
+      'Ders Bilgileri sekmesini doldurdum. Dersi Verenler satırına dokunmadım. Alanlara göz atın, Kaydet düğmesine basın, sonra "kaydettim" yazın.',
   },
   { kim: "Hoca", metin: "kaydettim" },
   {
@@ -96,12 +90,12 @@ const ILK_KEZ: { baslik: string; yap: string; gorursunuz: string }[] = [
   },
   {
     baslik: "Seçin",
-    yap: 'Asistan eksik alanları listeler ve her alan için 2-3 seçenek sunar. Bir rakam yazın ya da "hepsi 1" deyin.',
-    gorursunuz: "Her seçimden sonra kaç alan kaldığı.",
+    yap: "Asistan eksik alanları listeler. 4 yazarsanız hepsini akıllıca doldurur, denetler ve tek özet gösterir. Kaynakları size sormaz; ders içeriğine uygun eserleri bulur, katalogda doğrular ve bağlantısıyla gösterir.",
+    gorursunuz: "Doldurulan alanların tek özeti; değiştirmek istediğinizin numarasını yazarsınız.",
   },
   {
     baslik: "OBS'ye yazın",
-    yap: "Tarayıcı aracı varsa asistan formu doldurur; siz alanlara göz atıp Kaydet düğmesine kendiniz basarsınız. Yoksa asistan alan alan kopyalanacak metni verir.",
+    yap: "Üç yol var: asistan formu doldurur ve Kaydet'e siz basarsınız; ya da asistan doldurup açık izninizle kaydeder; ya da alan alan kopyalarsınız. Tarayıcı aracı yoksa kopyalama kullanılır. Parolanız yine yalnız sizdedir.",
     gorursunuz: "OBS'nin kayıt iletisi, sonra asistandan tamamlandı.",
   },
   {
@@ -156,15 +150,16 @@ export default function McpKullan() {
               görünmüyorsa "Akredit ile başlayalım" yazmanız yeter.
             </li>
             <li>
-              Odağınızı seçin: Bologna paketi, öğrenme çıktısı, ÇK ve PÇ hesabı, ölçüt rehberi ya da dil denetimi.
-              Asistan her adımda 2-3 numaralı seçenek sunar; tek rakamla seçip ilerlersiniz. "hepsi 1" gibi bir yanıt
-              kalan adımların hepsine uygulanır.
+              Odağınızı seçin: Bologna paketi, öğrenme çıktısı, ÇK ve PÇ hesabı, ölçüt rehberi ya da dil denetimi. Her
+              menünün son satırı "4) Hepsini akıllıca doldur" seçeneğidir: asistan her alanı kendisi doldurur, denetler,
+              geçmeyeni düzeltir ve sonunda tek özet gösterir. Değiştirmek istediğinizi numarasıyla söylersiniz;
+              sonradan da kolayca güncellersiniz.
             </li>
           </ol>
           <p>
             Seçenekleri sizin asistanınız yazar. Akredit kuralları ve sınırları verir, yazılanı denetler, toplamları
             kendisi hesaplar. OBS'ye siz girersiniz; asistan formu doldurur ya da alan alan kopyalayacağınız metni
-            verir. Kaydet düğmesine siz basarsınız.
+            verir. Kaydet düğmesine siz basarsınız ya da açık izninizle asistan basar.
           </p>
         </Metin>
         <h3 className="mt-8 text-lg font-semibold text-vurgu">Hazır başlangıçlar</h3>
@@ -228,23 +223,23 @@ export default function McpKullan() {
         </ul>
       </Bolum>
 
-      <Bolum id="kisisel-veri" baslik="Parola ve kişisel veri yollamayın" zemin>
+      <Bolum id="kisisel-veri" baslik="Parola yollamayın, öğrenciye takma ad verin" zemin>
         <aside className="rounded-sm border border-cizgi-guclu bg-zemin p-5">
           <p>
             Parolanızı, doğrulama kodunuzu ve oturum bilgisini hiçbir zaman asistana ya da Akredit'e yazmayın; yalnız
             OBS'nin kendi giriş ekranına siz yazarsınız. Sunucu böyle bir ifade görürse işlemi yapmaz.
           </p>
           <p className="mt-3">
-            Öğrenci adı, öğrenci numarası, T.C. kimlik numarası, e-posta ve telefon göndermeyin. Puan tablosunda öğrenci
-            yerine "o1", "o2" gibi takma ad kullanın. Sunucu gelen veride böyle bir ifade görürse işlemi yapmaz ve
-            maskelemenizi ister. İki istisna kendiliğinden işler: Bologna sayfasında Dersi Verenler, Dersin Yardımcıları
-            ve Koordinatör satırları ile e-posta ve telefonlar; Excel not tablosunda ad, soyad ve numara sütunları
-            ayrıştırmadan önce bellekte atılır, hiçbir yere yazılmaz ve neyin atıldığı size söylenir. Kaynakçadaki yazar
-            adları yayımlanmış künyedir, kaynak alanında kalır.
+            Bologna sayfanızdaki Dersi Verenler, Dersin Yardımcıları ve Koordinatör satırları sizin yayımlanmış görev
+            bilginizdir: olduğu gibi okunur, korunur ve OBS'ye geri yazılırken değiştirilmez. Excel not tablosunda ad,
+            soyad ve numara sütunları hesaplamadan önce bellekte atılır, öğrencilere o1, o2 gibi takma ad verilir.
+            Kaynakçadaki yazar adları yayımlanmış künyedir.
           </p>
           <p className="mt-3 text-soluk">
             İstek içeriği kaydedilmez. Kayda yalnız araç adı, süre ve istek boyutu yazılır. Hesap, çerez ve anahtar
-            yoktur. Kullandığınız yapay zekâ hizmetinin kendi veri politikası ayrıca geçerlidir.
+            yoktur. Kaynak doğrulama yalnız Crossref, Open Library ve Google Books kataloglarına sorar; sunucuyu
+            kendiniz barındırıyorsanız bu üç adrese çıkış açık olmalıdır. Kullandığınız yapay zekâ hizmetinin kendi veri
+            politikası ayrıca geçerlidir.
           </p>
         </aside>
       </Bolum>
@@ -318,7 +313,7 @@ export default function McpKullan() {
             Bu bağlantı kurumunuzun verisine erişmez: kanıt, ders dosyası, karar ve rapor kaydı yoktur. Kanıta bağlı
             rapor, onay kutusu ve değiştirilemez günlük Akredit platformunda çalışır. Platform açık kaynaktır, kurumunuz
             kendi sunucusuna kurabilir. akredit.org'da kurumlara barındırılan hizmet sponsor bulunana kadar sunulmuyor.
-            Platformu uydurma veriyle <Link href="/deneyin">hesap açmadan deneyebilirsiniz</Link>.
+            Uydurma veriyle kurulan <Link href="/deneyin">demo</Link> henüz tamamlanmadı.
           </p>
         </Metin>
       </Bolum>

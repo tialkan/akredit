@@ -31,12 +31,12 @@ describe("barındırma bayrağı", () => {
     }
   });
 
-  it("durum metinleri: kısa, kalın yazısız (uzun tire kuralı kurallar.test.ts), iletişim kanalına yönlendirir, yeni adres uydurmaz", () => {
+  it("durum metinleri: kısa, kalın yazısız (uzun tire kuralı kurallar.test.ts), tek iletişim kanalına (LinkedIn) yönlendirir, yeni adres uydurmaz", () => {
     for (const m of [...PLATFORM_DURUMU, SPONSOR_CAGRISI, DURUM_NOTU, BARINDIRMA_KAPALI_YANITI.govde.hata]) {
       expect(m).not.toMatch(/\*\*/u);
       expect(m).not.toMatch(/@|https?:\/\//u);
     }
-    expect(SPONSOR_CAGRISI).toContain("iletişim sayfası");
+    expect(SPONSOR_CAGRISI).toContain("LinkedIn");
     expect(PLATFORM_DURUMU.join(" ")).toMatch(/açık kaynak/u);
   });
 });

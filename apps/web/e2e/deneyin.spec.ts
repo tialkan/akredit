@@ -32,12 +32,18 @@ test.describe("deneyin", () => {
     await expect(page.getByText("Örnek veri, gerçek kurum değildir.")).toBeVisible();
   });
 
-  test("demo ana sayfada değil, proje ayrıntılarında; demo sayfasında durum şeridi", async ({ page }) => {
+  test("demo ana sayfada değil, proje ayrıntılarında; demo sayfasında dürüst not ve durum şeridi", async ({ page }) => {
+    const NOT = "Demo henüz tamamlanmadı: arka plandaki masrafları karşılayacak sponsor ya da iş birliği bulunamadı.";
     await page.goto("/");
     await expect(page.locator('main a[href="/deneyin"]')).toHaveCount(0);
+    await page.goto("/proje");
+    await expect(page.locator("main")).toContainText(NOT);
     await page.goto("/deneyin");
+    await expect(page.locator("[data-demo-notu]")).toContainText(NOT);
+    // Örnek veri derlemesinde oturum açılır: rol düğmeleri görünür, kapalı bölüm notu yok.
+    await expect(page.locator("[data-demo-kapali]")).toHaveCount(0);
     const serit = page.locator("[data-sayfa-durumu]");
-    await expect(serit.locator("[data-durum]")).toHaveText("Çalışıyor");
+    await expect(serit.locator("[data-durum]")).toHaveText("Taslak");
     await expect(serit.getByRole("link", { name: "Proje ayrıntıları" })).toHaveAttribute("href", "/proje");
   });
 });

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Logo } from "../bilesenler/logo.tsx";
-import { SAYFALAR } from "../site/icerik.ts";
+import { ILETISIM_ADRESI, SAYFALAR } from "../site/icerik.ts";
 
 export const metadata: Metadata = { title: "Sayfa bulunamadı", robots: { index: false } };
 
@@ -37,6 +37,14 @@ export default function Bulunamadi() {
                 </Link>
               </li>
             ))}
+            <li className="border-t border-cizgi">
+              <a
+                href={ILETISIM_ADRESI}
+                className="flex min-h-11 items-center py-2 font-semibold text-vurgu underline-offset-4 hover:underline"
+              >
+                İletişim: LinkedIn
+              </a>
+            </li>
           </ul>
         </div>
       </main>

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Bolum, Metin, SayfaBasi, YapisalVeri } from "../../../site/bilesenler.tsx";
-import { SAYFALAR } from "../../../site/icerik.ts";
+import { ILETISIM_ADRESI, PROJE_SAHIBI, SAYFALAR } from "../../../site/icerik.ts";
 import { sayfaUstVerisi } from "../../../site/yapisal.ts";
 
 export const metadata: Metadata = sayfaUstVerisi(SAYFALAR.iletisim);
@@ -13,7 +13,7 @@ export default function Iletisim() {
       <Bolum id="sahip" baslik="Proje sahibi">
         <Metin>
           <p>
-            Tarık İsmet ALKAN. İletişim kanalı: <a href="https://kulular.com.tr">kulular.com.tr</a>
+            Proje sahibi {PROJE_SAHIBI}. İletişim: <a href={ILETISIM_ADRESI}>LinkedIn</a>
           </p>
         </Metin>
       </Bolum>
@@ -24,14 +24,14 @@ export default function Iletisim() {
             bulunana kadar askıda.
           </p>
           <p>
-            Barındırma giderini üstlenip hizmetin kurumlara açılmasını sağlamak isterseniz yukarıdaki kanaldan yazın.
+            Barındırma giderini üstlenip hizmetin kurumlara açılmasını sağlamak isterseniz LinkedIn üzerinden yazın.
           </p>
         </Metin>
       </Bolum>
       <Bolum id="guvenlik" baslik="Güvenlik açığı bildirimi">
         <Metin>
           <p>
-            Açıkları herkese açık yazmadan, yukarıdaki kanaldan özel olarak bildirin. Bildirimde etkilenen sürümü,
+            Açıkları herkese açık yazmadan, LinkedIn üzerinden özel ileti olarak bildirin. Bildirimde etkilenen sürümü,
             yeniden üretme adımlarını ve olası etkiyi yazın. İlk yanıt hedefi 3 iş günüdür.
           </p>
         </Metin>
