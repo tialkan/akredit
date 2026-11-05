@@ -159,8 +159,8 @@ export default function AnaSayfa() {
           </AdimBasligi>
           <h3 className="mt-6 text-xl text-metin">En kolay yol: kopyalayın, yapıştırın</h3>
           <p className="mt-1">
-            Aşağıdaki metni kopyalayın, Claude'da yeni bir sohbete yapıştırıp gönderin. Asistan sizi adım adım
-            yönlendirir. Ayarlara kendisi giremeyebilir; ekleme düğmesine siz basarsınız.
+            Aşağıdaki metni kopyalayın, Claude'da yeni bir sohbete yapıştırıp gönderin. Asistan kurulumu kendisi yapar;
+            yapamadığı bir adım olursa size yalnız nereye tıklayacağınızı söyler.
           </p>
           <KopyalaKutusu etiket="Claude'a yapıştırılacak metin" metin={KURULUM_ISTEGI} uzun />
           <h3 className="mt-8 text-xl text-metin">Kendiniz eklemek isterseniz</h3>

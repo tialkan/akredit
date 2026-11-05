@@ -41,13 +41,13 @@ export const kurulumAdimlari = (u: Uygulama): Adim[] => baglayiciAdimlari(u.iste
 
 /**
  * Hocanın tek seferde kopyalayıp yapay zekâsına yapıştıracağı kurulum isteği (İP-49).
- * Asistan bağlayıcıyı ayarlara kendisi ekleyemez; hocayı adım adım yönlendirir. Tarayıcı aracı varsa
- * ayar sayfasını açabilir ama kaydetmeyi hoca yapar. Giriş bilgisi istemesi yasaktır.
+ * Asistan soru sormaz: çalıştığı uygulamayı kendisi bilir, araçları varsa kurulumu kendisi yapar, yoksa tek
+ * mesajda numaralı adımlar verir. Giriş bilgisi istemesi yasaktır.
  */
 export const KURULUM_ISTEGI = [
-  `Akredit'i kurmama yardım et. Akredit, yükseköğretimde akreditasyon ve Bologna işleri için ücretsiz bir MCP sunucusu. Adresi: ${MCP_ADRESI} (hesap ve giriş istemez).`,
-  "1. Akredit araçların zaten bağlıysa doğrudan akredit istemini çalıştır ve bana hangi aracı kullanmak istediğimi sor.",
-  "2. Bağlı değilse önce hangi uygulamayı kullandığımı sor (Claude web sitesi, Claude masaüstü, ChatGPT ya da başka). Sonra bu adresi özel bağlayıcı olarak eklememi çok kısa adımlarla, her seferinde tek adım anlat ve her adımdan sonra tamam dememi bekle. Tarayıcıyı kullanabiliyorsan ayar sayfasını sen aç, ama kaydet düğmesine ben basayım.",
-  "3. Kurulum bitince yeni bir sohbet açmamı ve akredit yazmamı söyle.",
+  `Akredit'i benim için kur. Akredit, yükseköğretimde akreditasyon ve Bologna işleri için ücretsiz bir MCP sunucusu. Adresi: ${MCP_ADRESI} (hesap ve giriş istemez).`,
+  "1. Akredit araçların zaten bağlıysa hemen akredit istemini çalıştır ve bana yalnız hangi aracı kullanmak istediğimi sor.",
+  "2. Bağlı değilse kurulumu sen yap, bana soru sorma: hangi uygulamada çalıştığını kendin bil. Komut çalıştırabiliyorsan (Claude Code gibi) bağlayıcıyı kendin ekle. Tarayıcı ya da bilgisayar kontrolün varsa ayar sayfasını kendin aç, adresi kendin yaz ve ekle; yalnız uygulamanın kendisi benden onay isterse ben onaylarım. Bunların hiçbiri yoksa tam olarak tıklayacağım yerleri tek mesajda, kısa ve numaralı yaz.",
+  "3. Kurulum bitince araçları kendin dene; çalışıyorsa doğrudan akredit istemiyle başla. Yeni sohbet gerekiyorsa bunu tek cümleyle söyle.",
   "Benden parola ya da doğrulama kodu isteme.",
 ].join("\n");

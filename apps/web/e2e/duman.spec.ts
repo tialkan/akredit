@@ -70,7 +70,9 @@ test.describe("tanıtım sitesi", () => {
     await page.keyboard.press("Enter");
     await expect(istek.getByText("Kopyalandı.")).toBeVisible();
     const pano = await page.evaluate(() => navigator.clipboard.readText());
-    expect(pano).toContain("Akredit'i kurmama yardım et.");
+    expect(pano).toContain("Akredit'i benim için kur.");
+    // Tam otonom: kullanıcıya hangi uygulamayı kullandığı sorulmaz.
+    expect(pano).not.toMatch(/hangi uygulamay/u);
     expect(pano).toContain("https://akredit.org/mcp");
     expect(pano).toContain("Benden parola ya da doğrulama kodu isteme.");
     // Claude Code: açılır bölüm klavyeyle açılır, komut boşluk tuşuyla kopyalanır.
