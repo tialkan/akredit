@@ -29,6 +29,10 @@ export const ISTISNALAR: Record<string, Partial<Butce>> = {
   // Onay kutusu bekleyen bütün önerileri (örnekte 42) kanıt atıflarıyla birlikte tek sayfada gösterir.
   // Sayfalama İP-13 arka ucuyla gelecek; o zamana dek DOM bütçesi geniş tutulur (ölçüm: 2615 öğe).
   "/panel/onaylar": { domOgesi: 3500 },
+  // Tarayıcıda çalışan araçlar (İP-49): açık gelen ÇK/PÇ sekmesi ölçme motorunu, not tablosu ayrıştırıcısını ve
+  // doğrulama kitaplığını tarayıcıya getirir (hesap sunucuda yapılmaz, veri gönderilmez). Bologna ve ölçüt
+  // sekmeleri (çerçeve verisi büyük) yalnız açılınca yüklenir. Ölçüm (2026-11-05): JS 198 KB, toplam 322 KB.
+  "/deneyin": { jsKb: 240, toplamKb: 380 },
 };
 
 export function butce(yol: string): Butce {
@@ -39,6 +43,7 @@ export function butce(yol: string): Butce {
 export const BUTCE_SAYFALARI = [
   "/",
   "/nasil-calisir",
+  "/deneyin",
   "/giris",
   "/panel",
   "/panel/onaylar",

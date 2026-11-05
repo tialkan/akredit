@@ -237,12 +237,13 @@ describe("İP-49: sade site, iki adım ve proje ayrıntıları", () => {
 
   it("durumlar ADR 0008 ve plan.md ile tutarlı", () => {
     const durum = (y: string) => projeSayfasi(y)?.durum;
-    // ADR 0008 madde 2: kurum açma, pilot ve kurum girişi askıda. MCP çalışır. Demo (kurucu, İP-49): henüz
-    // tamamlanmadı, sponsor ya da iş birliği bulunamadı; notu aynen görünür.
+    // ADR 0008 madde 2: kurum açma, pilot ve kurum girişi askıda. MCP ve tarayıcı araçları (/deneyin) çalışır.
+    // Barındırılan demo (kurucu, İP-49): askıda, sponsor ya da iş birliği bulunamadı; notu aynen görünür.
     for (const y of ["/kurum-ac", "/kurum-ac/dogrula", "/pilot", "/giris"]) expect(durum(y), y).toBe("askida");
     expect(durum("/mcp-kullan")).toBe("calisiyor");
-    expect(durum("/deneyin")).toBe("taslak");
-    expect(projeSayfasi("/deneyin")?.not).toBe(
+    expect(durum("/deneyin")).toBe("calisiyor");
+    expect(durum("/deneyin#kurum-demosu")).toBe("askida");
+    expect(projeSayfasi("/deneyin#kurum-demosu")?.not).toBe(
       "Demo henüz tamamlanmadı: arka plandaki masrafları karşılayacak sponsor ya da iş birliği bulunamadı.",
     );
     // Hukuk metinleri avukat incelemesinden geçti ve yayımlandı (kurucu, 05.11.2026); kılavuzlar taslak.

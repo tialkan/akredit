@@ -30,6 +30,18 @@ const config: NextConfig = {
   // Veritabanı sürücüleri (WASM ve yerel modüller) paketlenmez, Node yükler.
   serverExternalPackages: ["@electric-sql/pglite", "@electric-sql/pglite-pgvector", "postgres", "nodemailer", "qrcode"],
   poweredByHeader: false,
+  // /deneyin araçları (İP-49) tarayıcıda MCP ayrıştırıcılarını çalıştırır; onların sunucu tarafı kişisel veri
+  // denetimi @akredit/yz'yi (Node modülleri) içe aktarır. Tarayıcı paketinde boş bir modül kullanılır.
+  // Ölçme özeti (cekirdek ozet.ts) için Node crypto öykünmesi (~145 KB) yerine yalnız SHA-256 içeren küçük modül
+  // kullanılır; Next öykünmeyi kendi adıyla eklediği için o ad da yönlendirilir. Yalnız tarayıcı paketi etkilenir.
+  turbopack: {
+    resolveAlias: {
+      "@akredit/yz": { browser: "./src/deneyin/yz-tarayici.ts" },
+      "node:crypto": { browser: "./src/deneyin/crypto-tarayici.ts" },
+      crypto: { browser: "./src/deneyin/crypto-tarayici.ts" },
+      "next/dist/compiled/crypto-browserify": { browser: "./src/deneyin/crypto-tarayici.ts" },
+    },
+  },
   // Veri kipi derlemede sabitlenir (src/veri/kip.ts): varsayılan gerçek veritabanı; örnek veri yalnız
   // AKREDIT_ORNEK_VERI=1 ile (tanıtım, uçtan uca testler).
   env: {

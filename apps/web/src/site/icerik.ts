@@ -238,7 +238,7 @@ const BILGI_NOTU = "Bilgi sayfası. Yazılım hazır, kurumlara barındırılan 
 /**
  * Ana yoldan çekilen sayfalar, gruplu ve durumlu. Sayfalar silinmez; her birinin üstünde bu not görünür.
  * Askıda: ADR 0008 madde 2 (kurum açma, pilot, giriş). Hukuk metinleri avukat incelemesinden geçti ve yayında
- * (kurucu, 05.11.2026). Taslak: kılavuzlar ilk sürümdür, İP-29 askıda (sponsor). Çalışıyor: MCP (İP-49). Demo (İP-41): taslak, sponsor ya da iş birliği bulunamadı (kurucu, İP-49).
+ * (kurucu, 05.11.2026). Taslak: kılavuzlar ilk sürümdür, İP-29 askıda (sponsor). Çalışıyor: MCP (İP-49). Tarayıcı araçları /deneyin (İP-49): çalışıyor. Barındırılan demo (İP-41): askıda, sponsor ya da iş birliği bulunamadı (kurucu, İP-49).
  */
 export const PROJE_GRUPLARI: { baslik: string; not: string; sayfalar: ProjeSayfasi[] }[] = [
   {
@@ -253,9 +253,16 @@ export const PROJE_GRUPLARI: { baslik: string; not: string; sayfalar: ProjeSayfa
       },
       {
         yol: "/deneyin",
+        ad: "Araçları tarayıcıda deneyin",
+        aciklama: "Kurulumsuz ÇK/PÇ hesabı, Bologna denetimi ve ölçüt arama.",
+        durum: "calisiyor",
+        not: "Hesapsız. Verileriniz tarayıcınızdan çıkmaz.",
+      },
+      {
+        yol: "/deneyin#kurum-demosu",
         ad: "Demo: Örnek Üniversitesi",
         aciklama: "Uydurma veriyle kurulmuş örnek kurumda bir rol seçip paneli ve onay kutusunu deneyin.",
-        durum: "taslak",
+        durum: "askida",
         not: DEMO_NOTU,
       },
     ],

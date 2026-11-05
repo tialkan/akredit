@@ -94,8 +94,9 @@ test.describe("tanıtım sitesi", () => {
     // Ana sunucu barındırma açık kipte (AKREDIT_BARINDIRMA=1): askıdaki sayfalar bu kurulumda çalışır görünür.
     // Kapalı kip (üretim varsayılanı, "Askıda") barindirma.spec.ts'te sınanır.
     for (const y of ["/mcp-kullan", "/ne-yapar", "/sss", "/pilot"]) await expect(durum(y), y).toHaveText("Çalışıyor");
-    // Demo henüz tamamlanmadı (kurucu, İP-49).
-    await expect(durum("/deneyin")).toHaveText("Taslak");
+    // Tarayıcı araçları çalışır; barındırılan demo ayrı satırdadır (kurucu, İP-49).
+    await expect(durum("/deneyin")).toHaveText("Çalışıyor");
+    await expect(durum("/deneyin#kurum-demosu")).toHaveCount(1);
     for (const y of ["/kvkk", "/gizlilik", "/kosullar", "/guvenlik"]) await expect(durum(y), y).toHaveText("Çalışıyor");
     await expect(durum("/belgeler")).toHaveText("Taslak");
     await expect(page.locator("main h2")).toContainText([

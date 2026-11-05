@@ -131,6 +131,11 @@ export default function AnaSayfa() {
               {SAYFALAR.ana.baslik}
             </h1>
             <p className="mt-5 max-w-[46ch] text-xl">Ücretsiz, açık kaynak, hesapsız. Kendi yapay zekânızda çalışır.</p>
+            <p className="mt-3 text-lg">
+              <Link href="/deneyin" className={`inline-flex min-h-11 items-center ${BAG}`}>
+                Kurulum istemiyor musunuz? Araçları tarayıcıda deneyin
+              </Link>
+            </p>
           </div>
           <div className="gravur-levha w-full max-w-[17rem] justify-self-start lg:max-w-none lg:justify-self-end">
             <Gorsel
