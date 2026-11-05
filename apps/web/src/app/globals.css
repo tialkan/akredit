@@ -36,6 +36,8 @@
   --isi-metin-koyu: #ffffff;
   /* Hareket eğrisi: hızlı başlar, yumuşak durur. Bütün site hareketleri bunu kullanır. */
   --egri: cubic-bezier(0.32, 0.72, 0, 1);
+  /* Belirme eğrisi: bölümler ve slogan bir kez, yumuşak iner. */
+  --egri-belir: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @theme inline {
@@ -73,6 +75,17 @@ body {
   line-height: 1.6;
   font-feature-settings: "kern", "liga";
   -webkit-font-smoothing: antialiased;
+}
+
+/* Gövde metni tek kelimelik son satır bırakmaz. */
+p,
+li,
+dd,
+summary {
+  text-wrap: pretty;
+}
+h3 {
+  text-wrap: balance;
 }
 
 /* Başlıklar: Source Serif 4. Yönetmelik, karar ve rapor dizgisinin ağırbaşlı sesi; gövde Source Sans 3. */
@@ -288,6 +301,80 @@ body:has(#dayanak-9:hover) a[href="#dayanak-9"] {
 
 dialog::backdrop {
   background: rgb(10 12 16 / 0.55);
+}
+
+/* Gravür görselleri (İP-49): lacivert mürekkep, kâğıt zemin. İnce çerçeveyle levha gibi durur. */
+.gravur {
+  display: block;
+  background: #fbf6ea;
+}
+.gravur-levha {
+  border: 1px solid var(--cizgi);
+  border-radius: 2px;
+  background: var(--yuzey);
+  padding: 0.4rem;
+  box-shadow:
+    0 1px 0 var(--cizgi),
+    0 18px 40px -28px rgb(16 50 91 / 0.35);
+}
+
+/* İlk ekran zemini: çok soluk kâğıt dokusu, yalnız geniş ekranda (telefonda indirilmez). Yüzde 16 örtücülükte
+   en koyu yeri bile metin kontrastını AA altına düşürmez. */
+.ilk-ekran {
+  position: relative;
+  isolation: isolate;
+}
+@media (min-width: 64rem) {
+  .ilk-ekran::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: url("/gorsel/kagit-dokusu-1200.webp") center / cover no-repeat;
+    opacity: 0.16;
+    pointer-events: none;
+  }
+}
+
+/* Tam kenarlıklı kartlar (açılır bölümler): üzerine gelince ve klavye odağında kenar koyulaşır. */
+.kart {
+  transition:
+    border-color 180ms var(--egri),
+    box-shadow 180ms var(--egri);
+}
+.kart:hover,
+.kart:focus-within {
+  border-color: var(--vurgu);
+}
+.kart:hover {
+  box-shadow: 0 6px 18px -14px rgb(16 50 91 / 0.45);
+}
+.kart > summary {
+  transition: background-color 180ms var(--egri);
+}
+.kart > summary:hover {
+  background: var(--vurgu-zemin);
+}
+
+/* Bölümler bir kez yükselip belirir (src/site/belirme.tsx). Sınıf yalnız betik çalışınca, hareket azaltma
+   tercihi yokken ve ilk kaydırmadan sonra eklenir; öteki durumlarda her şey baştan görünür. */
+.belirme-hazir [data-belir] {
+  transition:
+    opacity 700ms var(--egri-belir),
+    transform 700ms var(--egri-belir);
+}
+.belirme-hazir [data-belir="bekliyor"] {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+/* Kapanış sloganı: kelimeler soluk renkten tam renge sırayla geçer. İki renk de zeminde AA'yı geçer. */
+.slogan-kelime {
+  transition: color 600ms var(--egri-belir);
+  transition-delay: calc(var(--sira, 0) * 110ms + 250ms);
+}
+.belirme-hazir [data-belir="bekliyor"] .slogan-kelime {
+  color: var(--soluk);
 }
 
 @media (prefers-reduced-motion: reduce) {

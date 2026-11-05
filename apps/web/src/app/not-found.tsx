@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Logo } from "../bilesenler/logo.tsx";
+import { HataSusu } from "../site/hata-sayfasi.tsx";
 import { ILETISIM_ADRESI, SAYFALAR } from "../site/icerik.ts";
 
 export const metadata: Metadata = { title: "Sayfa bulunamadı", robots: { index: false } };
@@ -17,9 +18,7 @@ export default function Bulunamadi() {
         </div>
       </header>
       <main id="icerik" className="mx-auto grid w-full max-w-6xl flex-1 gap-10 px-4 py-14 lg:grid-cols-[17rem_1fr]">
-        <p className="paragraf-no text-5xl" aria-hidden>
-          404
-        </p>
+        <HataSusu kod="404" />
         <div>
           <h1 className="text-[2rem] leading-tight text-vurgu sm:text-[2.6rem]">Bu adreste sayfa yok</h1>
           <p className="mt-4 max-w-[60ch] text-lg">

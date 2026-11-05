@@ -2,6 +2,7 @@ import { ACIK_ARACLAR, ACIK_ISTEMLER } from "@akredit/acik-mcp";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Bolum, Metin, SayfaBasi, YapisalVeri } from "../../../site/bilesenler.tsx";
+import { GORSELLER, Gorsel } from "../../../site/gorsel.tsx";
 import { SAYFALAR } from "../../../site/icerik.ts";
 import { sayfaUstVerisi } from "../../../site/yapisal.ts";
 
@@ -115,6 +116,14 @@ export default function McpKullan() {
       <SayfaBasi
         sayfa={SAYFALAR.mcpKullan}
         ozet="Akredit'in ölçüt ve denetim araçlarını Claude, ChatGPT, Cursor ya da VS Code içinde kullanın. Ücretsizdir, hesap gerekmez."
+        gorsel={
+          <Gorsel
+            gorsel={GORSELLER.amfi}
+            alt="Gravür çizim: yüksek pencereli, basamak basamak sıralarıyla boş bir üniversite amfisi."
+            boyutlar="(min-width: 64rem) 32rem, (min-width: 28rem) 28rem, calc(100vw - 2rem)"
+            oncelikli
+          />
+        }
       />
 
       <Bolum id="ne" baslik="Ne işe yarar">

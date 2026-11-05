@@ -5,7 +5,10 @@
 import { type Adim, AKREDIT_ODAKLARI } from "@akredit/acik-mcp";
 import type { Metadata } from "next";
 import Link from "next/link";
+import type { CSSProperties } from "react";
+import { BelirmeGozlemcisi } from "../../site/belirme.tsx";
 import { YapisalVeri } from "../../site/bilesenler.tsx";
+import { GORSELLER, Gorsel } from "../../site/gorsel.tsx";
 import { SAYFALAR } from "../../site/icerik.ts";
 import { KopyalaKutusu } from "../../site/kopyala.tsx";
 import {
@@ -63,6 +66,9 @@ const SSS: { soru: string; cevap: string }[] = [
 
 const BAG = "text-vurgu underline underline-offset-4";
 
+/** Kapanış sloganı; kelimeleri sırayla belirir. */
+const SLOGAN = "Kurallar ve hesaplar Akredit'te. Karar ve son tık sizde.";
+
 function AdimListesi({ adimlar }: { adimlar: Adim[] }) {
   return (
     <ol className="mt-4 grid gap-3">
@@ -87,7 +93,7 @@ function AdimListesi({ adimlar }: { adimlar: Adim[] }) {
 
 function UygulamaBolumu({ u }: { u: Uygulama }) {
   return (
-    <details id={`kur-${u.kimlik}`} open={u.acik} className="group rounded-sm border border-cizgi-guclu bg-yuzey">
+    <details id={`kur-${u.kimlik}`} open={u.acik} className="kart group rounded-sm border border-cizgi-guclu bg-yuzey">
       <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-4 py-2 text-xl text-vurgu [&::-webkit-details-marker]:hidden">
         <span>{u.ad}</span>
         <span aria-hidden className="text-2xl leading-none transition-transform group-open:rotate-45">
@@ -120,20 +126,34 @@ export default function AnaSayfa() {
   return (
     <>
       <YapisalVeri sayfa={SAYFALAR.ana} />
-      <section aria-labelledby="ana-baslik" className="border-b border-cizgi bg-yuzey">
-        <div className="mx-auto max-w-3xl px-4 pt-10 pb-10 sm:pt-14">
-          <h1 id="ana-baslik" className="text-[2.3rem] leading-[1.08] tracking-[-0.025em] text-vurgu sm:text-[3.2rem]">
-            {SAYFALAR.ana.baslik}
-          </h1>
-          <p className="mt-5 text-xl">
-            Ücretsiz ve açık kaynak. Hesap açmanız gerekmez. Kurulum metnini Claude'a yapıştırın, sonra akredit yazarak
-            başlayın.
-          </p>
+      <BelirmeGozlemcisi />
+      <section aria-labelledby="ana-baslik" className="ilk-ekran border-b border-cizgi bg-yuzey">
+        <div className="mx-auto grid max-w-3xl items-center gap-8 px-4 pt-10 pb-10 sm:pt-14 lg:max-w-6xl lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)] lg:gap-14 lg:pt-16 lg:pb-16">
+          <div>
+            <h1
+              id="ana-baslik"
+              className="text-[2.3rem] leading-[1.08] tracking-[-0.025em] text-vurgu sm:text-[3.2rem]"
+            >
+              {SAYFALAR.ana.baslik}
+            </h1>
+            <p className="mt-5 max-w-[46ch] text-xl">
+              Ücretsiz ve açık kaynak. Hesap açmanız gerekmez. Kurulum metnini Claude'a yapıştırın, sonra akredit
+              yazarak başlayın.
+            </p>
+          </div>
+          <div className="gravur-levha w-full max-w-[17rem] justify-self-start lg:max-w-none lg:justify-self-end">
+            <Gorsel
+              gorsel={GORSELLER.calismaMasasi}
+              alt="Gravür çizim: pencere önünde bir çalışma masası; üzerinde açık bir dizüstü bilgisayar, kitaplar ve bir fincan."
+              boyutlar="(min-width: 64rem) 30rem, 17rem"
+              oncelikli
+            />
+          </div>
         </div>
       </section>
 
       <section id="kurulum" aria-labelledby="adim-1" className="bg-zemin">
-        <div className="mx-auto max-w-3xl px-4 py-10 text-lg sm:py-14">
+        <div data-belir className="mx-auto max-w-3xl px-4 py-10 text-lg sm:py-14">
           <AdimBasligi no={1} id="adim-1">
             Akredit'i yapay zekânıza ekleyin
           </AdimBasligi>
@@ -161,7 +181,7 @@ export default function AnaSayfa() {
       </section>
 
       <section aria-labelledby="adim-2" className="border-t border-cizgi bg-yuzey">
-        <div className="mx-auto max-w-3xl px-4 py-10 text-lg sm:py-14">
+        <div data-belir className="mx-auto max-w-3xl px-4 py-10 text-lg sm:py-14">
           <AdimBasligi no={2} id="adim-2">
             akredit yazın
           </AdimBasligi>
@@ -195,13 +215,16 @@ export default function AnaSayfa() {
       </section>
 
       <section aria-labelledby="takildiniz" className="border-t border-cizgi bg-zemin">
-        <div className="mx-auto max-w-3xl px-4 py-10 text-lg sm:py-14">
+        <div data-belir className="mx-auto max-w-3xl px-4 py-10 text-lg sm:py-14">
+          <div aria-hidden className="mx-auto mb-8 max-w-xl overflow-hidden border-y border-cizgi py-2">
+            <Gorsel gorsel={GORSELLER.araclar} alt="" boyutlar="(min-width: 40rem) 36rem, calc(100vw - 2rem)" />
+          </div>
           <h2 id="takildiniz" className="text-[1.75rem] leading-tight text-vurgu">
             Takıldınız mı?
           </h2>
           <div className="mt-4 grid gap-2">
             {SSS.map((s) => (
-              <details key={s.soru} className="rounded-sm border border-cizgi bg-yuzey">
+              <details key={s.soru} className="kart rounded-sm border border-cizgi bg-yuzey">
                 <summary className="flex min-h-12 cursor-pointer items-center px-4 py-2">{s.soru}</summary>
                 <p className="border-t border-cizgi px-4 py-3">{s.cevap}</p>
               </details>
@@ -211,6 +234,19 @@ export default function AnaSayfa() {
             <Link href="/mcp-kullan" className={`inline-flex min-h-11 items-center ${BAG}`}>
               Ayrıntılı kurulum rehberi ve bütün araçlar
             </Link>
+          </p>
+        </div>
+      </section>
+
+      <section aria-label="Akredit'in ilkesi" className="border-t border-cizgi bg-yuzey">
+        <div data-belir className="mx-auto max-w-4xl px-4 py-16 text-center sm:py-24">
+          <p className="font-serif text-[1.9rem] leading-[1.2] tracking-[-0.015em] text-balance text-vurgu sm:text-[2.6rem]">
+            {SLOGAN.split(" ").map((k, i) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: sabit cümlenin kelimeleri; sıra değişmez
+              <span key={i} className="slogan-kelime" style={{ "--sira": i } as CSSProperties}>
+                {k}{" "}
+              </span>
+            ))}
           </p>
         </div>
       </section>

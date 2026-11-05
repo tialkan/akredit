@@ -6,6 +6,7 @@ import Link from "next/link";
 import { barindirmaAcik } from "../../../site/barindirma.ts";
 import { YapisalVeri } from "../../../site/bilesenler.tsx";
 import { DurumEtiketi } from "../../../site/durum-etiketi.tsx";
+import { GORSELLER, Gorsel } from "../../../site/gorsel.tsx";
 import { DEPO_ADRESI, gecerliDurum, type PROJE_DURUM_ADI, PROJE_GRUPLARI, SAYFALAR } from "../../../site/icerik.ts";
 import { PlatformDurumu } from "../../../site/platform-durumu.tsx";
 import { sayfaUstVerisi } from "../../../site/yapisal.ts";
@@ -26,7 +27,7 @@ export default function Proje() {
     <>
       <YapisalVeri sayfa={SAYFALAR.proje} />
       <header className="border-b border-cizgi bg-yuzey">
-        <div className="mx-auto max-w-4xl px-4 pt-8 pb-10 sm:pt-10">
+        <div className="mx-auto max-w-4xl px-4 pt-8 pb-10 sm:pt-10 lg:max-w-6xl">
           <nav aria-label="Konum" className="text-base text-soluk">
             <ol className="flex flex-wrap gap-x-2">
               <li>
@@ -42,37 +43,49 @@ export default function Proje() {
               </li>
             </ol>
           </nav>
-          <h1 className="mt-6 text-[2.3rem] leading-[1.08] tracking-[-0.025em] text-vurgu sm:text-[3.2rem]">
-            {SAYFALAR.proje.baslik}
-          </h1>
-          <div className="mt-5 grid max-w-[62ch] gap-3 text-lg">
-            <p>
-              Akredit'in yazılımı açık kaynaktır (Apache-2.0).{" "}
-              <a href={DEPO_ADRESI} className={BAG}>
-                Kaynak kodu GitHub'da
-              </a>
-              .
-            </p>
-            <p>
-              Kurumlara akredit.org üzerinden barındırılan hizmet, sponsor bulunana kadar askıdadır. Bazı bölümler
-              geliştirme aşamasındadır. Bugün herkesin kullanabildiği bölüm, kendi yapay zekânıza eklediğiniz
-              araçlardır.{" "}
-              <Link href="/" className={BAG}>
-                Nasıl kurulacağı ana sayfada
-              </Link>
-              .
-            </p>
-          </div>
-          <dl className="mt-6 grid gap-2 text-base">
-            {ANLAMLAR.map((a) => (
-              <div key={a.durum} className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                <dt>
-                  <DurumEtiketi durum={a.durum} />
-                </dt>
-                <dd className="text-soluk">{a.anlam}</dd>
+          <div className="mt-6 grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)] lg:gap-12">
+            <div>
+              <h1 className="text-[2.3rem] leading-[1.08] tracking-[-0.025em] text-vurgu sm:text-[3.2rem]">
+                {SAYFALAR.proje.baslik}
+              </h1>
+              <div className="mt-5 grid max-w-[62ch] gap-3 text-lg">
+                <p>
+                  Akredit'in yazılımı açık kaynaktır (Apache-2.0).{" "}
+                  <a href={DEPO_ADRESI} className={BAG}>
+                    Kaynak kodu GitHub'da
+                  </a>
+                  .
+                </p>
+                <p>
+                  Kurumlara akredit.org üzerinden barındırılan hizmet, sponsor bulunana kadar askıdadır. Bazı bölümler
+                  geliştirme aşamasındadır. Bugün herkesin kullanabildiği bölüm, kendi yapay zekânıza eklediğiniz
+                  araçlardır.{" "}
+                  <Link href="/" className={BAG}>
+                    Nasıl kurulacağı ana sayfada
+                  </Link>
+                  .
+                </p>
               </div>
-            ))}
-          </dl>
+              <dl className="mt-6 grid gap-2 text-base">
+                {ANLAMLAR.map((a) => (
+                  <div key={a.durum} className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <dt>
+                      <DurumEtiketi durum={a.durum} />
+                    </dt>
+                    <dd className="text-soluk">{a.anlam}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+            <div className="gravur-levha w-full max-w-md lg:max-w-none">
+              <Gorsel
+                gorsel={GORSELLER.avlu}
+                alt="Gravür çizim: kemerli revaklarla çevrili, ağaçlı ve ortasında havuz bulunan bir üniversite avlusu."
+                boyutlar="(min-width: 64rem) 30rem, (min-width: 28rem) 28rem, calc(100vw - 2rem)"
+                oncelikli
+              />
+            </div>
+          </div>
         </div>
       </header>
 

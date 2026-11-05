@@ -17,10 +17,13 @@ export function SayfaBasi({
   sayfa,
   ozet,
   kunye,
+  gorsel,
   children,
 }: {
   sayfa: SayfaBilgisi;
   ozet: ReactNode;
+  /** İsteğe bağlı ilk ekran görseli: geniş ekranda başlığın yanında, dar ekranda altında. */
+  gorsel?: ReactNode;
   /** Sayfanın künyesi: koddaki veriden sayılmış birkaç ölçü (elle yazılmaz). */
   kunye?: Olcu[];
   children?: ReactNode;
@@ -42,10 +45,24 @@ export function SayfaBasi({
             <li aria-current="page">{sayfa.ad}</li>
           </ol>
         </nav>
-        <h1 className="mt-8 max-w-4xl text-[2.5rem] leading-[1.04] tracking-[-0.025em] text-vurgu sm:text-[3.75rem]">
-          {sayfa.baslik}
-        </h1>
-        <div className="mt-6 max-w-[62ch] text-lg text-metin">{ozet}</div>
+        {gorsel ? (
+          <div className="mt-8 grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,32rem)] lg:gap-12">
+            <div>
+              <h1 className="max-w-4xl text-[2.5rem] leading-[1.04] tracking-[-0.025em] text-vurgu sm:text-[3.5rem]">
+                {sayfa.baslik}
+              </h1>
+              <div className="mt-6 max-w-[62ch] text-lg text-metin">{ozet}</div>
+            </div>
+            <div className="gravur-levha w-full max-w-md lg:max-w-none">{gorsel}</div>
+          </div>
+        ) : (
+          <>
+            <h1 className="mt-8 max-w-4xl text-[2.5rem] leading-[1.04] tracking-[-0.025em] text-vurgu sm:text-[3.75rem]">
+              {sayfa.baslik}
+            </h1>
+            <div className="mt-6 max-w-[62ch] text-lg text-metin">{ozet}</div>
+          </>
+        )}
         {kunye ? <Olculer ogeler={kunye} className="mt-10" /> : null}
         {children}
       </div>

@@ -4,7 +4,20 @@
 
 import type { ReactNode } from "react";
 import { Logo } from "../bilesenler/logo.tsx";
+import { GORSELLER, Gorsel } from "./gorsel.tsx";
 import { ILETISIM_ADRESI } from "./iletisim.ts";
+
+/** Hata sayfalarının sol sütunu: süs numarası ve küçük arşiv gravürü (ikisi de ekran okuyucudan gizli). */
+export function HataSusu({ kod }: { kod?: string }) {
+  return (
+    <div aria-hidden className="flex items-end gap-6 lg:flex-col lg:items-start">
+      {kod ? <p className="paragraf-no text-5xl">{kod}</p> : null}
+      <div className="gravur-levha w-28 sm:w-36 lg:w-52">
+        <Gorsel gorsel={GORSELLER.arsiv} alt="" boyutlar="(min-width: 64rem) 13rem, 9rem" oncelikli />
+      </div>
+    </div>
+  );
+}
 
 const BAG = "inline-flex min-h-11 items-center font-semibold text-vurgu underline underline-offset-4";
 
@@ -31,13 +44,7 @@ export function HataSayfasi({
         </div>
       </header>
       <main id="icerik" className="mx-auto grid w-full max-w-6xl flex-1 gap-10 px-4 py-14 lg:grid-cols-[17rem_1fr]">
-        {kod ? (
-          <p className="paragraf-no text-5xl" aria-hidden>
-            {kod}
-          </p>
-        ) : (
-          <span aria-hidden />
-        )}
+        <HataSusu kod={kod} />
         <div>
           <h1 className="text-[2rem] leading-tight text-vurgu sm:text-[2.6rem]">{baslik}</h1>
           <div className="mt-4 grid max-w-[60ch] gap-3 text-lg">{children}</div>
