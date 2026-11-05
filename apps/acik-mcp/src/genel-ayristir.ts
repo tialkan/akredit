@@ -4,6 +4,9 @@
 //
 // Kişi satırları (Dersi Veren, Instructor, e-posta, telefon) ayrıştırmadan önce bellekte atılır. Kaynaklar
 // bölümü künye olarak ayrı alınır (yazar adları yayımlanmış künyedir).
+//
+// Düz metin (dış inceleme 2026-11-05): tarayıcıda Ctrl+A, Ctrl+C ile kopyalanan sayfada tablolar sekmeyle ayrılır.
+// ÖÇ-PÇ katkı matrisi ve ders yapısı bu sekmeli metinden de okunur; Proliz sayfasının düz metni tanınır.
 
 import { metin as htmlMetni, sayi } from "@akredit/baglayicilar/bologna-ayristir";
 
@@ -26,6 +29,8 @@ export type GenelAlan =
   | "degerlendirme"
   | "isyuku"
   | "kaynaklar"
+  | "katki"
+  | "dersYapisi"
   | "kisi";
 
 /** Etiketler küçük harfle, Türkçe karakterle yazılır. Uzun etiket önce denenir. */
@@ -124,6 +129,19 @@ const ETIKETLER: Record<GenelAlan, string[]> = {
     "recommended sources",
     "reading list",
   ],
+  katki: [
+    "program çıktısına katkı",
+    "program çıktısına katkısı",
+    "prg.çıktısına katkısı",
+    "prg. çıktısına katkısı",
+    "program çıktılarına katkı",
+    "dersin program çıktılarına katkısı",
+    "öğrenme çıktılarının program çıktılarına katkısı",
+    "ders öğrenme çıktıları ve program çıktıları ilişkisi",
+    "contribution to program outcomes",
+    "contribution of learning outcomes to programme outcomes",
+  ],
+  dersYapisi: ["ders yapısı", "dersin yapısı", "ders kategorisi", "course structure", "course category"],
   kisi: [
     "dersi veren",
     "dersi verenler",
@@ -186,6 +204,22 @@ function onekEtiketi(s: string): { alan: GenelAlan; kalan: string } | null {
 
 export type Satir = string[];
 
+/** Program çıktısı kodu (P1, PÇ2, PO3) ve ders çıktısı kodu (Ö1, ÖÇ2, LO3) ya da "Tüm" satırı. */
+const P_KODU = /^(?:P|PÇ|PC|PO|PY)\s*-?\s*(\d{1,2})$/iu;
+const O_KODU = /^(?:Ö|ÖÇ|DÖÇ|LO|CLO|ÇK)\s*-?\s*(\d{1,2})$|^(Tüm|All)$/iu;
+
+/** Katkı matrisinin başlık ya da değer satırı mı? Böyle satırlarda boş hücre "-" olarak korunur (sütun hizası). */
+function matrisSatiri(h: string[]): boolean {
+  if (h.filter((x) => P_KODU.test(x)).length >= 2) return true;
+  const ilk = h.findIndex((x) => x !== "");
+  return (
+    ilk >= 0 &&
+    O_KODU.test(h[ilk] ?? "") &&
+    h.length - ilk >= 3 &&
+    h.slice(ilk + 1).every((x) => x === "" || /^[1-5-]$/u.test(x))
+  );
+}
+
 /** HTML ya da düz metni satır ve hücrelere çevirir. Tablo hücreleri sekmeyle ayrılır. */
 export function satirlara(girdi: string): Satir[] {
   const htmlMi = /<\/?(table|tr|td|th|p|div|br|li|h\d|body|span)\b/iu.test(girdi);
@@ -205,13 +239,57 @@ export function satirlara(girdi: string): Satir[] {
     : girdi;
   return duz
     .split(/\r?\n/u)
-    .map((s) =>
-      s
-        .split("\t")
-        .map((h) => h.replace(/\s+/gu, " ").trim())
-        .filter(Boolean),
-    )
-    .filter((r) => r.length > 0);
+    .map((s) => {
+      const h = s.split("\t").map((x) => x.replace(/\s+/gu, " ").trim());
+      return matrisSatiri(h) ? h.map((x) => x || "-") : h.filter(Boolean);
+    })
+    .filter((r) => r.some((x) => x && x !== "-"));
+}
+
+/**
+ * Sekmeli satırlardan ÖÇ-PÇ katkı matrisi: başlıkta en az iki P kodu, altında Ö satırları. Değerler "1"-"5" ya da
+ * boş. Başlıkta satır etiketi sütunu yoksa veri satırları bir sütun kaydırılır. Bulunamazsa boş nesne.
+ */
+export function katkiMatrisi(satirlar: Satir[]): Record<string, Record<string, string>> {
+  for (let i = 0; i < satirlar.length; i++) {
+    const baslik = satirlar[i] ?? [];
+    const sutunlar = baslik
+      .map((h, j) => ({ j, m: h.match(P_KODU) }))
+      .filter((x): x is { j: number; m: RegExpMatchArray } => x.m !== null);
+    if (sutunlar.length < 2) continue;
+    const kayma = P_KODU.test(baslik[0] ?? "") ? 1 : 0;
+    const sonuc: Record<string, Record<string, string>> = {};
+    for (let k = i + 1; k < satirlar.length; k++) {
+      const r = satirlar[k] ?? [];
+      const m = (r[0] ?? "").match(O_KODU);
+      if (!m) break;
+      const anahtar = m[2] ? "Tüm" : `Ö${Number(m[1])}`;
+      sonuc[anahtar] = Object.fromEntries(
+        sutunlar.map(({ j, m: pm }) => {
+          const v = (r[j + kayma] ?? "").trim();
+          return [`P${Number(pm[1])}`, /^[1-5]$/u.test(v) ? v : ""];
+        }),
+      );
+    }
+    if (Object.keys(sonuc).length) return sonuc;
+  }
+  return {};
+}
+
+const INGILIZCE_ALAN =
+  /\b(course objectives?|learning outcomes|course contents?|weekly (topics|schedule|subjects)|ects workload|assessment methods?|teaching methods|course description)\b|\(\s*([iİ]ngilizce|english)\s*\)|[iİ]ngilizce (amaç|içerik|adı)/iu;
+
+/** Sayfada İngilizce alan var mı (İngilizce etiket ya da "(İngilizce)" alanı). Bologna araçlarının ingilizce değeri. */
+export function ingilizceAlanVar(girdi: string): boolean {
+  return INGILIZCE_ALAN.test(girdi.slice(0, 400_000));
+}
+
+const PROLIZ_METNI =
+  /Yarıyıl\s*\t\s*Kodu|Prg\.\s*Çıktısına\s*Katkısı|Sür\.\s*Kalkınma\s*Amaçları|Semester\s*\t\s*Code/iu;
+
+/** Proliz ders sayfasının düz metni mi (Ctrl+A, Ctrl+C)? */
+export function prolizMetniMi(girdi: string): boolean {
+  return !/<\/?(table|tr|td)\b/iu.test(girdi) && PROLIZ_METNI.test(girdi);
 }
 
 export interface Bolum {
@@ -353,6 +431,8 @@ const ALAN_ADI: Record<string, string> = {
   degerlendirme: "Değerlendirme",
   isyuku: "AKTS iş yükü",
   kaynaklar: "Kaynaklar",
+  katki: "Program çıktısına katkı",
+  dersYapisi: "Ders yapısı",
 };
 export const GENEL_ALAN_ADLARI = ALAN_ADI;
 
@@ -451,6 +531,12 @@ export function genelAyristir(girdi: string, kaynakSayisi = 0): GenelSonuc {
       };
     });
 
+  const katki = katkiMatrisi(satirlar);
+  const dersYapisi = satirTablosu("dersYapisi")
+    .map(adVeSayilar)
+    .filter((x) => x.ad && /\p{L}/u.test(x.ad) && x.n.length >= 1 && !TOPLAM.test(x.ad))
+    .map(({ ad, n }) => ({ alan: ad, yuzde: n.at(-1) ?? null }));
+
   const bilgiler = {
     ...(tekDeger("dil") ? { dil: tekDeger("dil") } : {}),
     ...(tekDeger("tur") ? { tur: tekDeger("tur") } : {}),
@@ -470,10 +556,10 @@ export function genelAyristir(girdi: string, kaynakSayisi = 0): GenelSonuc {
     ciktilar,
     degerlendirme,
     isyuku,
-    dersYapisi: [],
+    dersYapisi,
     haftalar: haftaKonulari.length,
     haftaKonulari,
-    katki: {},
+    katki,
   };
   const varMi: Record<string, boolean> = {
     kod: Boolean(ders.kod),
@@ -493,6 +579,8 @@ export function genelAyristir(girdi: string, kaynakSayisi = 0): GenelSonuc {
     degerlendirme: degerlendirme.length > 0,
     isyuku: isyuku.length > 0,
     kaynaklar: kaynakSayisi > 0,
+    katki: Object.keys(katki).length > 0,
+    dersYapisi: dersYapisi.length > 0,
   };
   const bulunan = Object.keys(varMi).filter((k) => varMi[k]);
   const bulunamayan = Object.keys(varMi).filter((k) => !varMi[k]);

@@ -96,13 +96,13 @@ Asistan:  Sayfayı yeniden okudum ve denetledim: Tamamlandı.
 
 - Bütün araçlar salt okumadır ve aynı girdiye aynı sonucu verir.
 - Hesap ve anahtar gerekmez. Kurum verisine erişmez, hiçbir yere yazmaz, yapay zekâ modeli çağırmaz.
-- Giriş bilgisi hiç girmez: parola, doğrulama kodu ya da oturum çerezi görülürse çağrı reddedilir, değer yanıta yazılmaz. İstemler asistana hocadan giriş bilgisi istemeyi yasaklar. CAPTCHA'yı hoca çözer. OBS'de Kaydet'e hoca basar ya da hocanın açık izniyle asistan basar; onaya gönderimi hoca yapar.
+- Giriş bilgisi istenmez: parola, doğrulama kodu ya da oturum çerezi görülürse çağrı reddedilir, değer kaydedilmez ve yanıta yazılmaz. İstemler asistana hocadan giriş bilgisi istemeyi yasaklar. CAPTCHA'yı hoca çözer. OBS'de Kaydet'e hoca basar ya da hocanın açık izniyle asistan basar; onaya gönderimi hoca yapar.
 - Ölçüt metinleri resmî belgeden alınmıştır. Her yanıt kaynağını (belge adresi, sayfa, SHA-256) taşır. Belgeden alınamayan metin DOĞRULANMADI olarak döner.
 - Sayılar yalnız hesaptan gelir; araçlar metin uydurmaz.
-- Bologna sayfasındaki Dersi Verenler, Dersin Yardımcıları ve Koordinatör satırları hocanın kendi sayfasında yayımlanmış görev bilgisidir: olduğu gibi okunur, korunur ve OBS'ye geri yazılırken değiştirilmez. Bologna araçlarında yalnız giriş bilgisi reddedilir.
-- Öğrenci verisi takma adla işlenir: `not_tablosu_ayristir` ad, soyad ve numara sütunlarını hesaplamadan önce bellekte atar ve o1, o2 takma adı verir; not tablosu ve ÇK/PÇ araçlarında kalan ad ya da numara reddedilir. Öbür araçlarda T.C. kimlik numarası, öğrenci numarası ve IBAN reddedilir.
+- Bologna sayfasındaki Dersi Verenler, Dersin Yardımcıları ve Koordinatör satırları hocanın kendi sayfasında yayımlanmış görev bilgisidir: olduğu gibi okunur, korunur ve OBS'ye geri yazılırken değiştirilmez. Bologna araçlarında giriş bilgisi, T.C. kimlik numarası, öğrenci numarası ve IBAN reddedilir; yayımlanmış öğretim elemanı adları serbesttir.
+- Öğrenci verisi sohbete yapıştırılmaz: tablo sohbete yapıştırıldığı anda yapay zekâ sağlayıcısına gitmiştir. `not_tablosu_ayristir` ad, soyad ya da numara sütunu ya da 9-11 haneli numara görürse tabloyu işlemez; hocadan bu sütunları Excel'de silmesini ya da verinin tarayıcıdan çıkmadığı https://akredit.org/deneyin hesaplayıcısını kullanmasını ister. Öbür araçlarda T.C. kimlik numarası, öğrenci numarası ve IBAN reddedilir.
 - Sunucu istek içeriğini günlüğe yazmaz.
-- Kaynakçadaki yazar adları yayımlanmış künyedir; kaynak alanlarında serbesttir. Kaynak uydurulmaz: asistan web aramasıyla aday bulur, her adayı `kaynak_dogrula` ile katalogda doğrular ve yalnız doğrulananı bağlantısıyla önerir.
+- Kaynakçadaki yazar adları yayımlanmış künyedir; kaynak alanlarında serbesttir. Kaynak uydurulmaz: asistan web aramasıyla aday bulur, her adayı `kaynak_dogrula` ile katalogda arar ve yalnız katalogda bulunanı bağlantısıyla öneri olarak gösterir; uygunluğa hoca karar verir. Katalogda olmayan eser yalnız hoca beyanıyla yazılır. Bologna araçları düz metin ya da imzasız kaynağı doğrulanmamış sayar ve OBS yazma paketine almaz.
 - Sunucu kullanıcıdan adres almaz. Bologna sayfasını siz yapıştırırsınız ya da asistanınız kendi tarayıcı veya web aracıyla okur.
 - Dış istek: `kaynak_dogrula` yalnız api.crossref.org, openlibrary.org ve www.googleapis.com (Books) adreslerine sorar; sunucuyu kendiniz barındırıyorsanız bu üç adrese HTTPS çıkışı açık olmalıdır. Bağladığınız yapay zekâ hizmeti girdiyi kendi koşullarıyla işler.
 

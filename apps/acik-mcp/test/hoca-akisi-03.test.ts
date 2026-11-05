@@ -17,6 +17,7 @@ import {
   ISTEMCILER,
   isYukuDagilimlari,
   kunyeBicimle,
+  NOT_TABLOSU_KISISEL_ILETI,
   SUNUCU_SURUMU,
   yazarListesi,
 } from "../src/index.ts";
@@ -297,22 +298,34 @@ describe("kaynak_bicimle", () => {
 });
 
 describe("is_yuku_oner", () => {
-  it("5 AKTS, 2+1+0: üç dağılımın hepsi 150 saate tam eşit", () => {
+  const DEG = [
+    { ad: "Ara Sınav", sayi: 1, katki: 40 },
+    { ad: "Yarıyıl Sonu Sınavı", sayi: 1, katki: 60 },
+  ];
+
+  it("5 AKTS, 2+1+0, vize %40 final %60: satırlar yalnız olan etkinliklerden, kaynak ve varsayımla", () => {
     // Hedef 5 x 30 = 150; ders süresi 14 x 3 = 42; kalan 108.
-    // Dengeli: haftalık floor(108 x 0.6 / 14) = floor(4.63) = 4 → 56; ara round(16.2) = 16; final 108 - 56 - 16 = 36.
-    const [d] = isYukuDagilimlari(5, "2+1+0");
-    expect(d?.isyuku).toEqual([
-      { ad: "Ders Süresi", sayi: 14, sure: 3 },
-      { ad: "Sınıf Dışı Ders Çalışma Süresi", sayi: 14, sure: 4 },
-      { ad: "Ara Sınav Hazırlık", sayi: 1, sure: 16 },
-      { ad: "Yarıyıl Sonu Sınavı Hazırlık", sayi: 1, sure: 36 },
+    // Dengeli: haftalık floor(108 x 0.6 / 14) = floor(4.63) = 4 → 56; etkinliğe 108 - 56 = 52.
+    // Ara sınav round(52 x 40 / 100) = round(20.8) = 21; final (son satır) 108 - 56 - 21 = 31. Toplam 150.
+    const [d] = isYukuDagilimlari(5, "2+1+0", 14, undefined, DEG);
+    expect(d?.isyuku.map((x) => [x.ad, x.sayi, x.sure])).toEqual([
+      ["Ders Süresi", 14, 3],
+      ["Sınıf Dışı Ders Çalışma Süresi", 14, 4],
+      ["Ara Sınav Hazırlık", 1, 21],
+      ["Yarıyıl Sonu Sınavı Hazırlık", 1, 31],
     ]);
-    const r = calistir("is_yuku_oner", { akts: 5, tul: "2+1+0" });
-    const s = sonuc(r);
+    expect(d?.isyuku[2]?.kaynak).toBe("Değerlendirme kalemi: Ara Sınav");
+    expect(d?.isyuku[1]?.kaynak).toBe("Akredit önerisi");
+    for (const x of d?.isyuku ?? []) expect(x.varsayim).toBeTruthy();
+    // Ödev ve proje değerlendirmede yok: hiçbir dağılımda satır açılmaz.
+    for (const x of isYukuDagilimlari(5, "2+1+0", 14, undefined, DEG))
+      expect(x.isyuku.some((y) => /Ödev|Proje/u.test(y.ad))).toBe(false);
+    const s = sonuc(calistir("is_yuku_oner", { akts: 5, tul: "2+1+0", degerlendirme: DEG }));
     expect(s.secenekler).toHaveLength(3);
     for (const x of s.secenekler) {
       expect(x.toplam).toBe(150);
       expect(x.tamEsit).toBe(true);
+      expect(x.etiket).toBe("öneri");
       // Sunucunun taslak denetimi de aynı toplamı onaylar.
       const t = sonuc(
         calistir("bologna_taslak_denetle", {
@@ -325,7 +338,38 @@ describe("is_yuku_oner", () => {
     }
   });
 
-  it("çeşitli AKTS ve T+U+L için toplam hep hedefe eşit; ders süresi hedefi aşarsa açık ileti", () => {
+  it("ödev varsa ödev satırı açılır; değerlendirme verilmezse etkinlik eklenmez ve eksik söylenir", () => {
+    const odevli = isYukuDagilimlari(5, "2+1+0", 14, undefined, [...DEG, { ad: "Ödev", sayi: 2, katki: 20 }]);
+    expect(odevli[0]?.isyuku.find((x) => x.ad === "Ödev")?.sayi).toBe(2);
+    const s = sonuc(calistir("is_yuku_oner", { akts: 5, tul: "2+1+0" }));
+    // Yalnız haftalık çalışma: floor(108 / 14) = 7 → 98; toplam 42 + 98 = 140, 125-150 aralığında.
+    expect(s.secenekler).toHaveLength(1);
+    expect(s.secenekler[0].isyuku.map((x: { ad: string }) => x.ad)).toEqual([
+      "Ders Süresi",
+      "Sınıf Dışı Ders Çalışma Süresi",
+    ]);
+    expect(s.secenekler[0].toplam).toBe(140);
+    expect(s.secenekler[0].aralikta).toBe(true);
+    expect(s.eksik).toMatch(/Değerlendirme kalemleri verilmedi/u);
+  });
+
+  it("sayfadan okunan iş yükü öneriden ayrı döner", () => {
+    const s = sonuc(
+      calistir("is_yuku_oner", {
+        akts: 5,
+        tul: "2+1+0",
+        degerlendirme: DEG,
+        sayfaIsYuku: [{ ad: "Ders Süresi", sayi: 14, sure: 3 }],
+      }),
+    );
+    expect(s.sayfadanOkunan).toEqual({
+      satirlar: [{ ad: "Ders Süresi", sayi: 14, sure: 3, toplam: 42, kaynak: "sayfa" }],
+      toplam: 42,
+    });
+    expect(s.secenekler[0].toplam).toBe(150);
+  });
+
+  it("çeşitli AKTS ve T+U+L için toplam hedefe eşit; kurum değeri verilirse o; ders süresi hedefi aşarsa açık ileti", () => {
     for (const [akts, tul] of [
       [2, "2+0+0"],
       [3, "3+0+0"],
@@ -333,7 +377,9 @@ describe("is_yuku_oner", () => {
       [6, "3+0+2"],
       [7.5, "4+0+0"],
     ] as const)
-      for (const x of isYukuDagilimlari(akts, tul)) expect(x.toplam).toBe(Math.round(akts * 30));
+      for (const x of isYukuDagilimlari(akts, tul, 14, undefined, DEG)) expect(x.toplam).toBe(Math.round(akts * 30));
+    // Kurum değeri 25: 5 x 25 = 125.
+    for (const x of isYukuDagilimlari(5, "2+1+0", 14, 25, DEG)) expect(x.toplam).toBe(125);
     const r = calistir("is_yuku_oner", { akts: 1, tul: "4+0+0" });
     expect(r.hata).toBe(true);
     expect(String(r.veri.hata)).toMatch(/aşıyor/u);
@@ -341,13 +387,36 @@ describe("is_yuku_oner", () => {
 });
 
 describe("not_tablosu_ayristir", () => {
-  const TABLO = [
+  const KIMLIKLI = [
     "Ad Soyad\tNumara\tVize S1 (ÇK1) /20\tVize S2 (ÇK2) /30\tFinal S1 (ÇK1) /50\tToplam",
     "Ayşe Kurgu\t2026000001\t10\t15\t25\t50",
     "Mehmet Örnek\t2026000002\t20\t30\t50\t100",
   ].join("\n");
+  const TABLO = [
+    "Vize S1 (ÇK1) /20\tVize S2 (ÇK2) /30\tFinal S1 (ÇK1) /50\tToplam",
+    "10\t15\t25\t50",
+    "20\t30\t50\t100",
+  ].join("\n");
 
-  it("ad ve numara sütunlarını atar, takma ad verir, başlıktan soru ve ÇK eşlemesini sezer", () => {
+  it("ad, soyad ya da numara sütunu görürse işlemez; değer yanıta girmez; ileti aynen", () => {
+    for (const tablo of [
+      KIMLIKLI,
+      // Başlıksız numara sütunu: 9-11 haneli numara.
+      "Ödev ÇK1 /10\tSütun\n5\t202600001\n6\t202600002",
+      "Öğrenci No;Ödev ÇK3 /10\n2026000003;8\n2026000004;7",
+    ]) {
+      const r = calistir("not_tablosu_ayristir", { tablo });
+      expect(r.hata).toBe(true);
+      expect(r.veri.kod).toBe("kisisel_veri");
+      expect(r.veri.hata).toBe(NOT_TABLOSU_KISISEL_ILETI);
+      expect(JSON.stringify(r.veri)).not.toMatch(/Ayşe|Mehmet|2026000001|202600001/u);
+    }
+    expect(NOT_TABLOSU_KISISEL_ILETI).toBe(
+      "Kişisel veriyi yapay zekâ sohbetine yapıştırmayın: Excel'de Ad, Soyad, Numara sütunlarını silip yalnız not sütunlarını yapıştırın ya da verinin tarayıcınızdan çıkmadığı hesaplayıcıyı kullanın: https://akredit.org/deneyin",
+    );
+  });
+
+  it("yalnız not sütunları: takma ad verir, başlıktan soru ve ÇK eşlemesini sezer", () => {
     const r = calistir("not_tablosu_ayristir", { tablo: TABLO });
     expect(r.hata).toBe(false);
     const s = sonuc(r);
@@ -369,9 +438,6 @@ describe("not_tablosu_ayristir", () => {
     expect(s.hazir).toBe(false);
     expect(s.eksikler.join(" ")).toMatch(/ara_sinav.*yüzdesi yok/u);
     expect(s.ckPcHesaplaTaslagi.puanlar[0]).toEqual({ ogrenci: "o1", aracId: "ara_sinav", soruNo: "1", puan: 10 });
-    const metin = JSON.stringify(r.veri);
-    for (const x of ["Ayşe", "Mehmet", "2026000001"]) expect(metin).not.toContain(x);
-    expect(String(r.veri.atilan)).toMatch(/takma adı verildi.*Ad Soyad.*Numara/u);
   });
 
   it("ağırlıklar verilince hazır olur ve ÇK/PÇ hesabına doğrudan girer", () => {
@@ -386,11 +452,15 @@ describe("not_tablosu_ayristir", () => {
   });
 
   it("noktalı virgüllü CSV ve ondalık virgül okunur; tam puanı aşan hücre eksik olarak bildirilir", () => {
-    const csv = "Öğrenci No;Ödev ÇK3 /10\n2026000003;12,5\n2026000004;7,5";
+    const csv = "Ödev ÇK3 /10;Ödev ÇK4 /10\n12,5;5\n7,5;6";
     const s = sonuc(calistir("not_tablosu_ayristir", { tablo: csv, agirliklar: { odev: 100 } }));
-    // Tablo ayıklamada sekmeli biçime çevrilir; ondalık virgül yine okunur.
+    // Takma ad eklenirken tablo sekmeli biçime çevrilir; ondalık virgül yine okunur.
     expect(s.ayirac).toBe("sekme");
-    expect(s.ckPcHesaplaTaslagi.puanlar.map((p: { puan: number }) => p.puan)).toEqual([12.5, 7.5]);
+    expect(
+      s.ckPcHesaplaTaslagi.puanlar
+        .filter((p: { soruNo: string }) => p.soruNo === "1")
+        .map((p: { puan: number }) => p.puan),
+    ).toEqual([12.5, 7.5]);
     expect(s.eksikler.join(" ")).toMatch(/tam puanı aşıyor/u);
   });
 });
@@ -476,7 +546,7 @@ describe("giriş bilgisi yasağı", () => {
     expect(talimat).toMatch(/parola, doğrulama kodu ya da çerez asla isteme/u);
     expect(talimat).toMatch(/'akredit'/u);
     expect(c.getServerVersion()?.version).toBe(SUNUCU_SURUMU);
-    expect(SUNUCU_SURUMU).toBe("0.4.0");
+    expect(SUNUCU_SURUMU).toBe("0.5.0");
     await c.close();
   });
 });
@@ -566,7 +636,9 @@ describe("uçtan uca Bologna turu (SDK istemcisi): ayrıştır, eksik, hepsi 1, 
     // Başlangıçta yalnız sayfadaki tek künye: 9 zorunlu alanın 9'u kalır (kaynak 1 tane, en az 2 gerek).
     const ilk = await durumu({ kaynaklar: sayfaKunyesi });
     expect(ilk.kalanAlanSayisi).toBe(9);
-    expect(ilk.tamamlandi).toBe(false);
+    expect(ilk.bicimDenetimi).toBe("geçmedi");
+    // Sayfadaki künye düz metindir: doğrulanmamış sayılır.
+    expect(JSON.stringify(ilk.alanlar)).toMatch(/doğrulanmamış kaynak yazılamaz/u);
 
     // 3. Asistan seçenek 1'leri yazar, sunucu denetler (hoca "hepsi 1" dedi).
     const amacDenetimi = veri(
@@ -581,10 +653,16 @@ describe("uçtan uca Bologna turu (SDK istemcisi): ayrıştır, eksik, hepsi 1, 
         },
       }),
     );
-    expect(amacDenetimi.sonuc.gecenler).toEqual(["1"]);
+    expect(amacDenetimi.sonuc.bicimdenGecenler).toEqual(["1"]);
+    expect(amacDenetimi.sonuc.secenekler[0]).toMatchObject({ bicimDenetimi: "geçti", icerikTeyidi: "hoca" });
 
-    const isyuku = veri(await c.callTool({ name: "is_yuku_oner", arguments: { akts: 5, tul: "2+1+0" } })).sonuc
-      .secenekler[0].isyuku;
+    const degerlendirme = [
+      { ad: "Ara Sınav", sayi: 1, katki: 30 },
+      { ad: "Proje", sayi: 1, katki: 20 },
+      { ad: "Yarıyıl Sonu Sınavı", sayi: 1, katki: 50 },
+    ];
+    const isyuku = veri(await c.callTool({ name: "is_yuku_oner", arguments: { akts: 5, tul: "2+1+0", degerlendirme } }))
+      .sonuc.secenekler[0].isyuku;
     const kunyeler = veri(
       await c.callTool({
         name: "kaynak_bicimle",
@@ -608,19 +686,17 @@ describe("uçtan uca Bologna turu (SDK istemcisi): ayrıştır, eksik, hepsi 1, 
       yontem: { tr: YONTEM_TR, en: YONTEM_EN },
       notlar: { tr: "Haftalık ders sunumları ve uygulama föyleri.", en: "Weekly slides and practice sheets." },
       ciktilar: CIKTILAR,
-      degerlendirme: [
-        { ad: "Ara Sınav", sayi: 1, katki: 30 },
-        { ad: "Proje", sayi: 1, katki: 20 },
-        { ad: "Yarıyıl Sonu Sınavı", sayi: 1, katki: 50 },
-      ],
+      degerlendirme,
       isyuku,
       haftalar: HAFTALAR,
-      kaynaklar: [...sayfaKunyesi, ...kunyeler],
+      // Hoca sayfadaki ve verdiği eseri kullandığını söyledi; katalogda aranmadılar: hoca beyanı.
+      kaynaklar: [...sayfaKunyesi, ...kunyeler].map((kunye) => ({ kunye, dogrulama: "hoca_beyani" })),
     };
 
     // 4. Her seçimden sonra kalan alan sayısı azalır.
     const sira = ["amac", "icerik", "yontem", "notlar", "ciktilar", "degerlendirme", "isyuku", "haftalar", "kaynaklar"];
-    let secilen: Record<string, unknown> = { kaynaklar: sayfaKunyesi };
+    // Değerlendirme yüzdelerini hoca söyledi (teyit sorusuna yanıt).
+    let secilen: Record<string, unknown> = { kaynaklar: sayfaKunyesi, degerlendirmeDayanagi: "hoca" };
     let onceki = ilk.kalanAlanSayisi as number;
     for (const alan of sira) {
       secilen = { ...secilen, [alan]: hepsi1[alan] };
@@ -629,8 +705,9 @@ describe("uçtan uca Bologna turu (SDK istemcisi): ayrıştır, eksik, hepsi 1, 
       onceki = d.kalanAlanSayisi;
     }
     const son = await durumu(secilen);
-    expect(son.tamamlandi).toBe(true);
-    expect(son.ozet).toMatch(/^Tamamlandı/u);
+    expect(son.bicimDenetimi).toBe("geçti");
+    expect(son.icerikTeyidi).toBe("hoca");
+    expect(son.ozet).toMatch(/^Biçim denetiminden geçti; içerik teyidi: hoca/u);
     expect(son.hesap.isyuku.toplam).toBe(150);
     expect(son.hesap.degerlendirmeToplami).toBe(100);
 
@@ -640,6 +717,22 @@ describe("uçtan uca Bologna turu (SDK istemcisi): ayrıştır, eksik, hepsi 1, 
     expect(km.sonuc.metin).toContain("Diğer Kaynaklar > Kaynaklar");
     expect(km.sonuc.metin).toContain("Deneme, C. (2023). Kurgu ölçme el kitabı. Kurgu Yayınları.");
     expect(km.sonuc.metin).not.toMatch(/—|\*\*/u);
+    expect(km.sonuc.yazilamayan).toEqual([]);
+
+    // 6. Kayıttan sonra geri okuma: aynı sayfa eşleşir; başka dersin sayfası yazmayı durdurur.
+    const g = km.sonuc.obsKarsilastirGirdisi;
+    const sayfa = `KRG204 Kurgu Ölçme Yöntemleri\n${km.sonuc.metin}`;
+    const kar = veri(await c.callTool({ name: "obs_karsilastir", arguments: { ...g, geriOkunan: { metin: sayfa } } }));
+    expect(kar.sonuc.dur).toBe(false);
+    expect(kar.sonuc.farkli).toBe(0);
+    const baska = veri(
+      await c.callTool({
+        name: "obs_karsilastir",
+        arguments: { ...g, geriOkunan: { metin: sayfa.replaceAll("KRG204", "KRG999"), dersKodu: "KRG999" } },
+      }),
+    );
+    expect(baska.sonuc.dur).toBe(true);
+    expect(baska.sonuc.nedenler.join(" ")).toMatch(/ders kodu \(KRG999\) beklenenden \(KRG204\) farklı/u);
     await c.close();
   });
 });

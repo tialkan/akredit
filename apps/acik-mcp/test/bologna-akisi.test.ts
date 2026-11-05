@@ -88,8 +88,11 @@ describe("istemler (prompts)", () => {
       expect(metin).toContain(n);
     expect(metin).toContain(ORTAK_KURALLAR);
     expect(metin).toContain("4) Hepsini akıllıca doldur (önerilen)");
-    expect(metin).toContain("Şu alanları şöyle doldurdum.");
-    expect(metin).toMatch(/daha sonra da kolayca güncelleyebilirsiniz/u);
+    expect(metin).toContain("Şu alanları şöyle doldurdum; öneri yazanlar benim önerimdir");
+    // Akıllı doldurma teyit gerektiren bilgileri tek mesajda sorar, uydurmaz.
+    expect(metin).toContain("TEK mesajda birlikte sor");
+    expect(metin).toContain("Değerlendirme yöntemleri ve yüzdeleri");
+    expect(metin).toContain("biçim denetiminden geçti; içerik teyidi: hoca");
     await c.close();
   });
 
@@ -119,15 +122,19 @@ describe("istemler (prompts)", () => {
 
   it("Bologna akışı: kaynakları sormaz, web aramasıyla bulup kaynak_dogrula'dan geçirir; OBS'ye yazmada üç yol ve izin", () => {
     const m = ACIK_ISTEMLER.find((i) => i.ad === "bologna_doldur")?.metin({}) ?? "";
-    expect(m).toContain("hocaya kitabın adını sorma");
     expect(m).toContain("kaynak_dogrula");
-    expect(m).toMatch(/Doğrulanamayan adayı asla önerme/u);
+    expect(m).toMatch(/Katalogda bulunmayan eseri kendin önerme/u);
+    expect(m).toContain("'hoca_beyani'");
     expect(m).toContain("1) Formu ben doldurayım, Kaydet'e siz basın");
     expect(m).toContain("2) Formu ben doldurup kaydedeyim");
     expect(m).toContain("3) Alan alan kopyalayın");
     expect(m).toContain("Tarayıcı aracın yoksa doğrudan 3'ü uygula");
-    expect(m).toContain("hepsini kaydet");
-    expect(m).toMatch(/Yalnız "evet" gelirse Kaydet'e bas/u);
+    // Önce önceki/yeni özeti, tek "kaydet", sonra geri okuma ve karşılaştırma.
+    expect(m).toContain("degisiklikOzeti");
+    expect(m).toMatch(/bir kez "kaydet" yazın/u);
+    expect(m).toContain("obs_karsilastir");
+    expect(m).toMatch(/ders kodunu ve dönemi sayfada denetle; beklenenden farklıysa yazmayı durdur/u);
+    expect(m).not.toContain("hepsini kaydet");
     expect(m).not.toMatch(/kitap ya da makalenin adı nedir/u);
   });
 });
@@ -174,7 +181,7 @@ describe("bologna_denetle (alan listesi)", () => {
     const yontem = s.alanlar.find((a: { alan: string }) => a.alan === "yontem");
     expect(yontem.nedenler.join(" ")).toMatch(/30 kelime \(beklenen 40-90\)/u);
     const cikti = s.alanlar.find((a: { alan: string }) => a.alan === "ciktilar");
-    expect(cikti.nedenler.join(" ")).toMatch(/1 öğrenme çıktısı var, 8-12/u);
+    expect(cikti.nedenler.join(" ")).toMatch(/1 öğrenme çıktısı var, 4-10/u);
     expect(s.doldurulacak).toEqual(
       s.alanlar
         .filter((a: { durum: string }) => a.durum === "bos" || a.durum === "zayif")
@@ -197,10 +204,10 @@ describe("bologna_alan_rehberi", () => {
     expect(s.secenekUretimi).toMatch(/Sunucu metin üretmez/u);
   });
 
-  it("çıktı alanında Bloom fiilleri ve 8-12 sınırı gelir; yetkililer alanı olduğu gibi korunur", () => {
+  it("çıktı alanında Bloom fiilleri ve 4-10 sınırı gelir; yetkililer alanı olduğu gibi korunur", () => {
     const s = sonuc(calistir("bologna_alan_rehberi", { alan: "ciktilar" }));
     expect(s.alanlar[0].bloomFiilleri).toHaveLength(6);
-    expect(s.alanlar[0].sinir).toEqual({ enAzCikti: 8, enCokCikti: 12 });
+    expect(s.alanlar[0].sinir).toEqual({ enAzCikti: 4, enCokCikti: 10, onerilenEnAz: 5, onerilenEnCok: 8 });
     const y = calistir("bologna_alan_rehberi", { alan: "yetkililer" });
     expect(String(y.veri.sonrakiAdim)).toMatch(/olduğu gibi korunur/u);
     // Kaynaklar ve yetkililer sayfada yayımlanmış bilgidir: MCP ikisini de taşır.
@@ -241,7 +248,8 @@ describe("bologna_taslak_denetle", () => {
       { ad: "Sınavlar", sayi: 2, sure: 2 },
     ];
     const r = calistir("bologna_taslak_denetle", {
-      ders: { kod: "KRG101", akts: 5, tul: "2+1+0" },
+      // Kurum değeri 30 verildi: toplam tam 5 x 30 = 150 olmalı.
+      ders: { kod: "KRG101", akts: 5, tul: "2+1+0", bolen: 30 },
       secenekler: [
         // A: 42 + 70 + 10 + 14 + 4 = 140 saat; hedef 5 x 30 = 150, 10 saat eksik.
         { etiket: "A", alanlar: { isyuku: ortak } },
@@ -251,11 +259,12 @@ describe("bologna_taslak_denetle", () => {
     });
     expect(r.hata).toBe(false);
     const s = sonuc(r);
-    expect(s.gecenler).toEqual(["B"]);
+    expect(s.bicimdenGecenler).toEqual(["B"]);
     const [a, b] = s.secenekler;
-    expect(a.gecer).toBe(false);
-    expect(a.eksikler[0]).toMatchObject({ alan: "isyuku", kural: "K8" });
-    expect(a.eksikler[0].neden).toMatch(/140 saat, AKTS 5 × 30 = 150/u);
+    expect(a.bicimDenetimi).toBe("geçmedi");
+    expect(a.icerikTeyidi).toBe("hoca");
+    expect(a.eksikler[0]).toMatchObject({ alan: "isyuku", kural: "K8", kuralTuru: "kurum" });
+    expect(a.eksikler[0].neden).toMatch(/140 saat, AKTS 5 × 30 \(kurum değeri\) = 150/u);
     expect(a.hesap.isyuku).toMatchObject({
       toplam: 140,
       hedef: 150,
@@ -264,8 +273,44 @@ describe("bologna_taslak_denetle", () => {
       dersSuresiHaftalikBeklenen: 3,
     });
     expect(a.hesap.isyuku.aciklama).toMatch(/10 saat ekleyin/u);
-    expect(b.gecer).toBe(true);
+    expect(b.bicimDenetimi).toBe("geçti");
     expect(b.hesap.isyuku.toplam).toBe(150);
+    expect(s.not).toMatch(/^Biçim denetiminden geçti; içerik teyidi: hoca/u);
+  });
+
+  it("kurum değeri yoksa AKTS başına 25-30 saat aralığı: 140 saat geçer, 120 saat düşer (taslak ve sayfa denetimi tutarlı)", () => {
+    const satir = (sure: number) => [
+      { ad: "Ders Süresi", sayi: 14, sure: 3 },
+      { ad: "Sınıf Dışı Ders Çalışma Süresi", sayi: 14, sure },
+    ];
+    // 42 + 14 x 7 = 140 (aralıkta); 42 + 14 x 5 = 112 (125'in altında).
+    const s = sonuc(
+      calistir("bologna_taslak_denetle", {
+        ders: { akts: 5, tul: "2+1+0" },
+        secenekler: [
+          { etiket: "A", alanlar: { isyuku: satir(7) } },
+          { etiket: "B", alanlar: { isyuku: satir(5) } },
+        ],
+      }),
+    );
+    expect(s.bicimdenGecenler).toEqual(["A"]);
+    expect(s.secenekler[0].hesap.isyuku).toMatchObject({
+      toplam: 140,
+      hedefAraligi: [125, 150],
+      aralikta: true,
+      fark: 0,
+    });
+    expect(s.secenekler[1].eksikler[0]).toMatchObject({ kural: "K8", kuralTuru: "Akredit önerisi" });
+    expect(s.secenekler[1].eksikler[0].neden).toMatch(/112 saat, AKTS 5 için 125-150/u);
+    expect(s.secenekler[1].eksikler[0].dayanak).toMatch(/DOĞRULANMADI/u);
+    // Sayfa denetimi de aynı aralığı kullanır: 140 saat / 5 AKTS = 28 hata vermez; kurum 30 derse verir.
+    const ders = { kod: "KRG101", akts: 5, isyuku: [{ ad: "Toplam", sayi: 1, sure: 140, toplam: 140 }] };
+    const aralik = sonuc(calistir("bologna_denetle", { ders }));
+    expect(aralik.bulgular.some((x: { kural: string }) => x.kural === "akts-isyuku")).toBe(false);
+    const kurum = sonuc(calistir("bologna_denetle", { ders, kurumBoleni: 30 }));
+    expect(kurum.bulgular.find((x: { kural: string }) => x.kural === "akts-isyuku")).toMatchObject({
+      kuralTuru: "kurum",
+    });
   });
 
   it("yalnız verilen alanları denetler; kısa amaç K2 ile düşer, İngilizce istenmezse aranmaz", () => {
@@ -279,9 +324,15 @@ describe("bologna_taslak_denetle", () => {
         ],
       }),
     );
-    expect(s.gecenler).toEqual(["A"]);
+    expect(s.bicimdenGecenler).toEqual(["A"]);
     expect(s.secenekler[1].eksikler).toEqual([
-      { alan: "amac", kural: "K2", neden: "Amaç 30 kelime (beklenen 60-120)." },
+      {
+        alan: "amac",
+        kural: "K2",
+        neden: "Amaç 30 kelime (beklenen 60-120).",
+        kuralTuru: "Akredit önerisi",
+        dayanak: "Akredit iç kuralı (packages/cekirdek/src/bologna/taslak.ts); resmî dayanağı DOĞRULANMADI.",
+      },
     ]);
   });
 
@@ -408,6 +459,7 @@ describe("bologna_kopya_metni", () => {
       alanlar: {
         ciktilar: CIKTILAR,
         amac: { tr: kelimeler(70) },
+        degerlendirmeDayanagi: "sayfa",
         degerlendirme: [
           { ad: "Ara Sınav", sayi: 1, katki: 30 },
           { ad: "Proje", sayi: 1, katki: 20 },
@@ -488,7 +540,7 @@ describe("uçtan uca Bologna akışı (SDK istemcisi)", () => {
         },
       }),
     );
-    expect((td.sonuc as { gecenler: string[] }).gecenler).toEqual(["A"]);
+    expect((td.sonuc as { bicimdenGecenler: string[] }).bicimdenGecenler).toEqual(["A"]);
 
     const km = await c.callTool({
       name: "bologna_kopya_metni",

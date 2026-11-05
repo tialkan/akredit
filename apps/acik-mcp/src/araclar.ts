@@ -28,6 +28,7 @@ import { BOLOGNA_ARACLARI, bolognaDenetleAraci } from "./bologna.ts";
 import { kaynakBicimleAraci } from "./kaynak.ts";
 import { kaynakDogrulaAraci } from "./kaynak-dogrula.ts";
 import { notTablosuAyristirAraci } from "./not-tablosu.ts";
+import { akreditBaslaAraci } from "./promptlar.ts";
 import { type AcikArac, AracHatasi, arac, DEPO, type Kaynak, KOD_KAYNAGI } from "./temel.ts";
 import { engelCozAraci, kurulumYardimiAraci } from "./yardim.ts";
 
@@ -519,6 +520,7 @@ const raporDilDenetle = arac({
 });
 
 export const ACIK_ARACLAR: readonly AcikArac[] = [
+  akreditBaslaAraci,
   olcutAra,
   olcutGetir,
   olgunlukDuzeyleri,
