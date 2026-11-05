@@ -8,7 +8,14 @@ import Link from "next/link";
 import { YapisalVeri } from "../../site/bilesenler.tsx";
 import { SAYFALAR } from "../../site/icerik.ts";
 import { KopyalaKutusu } from "../../site/kopyala.tsx";
-import { GELISTIRICI_ARACLARI, kurulumAdimlari, MCP_ADRESI, UYGULAMALAR, type Uygulama } from "../../site/kurulum.ts";
+import {
+  GELISTIRICI_ARACLARI,
+  KURULUM_ISTEGI,
+  kurulumAdimlari,
+  MCP_ADRESI,
+  UYGULAMALAR,
+  type Uygulama,
+} from "../../site/kurulum.ts";
 import { sayfaUstVerisi } from "../../site/yapisal.ts";
 
 export const metadata: Metadata = sayfaUstVerisi(SAYFALAR.ana);
@@ -119,8 +126,8 @@ export default function AnaSayfa() {
             {SAYFALAR.ana.baslik}
           </h1>
           <p className="mt-5 text-xl">
-            Ücretsiz ve açık kaynak. Hesap açmanız gerekmez. Claude ya da ChatGPT'ye bir kez ekleyin, sonra akredit
-            yazarak başlayın.
+            Ücretsiz ve açık kaynak. Hesap açmanız gerekmez. Kurulum metnini Claude'a yapıştırın, sonra akredit yazarak
+            başlayın.
           </p>
         </div>
       </section>
@@ -130,8 +137,15 @@ export default function AnaSayfa() {
           <AdimBasligi no={1} id="adim-1">
             Akredit'i yapay zekânıza ekleyin
           </AdimBasligi>
-          <p className="mt-3">Kullandığınız uygulamayı açın ve adımları sırayla izleyin.</p>
-          <div className="mt-6 grid gap-3">
+          <h3 className="mt-6 text-xl text-metin">En kolay yol: kopyalayın, yapıştırın</h3>
+          <p className="mt-1">
+            Aşağıdaki metni kopyalayın, Claude'da yeni bir sohbete yapıştırıp gönderin. Asistan sizi adım adım
+            yönlendirir. Ayarlara kendisi giremeyebilir; ekleme düğmesine siz basarsınız.
+          </p>
+          <KopyalaKutusu etiket="Claude'a yapıştırılacak metin" metin={KURULUM_ISTEGI} uzun />
+          <h3 className="mt-8 text-xl text-metin">Kendiniz eklemek isterseniz</h3>
+          <p className="mt-1">Kullandığınız uygulamayı açın ve adımları sırayla izleyin.</p>
+          <div className="mt-4 grid gap-3">
             {UYGULAMALAR.map((u) => (
               <UygulamaBolumu key={u.kimlik} u={u} />
             ))}

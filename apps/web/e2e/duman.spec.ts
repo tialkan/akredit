@@ -64,6 +64,15 @@ test.describe("tanıtım sitesi", () => {
     await page.keyboard.press("Enter");
     await expect(page.locator("#kur-claude").getByText("Kopyalandı.")).toBeVisible();
     expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("https://akredit.org/mcp");
+    // En kolay yol: kurulum isteğinin tamamı tek düğmeyle kopyalanır.
+    const istek = page.locator("#kurulum > div > div").filter({ hasText: "Claude'a yapıştırılacak metin" });
+    await istek.getByRole("button", { name: "Kopyala" }).focus();
+    await page.keyboard.press("Enter");
+    await expect(istek.getByText("Kopyalandı.")).toBeVisible();
+    const pano = await page.evaluate(() => navigator.clipboard.readText());
+    expect(pano).toContain("Akredit'i kurmama yardım et.");
+    expect(pano).toContain("https://akredit.org/mcp");
+    expect(pano).toContain("Benden parola ya da doğrulama kodu isteme.");
     // Claude Code: açılır bölüm klavyeyle açılır, komut boşluk tuşuyla kopyalanır.
     await page.locator("#kur-claude-code summary").focus();
     await page.keyboard.press("Enter");

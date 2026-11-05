@@ -5,7 +5,7 @@
 
 import { useId, useRef, useState } from "react";
 
-export function KopyalaKutusu({ metin, etiket }: { metin: string; etiket: string }) {
+export function KopyalaKutusu({ metin, etiket, uzun = false }: { metin: string; etiket: string; uzun?: boolean }) {
   const kimlik = useId();
   const kod = useRef<HTMLElement>(null);
   const [durum, setDurum] = useState("");
@@ -34,7 +34,11 @@ export function KopyalaKutusu({ metin, etiket }: { metin: string; etiket: string
       <div className="mt-1 flex flex-wrap items-stretch gap-2">
         <code
           ref={kod}
-          className="min-w-0 flex-1 rounded-sm border border-cizgi-guclu bg-yuzey px-3 py-2 font-mono text-[1.05rem] break-all"
+          className={
+            uzun
+              ? "min-w-0 basis-full rounded-sm border border-cizgi-guclu bg-yuzey px-4 py-3 font-sans text-[1.05rem] leading-relaxed whitespace-pre-line"
+              : "min-w-0 flex-1 rounded-sm border border-cizgi-guclu bg-yuzey px-3 py-2 font-mono text-[1.05rem] break-all"
+          }
         >
           {metin}
         </code>
