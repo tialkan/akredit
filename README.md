@@ -1,6 +1,6 @@
 # Akredit
 
-Yükseköğretimde kalite güvencesi ve akreditasyon süreçlerini kanıta dayalı, kayıtlı ve onaylı yürüten açık kaynak platform. Yayın adresi: **akredit.org** (hazırlanıyor).
+Yükseköğretimde kalite güvencesi ve akreditasyon süreçlerini kanıta dayalı, kayıtlı ve onaylı yürüten açık kaynak platform. Yayın adresi: [akredit.org](https://akredit.org).
 
 Akredit kanıtı kaynağından toplar, ölçer, raporu her iddiayı bir kanıta bağlayarak yazar, eksikleri bulur, kalite süreçlerini takvimine göre yürütür ve her adımı değiştirilemez biçimde kaydeder. Öğretim elemanına kalan iş, önüne gelen önerilere tek dokunuşla karar vermektir. Kurum adına beyan ve dış kuruma son gönderim her zaman insandadır.
 
