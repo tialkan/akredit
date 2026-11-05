@@ -24,7 +24,7 @@ describe("hata ve bakım sayfaları", () => {
       expect(html, ad).toContain(`href="${ILETISIM_ADRESI}"`);
       expect(html, ad).toContain("İletişim: LinkedIn");
       expect(html.match(/<h1/gu)?.length, ad).toBe(1);
-      expect(html, ad).not.toMatch(/—|<strong|<b>/u);
+      expect(html, ad).not.toMatch(/\u2014|<strong|<b>/u);
     }
   });
 
