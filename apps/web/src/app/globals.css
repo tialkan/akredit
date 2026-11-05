@@ -41,8 +41,8 @@
 }
 
 @theme inline {
-  --font-sans: "Source Sans 3 Variable", "Source Sans 3", system-ui, sans-serif;
-  --font-serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-sans: "Lato", system-ui, sans-serif;
+  --font-baslik: "Oswald", "Arial Narrow", system-ui, sans-serif;
   --color-zemin: var(--zemin);
   --color-yuzey: var(--yuzey);
   --color-yuzey-2: var(--yuzey-2);
@@ -88,12 +88,27 @@ h3 {
   text-wrap: balance;
 }
 
-/* Başlıklar: Source Serif 4. Yönetmelik, karar ve rapor dizgisinin ağırbaşlı sesi; gövde Source Sans 3. */
+/* Başlıklar: Oswald 500, gövde Lato (İP-49, kurucu isteği). Oswald dar ve uzundur: satır yüksekliği
+   sıkı ama üst üste binmeyecek kadar, harf aralığı biraz açık. Bu kurallar katmansızdır, başlıktaki
+   leading/tracking/font-semibold yardımcılarını geçersiz kılar. h1 ve h2 küçük harfle yazılır (uzun başlık
+   büyük harfle zor okunur); büyük harf yalnız küçük bölüm etiketlerinde (.bolum-etiketi). Türkçe büyük harf
+   (i → İ) html lang="tr" ile doğru çevrilir. Yalnız 500 yüklenir; sahte kalınlık çizilmez. */
 h1,
 h2 {
-  font-family: var(--font-serif);
-  font-weight: 600;
+  font-family: var(--font-baslik);
+  font-weight: 500;
+  font-synthesis: none;
+  line-height: 1.18;
+  letter-spacing: 0.005em;
   text-wrap: balance;
+}
+.bolum-etiketi {
+  font-family: var(--font-baslik);
+  font-weight: 500;
+  font-synthesis: none;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1.3;
 }
 /* Başlığın içindeki rozet ve sayaçlar (ör. risk rozeti) arayüz yazı tipinde kalır. */
 h1 :where(span),
@@ -129,7 +144,7 @@ main a:hover {
   text-decoration: underline;
 }
 .paragraf-no {
-  font-family: var(--font-serif);
+  font-family: var(--font-baslik);
   font-variant-numeric: lining-nums tabular-nums;
   color: var(--petrol);
 }
@@ -267,15 +282,13 @@ body:has(#dayanak-9:hover) a[href="#dayanak-9"] {
 }
 
 .metin-sayfa h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 1.6rem;
   margin-top: 2.5rem;
   margin-bottom: 0.75rem;
-  letter-spacing: -0.01em;
 }
 .metin-sayfa h3 {
   font-size: 1.15rem;
-  font-weight: 650;
+  font-weight: 700;
   margin-top: 1.75rem;
   margin-bottom: 0.5rem;
 }

@@ -131,7 +131,7 @@ export function Olculer({ ogeler, className = "" }: { ogeler: Olcu[]; className?
             {o.ad}
             {o.dayanak ? <Dayanak n={o.dayanak} tekrar={o.tekrar} /> : null}
           </dt>
-          <dd className="font-serif text-[2.6rem] leading-none font-semibold tracking-[-0.02em] text-vurgu sm:text-[3.25rem]">
+          <dd className="font-baslik text-[2.6rem] leading-none font-semibold tracking-[-0.02em] text-vurgu sm:text-[3.25rem]">
             {o.deger}
           </dd>
         </div>

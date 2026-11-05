@@ -265,3 +265,19 @@ describe("İP-49: sade site, iki adım ve proje ayrıntıları", () => {
     expect(gecerliDurum(kvkk, true).durum).toBe("taslak");
   });
 });
+
+describe("İP-49: sayfa başlığı uzunluğu", () => {
+  // Arama sonucunda kesilmesin: site adı ekiyle (" · Akredit", src/app/layout.tsx şablonu) 60 karakterin altında.
+  const EK = " · Akredit";
+  it("bütün tanıtım sayfaları ve kılavuzlar 60 karakterin altında", async () => {
+    const { KILAVUZLAR } = await import("../app/(site)/belgeler/icerik.ts");
+    const tam = [
+      ...Object.values(SAYFALAR).map((s) => (s.yol === "/" ? s.title : `${s.title}${EK}`)),
+      ...KILAVUZLAR.map((k) => `${k.baslik} (kılavuz)${EK}`),
+    ];
+    for (const t of tam) expect(t.length, t).toBeLessThan(60);
+  });
+  it("ana sayfa başlığı kısa", () => {
+    expect(SAYFALAR.ana.baslik).toBe("Akreditasyon ve Bologna yardımcısı");
+  });
+});

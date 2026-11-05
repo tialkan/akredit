@@ -14,6 +14,9 @@ services:
     build:
       context: .
       dockerfile: infra/gelistirme/web.Dockerfile
+      # Sürüm işareti (x-app-version, İP-49): Coolify derlemede SOURCE_COMMIT'i verir.
+      args:
+        SOURCE_COMMIT: ${SOURCE_COMMIT:-bilinmiyor}
     restart: unless-stopped
     environment:
       SERVICE_FQDN_WEB_3000: null

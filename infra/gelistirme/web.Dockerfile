@@ -6,6 +6,10 @@
 ARG NODE_SURUMU=22-alpine
 
 FROM node:${NODE_SURUMU} AS derleme
+# Sürüm işareti (x-app-version ve <meta name="app-version">, İP-49): Coolify derlemede commit'i verir.
+# Verilmezse "bilinmiyor"; next.config.ts bu durumda package.json sürümünü kullanır.
+ARG SOURCE_COMMIT=bilinmiyor
+ENV SOURCE_COMMIT=${SOURCE_COMMIT}
 ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0 NEXT_TELEMETRY_DISABLED=1
 RUN corepack enable
 WORKDIR /depo

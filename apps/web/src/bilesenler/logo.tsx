@@ -17,7 +17,7 @@ export function Isaret({ className = "h-7 w-auto" }: { className?: string }) {
   );
 }
 
-/** Yatay logo: işaret + "Akredit" kelimesi, sitenin yazı tipiyle (Source Sans 3, 700). */
+/** Yatay logo: işaret + "Akredit" kelimesi, sitenin yazı tipiyle (Lato, 700). */
 export function Logo({ boy = "orta" }: { boy?: "orta" | "buyuk" }) {
   const buyuk = boy === "buyuk";
   return (

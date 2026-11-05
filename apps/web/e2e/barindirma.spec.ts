@@ -29,9 +29,7 @@ test.describe("barındırma kapalı (varsayılan)", () => {
 
   test("ana sayfa: ilk ekranda iki adım ve MCP adresi; başlıkta giriş ve kurum açma yok", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-      "Akreditasyon ve Bologna yardımcısı, kendi yapay zekânızda.",
-    );
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Akreditasyon ve Bologna yardımcısı");
     await expect(page.getByRole("heading", { level: 2, name: /Akredit'i yapay zekânıza ekleyin/u })).toBeInViewport();
     await expect(page.locator("#kur-claude").getByText("https://akredit.org/mcp", { exact: true })).toBeVisible();
     const ust = page.locator("header").first();

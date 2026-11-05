@@ -7,7 +7,7 @@ test.describe("tanıtım sitesi", () => {
   test("ana sayfa: yalnız iki adım ve SSS; menü üç öğe", async ({ page }) => {
     await page.goto("/");
     await expect(page).toHaveTitle(/Akredit/);
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("kendi yapay zekânızda");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Akreditasyon ve Bologna yardımcısı");
     await expect(page.locator("main h2")).toHaveText([
       /Adım 1.*Akredit'i yapay zekânıza ekleyin/u,
       /Adım 2.*akredit yazın/u,
@@ -31,7 +31,7 @@ test.describe("tanıtım sitesi", () => {
     );
     await expect(page.getByText("parolanızı yalnız OBS'nin kendi ekranına yazın")).toBeVisible();
     await expect(page.locator("main details:not([id])")).toHaveCount(4);
-    await expect(page.getByRole("link", { name: "Ayrıntılı kurulum rehberi ve bütün araçlar" })).toHaveAttribute(
+    await expect(page.getByRole("link", { name: "Ayrıntılı rehber ve bütün araçlar" })).toHaveAttribute(
       "href",
       "/mcp-kullan",
     );

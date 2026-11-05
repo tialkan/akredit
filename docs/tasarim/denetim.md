@@ -17,7 +17,7 @@ Durumlar: Karşılandı, Kısmen, Karşılanmadı, Kapsam dışı (bu depoda do�
 | 10 | Bir imza öğesi bul: markaya özgü bir desen, çizim dili, hareket, ızgara | Karşılandı | Paragraf (§) ve dayanak [n] numaraları: bilesenler.tsx Dayanak, Dayanaklar, Bolum no |
 | 11 | Tek vurgu rengi | Karşılandı | Tek vurgu lacivert; petrol yalnız onay ve imza öğesi (anlamlı ikinci renk) |
 | 12 | Tasarım belirteçleri (renk, boşluk, tipografi ölçeği, köşe, gölge) tek dosyada. | Karşılandı | apps/web/src/app/globals.css :root ve @theme |
-| 13 | Tipografi bilinçli seçilsin | Karşılandı | Source Serif 4 başlık + Source Sans 3 metin, iki aile; gerekçe README |
+| 13 | Tipografi bilinçli seçilsin | Karşılandı | Oswald başlık + Lato metin, iki aile; gerekçe README |
 | 14 | Tipografi ölçeği cesur olsun | Karşılandı | h1 2,3-3,5 rem serif, etiketler 0,875 rem |
 | 15 | Boşluk tasarımın parçası | Karşılandı | Bölümler py-12/16, 17 rem başlık sütunu |
 | 16 | Izgara bilinçli kırılsın | Karşılandı | Dosya düzeni: solda başlık sütunu; kart dizisi yok; ana sayfada tablo, çizelge, kayıt örneği |

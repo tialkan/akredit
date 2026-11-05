@@ -28,6 +28,8 @@ export const metadata: Metadata = {
     images: [{ url: "/marka/og.png", width: 1200, height: 630, alt: "Akredit: kanıtla doğrulanmış kalite" }],
   },
   twitter: { card: "summary_large_image", images: ["/marka/og.png"] },
+  // Sürüm işareti (İP-49): derleme anındaki commit; x-app-version başlığıyla aynı değer (next.config.ts).
+  other: { "app-version": process.env.AKREDIT_SURUM ?? "bilinmiyor" },
 };
 
 export const viewport: Viewport = {

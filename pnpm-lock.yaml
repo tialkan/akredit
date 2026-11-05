@@ -172,9 +172,12 @@ importers:
       '@better-auth/sso':
         specifier: 1.7.15
         version: 1.7.15(@better-auth/core@1.7.15(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.3)(@opentelemetry/api@1.10.0)(better-call@1.4.4(zod@4.6.7))(jose@6.2.15)(kysely@0.29.8)(nanostores@1.5.5))(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.3)(better-auth@1.7.15(@opentelemetry/api@1.10.0)(drizzle-kit@0.31.11)(drizzle-orm@0.45.4(@electric-sql/pglite@0.5.14)(@opentelemetry/api@1.10.0)(kysely@0.29.8)(pg@8.23.1)(postgres@3.4.9))(next@16.4.3(@opentelemetry/api@1.10.0)(@playwright/test@1.64.1)(@types/node@26.6.6)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(pg@8.23.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(vitest@4.1.12))(better-call@1.4.4(zod@4.6.7))
-      '@fontsource-variable/source-sans-3':
-        specifier: ^5.3.1
-        version: 5.3.1
+      '@fontsource/lato':
+        specifier: ^5.3.0
+        version: 5.3.0
+      '@fontsource/oswald':
+        specifier: ^5.3.0
+        version: 5.3.0
       better-auth:
         specifier: 1.7.15
         version: 1.7.15(@opentelemetry/api@1.10.0)(drizzle-kit@0.31.11)(drizzle-orm@0.45.4(@electric-sql/pglite@0.5.14)(@opentelemetry/api@1.10.0)(kysely@0.29.8)(pg@8.23.1)(postgres@3.4.9))(next@16.4.3(@opentelemetry/api@1.10.0)(@playwright/test@1.64.1)(@types/node@26.6.6)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(pg@8.23.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(vitest@4.1.12)
@@ -200,9 +203,6 @@ importers:
       '@axe-core/playwright':
         specifier: ^4.14.0
         version: 4.14.0(playwright-core@1.64.1)
-      '@fontsource/source-serif-4':
-        specifier: ^5.3.1
-        version: 5.3.1
       '@playwright/test':
         specifier: ^1.64.1
         version: 1.64.1
@@ -1138,11 +1138,11 @@ packages:
   '@fast-csv/parse@4.3.6':
     resolution: {integrity: sha512-uRsLYksqpbDmWaSmzvJcuApSEe38+6NQZBUsuAyMZKqHxH0g1wcJgsKUvN3WC8tewaqFjBMMGrkHmC+T7k8LvA==}
 
-  '@fontsource-variable/source-sans-3@5.3.1':
-    resolution: {integrity: sha512-u0p5Z/PM2e1uxYOMiodLM6NVzxHwULcB6Oi7QSr2WU/sdoLBFP/BeOZ3YYHeJ6rHsjPZA1nZweZVaV7sf2MAyQ==}
+  '@fontsource/lato@5.3.0':
+    resolution: {integrity: sha512-0WhF/4rhrw+ErIyneKvhHn2YAl+xf8GDtllgOgOzDmeaSlLQtjpChXaQOpWhG2BchQW0WJy2zLV12Hdg0ndOMw==}
 
-  '@fontsource/source-serif-4@5.3.1':
-    resolution: {integrity: sha512-cWcTCXjYYrgF9A67fThVir1VSc0lPEYmwQ6jA4pPt01s2MSCi/maINUcZoCzaqnU8fyUReDO97eGcBUkHgOeug==}
+  '@fontsource/oswald@5.3.0':
+    resolution: {integrity: sha512-16r2aHActe0pH+9FLdk/74/YxXM7HpGak05kAzx3RvSToiJwGvyhv6GvckPz+YuZmvL1nxWbEop2jAXRcXYPRg==}
 
   '@hono/node-server@2.1.5':
     resolution: {integrity: sha512-MgP/I06GdvsilDspMk/qmRzpk8LOUStP6jFAbSRi40W09DhoyUn+Mj7eyKICPqeYKybOjVFLVIAQzvu1bfIa7Q==}
@@ -4091,9 +4091,9 @@ snapshots:
       lodash.isundefined: 3.0.1
       lodash.uniq: 4.5.0
 
-  '@fontsource-variable/source-sans-3@5.3.1': {}
+  '@fontsource/lato@5.3.0': {}
 
-  '@fontsource/source-serif-4@5.3.1': {}
+  '@fontsource/oswald@5.3.0': {}
 
   '@hono/node-server@2.1.5(hono@4.13.14)':
     dependencies:
@@ -4465,7 +4465,7 @@ snapshots:
       obug: 2.2.1
       std-env: 4.3.0
       tinyrainbow: 3.2.0
-      vitest: 4.1.12(@opentelemetry/api@1.10.0)(@types/node@22.20.5)(@vitest/coverage-v8@4.1.12)(vite@8.3.5(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))
+      vitest: 4.1.12(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/coverage-v8@4.1.12)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))
 
   '@vitest/expect@4.1.12':
     dependencies:
@@ -4491,7 +4491,6 @@ snapshots:
       magic-string: 0.30.21
     optionalDependencies:
       vite: 8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)
-    optional: true
 
   '@vitest/pretty-format@4.1.12':
     dependencies:
@@ -6447,7 +6446,6 @@ snapshots:
       jiti: 2.7.0
       tsx: 4.23.15
       yaml: 2.9.1
-    optional: true
 
   vitest@4.1.12(@opentelemetry/api@1.10.0)(@types/node@22.20.5)(@vitest/coverage-v8@4.1.12)(vite@8.3.5(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)):
     dependencies:
@@ -6506,7 +6504,6 @@ snapshots:
       '@vitest/coverage-v8': 4.1.12(vitest@4.1.12)
     transitivePeerDependencies:
       - msw
-    optional: true
 
   which-boxed-primitive@1.1.1:
     dependencies:

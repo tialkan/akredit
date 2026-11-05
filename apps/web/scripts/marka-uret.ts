@@ -62,9 +62,9 @@ const require = createRequire(import.meta.url);
 // Sayfa about:blank'tan yüklendiği için yerel dosya adresleri engellenir; yazı tipi yalnız çizim sırasında
 // veri adresi olarak verilir. Üretilen dosyalara yazı tipi gömülmez.
 const yaziTipiVerisi = (ad: string) =>
-  `data:font/woff2;base64,${readFileSync(require.resolve(`@fontsource-variable/source-sans-3/files/${ad}`)).toString("base64")}`;
-const yaziTipi = yaziTipiVerisi("source-sans-3-latin-ext-wght-normal.woff2");
-const yaziTipiLatin = yaziTipiVerisi("source-sans-3-latin-wght-normal.woff2");
+  `data:font/woff2;base64,${readFileSync(require.resolve(`@fontsource/lato/files/${ad}`)).toString("base64")}`;
+const yaziTipi = yaziTipiVerisi("lato-latin-ext-700-normal.woff2");
+const yaziTipiLatin = yaziTipiVerisi("lato-latin-700-normal.woff2");
 
 function chromiumYolu(): string | undefined {
   const k = process.env.PLAYWRIGHT_BROWSERS_PATH ?? "/opt/pw-browsers";
@@ -80,10 +80,10 @@ function chromiumYolu(): string | undefined {
 }
 
 const stil = `<style>
-@font-face{font-family:"SS3";src:url("${yaziTipiLatin}") format("woff2-variations");font-weight:200 900;unicode-range:U+0000-00FF,U+0131}
-@font-face{font-family:"SS3";src:url("${yaziTipi}") format("woff2-variations");font-weight:200 900;unicode-range:U+0100-02BA}
+@font-face{font-family:"Lato";src:url("${yaziTipiLatin}") format("woff2");font-weight:700;unicode-range:U+0000-00FF,U+0131}
+@font-face{font-family:"Lato";src:url("${yaziTipi}") format("woff2");font-weight:700;unicode-range:U+0100-02BA}
 html,body{margin:0;padding:0;background:transparent}
-body{font-family:"SS3",sans-serif}
+body{font-family:"Lato",sans-serif}
 </style>`;
 
 function yatayLogoHtml(a: string, onay: string, metin: string): string {
@@ -100,7 +100,7 @@ try {
     await sayfa.setContent(html, { waitUntil: "load" });
     await sayfa.evaluate(() => document.fonts.ready);
     const yuklu = await sayfa.evaluate(
-      async () => (await document.fonts.load('700 40px "SS3"', "Akredit ğış")).length > 0,
+      async () => (await document.fonts.load('700 40px "Lato"', "Akredit ğış")).length > 0,
     );
     if (!yuklu) throw new Error("Yazı tipi yüklenemedi");
     const yol = join(hedef, ad);

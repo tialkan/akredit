@@ -9,7 +9,7 @@ export default function Iletisim() {
   return (
     <>
       <YapisalVeri sayfa={SAYFALAR.iletisim} />
-      <SayfaBasi sayfa={SAYFALAR.iletisim} ozet="Görüş, sponsorluk ve güvenlik bildirimleri için." />
+      <SayfaBasi sayfa={SAYFALAR.iletisim} ozet="Görüş, sponsorluk, güvenlik bildirimi." />
       <Bolum id="sahip" baslik="Proje sahibi">
         <Metin>
           <p>
@@ -20,19 +20,17 @@ export default function Iletisim() {
       <Bolum id="sponsor" baslik="Sponsorluk" zemin>
         <Metin>
           <p>
-            Platform tamamlandı ve açık kaynaktır. Kurumlara barındırılan hizmet, pilot uygulama ve kurum açma sponsor
-            bulunana kadar askıda.
-          </p>
-          <p>
-            Barındırma giderini üstlenip hizmetin kurumlara açılmasını sağlamak isterseniz LinkedIn üzerinden yazın.
+            Kurum hizmeti, pilot ve kurum açma sponsor bulunana kadar askıda. Barındırma giderini üstlenmek isterseniz
+            LinkedIn'den yazın.
           </p>
         </Metin>
       </Bolum>
       <Bolum id="guvenlik" baslik="Güvenlik açığı bildirimi">
         <Metin>
           <p>
-            Açıkları herkese açık yazmadan, LinkedIn üzerinden özel ileti olarak bildirin. Bildirimde etkilenen sürümü,
-            yeniden üretme adımlarını ve olası etkiyi yazın. İlk yanıt hedefi 3 iş günüdür.
+            Açıkları herkese açık yazmayın: LinkedIn'den özel ileti ya da{" "}
+            <a href="https://github.com/tialkan/akredit/security/advisories/new">GitHub güvenlik bildirimi</a>. Sürümü,
+            adımları ve etkiyi yazın. İlk yanıt hedefi 3 iş günü.
           </p>
         </Metin>
       </Bolum>

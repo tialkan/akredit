@@ -225,7 +225,7 @@ const akreditMenusu = (odak: string) => {
     "",
     "Hocaya tam olarak şunu göster ve yanıtını bekle:",
     "",
-    "Merhaba. Bugün neye odaklanalım? Numarasını yazmanız yeter.",
+    "Merhaba. Neye odaklanalım? Numarasını yazmanız yeter.",
     ...ODAKLAR.map(([no, ad]) => `${no}) ${ad}`),
     `${ODAKLAR.length + 1}) Başka bir şey: tüm araçları kısaca listele`,
     "",

@@ -1,4 +1,10 @@
+import { readFileSync } from "node:fs";
 import type { NextConfig } from "next";
+import { GUVENLIK_BASLIKLARI, SURUM_BASLIGI, surumBelirle } from "./src/guvenlik/basliklar.ts";
+
+// Sürüm işareti (İP-49): derleme anındaki commit, yoksa package.json sürümü. Derlemede sabitlenir.
+const paket = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8")) as { version: string };
+const SURUM = surumBelirle(process.env, paket.version);
 
 const config: NextConfig = {
   // Docker imajı için bağımsız çıktı (infra/ altındaki Dockerfile kullanır).
@@ -26,7 +32,15 @@ const config: NextConfig = {
   poweredByHeader: false,
   // Veri kipi derlemede sabitlenir (src/veri/kip.ts): varsayılan gerçek veritabanı; örnek veri yalnız
   // AKREDIT_ORNEK_VERI=1 ile (tanıtım, uçtan uca testler).
-  env: { NEXT_PUBLIC_AKREDIT_ORNEK_VERI: process.env.AKREDIT_ORNEK_VERI === "1" ? "1" : "0" },
+  env: {
+    NEXT_PUBLIC_AKREDIT_ORNEK_VERI: process.env.AKREDIT_ORNEK_VERI === "1" ? "1" : "0",
+    AKREDIT_SURUM: SURUM,
+  },
+  // Güvenlik ve sürüm başlıkları bütün yollara, /mcp ve API dahil (İP-49). CSP ve frame-ancestors istek başına
+  // src/proxy.ts'te verilir; CORS başlıkları /mcp işleyicisinindir, burada dokunulmaz.
+  async headers() {
+    return [{ source: "/:path*", headers: [...GUVENLIK_BASLIKLARI, { key: SURUM_BASLIGI, value: SURUM }] }];
+  },
 };
 
 export default config;

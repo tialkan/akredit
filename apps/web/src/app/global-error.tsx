@@ -23,10 +23,7 @@ export default function GenelHata({ error, reset }: { error: Error & { digest?: 
             </button>
           }
         >
-          <p role="alert">
-            Sunucuda beklenmeyen bir hata oldu. Verileriniz değişmedi. Birkaç dakika sonra yeniden deneyin; sürerse bize
-            yazın.
-          </p>
+          <p role="alert">Beklenmeyen bir hata oldu. Verileriniz değişmedi. Birazdan yeniden deneyin.</p>
           {error.digest ? (
             <p className="text-soluk">
               Başvuru kodu: <span className="text-metin">{error.digest}</span>

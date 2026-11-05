@@ -44,8 +44,8 @@ export const SAYFALAR = {
   ana: {
     yol: "/",
     ad: "Ana sayfa",
-    baslik: "Akreditasyon ve Bologna yardımcısı, kendi yapay zekânızda.",
-    title: "Akredit: akreditasyon ve Bologna yardımcısı, kendi yapay zekânızda, ücretsiz",
+    baslik: "Akreditasyon ve Bologna yardımcısı",
+    title: "Akredit: akreditasyon ve Bologna yardımcısı",
     aciklama:
       "İki adımda başlayın: akredit.org/mcp adresini Claude ya da ChatGPT'ye ekleyin, sonra akredit yazın. Ücretsiz, açık kaynak, hesap gerekmez.",
   },
@@ -53,7 +53,7 @@ export const SAYFALAR = {
     yol: "/ne-yapar",
     ad: "Ne yapar",
     baslik: "Ne yapar",
-    title: "Ne yapar: kanıt toplama, ölçme, ders dosyası, ÖDR ve KİDR",
+    title: "Ne yapar: kanıt, ölçme, ders dosyası, KİDR",
     aciklama:
       "Akredit modülleri tek tek: bağlayıcılar, ÇK ve PÇ ölçme motoru, ders dosyası, anket, toplantı, ÖDR, BİDR ve KİDR, göstergeler, değerlendirici portalı, mobil onay.",
   },
@@ -61,7 +61,7 @@ export const SAYFALAR = {
     yol: "/nasil-calisir",
     ad: "Nasıl çalışır",
     baslik: "Nasıl çalışır",
-    title: "Nasıl çalışır: kanıttan onaya, değiştirilemez günlüğe",
+    title: "Nasıl çalışır: kanıttan onaya",
     aciklama:
       "Kanıt, hesap, atıflı taslak, denetim, onay ve değiştirilemez günlük. Risk düzeyleri, yetki devri politikası ve hiç esnemeyen ilkeler bu sayfada.",
   },
@@ -69,7 +69,7 @@ export const SAYFALAR = {
     yol: "/kimler-icin",
     ad: "Kimler için",
     baslik: "Kimler için",
-    title: "Kimler için: rektörlük, kalite komisyonu, bölüm başkanı, öğretim elemanı",
+    title: "Kimler için: kalite komisyonu ve hocalar",
     aciklama:
       "Rektörlük, kalite komisyonu, bölüm başkanı ve öğretim elemanı için Akredit: neyi sistem yapar, kime hangi karar kalır, risk ve KVKK nasıl yönetilir.",
   },
@@ -85,7 +85,7 @@ export const SAYFALAR = {
     yol: "/yapay-zeka",
     ad: "Yapay zekâ ve anahtar",
     baslik: "Yapay zekâ ve kendi anahtarınız",
-    title: "Yapay zekâ ve anahtar: OpenRouter ile kendi anahtarınızı getirin",
+    title: "Yapay zekâ: kendi OpenRouter anahtarınız",
     aciklama:
       "Akredit ilk etapta ücretsizdir. Kurum kendi OpenRouter anahtarını getirir. Anahtar nerede girilir, nasıl saklanır, modele hangi veri gider, maliyet kime aittir.",
   },
@@ -93,7 +93,7 @@ export const SAYFALAR = {
     yol: "/giris-ve-hesap",
     ad: "Giriş ve hesap",
     baslik: "Giriş ve hesap",
-    title: "Giriş ve hesap: parolasız bağlantı, kurum tek oturumu, davetle hesap",
+    title: "Giriş ve hesap: parolasız giriş, davet",
     aciklama:
       "Akredit'e parola olmadan girilir: kurumsal e-postaya tek kullanımlık bağlantı ya da kurumun tek oturum sistemi. İlk yönetici kurumu açar, diğerleri davetle katılır.",
   },
@@ -101,7 +101,7 @@ export const SAYFALAR = {
     yol: "/guvenlik",
     ad: "Güvenlik ve KVKK",
     baslik: "Güvenlik ve kişisel veriler",
-    title: "Güvenlik ve KVKK: değiştirilemez kayıt, kurum yalıtımı, maskeleme",
+    title: "Güvenlik ve KVKK: kayıt, yalıtım, maskeleme",
     aciklama:
       "Kayıtlar iz bırakmadan değiştirilemez, kurumlar birbirinden yalıtılır, öğrenci kimliği takma adla tutulur, KVKK silme hakkı korunur. Bağımsız sızma testi henüz yapılmadı.",
   },
@@ -109,7 +109,7 @@ export const SAYFALAR = {
     yol: "/sinirlar",
     ad: "Sınırlar",
     baslik: "Akredit neyi yapmaz",
-    title: "Sınırlar: akreditasyon garantisi yok, resmî bağ yok",
+    title: "Sınırlar: garanti yok, resmî bağ yok",
     aciklama:
       "Akredit akreditasyon sonucu için garanti vermez. YÖKAK ya da başka bir kuruluşla bağı yoktur. Kurum adına beyan ve son gönderim her zaman bir kişinin kararıdır.",
   },
@@ -133,7 +133,7 @@ export const SAYFALAR = {
     yol: "/mcp-kullan",
     ad: "Kendi yapay zekânızla",
     baslik: "Akredit araçlarını kendi yapay zekânızla kullanın",
-    title: "Akredit MCP: YÖKAK ve program akreditasyonu ölçütleri, ücretsiz ve hesapsız",
+    title: "Akredit MCP: ücretsiz akreditasyon araçları",
     aciklama:
       "Claude, ChatGPT, Cursor ya da VS Code'a akredit.org/mcp adresini ekleyin: YÖKAK ve program akreditasyonu ölçütleri, Bologna denetimi, ÇK/PÇ hesabı, dil denetimi. Ücretsiz, hesapsız, salt okuma.",
   },
@@ -170,7 +170,7 @@ export const SAYFALAR = {
     yol: "/kurum-ac",
     ad: "Kurumunuzu açın",
     baslik: "Kurumunuzu açın",
-    title: "Kurumunuzu açın: kurumsal e-postayla doğrulama ve kurulum sihirbazı",
+    title: "Kurumunuzu açın: e-posta doğrulama",
     aciklama:
       "Kurum açma adımları: kurumsal e-posta doğrulaması, OpenRouter anahtarı, Bologna'dan program önerisi, hocaların daveti. Barındırılan hizmet şu an askıda.",
   },
@@ -178,7 +178,7 @@ export const SAYFALAR = {
     yol: "/yol-haritasi",
     ad: "Yol haritası",
     baslik: "Yol haritası",
-    title: "Yol haritası: şimdi yapılan ve sıradaki işler",
+    title: "Yol haritası: şimdi ve sıradaki işler",
     aciklama:
       "Akredit'te şu an yapılan ve sıradaki işler sade dille: sessiz devir, karar katmanları, kişisel veri, örnek üniversite, sınav taraması, saha ziyareti hazırlığı.",
   },
@@ -186,7 +186,7 @@ export const SAYFALAR = {
     yol: "/pilot",
     ad: "Pilot uygulama",
     baslik: "Pilot uygulama",
-    title: "Pilot başvurusu: barındırılan hizmet sponsor bulunana kadar askıda",
+    title: "Pilot başvurusu: sponsor bulunana kadar askıda",
     aciklama:
       "Pilot uygulama ve barındırılan kurum hizmeti sponsor bulunana kadar askıda. Yazılım hazır ve açık kaynak; kurum kendi sunucusuna kurabilir. Demo henüz tamamlanmadı.",
   },
@@ -194,7 +194,7 @@ export const SAYFALAR = {
     yol: "/belgeler",
     ad: "Kılavuzlar",
     baslik: "Kılavuzlar",
-    title: "Kılavuzlar: öğretim elemanı, kalite birimi, bilgi işlem",
+    title: "Kılavuzlar: hoca, kalite birimi, bilgi işlem",
     aciklama:
       "Öğretim elemanı, kalite birimi ve bilgi işlem için görev kılavuzları: karar vermek, belge eklemek, ders dosyası, rapor taslakları.",
   },
@@ -202,7 +202,7 @@ export const SAYFALAR = {
     yol: "/proje",
     ad: "Proje ayrıntıları",
     baslik: "Projenin devam eden ayrıntıları",
-    title: "Proje ayrıntıları: hangi bölüm çalışıyor, hangisi askıda ya da taslak",
+    title: "Proje ayrıntıları: ne çalışıyor, ne askıda",
     aciklama:
       "Akredit'in bütün sayfaları ve dürüst durumları: çalışan araçlar, tamamlanmamış demo, sponsor bulunana kadar askıdaki kurum hizmeti, taslak kılavuzlar.",
   },
@@ -233,8 +233,7 @@ export interface ProjeSayfasi {
   not: string;
 }
 
-const BILGI_NOTU =
-  "Bilgi sayfası. Anlattığı platform yazılım olarak hazır, kurumlara barındırılan hizmet olarak sunulmuyor.";
+const BILGI_NOTU = "Bilgi sayfası. Yazılım hazır, kurumlara barındırılan hizmet sunulmuyor.";
 
 /**
  * Ana yoldan çekilen sayfalar, gruplu ve durumlu. Sayfalar silinmez; her birinin üstünde bu not görünür.
@@ -250,7 +249,7 @@ export const PROJE_GRUPLARI: { baslik: string; not: string; sayfalar: ProjeSayfa
         ...SAYFALAR.mcpKullan,
         ad: "Ayrıntılı kurulum ve araçlar",
         durum: "calisiyor",
-        not: "Herkese açık, ücretsiz, hesapsız. Ana sayfadaki iki adımın ayrıntısı.",
+        not: "Herkese açık, ücretsiz, hesapsız.",
       },
       {
         yol: "/deneyin",
@@ -263,7 +262,7 @@ export const PROJE_GRUPLARI: { baslik: string; not: string; sayfalar: ProjeSayfa
   },
   {
     baslik: "Platformu tanıtan sayfalar",
-    not: "Kurumlar için yazılmış tam platformun anlatımı.",
+    not: "Tam platformun anlatımı.",
     sayfalar: [
       SAYFALAR.neYapar,
       SAYFALAR.nasil,
@@ -278,7 +277,7 @@ export const PROJE_GRUPLARI: { baslik: string; not: string; sayfalar: ProjeSayfa
   },
   {
     baslik: "Barındırılan kurum hizmeti",
-    not: "Sponsor bulunana kadar askıda. Yazılım hazır, kod silinmedi.",
+    not: "Sponsor bulunana kadar askıda. Yazılım hazır.",
     sayfalar: [
       {
         ...SAYFALAR.kurumAc,
@@ -288,25 +287,25 @@ export const PROJE_GRUPLARI: { baslik: string; not: string; sayfalar: ProjeSayfa
       {
         ...SAYFALAR.pilot,
         durum: "askida",
-        not: "Başvuru alınmıyor. Gerçek kurum verisiyle pilot henüz yapılmadı.",
+        not: "Başvuru alınmıyor. Gerçek kurumla pilot yapılmadı.",
       },
       {
         yol: "/giris",
         ad: "Kurum girişi",
         aciklama: "Kurum hesabıyla panele giriş ekranı.",
         durum: "askida",
-        not: "Kurum hesabıyla giriş alınmıyor. Demo için hesap gerekmez.",
+        not: "Kurum girişi kapalı.",
       },
       {
         ...SAYFALAR.giris,
         durum: "askida",
-        not: "Anlattığı giriş yolu barındırılan hizmetle birlikte askıda.",
+        not: "Barındırılan hizmetle birlikte askıda.",
       },
     ],
   },
   {
     baslik: "Güven ve hukuk metinleri",
-    not: "İşletmecinin tüzel kimliği ve resmî başvuru kanalı henüz belirlenmedi; bağımsız sızma testi yapılmadı.",
+    not: "Tüzel kimlik belirlenmedi; bağımsız sızma testi yapılmadı.",
     sayfalar: [
       {
         ...SAYFALAR.guvenlik,
@@ -316,12 +315,12 @@ export const PROJE_GRUPLARI: { baslik: string; not: string; sayfalar: ProjeSayfa
       ...[SAYFALAR.kvkk, SAYFALAR.gizlilik, SAYFALAR.kosullar].map((s) => ({
         ...s,
         durum: "calisiyor" as const,
-        not: "Yayında. İşletmecinin tüzel kimliği ve resmî başvuru kanalı henüz belirlenmedi.",
+        not: "Yayında. İşletmecinin tüzel kimliği henüz belirlenmedi.",
       })),
       {
         ...SAYFALAR.belgeler,
         durum: "taslak",
-        not: "Kılavuzların ilk sürümü. Panel için yazıldı; belge ve eğitim işi sponsor bulunana kadar askıda.",
+        not: "İlk sürüm. Belge ve eğitim işi sponsor bulunana kadar askıda.",
       },
     ],
   },

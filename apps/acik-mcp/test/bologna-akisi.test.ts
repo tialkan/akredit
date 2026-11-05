@@ -77,7 +77,7 @@ describe("istemler (prompts)", () => {
     expect(metin).toContain("Önce hangi aracı kullanmak istediğini sor.");
     expect(metin).toContain("Hoca seçmeden hiçbir akışa başlama");
     expect(metin).toMatch(/6\) Başka bir şey: tüm araçları kısaca listele/u);
-    expect(metin).toContain("Bugün neye odaklanalım?");
+    expect(metin).toContain("Neye odaklanalım?");
     for (const n of [
       "1) Bologna",
       "2) Ders öğrenme çıktısı",

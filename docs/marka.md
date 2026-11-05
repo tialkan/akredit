@@ -87,11 +87,11 @@ yüksekliğine göre alınır. Bu alana metin, çizgi ya da başka logo girmez.
 
 ## Yazı tipi
 
-**Source Sans 3** (değişken, SIL Open Font License 1.1; `@fontsource-variable/source-sans-3`): metin ve arayüz.
-Logo kelimesi 700 ağırlık, harf aralığı −0,015 em; gövde 400, satır yüksekliği 1,6.
-**Source Serif 4** 600 (OFL 1.1): yalnız h1 ve h2; Türkçe alt kümesi `apps/web/src/app/yazi/`. Gerekçe:
-`docs/tasarim/README.md`. Türkçe karakterlerin tamamı
-latin ve latin-ext alt kümelerindedir. Yazı tipi yüklenemezse sistem yazı tipi (`system-ui`) kullanılır.
+**Lato** (SIL Open Font License 1.1; `@fontsource/lato`): metin, arayüz ve logo kelimesi (700).
+**Oswald** 500 (OFL 1.1; `@fontsource/oswald`): başlıklar ve küçük bölüm etiketleri. Gerekçe ve ölçüler:
+`docs/tasarim/README.md`. Türkçe karakterlerin tamamı latin ve latin-ext alt kümelerindedir. Yazı tipi
+yüklenemezse sistem yazı tipi (`system-ui`) kullanılır. Hazır logo PNG'leri henüz eski yazı tipiyle üretildi;
+`pnpm --filter @akredit/web marka` ile yenilenir.
 
 ## Kurallar (kullanıcı kararı)
 

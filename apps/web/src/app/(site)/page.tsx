@@ -28,16 +28,12 @@ const ORNEK: { kim: "Siz" | "Asistan"; metin: string }[] = [
   { kim: "Siz", metin: "akredit" },
   {
     kim: "Asistan",
-    metin: [
-      "Bugün neye odaklanalım? Numarasını yazmanız yeter.",
-      ...AKREDIT_ODAKLARI.map((o) => `${o.no}) ${o.ad}`),
-    ].join("\n"),
+    metin: ["Neye odaklanalım? Numarasını yazın.", ...AKREDIT_ODAKLARI.map((o) => `${o.no}) ${o.ad}`)].join("\n"),
   },
   { kim: "Siz", metin: "1" },
   {
     kim: "Asistan",
-    metin:
-      "Önce bir kural: kullanıcı adınızı ve parolanızı yalnız OBS'nin kendi giriş ekranına, kendiniz yazın. Bana yazmayın. OBS adresiniz nedir?",
+    metin: "Parolanızı bana yazmayın; yalnız OBS'nin kendi ekranına girin. OBS adresiniz nedir?",
   },
   { kim: "Siz", metin: "obs.kurgu.edu.tr" },
 ];
@@ -45,22 +41,20 @@ const ORNEK: { kim: "Siz" | "Asistan"; metin: string }[] = [
 const SSS: { soru: string; cevap: string }[] = [
   {
     soru: "Akredit araçları görünmüyor",
-    cevap: `Yeni bir sohbet açın; eklediğiniz araç eski sohbette görünmeyebilir. Yazı kutusunun altındaki + düğmesinden ya da araç menüsünden Akredit'in açık olduğuna bakın (adı sizde farklı olabilir). Adresin tam olarak ${MCP_ADRESI} olduğunu denetleyin. Komut görünmüyorsa "Akredit ile başlayalım" yazmanız yeter.`,
+    cevap: `Yeni bir sohbet açın. + düğmesinden Akredit'in açık olduğuna bakın. Adres tam olarak ${MCP_ADRESI} olmalı.`,
   },
   {
     soru: "Ücretli mi?",
-    cevap:
-      "Hayır. Akredit ücretsizdir, hesap açmanız gerekmez. Kullandığınız yapay zekâ hizmetinin kendi planı ayrıca geçerlidir; özel araç ekleme her planda açık olmayabilir.",
+    cevap: "Hayır, hesap da gerekmez. Yapay zekâ hizmetinizin kendi planı ayrıca geçerlidir.",
   },
   {
     soru: "Yazdıklarım nereye gidiyor?",
     cevap:
-      "Akredit yalnız okur ve hesaplar. İstek içeriği kaydedilmez; kayda yalnız araç adı, süre ve istek boyutu yazılır. Öğrenci adı ve numarası, parola ya da doğrulama kodu göndermeyin. Kullandığınız yapay zekâ hizmetinin kendi veri politikası ayrıca geçerlidir.",
+      "İstek içeriği kaydedilmez; yalnız araç adı, süre ve boyut yazılır. Öğrenci adı, numara ya da parola göndermeyin.",
   },
   {
     soru: "ChatGPT'de olmuyor",
-    cevap:
-      "ChatGPT'de araç eklemek için ayarlarda geliştirici kipinin açık olması gerekir. İş ve kurum hesaplarında bu ayarı yönetici açar; açamıyorsanız yöneticinize sorun ya da Claude ile deneyin.",
+    cevap: "Ayarlarda geliştirici kipi açık olmalı. Kurum hesabında bunu yönetici açar.",
   },
 ];
 
@@ -117,7 +111,7 @@ function AdimBasligi({ no, id, children }: { no: number; id: string; children: s
         {`Adım ${no}`}
       </span>
       <span className="sr-only">{`Adım ${no}: `}</span>
-      <span>{children}</span>
+      {children}
     </h2>
   );
 }
@@ -136,10 +130,7 @@ export default function AnaSayfa() {
             >
               {SAYFALAR.ana.baslik}
             </h1>
-            <p className="mt-5 max-w-[46ch] text-xl">
-              Ücretsiz ve açık kaynak. Hesap açmanız gerekmez. Kurulum metnini Claude'a yapıştırın, sonra akredit
-              yazarak başlayın.
-            </p>
+            <p className="mt-5 max-w-[46ch] text-xl">Ücretsiz, açık kaynak, hesapsız. Kendi yapay zekânızda çalışır.</p>
           </div>
           <div className="gravur-levha w-full max-w-[17rem] justify-self-start lg:max-w-none lg:justify-self-end">
             <Gorsel
@@ -157,37 +148,35 @@ export default function AnaSayfa() {
           <AdimBasligi no={1} id="adim-1">
             Akredit'i yapay zekânıza ekleyin
           </AdimBasligi>
-          <h3 className="mt-6 text-xl text-metin">En kolay yol: kopyalayın, yapıştırın</h3>
+          <h3 className="bolum-etiketi mt-6 text-lg text-metin">En kolay yol: kopyalayın, yapıştırın</h3>
           <p className="mt-1">
-            Bu yol Claude Code ya da Codex masaüstü uygulaması içindir: bu uygulamalar kurulumu baştan sona kendileri
-            yapabilir. Metni kopyalayın, uygulamada yeni bir oturuma yapıştırıp gönderin.
+            Claude Code ya da Codex masaüstünde yeni bir oturuma yapıştırın; kurulumu kendisi yapar.
           </p>
           <ul className="mt-3 grid gap-2">
             <li>
-              Claude Code: Claude masaüstü uygulamasını indirin (
-              <a href="https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect">Mac</a>,{" "}
-              <a href="https://claude.ai/api/desktop/win32/x64/setup/latest/redirect">Windows</a>), açın ve üstteki Code
-              sekmesine geçin.
+              Claude Code:{" "}
+              <a href="https://code.claude.com/docs/en/desktop" className="inline-flex min-h-11 items-center">
+                Claude masaüstü
+              </a>{" "}
+              (Mac, Windows), Code sekmesi.
             </li>
             <li>
-              Codex: ChatGPT masaüstü uygulamasını <a href="https://learn.chatgpt.com/docs/app">resmî sayfasından</a>{" "}
-              indirin ve Codex bölümünü açın.
+              Codex:{" "}
+              <a href="https://learn.chatgpt.com/docs/app" className="inline-flex min-h-11 items-center">
+                ChatGPT masaüstü
+              </a>
+              , Codex bölümü.
             </li>
           </ul>
           <KopyalaKutusu etiket="Claude Code ya da Codex'e yapıştırılacak metin" metin={KURULUM_ISTEGI} uzun />
-          <p className="mt-2 text-base text-soluk">
-            claude.ai sitesinde ya da ChatGPT'nin sohbet ekranında asistan ayarlara giremez; orada aşağıdaki adımları
-            izleyin.
-          </p>
-          <h3 className="mt-8 text-xl text-metin">Kendiniz eklemek isterseniz</h3>
-          <p className="mt-1">Kullandığınız uygulamayı açın ve adımları sırayla izleyin.</p>
+          <p className="mt-2 text-base text-soluk">claude.ai ve ChatGPT sohbetinde aşağıdaki adımları izleyin.</p>
+          <h3 className="bolum-etiketi mt-8 text-lg text-metin">Kendiniz ekleyin</h3>
           <div className="mt-4 grid gap-3">
             {UYGULAMALAR.map((u) => (
               <UygulamaBolumu key={u.kimlik} u={u} />
             ))}
           </div>
-          <h3 className="mt-8 text-xl text-metin">Bilgisayar kullananlar için</h3>
-          <p className="mt-1 text-soluk">Geliştirici araçları: uçbirim ve kod düzenleyiciler.</p>
+          <h3 className="bolum-etiketi mt-8 text-lg text-metin">Geliştirici araçları</h3>
           <div className="mt-3 grid gap-3">
             {GELISTIRICI_ARACLARI.map((u) => (
               <UygulamaBolumu key={u.kimlik} u={u} />
@@ -202,14 +191,11 @@ export default function AnaSayfa() {
             akredit yazın
           </AdimBasligi>
           <ol className="mt-4 grid list-decimal gap-2 pl-7">
-            <li>Yeni bir sohbet açın.</li>
-            <li>Yazı kutusuna akredit yazıp gönderin.</li>
-            <li>Asistan hangi aracı kullanmak istediğinizi sorar. Numarasını yazarak seçin.</li>
+            <li>Yeni sohbette akredit yazın.</li>
+            <li>Menüden numarayla seçin.</li>
           </ol>
           <figure className="mt-6 rounded-sm border border-cizgi bg-zemin p-4 sm:p-5">
-            <figcaption className="text-base text-soluk">
-              Örnek konuşma (kurgudur, sizde biraz farklı olabilir)
-            </figcaption>
+            <figcaption className="bolum-etiketi text-base text-soluk">Örnek konuşma (kurgu)</figcaption>
             <dl className="mt-3 grid gap-3">
               {ORNEK.map((s, i) => (
                 // biome-ignore lint/suspicious/noArrayIndexKey: sabit, sırası değişmeyen örnek konuşma
@@ -224,8 +210,7 @@ export default function AnaSayfa() {
             role="note"
             className="mt-5 rounded-sm border border-risk-orta bg-risk-orta-zemin px-4 py-3 text-risk-orta"
           >
-            Bologna için OBS'ye girerken kullanıcı adınızı ve parolanızı yalnız OBS'nin kendi ekranına yazın; asistana
-            ve sohbete asla yazmayın.
+            OBS'de parolanızı yalnız OBS'nin kendi ekranına yazın; sohbete asla yazmayın.
           </p>
         </div>
       </section>
@@ -248,7 +233,7 @@ export default function AnaSayfa() {
           </div>
           <p className="mt-6">
             <Link href="/mcp-kullan" className={`inline-flex min-h-11 items-center ${BAG}`}>
-              Ayrıntılı kurulum rehberi ve bütün araçlar
+              Ayrıntılı rehber ve bütün araçlar
             </Link>
           </p>
         </div>
@@ -256,7 +241,7 @@ export default function AnaSayfa() {
 
       <section aria-label="Akredit'in ilkesi" className="border-t border-cizgi bg-yuzey">
         <div data-belir className="mx-auto max-w-4xl px-4 py-16 text-center sm:py-24">
-          <p className="font-serif text-[1.9rem] leading-[1.2] tracking-[-0.015em] text-balance text-vurgu sm:text-[2.6rem]">
+          <p className="font-baslik text-[1.9rem] leading-[1.2] tracking-[-0.015em] text-balance text-vurgu sm:text-[2.6rem]">
             {SLOGAN.split(" ").map((k, i) => (
               // biome-ignore lint/suspicious/noArrayIndexKey: sabit cümlenin kelimeleri; sıra değişmez
               <span key={i} className="slogan-kelime" style={{ "--sira": i } as CSSProperties}>

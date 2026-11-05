@@ -61,6 +61,14 @@ export default function SiteYerlesimi({ children }: { children: ReactNode }) {
                   {SAYFALAR.iletisim.ad}
                 </Link>
               </li>
+              {/* KVKK aydınlatma, gizlilik ve koşullar her sayfanın alt bilgisinde (İP-49, WebKVKKrobot). */}
+              {[SAYFALAR.kvkk, SAYFALAR.gizlilik, SAYFALAR.kosullar].map((s) => (
+                <li key={s.yol}>
+                  <Link href={s.yol} className={ALT_BAG}>
+                    {s.yol === "/kosullar" ? "Koşullar" : s.ad}
+                  </Link>
+                </li>
+              ))}
               <li>
                 <a href={DEPO_ADRESI} className={ALT_BAG}>
                   Kaynak kodu (GitHub)

@@ -18,17 +18,14 @@ Yalnız açık tema. `color-scheme: light`, `prefers-color-scheme: dark` kuralı
 
 ## Yazı tipi
 
-- **Başlık:** Source Serif 4, 600 ağırlık (OFL 1.1). `@fontsource/source-serif-4` dosyalarından Türkçe alt küme
-  üretilir (`apps/web/scripts/baslik-yazi-tipi.py`, ~18 KB, `apps/web/src/app/yazi/`).
-- **Metin ve arayüz:** Source Sans 3 (değişken, OFL 1.1), 400 gövde, 600 vurgu.
+- **Başlık:** Oswald 500 (SIL OFL 1.1, `@fontsource/oswald`). h1 ve h2 küçük harfle; satır yüksekliği 1,18, harf
+  aralığı 0,005 em (Oswald dar ve uzundur). Büyük harf yalnız küçük bölüm etiketlerinde (`.bolum-etiketi`, en az 16 px,
+  harf aralığı 0,05 em). Türkçe büyük harf (i → İ) `<html lang="tr">` ile doğru çevrilir.
+- **Metin ve arayüz:** Lato 400 ve 700 (SIL OFL 1.1, `@fontsource/lato`); 600 istenen yerde 700 çizilir.
 
-Gerekçe: Akredit'in ürettiği şey yönetmelik, kılavuz ve rapor dilidir. Serif başlık bu belgelerin ağırbaşlı sesini
-taşır, ama bir kamu kurumunun yazı tipini taklit etmez. İki aile aynı tasarım ailesindendir (Adobe, Frank Grießhammer
-ve Paul D. Hunt); x yüksekliği ve oranları uyumludur, yan yana durduklarında iki ayrı marka gibi görünmez. Türkçe
-karakterlerin tamamı latin ve latin-ext alt kümelerindedir; yalnız bu iki alt küme yüklenir. Fontlar yerel
-barındırılır (başlık yazı tipi alt kümesi ana sayfanın 350 KB aktarım bütçesine sığsın diye), `font-display: optional` ile sayfa kaymaz. Inter, Poppins, Space Grotesk, Manrope, DM Sans
-kullanılmaz. IBM Plex de değerlendirildi; Source Sans 3 zaten markanın logo kelimesinde kullanıldığı için aynı aileden
-serif seçildi ve yeni aile sayısı bire indi.
+Gerekçe: kurucu isteği (İP-49), war.gov dizgisinden esinlenme (başlıkta Oswald, gövdede Lato). Yalnız latin ve
+latin-ext alt kümeleri yüklenir; ı latin, ğ ş İ latin-ext aralığındadır. Fontlar kendi sunucumuzdan verilir,
+`font-display: optional` ile sayfa kaymaz (`apps/web/src/app/yazi-tipi.css`).
 
 ## İmza öğesi: paragraf ve dayanak numaraları
 
@@ -37,7 +34,7 @@ serif seçildi ve yeni aile sayısı bire indi.
 - **Dayanak numarası** (`[1]`, petrol renkte üst simge): olgusal her önemli iddia, sayfa sonundaki "Dayanaklar"
   listesinde depodaki kaynağına (dosya yolu, İP raporu, ADR) bağlanır. Numara ile liste arasında iki yönlü bağlantı
   vardır; hedef satır petrol zeminle belirir. Bileşenler: `Dayanak`, `Dayanaklar` (`apps/web/src/site/bilesenler.tsx`).
-- **Paragraf numarası** (`§ 1`, Source Serif 4, petrol): sırayla okunan sayfa bölümleri yönetmelik dizgisindeki gibi
+- **Paragraf numarası** (`§ 1`, Oswald, petrol): sırayla okunan sayfa bölümleri yönetmelik dizgisindeki gibi
   numaralanır. Yalnız içerik gerçekten bir sıra olduğunda kullanılır (ana sayfa, nasıl çalışır, yapay zekâ, giriş ve
   hesap). Adım listeleri ve 404 aynı rakam dizgisini kullanır.
 

@@ -9,8 +9,7 @@ export const metadata: Metadata = { title: "Bakımda", robots: { index: false } 
 export default function Bakim() {
   return (
     <HataSayfasi kod="503" baslik="Kısa bir bakım yapıyoruz">
-      <p>Akredit şu an geçici olarak kullanılamıyor. Bakım ya da kısa bir kesinti olabilir.</p>
-      <p>Birkaç dakika sonra sayfayı yenileyin. Sorun uzun sürerse bize yazın.</p>
+      <p>Akredit geçici olarak kullanılamıyor. Birkaç dakika sonra sayfayı yenileyin.</p>
     </HataSayfasi>
   );
 }

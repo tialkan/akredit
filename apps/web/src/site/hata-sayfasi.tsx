@@ -21,6 +21,29 @@ export function HataSusu({ kod }: { kod?: string }) {
 
 const BAG = "inline-flex min-h-11 items-center font-semibold text-vurgu underline underline-offset-4";
 
+/** Her sayfada görünen hukuk bağlantıları (KVKK aydınlatma, gizlilik, koşullar). Sade <a>; global-error'da da çalışır. */
+export function HukukAltBilgisi() {
+  return (
+    <footer className="border-t border-cizgi bg-zemin">
+      <nav aria-label="Hukuk metinleri" className="mx-auto max-w-6xl px-4 py-4">
+        <ul className="flex flex-wrap gap-x-6 text-base">
+          {[
+            ["/kvkk", "KVKK"],
+            ["/gizlilik", "Gizlilik"],
+            ["/kosullar", "Koşullar"],
+          ].map(([yol, ad]) => (
+            <li key={yol}>
+              <a href={yol} className="inline-flex min-h-11 items-center text-metin underline underline-offset-4">
+                {ad}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </footer>
+  );
+}
+
 export function HataSayfasi({
   kod,
   baslik,
@@ -59,6 +82,7 @@ export function HataSayfasi({
           </p>
         </div>
       </main>
+      <HukukAltBilgisi />
     </div>
   );
 }

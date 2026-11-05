@@ -62,7 +62,7 @@ Sunucu model çağırmaz ve metin üretmez. Bologna seçeneklerini sizin asistan
 
 ```
 Hoca:     akredit
-Asistan:  Bugün neye odaklanalım? 1) Bologna paketi 2) Öğrenme çıktısı 3) ÇK/PÇ 4) Ölçüt rehberi 5) Dil denetimi
+Asistan:  Neye odaklanalım? 1) Bologna paketi 2) Öğrenme çıktısı 3) ÇK/PÇ 4) Ölçüt rehberi 5) Dil denetimi
 Hoca:     1
 Asistan:  Önce bir kural: kullanıcı adınızı ve parolanızı yalnız OBS'nin kendi ekranına, kendiniz yazın.
           Bana asla yazmayın. OBS adresiniz nedir?

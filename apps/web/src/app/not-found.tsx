@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Logo } from "../bilesenler/logo.tsx";
-import { HataSusu } from "../site/hata-sayfasi.tsx";
+import { HataSusu, HukukAltBilgisi } from "../site/hata-sayfasi.tsx";
 import { ILETISIM_ADRESI, SAYFALAR } from "../site/icerik.ts";
 
 export const metadata: Metadata = { title: "Sayfa bulunamadı", robots: { index: false } };
@@ -21,10 +21,7 @@ export default function Bulunamadi() {
         <HataSusu kod="404" />
         <div>
           <h1 className="text-[2rem] leading-tight text-vurgu sm:text-[2.6rem]">Bu adreste sayfa yok</h1>
-          <p className="mt-4 max-w-[60ch] text-lg">
-            Adres yanlış yazılmış ya da sayfa kaldırılmış olabilir. Adresi denetleyin ya da aşağıdaki sayfalardan birine
-            geçin.
-          </p>
+          <p className="mt-4 max-w-[60ch] text-lg">Adres yanlış ya da sayfa kaldırılmış olabilir.</p>
           <ul className="mt-8 max-w-xl border-b border-cizgi">
             {[SAYFALAR.ana, SAYFALAR.neYapar, SAYFALAR.nasil, SAYFALAR.sss, SAYFALAR.iletisim].map((s) => (
               <li key={s.yol} className="border-t border-cizgi">
@@ -47,6 +44,7 @@ export default function Bulunamadi() {
           </ul>
         </div>
       </main>
+      <HukukAltBilgisi />
     </div>
   );
 }

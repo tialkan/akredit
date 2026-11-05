@@ -16,9 +16,9 @@ export const metadata: Metadata = sayfaUstVerisi(SAYFALAR.proje);
 const BAG = "text-vurgu underline underline-offset-4";
 
 const ANLAMLAR: { durum: keyof typeof PROJE_DURUM_ADI; anlam: string }[] = [
-  { durum: "calisiyor", anlam: "Bugün açık ve kullanılabilir." },
-  { durum: "askida", anlam: "Yazılım hazır, sponsor bulunana kadar kapalı." },
-  { durum: "taslak", anlam: "Metin var, son hâlini almadı." },
+  { durum: "calisiyor", anlam: "Açık, kullanılabilir." },
+  { durum: "askida", anlam: "Hazır, sponsor bulunana kadar kapalı." },
+  { durum: "taslak", anlam: "Son hâlini almadı." },
 ];
 
 export default function Proje() {
@@ -50,18 +50,13 @@ export default function Proje() {
               </h1>
               <div className="mt-5 grid max-w-[62ch] gap-3 text-lg">
                 <p>
-                  Akredit'in yazılımı açık kaynaktır (Apache-2.0).{" "}
+                  Yazılım açık kaynak (Apache-2.0,{" "}
                   <a href={DEPO_ADRESI} className={BAG}>
-                    Kaynak kodu GitHub'da
+                    GitHub
                   </a>
-                  .
-                </p>
-                <p>
-                  Kurumlara akredit.org üzerinden barındırılan hizmet, sponsor bulunana kadar askıdadır. Bazı bölümler
-                  geliştirme aşamasındadır. Bugün herkesin kullanabildiği bölüm, kendi yapay zekânıza eklediğiniz
-                  araçlardır.{" "}
+                  ). Kurum hizmeti sponsor bulunana kadar askıda. Bugün açık olan:{" "}
                   <Link href="/" className={BAG}>
-                    Nasıl kurulacağı ana sayfada
+                    kendi yapay zekânıza eklenen araçlar
                   </Link>
                   .
                 </p>

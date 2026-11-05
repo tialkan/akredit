@@ -24,10 +24,7 @@ for (const g of GENISLIKLER) {
     // İkinci ziyarette yazı tipi önbellekten gelir, görüntü gerçek dizgiyi gösterir.
     await sayfa.goto(`${KOK}${yol}`, { waitUntil: "networkidle" });
     await sayfa.evaluate(async () => {
-      await Promise.all([
-        document.fonts.load('600 1em "Source Serif 4"', "Aşİ"),
-        document.fonts.load('400 1em "Source Sans 3 Variable"', "Aşİ"),
-      ]);
+      await Promise.all([document.fonts.load('500 1em "Oswald"', "Aşİ"), document.fonts.load('400 1em "Lato"', "Aşİ")]);
     });
     await sayfa.goto(`${KOK}${yol}`, { waitUntil: "networkidle" });
     // Yazı tipi yüklenmeden çekilen görüntü sistem yazı tipini gösterir.

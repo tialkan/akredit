@@ -19,8 +19,7 @@ export default function HataEkrani({ error, reset }: { error: Error & { digest?:
       }
     >
       <p role="alert">
-        Sunucuda beklenmeyen bir hata oldu. Verileriniz değişmedi; yarım kalan bir karar kaydedilmez. Sayfayı yeniden
-        deneyin. Hata sürerse aşağıdaki kodla birlikte bize yazın.
+        Beklenmeyen bir hata oldu. Verileriniz değişmedi. Yeniden deneyin; sürerse aşağıdaki kodla yazın.
       </p>
       {error.digest ? (
         <p className="text-soluk">
