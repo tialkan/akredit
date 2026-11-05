@@ -34,6 +34,8 @@ services:
       AKREDIT_ANKET_GIZLI: ${SERVICE_BASE64_64_ANKET}
       # İP-45: hesapsız belge isteme bağlantılarının HMAC anahtarı (Coolify üretir).
       AKREDIT_ISTEK_GIZLI: ${SERVICE_BASE64_64_ISTEK}
+      # Açık MCP: kaynak doğrulama imzası; süreç yeniden başlasa da geçerli kalsın (İP-49).
+      AKREDIT_MCP_IMZA_ANAHTARI: ${SERVICE_BASE64_64_MCPIMZA}
       AKREDIT_ANAHTAR_KASASI: ${SERVICE_BASE64_64_KASA}
       AKREDIT_SMTP_SUNUCU: ${AKREDIT_SMTP_SUNUCU:-}
       AKREDIT_SMTP_PORT: ${AKREDIT_SMTP_PORT:-587}

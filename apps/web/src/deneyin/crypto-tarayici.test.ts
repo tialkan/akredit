@@ -16,9 +16,7 @@ describe("tarayıcı SHA-256", () => {
   it("blok sınırlarında ve Türkçe metinde Node ile aynı", () => {
     for (const n of [55, 56, 63, 64, 65, 119, 120, 1000]) {
       const m = "ğüşİçö".repeat(n).slice(0, n);
-      expect(createHash("sha256").update(m).digest("hex"), String(n)).toBe(
-        nodeHash("sha256").update(m).digest("hex"),
-      );
+      expect(createHash("sha256").update(m).digest("hex"), String(n)).toBe(nodeHash("sha256").update(m).digest("hex"));
     }
   });
 

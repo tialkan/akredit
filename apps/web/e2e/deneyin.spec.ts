@@ -35,7 +35,7 @@ test.describe("deneyin araçları", () => {
     await page.getByRole("button", { name: "Tabloyu oku" }).click();
     const atilan = page.locator("[data-atilan]");
     await expect(atilan).toContainText("5 öğrenci okundu.");
-    await expect(atilan).toContainText("Atılan sütunlar: \"Ad Soyad\", \"Öğrenci No\".");
+    await expect(atilan).toContainText('Atılan sütunlar: "Ad Soyad", "Öğrenci No".');
     // Ham tablo bellekten ve kutudan silinir; sayfada ad ya da numara kalmaz.
     await expect(tablo).toHaveValue("");
     await expect(page.locator("main")).not.toContainText("Deniz Kurgu");
@@ -200,7 +200,9 @@ test.describe("deneyin kurum demosu", () => {
     await expect(page.locator('[data-proje-sayfasi="/deneyin"] [data-durum]')).toHaveText("Çalışıyor");
     // Bu sunucuda barındırma açık: askıdaki satır "bu kurulumda açık" görünür. akredit.org'daki "Askıda" durumu
     // src/site/site.test.ts'te sınanır.
-    await expect(page.locator('[data-proje-sayfasi="/deneyin#kurum-demosu"]')).toContainText("Demo: Örnek Üniversitesi");
+    await expect(page.locator('[data-proje-sayfasi="/deneyin#kurum-demosu"]')).toContainText(
+      "Demo: Örnek Üniversitesi",
+    );
     await page.goto("/deneyin");
     const serit = page.locator("[data-sayfa-durumu]");
     await expect(serit.locator("[data-durum]")).toHaveText("Çalışıyor");

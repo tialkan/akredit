@@ -49,14 +49,19 @@ export async function sinirli<T>(is: () => Promise<T>): Promise<T> {
 
 // ---------------------------------------------------------------- İmza
 
-const IMZA_ANAHTARI = (() => {
-  const ortam = typeof process !== "undefined" ? process.env.AKREDIT_MCP_IMZA_ANAHTARI : undefined;
-  return ortam && ortam.length >= 16 ? Buffer.from(ortam) : randomBytes(32);
-})();
+// Anahtar ilk kullanımda üretilir: modül tarayıcı araçlarına da (/deneyin) girer ve orada imza hiç kullanılmaz.
+let imzaAnahtari: Buffer | undefined;
+function anahtar(): Buffer {
+  if (!imzaAnahtari) {
+    const ortam = typeof process !== "undefined" ? process.env.AKREDIT_MCP_IMZA_ANAHTARI : undefined;
+    imzaAnahtari = ortam && ortam.length >= 16 ? Buffer.from(ortam) : randomBytes(32);
+  }
+  return imzaAnahtari;
+}
 
 /** Katalog kaydının imzası: künye ve bağlantı üzerinden HMAC-SHA256 (ilk 32 onaltılık hane). */
 export function kaynakImzasi(kunye: string, baglanti: string): string {
-  return createHmac("sha256", IMZA_ANAHTARI).update(`${kunye}\n${baglanti}`).digest("hex").slice(0, 32);
+  return createHmac("sha256", anahtar()).update(`${kunye}\n${baglanti}`).digest("hex").slice(0, 32);
 }
 
 /** İmza bu sürecin kaynak_dogrula çıktısına mı ait? */

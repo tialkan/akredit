@@ -38,7 +38,16 @@ export function sha256Hex(veri: Uint8Array): string {
       const s1 = rotr(b, 17) ^ rotr(b, 19) ^ (b >>> 10);
       w[t] = ((w[t - 16] ?? 0) + s0 + (w[t - 7] ?? 0) + s1) >>> 0;
     }
-    let [a, b, c, d, e, f, gg, hh] = [h[0] ?? 0, h[1] ?? 0, h[2] ?? 0, h[3] ?? 0, h[4] ?? 0, h[5] ?? 0, h[6] ?? 0, h[7] ?? 0];
+    let [a, b, c, d, e, f, gg, hh] = [
+      h[0] ?? 0,
+      h[1] ?? 0,
+      h[2] ?? 0,
+      h[3] ?? 0,
+      h[4] ?? 0,
+      h[5] ?? 0,
+      h[6] ?? 0,
+      h[7] ?? 0,
+    ];
     for (let t = 0; t < 64; t++) {
       const S1 = rotr(e, 6) ^ rotr(e, 11) ^ rotr(e, 25);
       const ch = (e & f) ^ (~e & gg);
@@ -82,4 +91,19 @@ class Sha256 {
 export function createHash(algoritma: string): Sha256 {
   if (algoritma !== "sha256") throw new Error("Tarayıcıda yalnız SHA-256 desteklenir.");
   return new Sha256();
+}
+
+// Açık MCP'nin kaynak doğrulama imzası (kaynak-dogrula.ts) bu işlevleri içe aktarır; tarayıcı araçları imza
+// üretmez ve doğrulamaz. Paket derlensin diye adları vardır; çağrılırsa sessizce geçmez, hata verir.
+function yalnizSunucu(ad: string): never {
+  throw new Error(`${ad} tarayıcıda kullanılamaz (yalnız sunucu).`);
+}
+export function createHmac(): never {
+  return yalnizSunucu("createHmac");
+}
+export function randomBytes(): never {
+  return yalnizSunucu("randomBytes");
+}
+export function timingSafeEqual(): never {
+  return yalnizSunucu("timingSafeEqual");
 }
