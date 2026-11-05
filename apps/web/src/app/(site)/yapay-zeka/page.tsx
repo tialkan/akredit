@@ -208,8 +208,8 @@ export default function YapayZeka() {
           </p>
           <p>
             İzin kararı kurulum sihirbazının ikinci adımıdır. Karar metnini okuyup adınızla imzalarsınız, karar günlüğe
-            yazılır. Bu kararı kurumun veri sorumlusuyla birlikte verin. Yurt dışı aktarımın hukuki değerlendirmesi
-            taslaktır ve avukat incelemesi bekler.
+            yazılır. Bu kararı kurumun veri sorumlusuyla birlikte verin. Yurt dışı aktarıma ilişkin bilgilendirme KVKK
+            sayfasındadır.
           </p>
           <p>
             OpenRouter hesabınızın gizlilik ayarlarında, istemlerin model eğitiminde kullanılmasına izin veren

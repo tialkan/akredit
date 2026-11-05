@@ -240,9 +240,9 @@ describe("İP-49: sade site, iki adım ve proje ayrıntıları", () => {
     // ADR 0008 madde 2: kurum açma, pilot ve kurum girişi askıda. Madde 3: demo ve MCP çalışır.
     for (const y of ["/kurum-ac", "/kurum-ac/dogrula", "/pilot", "/giris"]) expect(durum(y), y).toBe("askida");
     for (const y of ["/deneyin", "/mcp-kullan"]) expect(durum(y), y).toBe("calisiyor");
-    // Hukuk metinleri avukat incelemesinden geçmedi; İP-28 ve İP-29 askıda (sponsor).
-    for (const y of ["/kvkk", "/gizlilik", "/kosullar", "/belgeler", "/belgeler/hoca"])
-      expect(durum(y), y).toBe("taslak");
+    // Hukuk metinleri avukat incelemesinden geçti ve yayımlandı (kurucu, 05.11.2026); kılavuzlar taslak.
+    for (const y of ["/kvkk", "/gizlilik", "/kosullar", "/guvenlik"]) expect(durum(y), y).toBe("calisiyor");
+    for (const y of ["/belgeler", "/belgeler/hoca"]) expect(durum(y), y).toBe("taslak");
     const plan = readFileSync(join(import.meta.dirname, "../../../../plan.md"), "utf8");
     for (const no of [28, 29, 30])
       expect(
@@ -253,7 +253,7 @@ describe("İP-49: sade site, iki adım ve proje ayrıntıları", () => {
 
   it("barındırma açık bir kurulumda askıdaki sayfa çalışıyor görünür, diğerleri değişmez", () => {
     const pilot = projeSayfasi("/pilot");
-    const kvkk = projeSayfasi("/kvkk");
+    const kvkk = projeSayfasi("/belgeler");
     if (!pilot || !kvkk) throw new Error("kayıt yok");
     expect(gecerliDurum(pilot, false).durum).toBe("askida");
     expect(gecerliDurum(pilot, true).durum).toBe("calisiyor");

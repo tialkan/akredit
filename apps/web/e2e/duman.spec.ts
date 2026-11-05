@@ -91,7 +91,8 @@ test.describe("tanıtım sitesi", () => {
     // Kapalı kip (üretim varsayılanı, "Askıda") barindirma.spec.ts'te sınanır.
     for (const y of ["/mcp-kullan", "/deneyin", "/ne-yapar", "/sss", "/pilot"])
       await expect(durum(y), y).toHaveText("Çalışıyor");
-    for (const y of ["/kvkk", "/gizlilik", "/kosullar", "/belgeler"]) await expect(durum(y), y).toHaveText("Taslak");
+    for (const y of ["/kvkk", "/gizlilik", "/kosullar", "/guvenlik"]) await expect(durum(y), y).toHaveText("Çalışıyor");
+    await expect(durum("/belgeler")).toHaveText("Taslak");
     await expect(page.locator("main h2")).toContainText([
       "Kendi yapay zekânızla kullanım",
       "Platformu tanıtan sayfalar",
@@ -101,7 +102,8 @@ test.describe("tanıtım sitesi", () => {
     await page.locator('[data-proje-sayfasi="/kvkk"] a').click();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Kişisel verilerin korunması");
     const serit = page.locator("[data-sayfa-durumu]");
-    await expect(serit.locator("[data-durum]")).toHaveText("Taslak");
+    await expect(serit.locator("[data-durum]")).toHaveText("Çalışıyor");
+    await expect(serit).toContainText("tüzel kimliği");
     await serit.getByRole("link", { name: "Proje ayrıntıları" }).click();
     await expect(page).toHaveURL(/\/proje$/u);
     // Ana yoldaki sayfalarda şerit yok.
@@ -137,9 +139,17 @@ test.describe("tanıtım sitesi", () => {
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Projenin devam eden ayrıntıları");
   });
 
-  test("KVKK sayfası taslak olduğunu söyler", async ({ page }) => {
-    await page.goto("/kvkk");
-    await expect(page.getByText("Bu sayfa taslaktır.")).toBeVisible();
+  test("hukuk sayfaları yayında: taslak uyarısı yok, geçerli durum bilgisi korunur", async ({ page }) => {
+    for (const yol of ["/kvkk", "/gizlilik", "/kosullar", "/guvenlik"]) {
+      await page.goto(yol);
+      await expect(page.locator("main")).not.toContainText("taslak");
+      await expect(page.locator("main")).not.toContainText("Hukuki incelemeden geçmemiştir");
+      await expect(page.locator("main")).not.toContainText("avukat incelemesi");
+    }
+    // Hâlâ geçerli durumlar: barındırma askıda, bağımsız sızma testi yapılmadı.
+    await expect(page.locator("main")).toContainText("Bağımsız sızma testi henüz");
+    await page.goto("/proje");
+    await expect(page.locator('[data-proje-sayfasi="/kvkk"] [data-durum]')).toHaveText("Çalışıyor");
   });
 });
 

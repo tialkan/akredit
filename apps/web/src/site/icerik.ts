@@ -97,7 +97,7 @@ export const SAYFALAR = {
     baslik: "Güvenlik ve kişisel veriler",
     title: "Güvenlik ve KVKK: değiştirilemez kayıt, kurum yalıtımı, maskeleme",
     aciklama:
-      "Kayıtlar iz bırakmadan değiştirilemez, kurumlar birbirinden yalıtılır, öğrenci kimliği takma adla tutulur, KVKK silme hakkı korunur. Hukuk metinleri taslaktır.",
+      "Kayıtlar iz bırakmadan değiştirilemez, kurumlar birbirinden yalıtılır, öğrenci kimliği takma adla tutulur, KVKK silme hakkı korunur. Bağımsız sızma testi henüz yapılmadı.",
   },
   sinirlar: {
     yol: "/sinirlar",
@@ -143,23 +143,22 @@ export const SAYFALAR = {
     yol: "/kvkk",
     ad: "KVKK",
     baslik: "Kişisel verilerin korunması",
-    title: "KVKK (taslak)",
-    aciklama:
-      "Akredit'te kişisel verilerin işlenmesine ilişkin taslak bilgilendirme. Avukat incelemesinden geçmemiştir.",
+    title: "KVKK",
+    aciklama: "Akredit'te kişisel verilerin işlenmesine ilişkin bilgilendirme: kapsam, roller, aktarım ve haklar.",
   },
   gizlilik: {
     yol: "/gizlilik",
     ad: "Gizlilik",
     baslik: "Gizlilik politikası",
-    title: "Gizlilik politikası (taslak)",
-    aciklama: "akredit.org gizlilik politikasının taslağı. Avukat incelemesinden geçmemiştir.",
+    title: "Gizlilik politikası",
+    aciklama: "akredit.org sitesinin, açık aracın ve demonun hangi bilgileri hangi bağlamda işlediği.",
   },
   kosullar: {
     yol: "/kosullar",
     ad: "Kullanım koşulları",
     baslik: "Kullanım koşulları",
-    title: "Kullanım koşulları (taslak)",
-    aciklama: "akredit.org kullanım koşullarının taslağı. Avukat incelemesinden geçmemiştir.",
+    title: "Kullanım koşulları",
+    aciklama: "akredit.org sitesi, açık MCP aracı ve demo için kullanım koşulları.",
   },
   kurumAc: {
     yol: "/kurum-ac",
@@ -199,7 +198,7 @@ export const SAYFALAR = {
     baslik: "Projenin devam eden ayrıntıları",
     title: "Proje ayrıntıları: hangi bölüm çalışıyor, hangisi askıda ya da taslak",
     aciklama:
-      "Akredit'in bütün sayfaları ve dürüst durumları: çalışan araçlar ve demo, sponsor bulunana kadar askıdaki kurum hizmeti, taslak hukuk metinleri.",
+      "Akredit'in bütün sayfaları ve dürüst durumları: çalışan araçlar ve demo, sponsor bulunana kadar askıdaki kurum hizmeti, taslak kılavuzlar.",
   },
 } as const satisfies Record<string, SayfaBilgisi>;
 
@@ -233,8 +232,8 @@ const BILGI_NOTU =
 
 /**
  * Ana yoldan çekilen sayfalar, gruplu ve durumlu. Sayfalar silinmez; her birinin üstünde bu not görünür.
- * Askıda: ADR 0008 madde 2 (kurum açma, pilot, giriş). Taslak: hukuk metinleri avukat incelemesinden geçmedi,
- * İP-28 askıda (sponsor); kılavuzlar ilk sürümdür, İP-29 askıda (sponsor). Çalışıyor: MCP (İP-49), demo (İP-41).
+ * Askıda: ADR 0008 madde 2 (kurum açma, pilot, giriş). Hukuk metinleri avukat incelemesinden geçti ve yayında
+ * (kurucu, 05.11.2026). Taslak: kılavuzlar ilk sürümdür, İP-29 askıda (sponsor). Çalışıyor: MCP (İP-49), demo (İP-41).
  */
 export const PROJE_GRUPLARI: { baslik: string; not: string; sayfalar: ProjeSayfasi[] }[] = [
   {
@@ -301,17 +300,17 @@ export const PROJE_GRUPLARI: { baslik: string; not: string; sayfalar: ProjeSayfa
   },
   {
     baslik: "Güven ve hukuk metinleri",
-    not: "Hukuk metinleri avukat incelemesinden geçmedi.",
+    not: "İşletmecinin tüzel kimliği ve resmî başvuru kanalı henüz belirlenmedi; bağımsız sızma testi yapılmadı.",
     sayfalar: [
       {
         ...SAYFALAR.guvenlik,
         durum: "calisiyor",
-        not: "Bilgi sayfası. İçindeki hukuk metinlerine yapılan atıflar taslaktır.",
+        not: "Bilgi sayfası. Bağımsız sızma testi henüz yapılmadı.",
       },
       ...[SAYFALAR.kvkk, SAYFALAR.gizlilik, SAYFALAR.kosullar].map((s) => ({
         ...s,
-        durum: "taslak" as const,
-        not: "Taslak metin. Avukat incelemesinden geçmedi; hukuk paketi işi sponsor bulunana kadar askıda.",
+        durum: "calisiyor" as const,
+        not: "Yayında. İşletmecinin tüzel kimliği ve resmî başvuru kanalı henüz belirlenmedi.",
       })),
       {
         ...SAYFALAR.belgeler,

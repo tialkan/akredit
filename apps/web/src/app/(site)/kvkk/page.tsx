@@ -5,67 +5,115 @@ import { sayfaUstVerisi } from "../../../site/yapisal.ts";
 
 export const metadata: Metadata = sayfaUstVerisi(SAYFALAR.kvkk);
 
-export default function Kvkk() {
+export default function Sayfa() {
   return (
     <MetinSayfasi baslik="Kişisel verilerin korunması">
-      <div role="note" className="mt-6 rounded-sm border-2 border-risk-orta bg-risk-orta-zemin p-4 text-risk-orta">
-        <p className="mt-0 font-bold">Bu sayfa taslaktır.</p>
-        <p className="mt-1">
-          Bu metin hukuki incelemeden geçmemiştir ve bağlayıcı değildir. Kesin metin bir avukatın incelemesinden sonra
-          burada yayımlanacaktır.
+      <section>
+        <h2>Kapsam ve mevcut durum</h2>
+        <p>
+          Bu metin; akredit.org ziyaretçilerini, açık MCP aracını kullananları ve ileride kurum hizmetini kullanabilecek
+          kişileri bilgilendirmek üzere hazırlanmıştır. Kurumlara barındırılan hizmet ve gerçek kurum verisiyle pilot şu
+          anda askıdadır. Demo uydurma veriler kullanır.
         </p>
-      </div>
-      <h2>Roller</h2>
-      <p>
-        Akredit'i kullanan üniversite, platformdaki kişisel verilerin veri sorumlusudur. Akredit'i işleten taraf, bu
-        verileri yalnız üniversite adına ve onun talimatıyla işler. Platformla ilgili haklarınızı kullanmak için önce
-        üniversitenize başvurun.
-      </p>
-      <h2>Tasarım ilkelerimiz</h2>
-      <ul>
-        <li>En az kişisel veri: yalnız işin gerektirdiği veri işlenir.</li>
-        <li>Öğrenci kimlikleri takma adla tutulur. Gerçek kimlikle eşleme yalnız üniversitededir.</li>
-        <li>
-          Kişisel veri, üniversite açıkça izin vermedikçe yurt dışındaki bir yapay zekâ hizmetine maskelenmeden
-          gönderilmez.
-        </li>
-        <li>Üniversite, kullanılacak yapay zekâ hizmetini ayarlardan seçer; bu seçim seçenin adıyla kaydedilir.</li>
-        <li>Verileriniz satılmaz ve yapay zekâ modellerini eğitmek için kullanılmaz.</li>
-        <li>Parola ve doğrulama kodları yapay zekâya ve kayıtlara girmez.</li>
-      </ul>
-      <h2>Kayıtlar ve silme talepleri</h2>
-      <p>
-        Onaylar ve kanıt kayıtları değiştirilemez. Bir silme talebi kabul edildiğinde, takma adı gerçek kişiyle eşleyen
-        bilgi silinir; mevcut kayıtlar kimseyle ilişkilendirilemez hale gelir ve silme işlemi yeni bir kayıtla
-        belgelenir.
-      </p>
-      <h2>Yapay zekâya kişisel veri gitmez</h2>
-      <p>
-        Kurum dışındaki ya da yurt dışındaki bir yapay zekâ hizmetine giden her metin önce bir denetimden geçer. Ad,
-        öğrenci numarası, kimlik numarası, e-posta, telefon, banka hesabı, adres ve imza gizlenir. Gizlenemeyen kişisel
-        bilgi şüphesi varsa metin gönderilmez, bir yetkili inceler. Her gönderim için hangi türden kaç bilginin
-        gizlendiği kaydedilir; bilginin kendisi kaydedilmez.
-      </p>
-      <h2>Kurum hukuk paketi</h2>
-      <p>
-        Üniversitenizin hukuk birimi için hazırladığımız taslak belgeler: veri işleme sözleşmesi, yurt dışı aktarım
-        notu, VERBİS değerlendirmesi, aydınlatma metinleri, sorumluluk tablosu ve veri akışı listesi. Hepsi taslaktır ve
-        avukat incelemesi gerektirir.
-      </p>
+        <p>
+          Site ve hizmeti işleten veri sorumlusunun tüzel kimliği, adresi ve başvuru kanalları henüz
+          kesinleştirilmemiştir. Bunlar belirlendiğinde bu sayfada duyurulur.
+        </p>
+      </section>
+      <section>
+        <h2>Veri sorumluluğu ve roller</h2>
+        <p>
+          Kurum tarafından yürütülen akademik süreçlerde işleme amaç ve araçlarını belirleyen yükseköğretim kurumu veri
+          sorumlusu olabilir; Akredit işletmecisinin rolü somut hizmete ve sözleşmeye göre değerlendirilir. Site
+          iletişimi, güvenlik veya benzeri işletmecinin kendi amaçları bakımından ayrı bir sorumluluk doğabilir. Her
+          faaliyet için rol ve taraflar ayrıca belirlenir.
+        </p>
+        <p>
+          Kendi sunucusuna kurulumda sistemi işleten kurumun, kendi altyapısı ve seçtiği hizmet sağlayıcılar bakımından
+          ayrı yükümlülükleri olabilir.
+        </p>
+      </section>
+      <section>
+        <h2>Veri kategorileri ve kaynakları</h2>
+        <p>
+          Kullanılan işleve göre iletişim ve kullanıcı kimliği, kurumsal üyelik ve yetki bilgileri, güvenlik ve işlem
+          kayıtları, kanıt belgeleri ve bunlarda yer alan öğrenci, çalışan veya paydaş bilgileri işlenebilir. Sınav,
+          staj ve anket belgeleri özel nitelikli veya üçüncü kişilere ait veriler içerebilir.
+        </p>
+        <p>
+          Veriler ilgili kişinin doğrudan girişiyle, kurumun yetkili kullanıcısı veya entegrasyonuyla ya da hizmetin
+          güvenli biçimde işletilmesi sırasında elektronik ortamda elde edilebilir. Hangi kategorilerin gerçekten
+          işlendiği, etkin hizmet ve veri envanteriyle doğrulanmalıdır.
+        </p>
+      </section>
+      <section>
+        <h2>Amaçlar ve hukuki sebepler</h2>
+        <p>
+          Muhtemel amaçlar; talebin yanıtlanması, kimlik ve yetki yönetimi, kalite süreçlerinin yürütülmesi, hizmet
+          güvenliği, destek, kayıt ve hukuki yükümlülüklerin yerine getirilmesidir. Aynı verinin farklı amaçlarla
+          işlenmesi farklı değerlendirme gerektirebilir.
+        </p>
+        <p>
+          Her amaç için uygulanabilir hukuki sebep, veri kategorisi ve ilgili kişi grubu ayrıca belirlenmelidir.
+          Sözleşmenin kurulması veya ifası, hukuki yükümlülük ya da meşru menfaat gibi sebepler ancak somut şartları
+          sağlandığında kullanılabilir. Gerekli olduğu durumlarda açık rıza özgür iradeyle, belirli ve bilgilendirilmiş
+          olarak ayrıca alınır; aydınlatma metni rıza yerine geçmez.
+        </p>
+      </section>
+      <section>
+        <h2>Aktarım ve yapay zekâ</h2>
+        <p>
+          Kurumun seçtiği model sağlayıcısı, barındırma ve teknik destek hizmetleri veri alıcısı veya alt işleyen
+          olabilir. Gönderilen verinin kapsamı, alıcılar, ülkeler, saklama koşulları ve model eğitimi kullanımı gerçek
+          yapılandırma ve sözleşmelerle doğrulanır.
+        </p>
+        <p>
+          Yurt dışı aktarımda Kanun’un ilgili hükümleri ve somut aktarım mekanizması değerlendirilir; yalnız kurumun
+          onayı veya verinin maskelenmesi tek başına her aktarım için yeterli güvence sayılmaz. Maskelenen veride
+          kişilerin yeniden belirlenebilirliği ayrıca incelenir.
+        </p>
+      </section>
+      <section>
+        <h2>Saklama ve ilgili kişi hakları</h2>
+        <p>
+          Veriler işleme amacı, uygulanabilir mevzuat, sözleşme ve kurumun onaylı saklama planına göre tutulur; süre
+          dolduğunda uygun silme, yok etme veya anonim hâle getirme işlemi değerlendirilir. Dosyalar, türevler, arama
+          dizinleri ve yedekler ayrı ayrı ele alınmalıdır.
+        </p>
+        <p>
+          Kanun’un 11. maddesi kapsamındaki bilgi alma, düzeltme, silme veya yok etme, aktarılan üçüncü kişilere
+          bildirme ve diğer haklar için ilgili veri sorumlusuna başvurulabilir. Kurum verileri bakımından öncelikle
+          ilgili üniversitenin resmî başvuru kanalı kullanılmalıdır. İşletmeciye ilişkin sorular için iletişim sayfası
+          kullanılabilir; resmî başvuru usulü ve adresi işletmeci kimliği kesinleştiğinde açıklanacaktır.
+        </p>
+      </section>
+      <section>
+        <h2>Güvenlik ve sınırlar</h2>
+        <p>
+          Yetki sınırlandırması, kayıt bütünlüğü ve veri azaltımı amaçlanır. Takma adlandırma tek başına anonimleştirme
+          değildir; bir anahtarın silinmesi de bütün kopya ve bağlantılar değerlendirilmeden verinin geri döndürülemez
+          biçimde anonimleştiğini göstermez. Silme başvuruları somut veri ve saklama yükümlülükleri temelinde ele
+          alınır.
+        </p>
+      </section>
+      <section>
+        <h2>İlgili belgeler</h2>
+        <p>
+          Gizlilik politikası, kullanım koşulları ve güvenlik sayfası bu metni tamamlar. Kurumlara yönelik veri işleme
+          ve aktarım düzenlemeleri ayrıca sözleşmeyle ve hukuk incelemesiyle belirlenmelidir.
+        </p>
+      </section>
       <p>
         <a href="/indir/akredit-kurum-hukuk-paketi.zip" download>
-          Kurum hukuk paketini indir (.zip)
+          Kurum hukuk paketi taslağını indir (.zip)
         </a>
       </p>
-      <h2>Diğer metinler</h2>
-      <ul>
-        <li>
-          <a href="/gizlilik">Gizlilik politikası</a>
-        </li>
-        <li>
-          <a href="/kosullar">Kullanım koşulları</a>
-        </li>
-      </ul>
+      <nav aria-label="İlgili sayfalar">
+        <p>
+          <a href="/guvenlik">Güvenlik</a> · <a href="/kvkk">KVKK</a> · <a href="/gizlilik">Gizlilik</a> ·{" "}
+          <a href="/kosullar">Kullanım koşulları</a> · <a href="/iletisim">İletişim</a>
+        </p>
+      </nav>
     </MetinSayfasi>
   );
 }
