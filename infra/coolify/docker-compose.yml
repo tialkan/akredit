@@ -74,6 +74,30 @@ services:
       vt: { condition: service_healthy }
       goc: { condition: service_completed_successfully }
 
+  # Güncelleme sırasında web kapsayıcısı kısa süre yokken Traefik "no available server" gösterirdi.
+  # Bu hizmet aynı alan adı için en düşük öncelikli yönlendiricidir: web hazır olduğu sürece hiç kullanılmaz,
+  # web yokken ya da sağlıksızken tasarıma uygun "kısa bir güncelleme" sayfasını 503 ile verir.
+  # İmajı değişmediği için güncellemelerde yeniden başlatılmaz.
+  bakim:
+    <<: *gunluk
+    build:
+      context: .
+      dockerfile: infra/coolify/bakim.Dockerfile
+    restart: unless-stopped
+    exclude_from_hc: true
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.akredit-bakim-http.rule=Host(`akredit.org`) || Host(`www.akredit.org`)
+      - traefik.http.routers.akredit-bakim-http.entrypoints=http
+      - traefik.http.routers.akredit-bakim-http.priority=1
+      - traefik.http.routers.akredit-bakim-http.service=akredit-bakim
+      - traefik.http.routers.akredit-bakim.rule=Host(`akredit.org`) || Host(`www.akredit.org`)
+      - traefik.http.routers.akredit-bakim.entrypoints=https
+      - traefik.http.routers.akredit-bakim.tls=true
+      - traefik.http.routers.akredit-bakim.priority=1
+      - traefik.http.routers.akredit-bakim.service=akredit-bakim
+      - traefik.http.services.akredit-bakim.loadbalancer.server.port=80
+
   # Göçleri süper kullanıcıyla bir kez uygular, sonra çıkar. Yeniden çalıştırmak güvenlidir.
   goc:
     <<: *gunluk

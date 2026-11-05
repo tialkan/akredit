@@ -159,10 +159,26 @@ export default function AnaSayfa() {
           </AdimBasligi>
           <h3 className="mt-6 text-xl text-metin">En kolay yol: kopyalayın, yapıştırın</h3>
           <p className="mt-1">
-            Aşağıdaki metni kopyalayın, Claude'da yeni bir sohbete yapıştırıp gönderin. Asistan kurulumu kendisi yapar;
-            yapamadığı bir adım olursa size yalnız nereye tıklayacağınızı söyler.
+            Bu yol Claude Code ya da Codex masaüstü uygulaması içindir: bu uygulamalar kurulumu baştan sona kendileri
+            yapabilir. Metni kopyalayın, uygulamada yeni bir oturuma yapıştırıp gönderin.
           </p>
-          <KopyalaKutusu etiket="Claude'a yapıştırılacak metin" metin={KURULUM_ISTEGI} uzun />
+          <ul className="mt-3 grid gap-2">
+            <li>
+              Claude Code: Claude masaüstü uygulamasını indirin (
+              <a href="https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect">Mac</a>,{" "}
+              <a href="https://claude.ai/api/desktop/win32/x64/setup/latest/redirect">Windows</a>), açın ve üstteki Code
+              sekmesine geçin.
+            </li>
+            <li>
+              Codex: ChatGPT masaüstü uygulamasını <a href="https://learn.chatgpt.com/docs/app">resmî sayfasından</a>{" "}
+              indirin ve Codex bölümünü açın.
+            </li>
+          </ul>
+          <KopyalaKutusu etiket="Claude Code ya da Codex'e yapıştırılacak metin" metin={KURULUM_ISTEGI} uzun />
+          <p className="mt-2 text-base text-soluk">
+            claude.ai sitesinde ya da ChatGPT'nin sohbet ekranında asistan ayarlara giremez; orada aşağıdaki adımları
+            izleyin.
+          </p>
           <h3 className="mt-8 text-xl text-metin">Kendiniz eklemek isterseniz</h3>
           <p className="mt-1">Kullandığınız uygulamayı açın ve adımları sırayla izleyin.</p>
           <div className="mt-4 grid gap-3">

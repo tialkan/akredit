@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta http-equiv="refresh" content="15">
+<title>Kısa bir güncelleme · Akredit</title>
+<style>
+  :root { --lacivert:#10325b; --petrol:#12696d; --metin:#1f2933; --ikincil:#4a5562; --zemin:#f7f6f2; --cizgi:#d9d6cc; }
+  * { box-sizing: border-box; }
+  body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; background:var(--zemin);
+    color:var(--metin); font: 18px/1.6 "Source Sans 3", "Segoe UI", system-ui, -apple-system, sans-serif; padding:16px; }
+  main { max-width:560px; width:100%; background:#fff; border:1px solid var(--cizgi); border-radius:4px; padding:32px; }
+  .baslik { display:flex; align-items:center; gap:10px; color:var(--lacivert); font-weight:600; font-size:20px; }
+  .baslik img { width:28px; height:28px; }
+  h1 { color:var(--lacivert); font-size:28px; line-height:1.25; margin:24px 0 8px; font-family: Georgia, "Source Serif 4", serif; font-weight:600; }
+  p { margin:8px 0; color:var(--ikincil); }
+  .cizgi { height:4px; background:var(--cizgi); border-radius:2px; overflow:hidden; margin:24px 0 8px; }
+  .cizgi span { display:block; height:100%; width:40%; background:var(--petrol); animation: ilerle 1.6s cubic-bezier(0.22,1,0.36,1) infinite; }
+  @keyframes ilerle { from { transform:translateX(-100%);} to { transform:translateX(250%);} }
+  @media (prefers-reduced-motion: reduce) { .cizgi span { animation:none; width:100%; opacity:.4; } }
+  a { color:var(--lacivert); }
+</style>
+</head>
+<body>
+<main>
+  <div class="baslik"><img src="/isaret.svg" alt="" aria-hidden="true">Akredit</div>
+  <h1>Kısa bir güncelleme yapıyoruz</h1>
+  <p>Site birkaç saniye içinde yeniden açılacak. Bu sayfa kendiliğinden yenilenir, bir şey yapmanıza gerek yok.</p>
+  <div class="cizgi" role="progressbar" aria-label="Güncelleme sürüyor"><span></span></div>
+  <p>Yapay zekânıza eklediğiniz Akredit araçları da birkaç saniye sonra yeniden yanıt verir.</p>
+</main>
+</body>
+</html>
