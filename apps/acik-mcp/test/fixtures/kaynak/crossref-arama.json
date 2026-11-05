@@ -1,0 +1,23 @@
+{
+  "status": "ok",
+  "message-type": "work-list",
+  "message": {
+    "items": [
+      {
+        "DOI": "10.5555/baska.2019.010",
+        "type": "journal-article",
+        "title": ["Tamamen başka bir konu"],
+        "author": [{ "given": "Ali", "family": "Örnek" }],
+        "issued": { "date-parts": [[2019]] }
+      },
+      {
+        "DOI": "10.5555/kurgu.2018.007",
+        "type": "book",
+        "title": ["Kurgu Ölçme Yöntemleri"],
+        "author": [{ "given": "Ece", "family": "Kurgu" }],
+        "publisher": "Kurgu Akademi",
+        "issued": { "date-parts": [[2018]] }
+      }
+    ]
+  }
+}

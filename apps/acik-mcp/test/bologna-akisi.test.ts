@@ -56,20 +56,11 @@ const CIKTILAR = [
 ].map(([tr, tur], i) => ({ kod: `Ö${i + 1}`, tr, tur }));
 
 describe("istemler (prompts)", () => {
-  it("SDK istemcisi sekiz istemi listeler; akredit odak menüsünü ve ortak kuralları taşır", async () => {
+  it("SDK istemcisi altı istemi listeler (basla ve baslangic yok); akredit odak menüsünü ve ortak kuralları taşır", async () => {
     const c = await baglan();
     const { prompts } = await c.listPrompts();
     expect(prompts.map((p) => p.name).sort()).toEqual(
-      [
-        "akredit",
-        "basla",
-        "baslangic",
-        "bologna_doldur",
-        "cikti_yaz",
-        "ck_pc_hesabi",
-        "dil_denetimi",
-        "olcut_rehberi",
-      ].sort(),
+      ["akredit", "bologna_doldur", "cikti_yaz", "ck_pc_hesabi", "dil_denetimi", "olcut_rehberi"].sort(),
     );
     for (const p of prompts) {
       expect(p.title).toBeTruthy();
@@ -79,14 +70,13 @@ describe("istemler (prompts)", () => {
     }
     const r = await c.getPrompt({ name: "akredit", arguments: {} });
     const metin = istemMetni(r);
-    // Geriye uyum: basla ve baslangic aynı metni verir, açıklamaları "akredit ile aynı" der.
-    expect(istemMetni(await c.getPrompt({ name: "baslangic", arguments: {} }))).toBe(metin);
-    expect(istemMetni(await c.getPrompt({ name: "basla", arguments: {} }))).toBe(metin);
+    // basla ve baslangic kaldırıldı: listede yoklar ve çağrılamazlar.
+    await expect(c.getPrompt({ name: "basla", arguments: {} })).rejects.toThrow();
+    await expect(c.getPrompt({ name: "baslangic", arguments: {} })).rejects.toThrow();
     // Önce araç sorulur; seçimden önce hiçbir akış (OBS girişi dahil) başlamaz.
     expect(metin).toContain("Önce hangi aracı kullanmak istediğini sor.");
     expect(metin).toContain("Hoca seçmeden hiçbir akışa başlama");
     expect(metin).toMatch(/6\) Başka bir şey: tüm araçları kısaca listele/u);
-    expect(prompts.find((p) => p.name === "baslangic")?.description).toMatch(/^akredit ile aynı/u);
     expect(metin).toContain("Bugün neye odaklanalım?");
     for (const n of [
       "1) Bologna",
@@ -97,13 +87,15 @@ describe("istemler (prompts)", () => {
     ])
       expect(metin).toContain(n);
     expect(metin).toContain(ORTAK_KURALLAR);
-    expect(metin).toMatch(/hepsini 1 ile doldur/u);
+    expect(metin).toContain("4) Hepsini akıllıca doldur (önerilen)");
+    expect(metin).toContain("Şu alanları şöyle doldurdum.");
+    expect(metin).toMatch(/daha sonra da kolayca güncelleyebilirsiniz/u);
     await c.close();
   });
 
   it("odak numarası verilince yalnız o akış döner; ders kodu metne girer ve sınırlanır", async () => {
     const c = await baglan();
-    const r = await c.getPrompt({ name: "basla", arguments: { odak: "1" } });
+    const r = await c.getPrompt({ name: "akredit", arguments: { odak: "1" } });
     const metin = istemMetni(r);
     expect(metin).toContain("Odak: Bologna ders bilgi paketini denetle");
     expect(metin).not.toContain("Odak: ÇK ve PÇ");
@@ -120,7 +112,23 @@ describe("istemler (prompts)", () => {
       expect(m).not.toMatch(/—|\*\*/u);
       expect(m).toMatch(/1\) .+ 2\) /u);
       expect(m).toMatch(/kopyalanabilir|kopya/u);
+      // Her menü akıllı doldurma kısayolunu taşır.
+      expect(m).toContain("4) Hepsini akıllıca");
     }
+  });
+
+  it("Bologna akışı: kaynakları sormaz, web aramasıyla bulup kaynak_dogrula'dan geçirir; OBS'ye yazmada üç yol ve izin", () => {
+    const m = ACIK_ISTEMLER.find((i) => i.ad === "bologna_doldur")?.metin({}) ?? "";
+    expect(m).toContain("hocaya kitabın adını sorma");
+    expect(m).toContain("kaynak_dogrula");
+    expect(m).toMatch(/Doğrulanamayan adayı asla önerme/u);
+    expect(m).toContain("1) Formu ben doldurayım, Kaydet'e siz basın");
+    expect(m).toContain("2) Formu ben doldurup kaydedeyim");
+    expect(m).toContain("3) Alan alan kopyalayın");
+    expect(m).toContain("Tarayıcı aracın yoksa doğrudan 3'ü uygula");
+    expect(m).toContain("hepsini kaydet");
+    expect(m).toMatch(/Yalnız "evet" gelirse Kaydet'e bas/u);
+    expect(m).not.toMatch(/kitap ya da makalenin adı nedir/u);
   });
 });
 
@@ -173,7 +181,7 @@ describe("bologna_denetle (alan listesi)", () => {
         .map((a: { no: number }) => a.no),
     );
     expect(s.ozet).toMatch(/alan doldurulmalı/u);
-    expect(r.veri.sonrakiAdim).toMatch(/1\) hepsini/u);
+    expect(r.veri.sonrakiAdim).toMatch(/4\) Hepsini akıllıca doldur/u);
   });
 });
 
@@ -189,15 +197,15 @@ describe("bologna_alan_rehberi", () => {
     expect(s.secenekUretimi).toMatch(/Sunucu metin üretmez/u);
   });
 
-  it("çıktı alanında Bloom fiilleri ve 8-12 sınırı gelir; kişi adı içeren alan MCP'de taşınmaz", () => {
+  it("çıktı alanında Bloom fiilleri ve 8-12 sınırı gelir; yetkililer alanı olduğu gibi korunur", () => {
     const s = sonuc(calistir("bologna_alan_rehberi", { alan: "ciktilar" }));
     expect(s.alanlar[0].bloomFiilleri).toHaveLength(6);
     expect(s.alanlar[0].sinir).toEqual({ enAzCikti: 8, enCokCikti: 12 });
     const y = calistir("bologna_alan_rehberi", { alan: "yetkililer" });
-    expect(String(y.veri.sonrakiAdim)).toMatch(/kendisinin yazmasını/u);
-    // Kaynaklar künyedir: MCP taşır. Yetkililer kişi adıdır: taşımaz.
+    expect(String(y.veri.sonrakiAdim)).toMatch(/olduğu gibi korunur/u);
+    // Kaynaklar ve yetkililer sayfada yayımlanmış bilgidir: MCP ikisini de taşır.
     expect(ALANLAR.kaynaklar.mcpTasir).toBe(true);
-    expect(ALANLAR.yetkililer.mcpTasir).toBe(false);
+    expect(ALANLAR.yetkililer.mcpTasir).toBe(true);
   });
 
   it("Bloom örnek fiilleriyle yazılan her çıktı taslak denetiminden geçer", () => {
@@ -306,15 +314,19 @@ describe("bologna_taslak_denetle", () => {
     expect(s.secenekler[0].hesap.isyuku.hedef).toBeNull();
   });
 
-  it("kişisel veri içeren taslak reddedilir ve Bologna'ya özgü ipucu verilir", () => {
+  it("hocanın sayfasındaki iletişim bilgisi reddedilmez; yalnız giriş bilgisi reddedilir", () => {
     const r = calistir("bologna_taslak_denetle", {
       ders: {},
       secenekler: [{ etiket: "A", alanlar: { notlar: { tr: "Sorular için deniz.ak@ornek.edu.tr" } } }],
     });
-    expect(r.hata).toBe(true);
-    expect(r.veri.kod).toBe("kisisel_veri");
-    expect(String(r.veri.hata)).toMatch(/Dersi Verenler/u);
-    expect(JSON.stringify(r.veri)).not.toContain("deniz.ak");
+    expect(r.hata).toBe(false);
+    const g = calistir("bologna_taslak_denetle", {
+      ders: {},
+      secenekler: [{ etiket: "A", alanlar: { notlar: { tr: "OBS parola: Gizli123" } } }],
+    });
+    expect(g.hata).toBe(true);
+    expect(g.veri.kod).toBe("giris_bilgisi");
+    expect(JSON.stringify(g.veri)).not.toContain("Gizli123");
   });
 });
 
@@ -340,15 +352,16 @@ describe("bologna_ayristir", () => {
     expect(String(d.veri.hata)).toMatch(/Sayfa tanınmadı/u);
   });
 
-  it("gerçek sayfada kişi satırlarını ve e-postayı ayrıştırmadan önce atar, yanıtta yalnız alan adlarını söyler", () => {
+  it("gerçek sayfada Dersi Verenler ve Yardımcılar satırlarını olduğu gibi yetkililer alanına alır, hiçbir şey atmaz", () => {
     const canli = calistir("bologna_ayristir", { html: oku("bologna-canli/ders-1106285.html") });
     expect(canli.hata).toBe(false);
-    const atilan = String(canli.veri.atilanKisiselVeri);
-    expect(atilan).toMatch(/Dersi Verenler/u);
-    expect(atilan).toMatch(/Dersin Yardımcıları/u);
-    expect(atilan).not.toMatch(/Kaynaklar/u);
-    const metin = JSON.stringify(canli.veri);
-    for (const ad of ["ÖRNEKOĞLU", "KURGUN", "hayal.kurgun"]) expect(metin).not.toContain(ad);
+    // Muallak "kişisel veri olduğu için atıldı" iletisi yok.
+    expect(canli.veri.atilan).toBeUndefined();
+    expect(JSON.stringify(canli.veri)).not.toMatch(/kişisel veri olduğu için/u);
+    const yetkililer = sonuc(canli).bolognaDenetleGirdisi.ders.yetkililer as { rol: string; deger: string }[];
+    expect(yetkililer.map((y) => y.rol)).toEqual(expect.arrayContaining(["Dersi Verenler", "Dersin Yardımcıları"]));
+    const metin = JSON.stringify(yetkililer);
+    for (const ad of ["ÖRNEKOĞLU", "KURGUN"]) expect(metin).toContain(ad);
     // Kaynak künyesi atılmaz: yazar adı yayımlanmış künyedir.
     expect(sonuc(canli).bolognaDenetleGirdisi.ders).toMatchObject({
       akts: 6,
@@ -358,18 +371,31 @@ describe("bologna_ayristir", () => {
     });
   });
 
-  it("ayıklamadan sonra kalan kişisel veri yine reddedilir; telefon da atılır", () => {
+  it("görev satırları ve telefon korunur, kopya metninde aynen döner; parola kutusu ve oturum kimliği atılır", () => {
     const html = `<table><tr><td>Yarıyıl</td><td>Kodu</td></tr><tr><td>1</td><td>KRG101</td></tr>
 <tr><td>Dersi Veren</td><td>Prof. Dr. Deniz Ak</td></tr><tr><td>İletişim</td><td>0312 555 12 34</td></tr>
-<tr><td>Not</td><td>Sorular için Prof. Dr. Ece Kurgu ile görüşün.</td></tr></table>`;
-    const r = calistir("bologna_ayristir", { html });
-    expect(r.hata).toBe(true);
-    expect(r.veri.kod).toBe("kisisel_veri");
-    expect(String(r.veri.hata)).toMatch(/atıldıktan sonra da/u);
-    expect(JSON.stringify(r.veri)).not.toContain("Ece");
-    // Diğer araçlarda davranış aynı: ayıklama yok, doğrudan ret.
-    const d = calistir("rapor_dil_denetle", { metin: "Dersi Veren: Prof. Dr. Deniz Ak" });
-    expect(d.veri.kod).toBe("kisisel_veri");
+<tr><td>Not</td><td>Sorular için Prof. Dr. Ece Kurgu ile görüşün.</td></tr></table>
+<input type="password" name="p" value="x"> JSESSIONID=abcdef123456`;
+    const r = calistir("bologna_ayristir", { html, tur: "ders" });
+    expect(r.hata).toBe(false);
+    expect(String(r.veri.atilan)).toMatch(/oturum kimliği ve parola kutusu/u);
+    expect(JSON.stringify(r.veri)).not.toContain("abcdef123456");
+    const ders = sonuc(r).bolognaDenetleGirdisi.ders;
+    expect(ders.yetkililer).toEqual([
+      { rol: "Dersi Veren", deger: "Prof. Dr. Deniz Ak" },
+      { rol: "İletişim", deger: "0312 555 12 34" },
+    ]);
+    // OBS'ye geri yazılırken bozulmaz: kopya metni satırları aynen verir.
+    const k = sonuc(
+      calistir("bologna_kopya_metni", {
+        ders: { kod: "KRG101", yetkililer: ders.yetkililer },
+        alanlar: { onKosul: "Yok" },
+        ingilizce: false,
+      }),
+    );
+    expect(k.metin).toContain("Dersi Veren: Prof. Dr. Deniz Ak");
+    expect(k.metin).toContain("İletişim: 0312 555 12 34");
+    expect(k.metin).toMatch(/değiştirmeyin/u);
   });
 });
 

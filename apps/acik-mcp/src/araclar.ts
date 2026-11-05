@@ -26,6 +26,7 @@ import { type CkPcMatrisi, dersiOlc, HESAP_SURUMU } from "@akredit/olcme";
 import { z } from "zod";
 import { BOLOGNA_ARACLARI, bolognaDenetleAraci } from "./bologna.ts";
 import { kaynakBicimleAraci } from "./kaynak.ts";
+import { kaynakDogrulaAraci } from "./kaynak-dogrula.ts";
 import { notTablosuAyristirAraci } from "./not-tablosu.ts";
 import { type AcikArac, AracHatasi, arac, DEPO, type Kaynak, KOD_KAYNAGI } from "./temel.ts";
 import { engelCozAraci, kurulumYardimiAraci } from "./yardim.ts";
@@ -370,6 +371,7 @@ const ANONIM = /^(?![0-9]{7,}$)[\p{L}\p{N}_.-]{1,24}$/u;
 
 const ckPcHesapla = arac({
   ad: "ck_pc_hesapla",
+  kisiselVeriKapsami: "tam",
   baslik: "ÇK ve PÇ sağlanma düzeyi hesabı",
   aciklama:
     "Takma adlı puan tablosundan ders öğrenme çıktısı (ÇK) başarısını ve program çıktısı (PÇ) sağlanma düzeyini hesaplar. Öğrenci adı ve numarası kabul edilmez; yalnız toplu sonuç döner.",
@@ -524,6 +526,7 @@ export const ACIK_ARACLAR: readonly AcikArac[] = [
   bolognaDenetleAraci,
   ...BOLOGNA_ARACLARI,
   kaynakBicimleAraci,
+  kaynakDogrulaAraci,
   notTablosuAyristirAraci,
   ckPcHesapla,
   raporDilDenetle,

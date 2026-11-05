@@ -1,7 +1,7 @@
 // Kurulum ve engel çözme rehberi. Metinler sabittir, model üretmez. Hocanın kendi OBS'sine tarayıcıyla girmesi
 // için adımlar verir. Değişmez kural: kullanıcı adı, parola ve doğrulama kodu yalnız OBS'nin kendi ekranına,
-// hocanın kendisi tarafından yazılır; asistana ve Akredit'e hiç yazılmaz. CAPTCHA'yı hoca çözer. OBS'de Kaydet
-// ya da Gönder düğmesine hoca basar.
+// hocanın kendisi tarafından yazılır; asistana ve Akredit'e hiç yazılmaz. CAPTCHA'yı hoca çözer. OBS'de Kaydet'e
+// hoca ya da hocanın açık izniyle asistan basar; onaya Gönder düğmesine hoca basar.
 //
 // Menü ve düğme adları istemcinin sürümüne göre değişir. Doğrulanmamış adlar `degisebilir: true` ile işaretlidir.
 
@@ -186,7 +186,7 @@ const TARAYICI: Record<Istemci, HamAdim[]> = {
     ],
     ["Asistan ders listesini okur, dersinizi numarasıyla seçersiniz.", "Ders bilgi paketi alanları."],
     [
-      "Asistan formu doldurursa her alanı gözle denetleyin. Kaydet ya da Gönder düğmesine siz basın.",
+      "Asistan formu doldurursa her alanı gözle denetleyin. Kaydet'e siz basarsınız; isterseniz açık izninizle asistan basar. Onaya Gönder düğmesine siz basarsınız.",
       "OBS'nin kayıt iletisi.",
     ],
   ],
@@ -203,7 +203,7 @@ const TARAYICI: Record<Istemci, HamAdim[]> = {
       true,
     ],
     ["Denetimi asistana geri verin.", "Asistan sayfayı okur."],
-    ["Kaydet ya da Gönder düğmesine yine siz basın.", undefined],
+    ["Kaydet'e siz basarsınız ya da açık izninizle asistan basar. Onaya Gönder düğmesine siz basarsınız.", undefined],
   ],
   cursor: [
     ["Cursor'un tarayıcı aracı sürüme göre değişir. Varsa asistandan OBS adresini açmasını isteyin.", undefined, true],
@@ -329,7 +329,10 @@ const ENGEL_ADIMLARI: Record<Engel, { ad: string; adimlar: HamAdim[]; yedek: boo
   kaydet_basilamiyor: {
     ad: "Kaydet ya da Gönder",
     adimlar: [
-      ["Kaydet ve Gönder düğmelerine her zaman siz basarsınız; asistan basmaz.", undefined],
+      [
+        "Kaydet'e siz basarsınız; isterseniz asistan sizin açık izninizle (evet ya da bir kez hepsini kaydet) basar. Onaya Gönder düğmesine yalnız siz basarsınız.",
+        undefined,
+      ],
       ["Basmadan önce alanları gözle denetleyin.", undefined],
       ["Düğme pasifse zorunlu bir alan boş olabilir; OBS'nin kırmızı uyarısına bakın ve asistana söyleyin.", undefined],
     ],

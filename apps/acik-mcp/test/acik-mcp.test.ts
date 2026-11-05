@@ -34,7 +34,7 @@ const calistir = (ad: string, girdi: unknown) => {
 };
 
 describe("uçtan uca (SDK istemcisi)", () => {
-  it("araç listesi on yedi salt okuma aracı döner", async () => {
+  it("araç listesi on sekiz salt okuma aracı döner; yalnız kaynak_dogrula dış kataloğa sorar", async () => {
     const c = await baglan();
     const { tools } = await c.listTools();
     expect(tools.map((t) => t.name).sort()).toEqual(
@@ -49,6 +49,7 @@ describe("uçtan uca (SDK istemcisi)", () => {
         "engel_coz",
         "is_yuku_oner",
         "kaynak_bicimle",
+        "kaynak_dogrula",
         "kurulum_yardimi",
         "not_tablosu_ayristir",
         "olcut_ara",
@@ -59,6 +60,7 @@ describe("uçtan uca (SDK istemcisi)", () => {
       ].sort(),
     );
     for (const t of tools) expect(t.annotations?.readOnlyHint).toBe(true);
+    expect(tools.filter((t) => t.annotations?.openWorldHint).map((t) => t.name)).toEqual(["kaynak_dogrula"]);
     // Karar, imza ya da gönderim aracı yok.
     expect(tools.some((t) => /karar|imza|gonder|onay/u.test(t.name))).toBe(false);
     await c.close();
@@ -82,15 +84,20 @@ describe("uçtan uca (SDK istemcisi)", () => {
     await c.close();
   });
 
-  it("kişisel veri içeren çağrı reddedilir ve maskeleme istenir", async () => {
+  it("öğrenci numarası içeren çağrı reddedilir ve takma ad istenir; yayımlanmış görev bilgisi reddedilmez", async () => {
     const c = await baglan();
     const r = await c.callTool({
       name: "rapor_dil_denetle",
-      arguments: { metin: "Toplantıya Prof. Dr. Ayşe Kaya katıldı. İletişim: ayse@ornek.edu.tr" },
+      arguments: { metin: "Öğrenci no: 20231234567 olan öğrencinin notu düşüktür." },
     });
     expect(r.isError).toBe(true);
-    expect(String(veri(r).hata)).toMatch(/maskeleyip/u);
-    expect(JSON.stringify(r)).not.toContain("ayse@ornek.edu.tr");
+    expect(String(veri(r).hata)).toMatch(/takma ad/u);
+    expect(JSON.stringify(r)).not.toContain("20231234567");
+    const g = await c.callTool({
+      name: "rapor_dil_denetle",
+      arguments: { metin: "Toplantıya Prof. Dr. Ayşe Kaya katıldı. İletişim: ayse@ornek.edu.tr" },
+    });
+    expect(g.isError).toBeFalsy();
     await c.close();
   });
 });

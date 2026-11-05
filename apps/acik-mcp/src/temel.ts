@@ -2,6 +2,7 @@
 // Ayrı dosyadadır, çünkü hem ölçüt araçları (araclar.ts) hem Bologna araçları (bologna.ts) kullanır.
 
 import type { z } from "zod";
+import type { KisiselVeriKapsami } from "./kisisel-veri.ts";
 
 export const DEPO = "https://github.com/tialkan/akredit";
 
@@ -26,6 +27,8 @@ export interface AracSonucu {
 
 export interface AracBaglami {
   simdi: () => Date;
+  /** Dış istek için fetch; testlerde sahtesi verilir. Verilmezse genel fetch kullanılır. */
+  fetch?: typeof fetch;
 }
 
 export interface AcikArac<S extends z.ZodObject = z.ZodObject> {
@@ -41,10 +44,14 @@ export interface AcikArac<S extends z.ZodObject = z.ZodObject> {
    * Kişisel veri denetiminden önce, yalnız bellekte çalışan ayıklama. Atılan değerler hiçbir yere yazılmaz;
    * yalnız atılan alanların adları döner. Ayıklamadan sonra kalan girdi yine denetlenir.
    */
-  onAyikla?: (girdi: unknown) => { girdi: unknown; atilan: string[] };
+  onAyikla?: (girdi: unknown) => { girdi: unknown; atilan: string[]; ileti?: string };
+  /** Kişisel veri denetiminin kapsamı; varsayılan "ogrenci" (bkz. kisisel-veri.ts). */
+  kisiselVeriKapsami?: KisiselVeriKapsami;
+  /** Araç dış ağa (yalnız izinli hostlara) istek atar mı. */
+  disAg?: boolean;
   /** Künye kuralıyla denetlenen alan adları: altındaki yazar adları kişisel veri sayılmaz (e-posta, telefon yine sayılır). */
   kunyeAlanlari?: readonly string[];
-  calistir: (girdi: z.infer<S>, b: AracBaglami) => AracSonucu;
+  calistir: (girdi: z.infer<S>, b: AracBaglami) => AracSonucu | Promise<AracSonucu>;
 }
 
 export const arac = <S extends z.ZodObject>(a: AcikArac<S>): AcikArac<S> => a;

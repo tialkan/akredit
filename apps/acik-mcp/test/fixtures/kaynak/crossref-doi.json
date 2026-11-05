@@ -1,0 +1,20 @@
+{
+  "status": "ok",
+  "message-type": "work",
+  "message-version": "1.0.0",
+  "message": {
+    "DOI": "10.5555/kurgu.2020.001",
+    "type": "journal-article",
+    "title": ["Kurgu bilimi öğretiminde ölçme"],
+    "author": [
+      { "given": "Ayşe", "family": "Kurgucu", "sequence": "first" },
+      { "given": "Can", "family": "Deneme", "sequence": "additional" }
+    ],
+    "container-title": ["Kurgu Eğitimi Dergisi"],
+    "publisher": "Kurgu Yayınları",
+    "volume": "12",
+    "issue": "3",
+    "page": "45-60",
+    "issued": { "date-parts": [[2020, 5, 1]] }
+  }
+}

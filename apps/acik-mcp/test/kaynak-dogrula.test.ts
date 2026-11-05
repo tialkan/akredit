@@ -1,0 +1,159 @@
+// kaynak_dogrula: ağsız. Dış katalog yanıtları test/fixtures/kaynak altındaki örneklerden, sahte fetch ile gelir.
+
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { describe, expect, it } from "vitest";
+import { ACIK_ARACLAR } from "../src/araclar.ts";
+import {
+  baslikEslesir,
+  doiTemizle,
+  IZINLI_HOSTLAR,
+  isbnTemizle,
+  kaynakDogrulaAraci,
+  yazarEslesir,
+} from "../src/kaynak-dogrula.ts";
+import { aracCalistirAsenkron } from "../src/sunucu.ts";
+
+const ornek = (ad: string) => readFileSync(join(import.meta.dirname, "fixtures/kaynak", ad), "utf8");
+
+/** Adrese göre örnek yanıt veren sahte fetch; her çağrılan adresi kaydeder. */
+function sahteFetch(yanitlar: Record<string, string | null>) {
+  const cagrilar: string[] = [];
+  const f = (async (adres: string | URL) => {
+    const a = String(adres);
+    cagrilar.push(a);
+    const anahtar = Object.keys(yanitlar).find((k) => a.includes(k));
+    const govde = anahtar === undefined ? null : yanitlar[anahtar];
+    if (govde === null || govde === undefined) return new Response("bulunamadı", { status: 404 });
+    return new Response(govde, { status: 200, headers: { "content-type": "application/json" } });
+  }) as typeof fetch;
+  return { f, cagrilar };
+}
+
+const calistir = (girdi: unknown, f: typeof fetch) =>
+  aracCalistirAsenkron(kaynakDogrulaAraci as never, girdi, { simdi: () => new Date(0), fetch: f });
+
+// biome-ignore lint/suspicious/noExplicitAny: test yardımcısı
+const sonuc = (r: { veri: Record<string, unknown> }) => r.veri.sonuc as any;
+
+describe("kimlik denetimi (ağsız, saf)", () => {
+  it("DOI biçimini temizler; geçersizi reddeder", () => {
+    expect(doiTemizle("https://doi.org/10.5555/kurgu.2020.001")).toBe("10.5555/kurgu.2020.001");
+    expect(doiTemizle("doi: 10.5555/abc")).toBe("10.5555/abc");
+    expect(doiTemizle("11.5555/abc")).toBeNull();
+    expect(doiTemizle("http://169.254.169.254/")).toBeNull();
+  });
+
+  it("ISBN denetim basamağını sınar", () => {
+    // 978605000001 için ağırlıklı toplam: 9+21+8+18+0+15+0+0+0+0+0+3 = 74; 10'un katına tamamlayan basamak 6.
+    expect(isbnTemizle("978-605-00-0001-6")).toBe("9786050000016");
+    expect(isbnTemizle("9786050000017")).toBeNull();
+    // ISBN-10: 0-306-40615-2 bilinen geçerli örnek (toplam 132 = 11 x 12).
+    expect(isbnTemizle("0-306-40615-2")).toBe("0306406152");
+    expect(isbnTemizle("0306406153")).toBeNull();
+  });
+
+  it("başlık ve yazar eşleşmesi deterministiktir", () => {
+    expect(baslikEslesir("Kurgu ölçme yöntemleri", "Kurgu Ölçme Yöntemleri")).toBe(true);
+    expect(baslikEslesir("Kurgu ölçme yöntemleri", "Tamamen başka bir konu")).toBe(false);
+    expect(yazarEslesir("Ece Kurgu", ["Kurgu, Ece"])).toBe(true);
+    expect(yazarEslesir("Kurgu, E.", ["Ali Örnek"])).toBe(false);
+  });
+});
+
+describe("kaynak_dogrula (sahte fetch, kayıtlı örnekler)", () => {
+  it("araç listede, dış ağ işaretli ve yalnız sabit hostlara sorar", () => {
+    expect(ACIK_ARACLAR.some((a) => a.ad === "kaynak_dogrula")).toBe(true);
+    expect(kaynakDogrulaAraci.disAg).toBe(true);
+    expect([...IZINLI_HOSTLAR]).toEqual(["api.crossref.org", "openlibrary.org", "www.googleapis.com"]);
+  });
+
+  it("DOI ile Crossref'ten doğrular; künye ve doi.org bağlantısı döner", async () => {
+    const { f, cagrilar } = sahteFetch({ "api.crossref.org/works/10.5555": ornek("crossref-doi.json") });
+    const r = await calistir({ kaynaklar: [{ doi: "10.5555/kurgu.2020.001" }] }, f);
+    expect(r.hata).toBe(false);
+    const k = sonuc(r).kaynaklar[0];
+    expect(k.durum).toBe("dogrulandi");
+    expect(k.katalog).toBe("Crossref");
+    expect(k.baglanti).toBe("https://doi.org/10.5555/kurgu.2020.001");
+    expect(k.kunye).toBe(
+      "Kurgucu, A., & Deneme, C. (2020). Kurgu bilimi öğretiminde ölçme. Kurgu Eğitimi Dergisi, 12(3), 45-60. https://doi.org/10.5555/kurgu.2020.001",
+    );
+    expect(cagrilar).toEqual(["https://api.crossref.org/works/10.5555%2Fkurgu.2020.001"]);
+  });
+
+  it("ISBN: önce Open Library; yoksa Google Books; bağlantı katalog sayfasıdır", async () => {
+    const { f } = sahteFetch({
+      "openlibrary.org/api/books?bibkeys=ISBN%3A9786050000016": ornek("openlibrary-isbn.json"),
+      "openlibrary.org/api/books?bibkeys=ISBN%3A9786050000023": "{}",
+      "www.googleapis.com/books/v1/volumes?q=isbn": ornek("google-isbn.json"),
+    });
+    const s = sonuc(await calistir({ kaynaklar: [{ isbn: "978-605-00-0001-6" }, { isbn: "9786050000023" }] }, f));
+    expect(s.dogrulanan).toBe(2);
+    expect(s.kaynaklar[0]).toMatchObject({
+      katalog: "Open Library",
+      baglanti: "https://openlibrary.org/books/OL0000001M/Kurgu_veri_cozumlemesi",
+      kunye: "Kurgucu, A. (2021). Kurgu veri çözümlemesi. Kurgu Yayınları.",
+    });
+    expect(s.kaynaklar[1]).toMatchObject({
+      katalog: "Google Books",
+      baglanti: "https://books.google.com/books?id=KurguID123",
+      kunye: "Deneme, C. (2019). Kurgu istatistiği: Temel kavramlar. Kurgu Akademi.",
+    });
+  });
+
+  it("başlık+yazar: yalnız eşleşen kayıt kabul edilir", async () => {
+    const { f } = sahteFetch({
+      "www.googleapis.com": ornek("google-isbn.json"),
+      "api.crossref.org/works?": ornek("crossref-arama.json"),
+    });
+    const s = sonuc(await calistir({ kaynaklar: [{ baslik: "Kurgu ölçme yöntemleri", yazar: "Ece Kurgu" }] }, f));
+    // Google'daki kayıt başka eser (Kurgu istatistiği), atlanır; Crossref'teki ikinci kayıt eşleşir.
+    expect(s.kaynaklar[0]).toMatchObject({
+      durum: "dogrulandi",
+      katalog: "Crossref",
+      baglanti: "https://doi.org/10.5555/kurgu.2018.007",
+    });
+  });
+
+  it("bulunamayan, geçersiz ya da ağ hatalı kaynak 'doğrulanamadı' döner ve önerilmez", async () => {
+    const { f } = sahteFetch({
+      "www.googleapis.com": '{ "kind": "books#volumes", "totalItems": 0 }',
+      "api.crossref.org": null,
+      "openlibrary.org": "{}",
+    });
+    const r = await calistir(
+      {
+        kaynaklar: [
+          { baslik: "Var olmayan uydurma kitap", yazar: "Hayal Yazar" },
+          { doi: "10.5555/yok" },
+          { isbn: "9786050000017" },
+          { isbn: "9786050000016" },
+        ],
+      },
+      f,
+    );
+    const s = sonuc(r);
+    expect(s.dogrulanan).toBe(0);
+    for (const k of s.kaynaklar) {
+      expect(k.durum).toBe("dogrulanamadi");
+      expect(k.kunye).toBeUndefined();
+      expect(k.baglanti).toBeUndefined();
+    }
+    expect(String(r.veri.sonrakiAdim)).toMatch(/asla önermeyin/u);
+    // Ağ hatası da doğrulanamadı sayılır, uydurma künye yazılmaz.
+    const hata = (async () => {
+      throw new Error("ağ yok");
+    }) as unknown as typeof fetch;
+    expect(sonuc(await calistir({ kaynaklar: [{ doi: "10.5555/x" }] }, hata)).kaynaklar[0].durum).toBe("dogrulanamadi");
+  });
+
+  it("boyut sınırını aşan yanıt kabul edilmez; girdi şeması DOI, ISBN ya da başlık+yazar ister", async () => {
+    const buyuk = `{"message":{"DOI":"10.5555/x","title":["${"a".repeat(1_100_000)}"]}}`;
+    const { f } = sahteFetch({ "api.crossref.org": buyuk });
+    expect(sonuc(await calistir({ kaynaklar: [{ doi: "10.5555/x" }] }, f)).kaynaklar[0].durum).toBe("dogrulanamadi");
+    const g = await calistir({ kaynaklar: [{ baslik: "Yalnız başlık" }] }, f);
+    expect(g.hata).toBe(true);
+    expect(g.veri.kod).toBe("gecersiz_girdi");
+  });
+});

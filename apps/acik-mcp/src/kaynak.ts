@@ -135,7 +135,7 @@ export const kaynakBicimleAraci = arac({
   aciklama:
     "Hocanın verdiği kitap, makale, kitap bölümü, tez ya da web kaynağını APA 7'ye benzer Türkçe künyeye çevirir. Yalnız verilen bilgiyi dizer; eksik bilgi [EKSİK] olarak görünür, uydurulmaz.",
   sonrakiAdim:
-    "Künyeleri hocaya gösterin. EKSİK olan bilgiyi hocaya sorun ya da kendi web aracınızla doğrulayın; doğrulayamadığınızı yazmayın. Sonra künyeleri kaynaklar alanına koyun.",
+    "Künyeleri hocaya gösterin. Eserin varlığını kaynak_dogrula ile doğrulayın; doğrulanamayanı yazmayın. EKSİK bilgiyi tahmin etmeyin. Sonra künyeleri kaynaklar alanına koyun.",
   kunyeAlanlari: ["kaynaklar"],
   girdi: z.object({
     kaynaklar: z.array(Kaynak).min(1).max(30),
@@ -148,7 +148,7 @@ export const kaynakBicimleAraci = arac({
         tamamlanan: sonuclar.filter((s) => !s.eksikler.length).length,
         not: "Biçim APA 7'ye benzer bir Akredit biçimidir; kurumunuzun yazım kılavuzu farklıysa o önceliklidir. Eser bilgisinin doğruluğunu hoca denetler.",
         uydurmaYok:
-          "Bu araç yalnız verilen bilgiyi biçimlendirir. Asistan, hocanın vermediği ya da kendi web aracıyla doğrulamadığı bir eseri önermez.",
+          "Bu araç yalnız verilen bilgiyi biçimlendirir. Asistan, kaynak_dogrula ile doğrulanmamış bir eseri önermez.",
       },
       kaynak: [KOD_KAYNAGI("apps/acik-mcp/src/kaynak.ts", "Akredit künye biçimleyici")],
     };

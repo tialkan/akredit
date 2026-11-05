@@ -1,4 +1,4 @@
-// 0.3.0 hoca akışı: genel ayrıştırıcı (Proliz dışı), künye kuralı, kaynak biçimleme, iş yükü önerisi, not tablosu,
+// 0.3.0 hoca akışı (0.4.0 ile güncellendi): genel ayrıştırıcı (Proliz dışı), künye kuralı, kaynak biçimleme, iş yükü önerisi, not tablosu,
 // kurulum ve engel rehberi, giriş bilgisi yasağı ve SDK istemcisiyle tam Bologna turu.
 // Bütün dersler, kişiler, kurumlar ve kaynaklar kurgudur.
 
@@ -117,7 +117,7 @@ References:
 Fiction, J. (2020). Fiction studies. Fiction Press.`;
 
 describe("genel ayrıştırıcı (Proliz dışı)", () => {
-  it("ÜBYS benzeri tablo: alanları bulur, kişi satırlarını ve oturum kimliğini atar, künyeyi korur", () => {
+  it("ÜBYS benzeri tablo: alanları bulur, görev satırlarını korur, oturum kimliğini atar, künyeyi korur", () => {
     const r = calistir("bologna_ayristir", { html: UBYS_HTML });
     expect(r.hata).toBe(false);
     const s = sonuc(r);
@@ -146,12 +146,17 @@ describe("genel ayrıştırıcı (Proliz dışı)", () => {
     // Bulunan temel alanlar: ad, akts, içerik, çıktılar, haftalar, değerlendirme = 6 → orta.
     expect(s.guven).toBe("orta");
     const metin = JSON.stringify(r.veri);
-    for (const x of ["Ece", "ece.kurgu", "A1B2C3D4E5F6"]) expect(metin).not.toContain(x);
-    expect(String(r.veri.atilanKisiselVeri)).toMatch(/Dersi Veren/u);
-    expect(String(r.veri.atilanKisiselVeri)).toMatch(/oturum/u);
+    // Oturum kimliği atılır; görev bilgisi (ad, e-posta) olduğu gibi korunur.
+    expect(metin).not.toContain("A1B2C3D4E5F6");
+    expect(String(r.veri.atilan)).toMatch(/oturum/u);
+    expect(String(r.veri.atilan)).not.toMatch(/Dersi Veren|kişisel veri/u);
+    expect(d.yetkililer).toEqual([
+      { rol: "Dersi Veren Öğretim Elemanı", deger: "Doç. Dr. Ece Kurgu" },
+      { rol: "E-posta", deger: "ece.kurgu@ornek.edu.tr" },
+    ]);
   });
 
-  it("düz metin: etiketli bölümler, iş yükü satırları, künyeler; kişi ve e-posta atılır", () => {
+  it("düz metin: etiketli bölümler, iş yükü satırları, künyeler; görev satırları korunur", () => {
     const r = calistir("bologna_ayristir", { metin: DUZ_METIN });
     expect(r.hata).toBe(false);
     const s = sonuc(r);
@@ -169,7 +174,11 @@ describe("genel ayrıştırıcı (Proliz dışı)", () => {
     expect(d.kaynaklar[1]).toBe("Örnek, B., & Deneme, C. (2019). Kurgu istatistiği. Kurgu Dergisi, 4(2), 10-20.");
     // ad, akts, amaç, içerik, çıktılar, haftalar, değerlendirme, iş yükü = 8 → yüksek.
     expect(s.guven).toBe("yüksek");
-    expect(JSON.stringify(r.veri)).not.toMatch(/Deniz|deniz\.ak/u);
+    expect(d.yetkililer).toEqual([
+      { rol: "Dersi Veren", deger: "Prof. Dr. Deniz Ak" },
+      { rol: "E-posta", deger: "deniz.ak@ornek.edu.tr" },
+    ]);
+    expect(r.veri.atilan).toBeUndefined();
     // Ayrıştırılan girdi doğrudan denetlenebilir: 120 saat, 4 x 30 ile uyumlu.
     const den = sonuc(calistir("bologna_denetle", s.bolognaDenetleGirdisi));
     const isyuku = den.alanlar.find((a: { alan: string }) => a.alan === "isyuku");
@@ -190,7 +199,7 @@ describe("genel ayrıştırıcı (Proliz dışı)", () => {
     ]);
     expect(s.bilgiler.dil).toBe("English");
     expect(d.kaynaklar).toEqual(["Fiction, J. (2020). Fiction studies. Fiction Press."]);
-    expect(JSON.stringify(s)).not.toContain("Jane");
+    expect(JSON.stringify(d.yetkililer)).toContain("Jane");
   });
 
   it("Proliz sayfası önce Proliz ayrıştırıcısıyla çözülür", () => {
@@ -206,7 +215,7 @@ describe("genel ayrıştırıcı (Proliz dışı)", () => {
 });
 
 describe("künye kuralı (KVKK)", () => {
-  it("kaynak alanındaki yazar adı geçer; aynı ad başka alanda reddedilir; künyedeki e-posta reddedilir", () => {
+  it("Bologna alanlarında yayımlanmış ad ve e-posta reddedilmez; öbür araçlarda öğrenci kimliği reddedilir", () => {
     const temel = { ders: { kod: "KRG101", akts: 5 } };
     const kunye = "Ak, D., & Kurgu, E. (2020). Kurgu bilimi. Kurgu Yayınları.";
     const tamam = calistir("bologna_denetle", {
@@ -216,12 +225,15 @@ describe("künye kuralı (KVKK)", () => {
     const kaynak = sonuc(tamam).alanlar.find((a: { alan: string }) => a.alan === "kaynaklar");
     expect(kaynak.durum).toBe("tamam");
     const amac = calistir("bologna_denetle", { ders: { ...temel.ders, amac: "Dersi Prof. Dr. Deniz Ak verir." } });
-    expect(amac.veri.kod).toBe("kisisel_veri");
+    expect(amac.hata).toBe(false);
     const eposta = calistir("bologna_taslak_denetle", {
       ders: {},
       secenekler: [{ etiket: "1", alanlar: { kaynaklar: [`${kunye} deniz.ak@ornek.edu.tr`] } }],
     });
-    expect(eposta.veri.kod).toBe("kisisel_veri");
+    expect(eposta.hata).toBe(false);
+    // Not tablosu ve ÇK/PÇ araçlarında tam tarama sürer: öğrenci adı takma adla gelmelidir.
+    const ck = calistir("ck_pc_hesapla", { ogrenciler: ["Prof. Dr. Deniz Ak"] });
+    expect(ck.veri.kod).toBe("kisisel_veri");
   });
 });
 
@@ -359,7 +371,7 @@ describe("not_tablosu_ayristir", () => {
     expect(s.ckPcHesaplaTaslagi.puanlar[0]).toEqual({ ogrenci: "o1", aracId: "ara_sinav", soruNo: "1", puan: 10 });
     const metin = JSON.stringify(r.veri);
     for (const x of ["Ayşe", "Mehmet", "2026000001"]) expect(metin).not.toContain(x);
-    expect(String(r.veri.atilanKisiselVeri)).toMatch(/Ad Soyad.*Numara/u);
+    expect(String(r.veri.atilan)).toMatch(/takma adı verildi.*Ad Soyad.*Numara/u);
   });
 
   it("ağırlıklar verilince hazır olur ve ÇK/PÇ hesabına doğrudan girer", () => {
@@ -437,7 +449,8 @@ describe("giriş bilgisi yasağı", () => {
     }
     expect(GIRIS_BILGISI_KURALI).toMatch(/asla isteme/u);
     expect(GIRIS_BILGISI_KURALI).toMatch(/CAPTCHA'yı sen çözmezsin/u);
-    expect(GIRIS_BILGISI_KURALI).toMatch(/Kaydet ya da Gönder düğmesine sen basmazsın/u);
+    expect(GIRIS_BILGISI_KURALI).toMatch(/Kaydet düğmesine yalnız hocanın açık izniyle basarsın/u);
+    expect(GIRIS_BILGISI_KURALI).toMatch(/Gönder düğmesine hiç basmazsın/u);
   });
 
   it("parola, doğrulama kodu ya da çerez içeren girdi reddedilir ve değer yanıta girmez", () => {
@@ -463,7 +476,7 @@ describe("giriş bilgisi yasağı", () => {
     expect(talimat).toMatch(/parola, doğrulama kodu ya da çerez asla isteme/u);
     expect(talimat).toMatch(/'akredit'/u);
     expect(c.getServerVersion()?.version).toBe(SUNUCU_SURUMU);
-    expect(SUNUCU_SURUMU).toBe("0.3.0");
+    expect(SUNUCU_SURUMU).toBe("0.4.0");
     await c.close();
   });
 });
@@ -523,7 +536,7 @@ const HAFTALAR = Array.from({ length: 14 }, (_, i) => {
 describe("uçtan uca Bologna turu (SDK istemcisi): ayrıştır, eksik, hepsi 1, tamamlandı", () => {
   it("ÜBYS benzeri sayfadan başlayıp bütün zorunlu alanlar tamamlanınca tamamlandı der", async () => {
     const c = await baglan();
-    const istem = await c.getPrompt({ name: "basla", arguments: { odak: "1" } });
+    const istem = await c.getPrompt({ name: "akredit", arguments: { odak: "1" } });
     const im = String((istem.messages[0]?.content as { text?: string } | undefined)?.text ?? "");
     expect(im).toContain("Adım 0. OBS'ye giriş");
     expect(im).toContain("bologna_durum");

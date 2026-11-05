@@ -219,7 +219,7 @@ export const ALANLAR: Record<AlanKodu, AlanBilgisi> = {
       "Soyad, A. (Yıl). Makale adı. Dergi, Cilt(Sayı), sayfa.",
     ],
     yasaklar: [
-      "Kaynak uydurulmaz: yalnız hocanın verdiği ya da asistanın kendi web aracıyla doğruladığı eser önerilir.",
+      "Kaynak uydurulmaz: asistan web aramasıyla aday bulur, her adayı kaynak_dogrula'dan geçirir; yalnız doğrulanan eser bağlantısıyla önerilir.",
       "Emin olunmayan ISBN, yayınevi ya da yıl yazılmaz; bilinmeyen bilgi EKSİK kalır.",
     ],
     mcpTasir: true,
@@ -227,10 +227,13 @@ export const ALANLAR: Record<AlanKodu, AlanBilgisi> = {
   yetkililer: {
     ad: "Dersin yetkilileri",
     sekme: "Dersin Yetkilileri",
-    kurallar: ["K10: Koordinatör ve dersi veren hocanın kendisidir; başka hocanın adı yazılmaz."],
+    kurallar: [
+      "K10: Koordinatör ve dersi veren hocanın kendisidir; başka hocanın adı yazılmaz.",
+      "Sayfada yayımlanmış görev bilgisi (Dersi Verenler, Yardımcılar, Koordinatör) olduğu gibi okunur ve korunur.",
+    ],
     kaliplar: [],
-    yasaklar: ["Ad ve e-posta kişisel veridir; MCP'ye gönderilmez. Hoca OBS'ye kendisi yazar."],
-    mcpTasir: false,
+    yasaklar: ["Bu satırlar değiştirilmez, kısaltılmaz, yeniden yazılmaz; OBS'ye geri yazılırken aynen kalır."],
+    mcpTasir: true,
   },
 };
 
@@ -259,8 +262,8 @@ const KAYNAK_AYRISTIRICI = KOD_KAYNAGI(
   "Akredit Bologna (Proliz) sayfa ayrıştırıcısı",
 );
 
-const BOLOGNA_KISISEL_IPUCU =
-  "Bologna sayfasında Dersi Verenler, Dersin Yardımcıları ve Dersin Yetkilileri satırlarını, e-posta ve telefonları çıkarıp yeniden gönderin. Kaynak künyelerini kaynaklar alanında gönderin; oradaki yazar adları serbesttir.";
+/** Bologna sayfası hocanın kendi yayımlanmış ders bilgisidir: yalnız giriş bilgisi denetlenir (bkz. kisisel-veri.ts). */
+const BOLOGNA_KAPSAMI = "yok" as const;
 
 // ---------------------------------------------------------------- Ortak hesap ve eşleme
 
@@ -393,12 +396,25 @@ const TaslakAlanlari = z.object({
 });
 type TaslakAlanlariT = z.infer<typeof TaslakAlanlari>;
 
+export interface Yetkili {
+  /** Sayfadaki etiket, ör. "Dersi Verenler". */
+  rol: string;
+  /** Sayfadaki değer, olduğu gibi. */
+  deger: string;
+}
+const YetkiliSemasi = z.object({ rol: z.string().max(80), deger: z.string().max(1000) });
+
 const DersTemeli = z.object({
   kod: z.string().trim().max(30).optional(),
   ad: z.string().trim().max(200).optional(),
   akts: z.number().min(0).max(60).optional(),
   tul: TUL.optional().describe("Teori+Uygulama+Laboratuvar, ör. '2+1+0'"),
   bolen: z.number().int().min(20).max(40).default(30).describe("AKTS başına saat; varsayılan 30"),
+  yetkililer: z
+    .array(YetkiliSemasi)
+    .max(20)
+    .optional()
+    .describe("Sayfadaki görev satırları (Dersi Verenler, Koordinatör); olduğu gibi korunur"),
 });
 type DersTemeliT = z.infer<typeof DersTemeli>;
 
@@ -567,6 +583,7 @@ const BolognaDersGirdisi = z.object({
     .max(30)
     .optional()
     .describe("Sayfadaki künyeler; yazar adları künyedir, serbesttir"),
+  yetkililer: z.array(YetkiliSemasi).max(20).optional().describe("Sayfadaki görev satırları, olduğu gibi"),
   ciktilar: z
     .array(z.object({ kod: z.string().max(20), metin: z.string().max(1000) }))
     .max(40)
@@ -717,8 +734,8 @@ export const bolognaDenetleAraci = arac({
   aciklama:
     "Bir dersin Bologna bilgi paketini denetler: hangi alan boş, hangisi zayıf, neden. AKTS ve iş yükü uyumu, değerlendirme toplamı, öğrenme çıktıları, haftalar ve katkı tablosu. Kurallar Akredit'in iç kurallarıdır, karar komisyonundur.",
   sonrakiAdim:
-    "Doldurulacak alanları hocaya numaralı gösterin ve sorun: 1) hepsini sırayla dolduralım (önerilen) 2) yalnız boş olanlar 3) numaraları kendim seçeyim. Her alan için bologna_alan_rehberi'ni çağırın.",
-  kisiselVeriIpucu: BOLOGNA_KISISEL_IPUCU,
+    "Doldurulacak alanları hocaya numaralı gösterin ve sorun: 1) alan alan seçenek göstererek dolduralım 2) yalnız boş olanlar 3) numaraları kendim seçeyim 4) Hepsini akıllıca doldur (önerilen). 4'te her alanı kendiniz doldurup denetleyin, sonunda tek özet gösterin. Her alan için bologna_alan_rehberi'ni çağırın.",
+  kisiselVeriKapsami: BOLOGNA_KAPSAMI,
   kunyeAlanlari: ["kaynaklar"],
   girdi: z.object({
     ders: BolognaDersGirdisi,
@@ -846,8 +863,10 @@ const alanRehberi = arac({
         KAYNAK_KURALLAR,
         KOD_KAYNAGI("apps/cli/skills/bologna-doldur/SKILL.md", "Akredit Bologna doldurma rehberi"),
       ],
-      ...(secilen.every((a) => !ALANLAR[a].mcpTasir)
-        ? { sonrakiAdim: "Bu alan kişi adı içerir; hocadan OBS'ye kendisinin yazmasını isteyin. Sonraki alana geçin." }
+      ...(secilen.length === 1 && secilen[0] === "yetkililer"
+        ? {
+            sonrakiAdim: "Bu alan sayfadaki görev bilgisidir; olduğu gibi korunur, değiştirmeyin. Sonraki alana geçin.",
+          }
         : {}),
     };
   },
@@ -862,7 +881,7 @@ const taslakDenetleAraci = arac({
     "Asistanın yazdığı 1-3 seçeneği (A, B, C) Akredit kurallarıyla denetler. Puan vermez: her seçenek için geçer ya da eksik nedenlerini döndürür. İş yükü toplamını, AKTS başına saati ve yüzde toplamlarını kendisi hesaplar.",
   sonrakiAdim:
     "Geçen seçenekleri hocaya kısa gösterin (A, B, C; ilki önerilen). Geçmeyeni düzeltip yeniden denetleyin, hocaya göstermeyin. Seçim bitince bologna_kopya_metni ile OBS metnini verin.",
-  kisiselVeriIpucu: BOLOGNA_KISISEL_IPUCU,
+  kisiselVeriKapsami: BOLOGNA_KAPSAMI,
   kunyeAlanlari: ["kaynaklar"],
   girdi: z.object({
     ders: DersTemeli,
@@ -910,14 +929,12 @@ const taslakDenetleAraci = arac({
 
 // ---------------------------------------------------------------- bologna_ayristir
 
-/** Bologna sayfasında kişi adı taşıyan satırlar: ilk hücre bu etiketlerden biriyse satır atılır. */
-const KISI_SATIRI =
-  /^(Dersi Veren(ler)?|Dersin Yardımcıları|Dersin Koordinatörü|Koordinatör|Dersin Yetkilileri|Yetkililer|Sorumlu|Öğretim Elemanı|Öğretim Elemanları|Instructors?|Lecturers?|Assistants?|Coordinator|Course Coordinator)(\s|:|$)/iu;
+/** Bologna sayfasında görev bilgisi taşıyan satırlar (Dersi Verenler, Koordinatör...): ayrı alan olarak korunur. */
+const YETKILI_SATIRI =
+  /^(Dersi Veren(ler)?|Dersi Veren Öğretim Elemanı|Dersin Yardımcıları|Dersin Koordinatörü|Koordinatör|Dersin Yetkilileri|Yetkililer|Sorumlu|Öğretim Elemanı|Öğretim Elemanları|Instructors?|Lecturers?|Assistants?|Coordinator|Course Coordinator|İletişim|E-?posta|Telefon|Contact)(\s|:|$)/iu;
 /** Kaynak satırı: ilk hücre bu etiketlerden biriyse satır künye olarak ayrılır. */
 const KAYNAK_SATIRI =
   /^(Kaynaklar|Kaynak|Ders Kitabı|Önerilen Kaynaklar|Diğer Kaynaklar|Yardımcı Kaynaklar|Resources|References|Textbooks?|Recommended Sources|Reading List)(\s|:|$)/iu;
-const EPOSTA = /[\p{L}\p{N}._%+-]+@[\p{L}\p{N}.-]+\.\p{L}{2,}/gu;
-const TELEFON = /(\+90[\s-]?)?\(?0?\d{3}\)?[\s-]?\d{3}[\s-]?\d{2}[\s-]?\d{2}(?!\d)/gu;
 const hucreMetni = (h: string) =>
   h
     .replace(/<[^>]*>/gu, " ")
@@ -934,17 +951,22 @@ export function prolizMi(html: string): boolean {
 }
 
 /**
- * Yapıştırılan HTML'den kişi satırlarını, e-posta ve telefonları bellekte atar; kaynak satırlarını künye listesi
- * olarak ayırır. Yalnız atılanların adlarını döndürür.
+ * Yapıştırılan HTML'den görev satırlarını (Dersi Verenler, Yardımcılar, Koordinatör) yetkililer listesine, kaynak
+ * satırlarını künye listesine ayırır. Değerler olduğu gibi korunur; hiçbir şey atılmaz.
  */
-export function bolognaKisiselAyikla(html: string): { html: string; atilan: string[]; kaynaklar: string[] } {
-  const atilan = new Set<string>();
+export function bolognaSatirAyikla(html: string): { html: string; yetkililer: Yetkili[]; kaynaklar: string[] } {
+  const yetkililer: Yetkili[] = [];
   const kaynaklar: string[] = [];
-  let h = html.replace(/<tr\b[\s\S]*?<\/tr>/giu, (tr) => {
+  const h = html.replace(/<tr\b[\s\S]*?<\/tr>/giu, (tr) => {
     const hucreler = [...tr.matchAll(/<t[dh]\b[^>]*>([\s\S]*?)<\/t[dh]>/giu)].map((m) => m[1] ?? "");
     const etiket = hucreler[0] ? hucreMetni(hucreler[0]) : "";
-    if (KISI_SATIRI.test(etiket)) {
-      atilan.add(etiket.slice(0, 40));
+    if (YETKILI_SATIRI.test(etiket) && hucreler.length > 1) {
+      const deger = hucreler
+        .slice(1)
+        .map((x) => hucreMetni(x.replace(/<br\s*\/?>/giu, ", ")).replace(/(\s*,\s*)+$/u, ""))
+        .filter(Boolean)
+        .join(" ");
+      if (deger) yetkililer.push({ rol: etiket.replace(/:$/u, "").slice(0, 80), deger: deger.slice(0, 1000) });
       return "";
     }
     if (KAYNAK_SATIRI.test(etiket) && hucreler.length > 1) {
@@ -957,43 +979,47 @@ export function bolognaKisiselAyikla(html: string): { html: string; atilan: stri
     }
     return tr;
   });
-  const temizle = (s: string) =>
-    s
-      .replace(EPOSTA, () => {
-        atilan.add("e-posta adresleri");
-        return "";
-      })
-      .replace(TELEFON, () => {
-        atilan.add("telefon numaraları");
-        return "";
-      });
-  h = temizle(h);
-  return { html: h, atilan: [...atilan], kaynaklar: kaynaklar.map(temizle).filter((k) => k.trim().length >= 5) };
+  return { html: h, yetkililer, kaynaklar };
 }
 
-/** bologna_ayristir ön ayıklaması: Proliz HTML'i ise satır satır, değilse genel ayrıştırıcıyla. */
-export function ayristirOnAyikla(g: unknown): { girdi: unknown; atilan: string[] } {
+/** bologna_ayristir ön ayıklaması: yalnız giriş bilgisi (oturum kimliği, parola kutusu, çerez) atılır. */
+export function ayristirOnAyikla(g: unknown): { girdi: unknown; atilan: string[]; ileti?: string } {
   if (g === null || typeof g !== "object") return { girdi: g, atilan: [] };
-  const o = g as { html?: unknown; metin?: unknown; kaynaklar?: unknown };
+  const o = g as { html?: unknown; metin?: unknown; kaynaklar?: unknown; yetkililer?: unknown };
   const ham = typeof o.html === "string" ? o.html : typeof o.metin === "string" ? o.metin : null;
   if (ham === null) return { girdi: g, atilan: [] };
   const giris = girisBilgisiAyikla(ham);
   const atilan = giris.atildi ? ["oturum ve parola alanları"] : [];
+  const ileti = giris.atildi
+    ? "Sayfadaki oturum kimliği ve parola kutusu okunmadan atıldı, hiçbir yere yazılmadı. Ders bilgileri olduğu gibi okundu."
+    : undefined;
   const onceki = Array.isArray(o.kaynaklar) ? o.kaynaklar.filter((x): x is string => typeof x === "string") : [];
+  const oncekiY = Array.isArray(o.yetkililer) ? (o.yetkililer as Yetkili[]) : [];
   const { html: _h, metin: _m, ...kalan } = o as Record<string, unknown>;
-  if (prolizMi(giris.metin)) {
-    const r = bolognaKisiselAyikla(giris.metin);
+  const satir = bolognaSatirAyikla(giris.metin);
+  const ek = ileti ? { ileti } : {};
+  if (prolizMi(giris.metin))
     return {
-      girdi: { ...kalan, html: r.html, kaynaklar: [...onceki, ...r.kaynaklar] },
-      atilan: [...atilan, ...r.atilan],
+      girdi: {
+        ...kalan,
+        html: satir.html,
+        kaynaklar: [...onceki, ...satir.kaynaklar],
+        yetkililer: [...oncekiY, ...satir.yetkililer],
+      },
+      atilan,
+      ...ek,
     };
-  }
-  // Proliz dışı: önce tablo satırlarındaki kişi ve kaynak satırları, sonra etiketli bölümler.
-  const satir = bolognaKisiselAyikla(giris.metin);
+  // Proliz dışı: önce tablo satırları, sonra etiketli bölümler.
   const r = genelAyikla(satir.html);
   return {
-    girdi: { ...kalan, metin: r.metin, kaynaklar: [...onceki, ...satir.kaynaklar, ...r.kaynaklar] },
-    atilan: [...new Set([...atilan, ...satir.atilan, ...r.atilan])],
+    girdi: {
+      ...kalan,
+      metin: r.metin,
+      kaynaklar: [...onceki, ...satir.kaynaklar, ...r.kaynaklar],
+      yetkililer: [...oncekiY, ...satir.yetkililer, ...r.yetkililer],
+    },
+    atilan,
+    ...ek,
   };
 }
 
@@ -1004,8 +1030,7 @@ const ayristirAraci = arac({
     "Yapıştırılan Bologna ders sayfasını ya da program çıktıları sayfasını çözer. Önce Proliz biçimini dener, olmazsa her OBS için genel ayrıştırıcı çalışır (HTML ya da düz metin, Türkçe ya da İngilizce etiketler). Bulunan ve bulunamayan alanları, güven düzeyini söyler. Adres çekmez.",
   sonrakiAdim:
     "Çıkan ders verisini bologna_denetle'ye verin (girdi hazır: bolognaDenetleGirdisi). Bulunamayan alanları hocaya tek soruyla sorun ya da OBS düzenleme ekranından okuyun.",
-  kisiselVeriIpucu:
-    "Bilinen kişi satırları, e-posta ve telefon atıldıktan sonra da kişisel veri kaldı. O kısımları çıkarıp yeniden gönderin.",
+  kisiselVeriKapsami: BOLOGNA_KAPSAMI,
   kunyeAlanlari: ["kaynaklar"],
   onAyikla: ayristirOnAyikla,
   girdi: z.object({
@@ -1017,11 +1042,15 @@ const ayristirAraci = arac({
       .describe("Sayfanın HTML kaynağı ya da sayfadan kopyalanan metin (Ctrl+A, Ctrl+C)"),
     metin: z.string().min(20).max(400_000).optional().describe("Sayfadan kopyalanan düz metin; html yerine"),
     kaynaklar: z.array(z.string().max(600)).max(30).optional().describe("Ayrıca verilen künyeler"),
+    yetkililer: z.array(YetkiliSemasi).max(20).optional().describe("Sayfadaki görev satırları, olduğu gibi"),
     tur: z.enum(["otomatik", "ders", "program_ciktilari"]).default("otomatik"),
   }),
-  calistir: ({ html, metin, kaynaklar = [], tur }) => {
+  calistir: ({ html, metin, kaynaklar = [], yetkililer = [], tur }) => {
     if (!html && !metin) throw new AracHatasi("Sayfanın HTML'ini ya da metnini yapıştırın.");
-    const kaynakAlani = kaynaklar.length ? { kaynaklar, kaynakSayisi: kaynaklar.length } : {};
+    const kaynakAlani = {
+      ...(kaynaklar.length ? { kaynaklar, kaynakSayisi: kaynaklar.length } : {}),
+      ...(yetkililer.length ? { yetkililer } : {}),
+    };
     if (html && prolizMi(html)) {
       const programMi =
         tur === "program_ciktilari" || (tur === "otomatik" && !/İş Yükü|Workload|Yarıyıl Çalışmaları/iu.test(html));
@@ -1134,7 +1163,7 @@ const durumAraci = arac({
     "Hocanın seçtiği alanların bütününe bakar: hangi zorunlu alan tamam, hangisi eksik ya da kurala uymuyor, kaç alan kaldı. Eksik kalmadıysa 'tamamlandı' der. Her seçimden sonra ve OBS'ye yazdıktan sonra çağrılır.",
   sonrakiAdim:
     "Kalan alan sayısını hocaya tek cümleyle söyleyin ve sıradaki alana geçin. Kalan yoksa OBS'ye yazma adımına geçin.",
-  kisiselVeriIpucu: BOLOGNA_KISISEL_IPUCU,
+  kisiselVeriKapsami: BOLOGNA_KAPSAMI,
   kunyeAlanlari: ["kaynaklar"],
   girdi: z.object({
     ders: DersTemeli,
@@ -1310,7 +1339,7 @@ const kopyaMetniAraci = arac({
     "Hocanın seçtiği alanları OBS sekmesi ve alan adıyla sıralı, alan alan kopyalanacak düz metin olarak verir. Tablolar sekmeyle ayrılır. Toplamları kendisi hesaplar ve kalan eksikleri yazar. OBS'ye yazmaz; kaydı hoca yapar.",
   sonrakiAdim:
     "Metni olduğu gibi, kod bloğu içinde gösterin. Hocaya sorun: 1) OBS'ye yapıştırdım, yeniden denetle 2) bir alanı değiştir 3) bitir.",
-  kisiselVeriIpucu: BOLOGNA_KISISEL_IPUCU,
+  kisiselVeriKapsami: BOLOGNA_KAPSAMI,
   kunyeAlanlari: ["kaynaklar"],
   girdi: z.object({
     ders: DersTemeli,
@@ -1400,7 +1429,12 @@ const kopyaMetniAraci = arac({
       `${baslik}: OBS'ye kopyalanacak alanlar`,
       "",
       ...sirali.flatMap((x, i) => [`${i + 1}. ${x.sekme} > ${x.alan}`, x.deger, ""]),
-      "Dersin Yetkilileri bu metinde yoktur; OBS'de kendiniz yazın.",
+      ...(ders.yetkililer?.length
+        ? [
+            "Dersin Yetkilileri (sayfadaki hâliyle; değiştirmeyin, OBS'de zaten böyle kayıtlı):",
+            ...ders.yetkililer.map((y) => `${y.rol}: ${y.deger}`),
+          ]
+        : ["Dersin Yetkilileri: bu metin onlara dokunmaz; OBS'deki hâliyle kalır."]),
       ...(kalanEksikler.length
         ? [
             "",

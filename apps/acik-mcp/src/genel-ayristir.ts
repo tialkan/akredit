@@ -216,6 +216,8 @@ export function satirlara(girdi: string): Satir[] {
 
 export interface Bolum {
   alan: GenelAlan;
+  /** Sayfadaki etiket, olduğu gibi (ör. "Dersi Verenler"). */
+  etiket?: string;
   /** Etiketle aynı satırdaki değer (hücreler). */
   deger: string[];
   /** Etiketten sonraki satırlar. */
@@ -242,7 +244,7 @@ export function bolumlere(satirlar: Satir[]): { bolumler: Bolum[]; sahipsiz: Sat
       !sonraki.some((h) => etiketAlani(h))
     ) {
       r.forEach((_, j) => {
-        bolumler.push({ alan: alanlar[j] as GenelAlan, deger: [sonraki[j] ?? ""], satirlar: [] });
+        bolumler.push({ alan: alanlar[j] as GenelAlan, etiket: r[j] ?? "", deger: [sonraki[j] ?? ""], satirlar: [] });
       });
       aktif = null;
       i++;
@@ -253,7 +255,8 @@ export function bolumlere(satirlar: Satir[]): { bolumler: Bolum[]; sahipsiz: Sat
     const onek = tam ? null : onekEtiketi(ilk);
     if (tam || onek) {
       const deger = tam ? r.slice(1) : [onek?.kalan ?? "", ...r.slice(1)].filter(Boolean);
-      aktif = { alan: (tam ?? onek?.alan) as GenelAlan, deger, satirlar: [] };
+      const etiket = tam ? ilk : ilk.slice(0, ilk.length - (onek?.kalan.length ?? 0));
+      aktif = { alan: (tam ?? onek?.alan) as GenelAlan, etiket, deger, satirlar: [] };
       bolumler.push(aktif);
       continue;
     }
@@ -263,24 +266,30 @@ export function bolumlere(satirlar: Satir[]): { bolumler: Bolum[]; sahipsiz: Sat
   return { bolumler, sahipsiz };
 }
 
-const EPOSTA = /[\p{L}\p{N}._%+-]+@[\p{L}\p{N}.-]+\.\p{L}{2,}/gu;
-const TELEFON = /(\+90[\s-]?)?\(?0?\d{3}\)?[\s-]?\d{3}[\s-]?\d{2}[\s-]?\d{2}(?!\d)/gu;
-
 /** Kaynak satırından numara ya da imi atar. */
 const maddeAt = (s: string) => s.replace(/^\s*(\[\d+\]|\d{1,2}[.)-]|[-•*–])\s*/u, "").trim();
 
 /**
- * Düz metin ya da HTML'den kişi bölümlerini atar, kaynaklar bölümünü künye listesi olarak ayırır.
- * Yalnız bellekte çalışır; atılan alanların adını döndürür.
+ * Düz metin ya da HTML'den görev bölümlerini (Dersi Verenler, Koordinatör, iletişim) yetkililer listesine, kaynaklar
+ * bölümünü künye listesine ayırır. Değerler olduğu gibi korunur; hiçbir şey atılmaz.
  */
-export function genelAyikla(girdi: string): { metin: string; kaynaklar: string[]; atilan: string[] } {
+export function genelAyikla(girdi: string): {
+  metin: string;
+  kaynaklar: string[];
+  yetkililer: { rol: string; deger: string }[];
+} {
   const { bolumler, sahipsiz } = bolumlere(satirlara(girdi));
-  const atilan = new Set<string>();
   const kaynaklar: string[] = [];
+  const yetkililer: { rol: string; deger: string }[] = [];
   const kalan: string[] = sahipsiz.map((r) => r.join("\t"));
   for (const b of bolumler) {
     if (b.alan === "kisi") {
-      atilan.add("öğretim elemanı ve iletişim satırları");
+      const deger = [b.deger.join(" "), ...b.satirlar.map((r) => r.join(" "))]
+        .map((x) => x.trim())
+        .filter(Boolean)
+        .join(", ");
+      const rol = (b.etiket ?? "").replace(/[:\s]+$/u, "").trim() || "Dersin yetkilileri";
+      if (deger) yetkililer.push({ rol: rol.slice(0, 80), deger: deger.slice(0, 1000) });
       continue;
     }
     if (b.alan === "kaynaklar") {
@@ -295,21 +304,7 @@ export function genelAyikla(girdi: string): { metin: string; kaynaklar: string[]
     kalan.push([`${etiket}:`, ...b.deger].join("\t"));
     for (const r of b.satirlar) kalan.push(r.join("\t"));
   }
-  const temizle = (s: string) =>
-    s
-      .replace(EPOSTA, () => {
-        atilan.add("e-posta adresleri");
-        return "";
-      })
-      .replace(TELEFON, () => {
-        atilan.add("telefon numaraları");
-        return "";
-      });
-  return {
-    metin: temizle(kalan.join("\n")),
-    kaynaklar: kaynaklar.map(temizle).filter((k) => k.trim().length >= 5),
-    atilan: [...atilan],
-  };
+  return { metin: kalan.join("\n"), kaynaklar, yetkililer };
 }
 
 export interface GenelDers {

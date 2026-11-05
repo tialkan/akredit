@@ -1,7 +1,11 @@
-// Gelen veride kişisel veri ve giriş bilgisi denetimi. Açık sunucu kişisel veri işlemez (CLAUDE.md ilke 7): desen
-// görülürse istek reddedilir, kullanıcıdan maskeleyip yeniden göndermesi istenir. Bulunan değer hiçbir yere
-// yazılmaz, yalnız türü söylenir. Desenler @akredit/yz KVKK maskeleyicisinden gelir (TCKN, telefon, e-posta, IBAN,
-// öğrenci numarası, unvanlı ya da yaygın adla başlayan kişi adı, adres, imza).
+// Gelen veride kişisel veri ve giriş bilgisi denetimi. Bulunan değer hiçbir yere yazılmaz, yalnız türü söylenir.
+// Desenler @akredit/yz KVKK maskeleyicisinden gelir.
+//
+// Kapsam (İP-49): hocanın kendi sayfasında yayımlanmış görev bilgisi (Dersi Verenler, Koordinatör, iletişim)
+// kişisel veri sayılıp atılmaz; olduğu gibi okunur ve korunur. Araçlar kapsamı kendisi seçer:
+// - "yok": yalnız giriş bilgisi denetlenir (Bologna araçları).
+// - "ogrenci" (varsayılan): öğrenci ve kimlik verisi (T.C. kimlik no, öğrenci numarası, IBAN) reddedilir.
+// - "tam": bütün desenler (not tablosu ve ÇK/PÇ: öğrenci adı ve numarası takma adla gelmelidir).
 //
 // Künye kuralı: kaynakçadaki yazar adları yayımlanmış künyedir, kişisel veri sayılmaz. Bu yüzden künye alanlarında
 // (araç bunları adıyla bildirir) kişi adı deseni aranmaz; e-posta, telefon, kimlik numarası gibi öbür desenler
@@ -49,16 +53,29 @@ function metinler(
  * Girdide kişisel veri olabilecek türlerin adları (değerler değil). Boşsa temiz.
  * `kunyeAnahtarlari`: altındaki metinler künye kuralıyla (yazar adı serbest) değerlendirilen alan adları.
  */
-export function kisiselVeriTurleri(girdi: unknown, kunyeAnahtarlari: readonly string[] = []): string[] {
+export type KisiselVeriKapsami = "yok" | "ogrenci" | "tam";
+
+/** "ogrenci" kapsamında aranan türler; öbürleri (ad, e-posta, telefon, adres, imza) kapalıdır. */
+const OGRENCI_TURLERI: readonly VeriTuru[] = ["TCKN", "ÖĞRENCİ-NO", "IBAN"];
+const TUM_TURLER = Object.keys(TUR_ADI) as VeriTuru[];
+
+export function kisiselVeriTurleri(
+  girdi: unknown,
+  kunyeAnahtarlari: readonly string[] = [],
+  kapsam: KisiselVeriKapsami = "tam",
+): string[] {
+  if (kapsam === "yok") return [];
+  const kapali = kapsam === "ogrenci" ? TUM_TURLER.filter((t) => !OGRENCI_TURLERI.includes(t)) : [];
   const turler = new Set<VeriTuru>();
   const m = metinler(girdi, new Set(kunyeAnahtarlari));
-  for (const x of m.genel) for (const e of maskele(x).eslemeler) turler.add(e.tur);
-  for (const x of m.kunye) for (const e of maskele(x, { kapali: ["KİŞİ"] }).eslemeler) turler.add(e.tur);
+  for (const x of m.genel) for (const e of maskele(x, { kapali }).eslemeler) turler.add(e.tur);
+  for (const x of m.kunye)
+    for (const e of maskele(x, { kapali: [...new Set<VeriTuru>([...kapali, "KİŞİ"])] }).eslemeler) turler.add(e.tur);
   return [...turler].map((t) => TUR_ADI[t]);
 }
 
 export function kisiselVeriIletisi(turler: readonly string[]): string {
-  return `Gönderdiğiniz veride kişisel veri olabilecek ifadeler var (${turler.join(", ")}). Bu sunucu kişisel veri işlemez. Adları, numaraları ve iletişim bilgilerini maskeleyip (ör. "Öğrenci 1", "[KİŞİ-1]") yeniden gönderin.`;
+  return `Gönderdiğiniz veride kişisel veri olabilecek ifadeler var (${turler.join(", ")}). Öğrenci ve kimlik bilgileri bu araca takma adla gelmelidir. Bu kısımları takma adla (ör. "o1", "Öğrenci 1") değiştirip yeniden gönderin.`;
 }
 
 const OTURUM_KIMLIGI =

@@ -3,28 +3,39 @@
 // çağrı hesap yapılmadan reddedilir. Her yanıt kaynak listesi ve "YÖKAK ile bağı yoktur" notu taşır.
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { ACIK_ARACLAR, type AcikArac, AKREDIT_NOTU, type AracBaglami, AracHatasi, DEPO } from "./araclar.ts";
+import {
+  ACIK_ARACLAR,
+  type AcikArac,
+  AKREDIT_NOTU,
+  type AracBaglami,
+  AracHatasi,
+  type AracSonucu,
+  DEPO,
+} from "./araclar.ts";
 import { GIRIS_BILGISI_ILETISI, girisBilgisiVar, kisiselVeriIletisi, kisiselVeriTurleri } from "./kisisel-veri.ts";
 import { ACIK_ISTEMLER, type AcikIstem, istemSemasi } from "./promptlar.ts";
 
 export const SUNUCU_ADI = "akredit-acik";
-export const SUNUCU_SURUMU = "0.3.0";
+export const SUNUCU_SURUMU = "0.4.0";
 
 export const SUNUCU_TALIMATI = [
-  "Akredit açık araçları öğretim elemanlarına kalite ve akreditasyon işlerinde yardım eder: Bologna ders paketi denetimi ve doldurma, öğrenme çıktısı yazma, ÇK/PÇ hesabı, YÖKAK ve program akreditasyonu (MÜDEK, FEDEK, SABAK, EPDAD) ölçüt ve kanıt rehberi, rapor dil denetimi.",
-  "Hoca ne yapacağını söylemediyse ya da 'akredit' yazarsa 'akredit' istemindeki araç menüsünü göster ve önce hangi aracı kullanmak istediğini sor ('basla' ve 'baslangic' aynı istemdir).",
-  "Giriş bilgisi: hocadan kullanıcı adı, parola, doğrulama kodu ya da çerez asla isteme; hoca yazarsa kullanma, araçlara gönderme, silmesini ve parolasını değiştirmesini öner. Hoca giriş bilgisini yalnız OBS'nin kendi ekranına kendisi yazar. CAPTCHA'yı hoca çözer. OBS'de Kaydet ya da Gönder düğmesine hoca basar.",
-  "Tarayıcı aracın varsa OBS sayfasını okuyup formu doldurabilirsin; yoksa ya da engel çıkarsa engel_coz ve kurulum_yardimi araçlarının adımlarını hocaya sırayla, tek tek göster.",
-  "Seçenek verirken: Her adımda kısa bir soru ve 2-3 numaralı seçenek ver; hoca tek rakam ya da harfle seçer; 'hepsi 1' gibi toplu onayı kabul et. Her yanıttaki sonrakiAdim önerisine uy.",
+  "Akredit açık araçları öğretim elemanlarına kalite ve akreditasyon işlerinde yardım eder: Bologna ders paketi denetimi ve doldurma, öğrenme çıktısı yazma, ÇK/PÇ hesabı, YÖKAK ve program akreditasyonu (MÜDEK, FEDEK, SABAK, EPDAD) ölçüt ve kanıt rehberi, rapor dil denetimi, kaynak doğrulama.",
+  "Hoca ne yapacağını söylemediyse ya da 'akredit' yazarsa 'akredit' istemindeki araç menüsünü göster ve önce hangi aracı kullanmak istediğini sor.",
+  "Amaç: hocanın en az müdahalesiyle işi hızlı ama denetimli ve teyitli bitirmek. Her seçim menüsünde son seçenek '4) Hepsini akıllıca doldur (önerilen)' olur: her alan için en iyi seçeneği sen seçersin, araçla denetlersin, geçmeyeni düzeltip yeniden denetlersin, sonunda tek özet gösterip değiştirmek istediği numarayı sorarsın.",
+  "Giriş bilgisi: hocadan kullanıcı adı, parola, doğrulama kodu ya da çerez asla isteme; hoca yazarsa kullanma, araçlara gönderme, silmesini ve parolasını değiştirmesini öner. Hoca giriş bilgisini yalnız OBS'nin kendi ekranına kendisi yazar. CAPTCHA'yı hoca çözer. OBS'de Kaydet'e yalnız hocanın açık izniyle basarsın; onaya Gönder düğmesine hoca basar.",
+  "Tarayıcı aracın varsa OBS sayfasını okuyup formu doldurabilirsin; yoksa ya da engel çıkarsa engel_coz ve kurulum_yardimi araçlarının adımlarını hocaya sırayla, tek tek göster. Tarayıcı yoksa OBS'ye yazma alan alan kopyalamaya düşer.",
   "Sunucu model çağırmaz ve metin üretmez: seçenekleri sen yazarsın, sunucu kural ve kalıp verir, denetler ve sayıları hesaplar. Sayıları yalnız araç sonucundan al.",
-  "Kişisel veri (ad, numara, e-posta, telefon) göndermeyin; görülürse çağrı reddedilir. Kaynakçadaki yazar adları yayımlanmış künyedir, kaynak alanlarında serbesttir. Kaynak önerirken yalnız hocanın verdiği ya da kendi web aracınla doğruladığın eseri öner. Ölçüt metnini yalnız olcut_getir sonucundan alıntılayın; DOĞRULANMADI ya da 'Belgeden okunamadı' işaretli metni tahminle doldurmayın. Programın disiplinini kurum seçer. Kanıtı olmayan cümle EKSİK kalır. Kitap, kişi, tarih uydurmayın.",
-  "Sunucu adres çekmez: Bologna sayfasını hoca yapıştırır ya da siz kendi web aracınızla okursunuz. Kayıt, onay ve gönderim hocadadır. Akredit'in YÖKAK ile bağı yoktur.",
+  "Bologna sayfasındaki Dersi Verenler, Yardımcılar ve Koordinatör satırları yayımlanmış görev bilgisidir: olduğu gibi okunur, korunur, değiştirilmez. Öğrenci adı ve numarası içeren not tabloları takma adla işlenir. Sunucu istek içeriğini günlüğe yazmaz.",
+  "Kaynak önerirken hocaya kitap adını sorma: kendi web arama aracınla ders içeriğine uygun eserleri bul, kaynak_dogrula ile doğrula, yalnız doğrulananları künyesi ve bağlantısıyla göster. Doğrulanamayan kaynağı asla önerme. Ölçüt metnini yalnız olcut_getir sonucundan alıntılayın; DOĞRULANMADI ya da 'Belgeden okunamadı' işaretli metni tahminle doldurmayın. Programın disiplinini kurum seçer. Kanıtı olmayan cümle EKSİK kalır. Kitap, kişi, tarih uydurmayın.",
+  "Sunucu kullanıcıdan adres çekmez: Bologna sayfasını hoca yapıştırır ya da siz kendi web aracınızla okursunuz. Tek dış istek kaynak_dogrula'nın sabit katalog adresleridir (Crossref, Open Library, Google Books). Onay ve dış kuruma gönderim hocadadır. Akredit'in YÖKAK ile bağı yoktur.",
 ].join(" ");
 
 export interface AcikSunucuSecenekleri {
   simdi?: () => Date;
   araclar?: readonly AcikArac[];
   istemler?: readonly AcikIstem[];
+  /** kaynak_dogrula için fetch (test). */
+  fetch?: typeof fetch;
 }
 
 const metinSonuc = (veri: Record<string, unknown>, isError = false) => ({
@@ -33,63 +44,93 @@ const metinSonuc = (veri: Record<string, unknown>, isError = false) => ({
   ...(isError ? { isError: true } : {}),
 });
 
-/** Bir aracı doğrudan çalıştırır (MCP katmanı dışında da kullanılabilir: test, belge). */
-export function aracCalistir(
+type Sonuc = { veri: Record<string, unknown>; hata: boolean };
+
+/** Denetimler (giriş bilgisi, kişisel veri, şema). Geçerse doğrulanmış girdiyi, geçmezse hata sonucunu döndürür. */
+function hazirla(
   a: AcikArac,
   girdi: unknown,
-  b: AracBaglami,
-): { veri: Record<string, unknown>; hata: boolean } {
-  const ayik = a.onAyikla ? a.onAyikla(girdi) : { girdi, atilan: [] as string[] };
+): { hata: Sonuc } | { veri: unknown; atilan: string[]; ileti: string | undefined } {
+  const ayik = a.onAyikla ? a.onAyikla(girdi) : { girdi, atilan: [] as string[], ileti: undefined };
   girdi = ayik.girdi;
   if (girisBilgisiVar(girdi))
-    return { veri: { hata: GIRIS_BILGISI_ILETISI, kod: "giris_bilgisi", not: AKREDIT_NOTU }, hata: true };
-  const turler = kisiselVeriTurleri(girdi, a.kunyeAlanlari);
+    return { hata: { veri: { hata: GIRIS_BILGISI_ILETISI, kod: "giris_bilgisi", not: AKREDIT_NOTU }, hata: true } };
+  const turler = kisiselVeriTurleri(girdi, a.kunyeAlanlari, a.kisiselVeriKapsami ?? "ogrenci");
   if (turler.length)
     return {
-      veri: {
-        hata: [kisiselVeriIletisi(turler), a.kisiselVeriIpucu].filter(Boolean).join(" "),
-        kod: "kisisel_veri",
-        not: AKREDIT_NOTU,
+      hata: {
+        veri: {
+          hata: [kisiselVeriIletisi(turler), a.kisiselVeriIpucu].filter(Boolean).join(" "),
+          kod: "kisisel_veri",
+          not: AKREDIT_NOTU,
+        },
+        hata: true,
       },
-      hata: true,
     };
   const g = a.girdi.safeParse(girdi);
   if (!g.success) {
     const alanlar = g.error.issues.slice(0, 5).map((i) => `${i.path.join(".") || "girdi"}: ${i.message}`);
     return {
-      veri: {
-        hata: "Girdi geçersiz. Aşağıdaki alanları düzeltip yeniden deneyin.",
-        kod: "gecersiz_girdi",
-        alanlar,
-        not: AKREDIT_NOTU,
+      hata: {
+        veri: {
+          hata: "Girdi geçersiz. Aşağıdaki alanları düzeltip yeniden deneyin.",
+          kod: "gecersiz_girdi",
+          alanlar,
+          not: AKREDIT_NOTU,
+        },
+        hata: true,
       },
-      hata: true,
     };
   }
+  return { veri: g.data, atilan: ayik.atilan, ileti: ayik.ileti };
+}
+
+function basari(a: AcikArac, s: AracSonucu, atilan: string[], ileti: string | undefined): Sonuc {
+  return {
+    veri: {
+      sonuc: s.sonuc,
+      sonrakiAdim: s.sonrakiAdim ?? a.sonrakiAdim,
+      ...(atilan.length
+        ? { atilan: ileti ?? `Şu kısımlar okunmadan atıldı, hiçbir yere yazılmadı: ${atilan.join(", ")}.` }
+        : {}),
+      kaynak: s.kaynak,
+      not: AKREDIT_NOTU,
+      kod_deposu: DEPO,
+    },
+    hata: false,
+  };
+}
+
+function hataSonucu(e: unknown): Sonuc {
+  const ileti =
+    e instanceof AracHatasi ? e.message : "Beklenmeyen bir sorun oluştu. Girdiyi denetleyip yeniden deneyin.";
+  return {
+    veri: { hata: ileti, kod: e instanceof AracHatasi ? "arac_hatasi" : "beklenmeyen", not: AKREDIT_NOTU },
+    hata: true,
+  };
+}
+
+/** Bir aracı doğrudan çalıştırır (MCP katmanı dışında da kullanılabilir: test, belge). Yalnız eşzamanlı araçlar. */
+export function aracCalistir(a: AcikArac, girdi: unknown, b: AracBaglami): Sonuc {
+  const h = hazirla(a, girdi);
+  if ("hata" in h) return h.hata;
   try {
-    const s = a.calistir(g.data, b);
-    return {
-      veri: {
-        sonuc: s.sonuc,
-        sonrakiAdim: s.sonrakiAdim ?? a.sonrakiAdim,
-        ...(ayik.atilan.length
-          ? {
-              atilanKisiselVeri: `Şu alanlar kişisel veri olduğu için ayrıştırmadan önce atıldı, hiçbir yere yazılmadı: ${ayik.atilan.join(", ")}.`,
-            }
-          : {}),
-        kaynak: s.kaynak,
-        not: AKREDIT_NOTU,
-        kod_deposu: DEPO,
-      },
-      hata: false,
-    };
+    const s = a.calistir(h.veri as never, b);
+    if (s instanceof Promise) throw new Error("Eşzamansız araç için aracCalistirAsenkron kullanın.");
+    return basari(a, s, h.atilan, h.ileti);
   } catch (e) {
-    const ileti =
-      e instanceof AracHatasi ? e.message : "Beklenmeyen bir sorun oluştu. Girdiyi denetleyip yeniden deneyin.";
-    return {
-      veri: { hata: ileti, kod: e instanceof AracHatasi ? "arac_hatasi" : "beklenmeyen", not: AKREDIT_NOTU },
-      hata: true,
-    };
+    return hataSonucu(e);
+  }
+}
+
+/** Her araç için (eşzamanlı ya da eşzamansız) çalıştırma; MCP katmanı bunu kullanır. */
+export async function aracCalistirAsenkron(a: AcikArac, girdi: unknown, b: AracBaglami): Promise<Sonuc> {
+  const h = hazirla(a, girdi);
+  if ("hata" in h) return h.hata;
+  try {
+    return basari(a, await a.calistir(h.veri as never, b), h.atilan, h.ileti);
+  } catch (e) {
+    return hataSonucu(e);
   }
 }
 
@@ -117,10 +158,15 @@ export function acikSunucu(s: AcikSunucuSecenekleri = {}): McpServer {
         // Şema SDK'ya yalnız tanıtım (JSON şeması) içindir; asıl doğrulama aracCalistir içinde, kişisel veri
         // denetiminden sonra yapılır. Bu yüzden girdi gevşek (loose) verilir.
         inputSchema: a.girdi.loose(),
-        annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+        annotations: {
+          readOnlyHint: true,
+          destructiveHint: false,
+          idempotentHint: true,
+          openWorldHint: a.disAg === true,
+        },
       },
       async (girdi: unknown) => {
-        const r = aracCalistir(a, girdi, { simdi });
+        const r = await aracCalistirAsenkron(a, girdi, { simdi, ...(s.fetch ? { fetch: s.fetch } : {}) });
         return metinSonuc(r.veri, r.hata);
       },
     );

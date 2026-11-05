@@ -146,11 +146,18 @@ export const notTablosuAyristirAraci = arac({
     "Sezilen eşlemeyi hocaya tablo olarak gösterin ve eksikleri tek tek seçenekle sorun (ör. S3 hangi çıktıyı ölçüyor? 1) Ö2 2) Ö3). Eksik kalmayınca ckPcHesaplaTaslagi'ni ck_pc_hesapla'ya verin.",
   kisiselVeriIpucu:
     "Kimlik sütunları atıldıktan sonra da kişisel veri kaldı. Ad ya da numara içeren başka sütun varsa silip yeniden yapıştırın.",
+  kisiselVeriKapsami: "tam",
   onAyikla: (g) => {
     const t = (g as { tablo?: unknown } | null)?.tablo;
     if (typeof t !== "string") return { girdi: g, atilan: [] };
     const r = notTablosuAyikla(t);
-    return { girdi: { ...(g as object), tablo: r.tablo }, atilan: r.atilan };
+    return {
+      girdi: { ...(g as object), tablo: r.tablo },
+      atilan: r.atilan,
+      ileti: r.atilan.length
+        ? `Öğrenci kimliği taşıyan sütunlar hesaplamadan önce atıldı, öğrencilere o1, o2 takma adı verildi; hiçbir yere yazılmadı: ${r.atilan.join(", ")}.`
+        : undefined,
+    };
   },
   girdi: z.object({
     tablo: z.string().min(5).max(2_000_000).describe("Excel ya da CSV'den yapıştırılan tablo; ilk satır başlık"),
