@@ -4,6 +4,7 @@ import { dugmeSinifi } from "../../bilesenler/dugme.tsx";
 import { Logo } from "../../bilesenler/logo.tsx";
 import { barindirmaAcik } from "../../site/barindirma.ts";
 import { DEPO_ADRESI, SAYFALAR, UST_MENU } from "../../site/icerik.ts";
+import { HATA_BILDIRIM_ADRESI } from "../../site/iletisim.ts";
 import { SayfaDurumu } from "../../site/sayfa-durumu.tsx";
 
 const ALT_BAG = "inline-flex min-h-11 items-center text-metin underline underline-offset-4 hover:text-vurgu";
@@ -72,6 +73,11 @@ export default function SiteYerlesimi({ children }: { children: ReactNode }) {
               <li>
                 <a href={DEPO_ADRESI} className={ALT_BAG}>
                   Kaynak kodu (GitHub)
+                </a>
+              </li>
+              <li>
+                <a href={HATA_BILDIRIM_ADRESI} className={ALT_BAG}>
+                  Hata bildirin
                 </a>
               </li>
             </ul>

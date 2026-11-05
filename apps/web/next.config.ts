@@ -1,6 +1,12 @@
 import { readFileSync } from "node:fs";
 import type { NextConfig } from "next";
-import { GUVENLIK_BASLIKLARI, SURUM_BASLIGI, surumBelirle } from "./src/guvenlik/basliklar.ts";
+import {
+  DURAGAN_ONBELLEK,
+  DURAGAN_YOLLAR,
+  GUVENLIK_BASLIKLARI,
+  SURUM_BASLIGI,
+  surumBelirle,
+} from "./src/guvenlik/basliklar.ts";
 
 // Sürüm işareti (İP-49): derleme anındaki commit, yoksa package.json sürümü. Derlemede sabitlenir.
 const paket = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8")) as { version: string };
@@ -39,7 +45,10 @@ const config: NextConfig = {
   // Güvenlik ve sürüm başlıkları bütün yollara, /mcp ve API dahil (İP-49). CSP ve frame-ancestors istek başına
   // src/proxy.ts'te verilir; CORS başlıkları /mcp işleyicisinindir, burada dokunulmaz.
   async headers() {
-    return [{ source: "/:path*", headers: [...GUVENLIK_BASLIKLARI, { key: SURUM_BASLIGI, value: SURUM }] }];
+    return [
+      { source: "/:path*", headers: [...GUVENLIK_BASLIKLARI, { key: SURUM_BASLIGI, value: SURUM }] },
+      ...DURAGAN_YOLLAR.map((source) => ({ source, headers: [{ key: "Cache-Control", value: DURAGAN_ONBELLEK }] })),
+    ];
   },
 };
 

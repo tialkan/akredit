@@ -1,32 +1,32 @@
 # Akredit
 
-> Akredit, Türk yükseköğretimi için ücretsiz ve açık kaynak (Apache-2.0) bir akreditasyon ve Bologna yardımcısıdır. Kullanıcı kendi yapay zekâsına (Claude, ChatGPT, Claude Code, Cursor, VS Code) herkese açık MCP sunucusunu https://akredit.org/mcp ekler, yeni sohbette akredit yazar; asistan hangi aracın kullanılacağını sorar, kullanıcı rakamla seçer. Hesap gerekmez, sunucu yalnız okur, hesaplar ve kaynakları açık kataloglarda doğrular; parola, doğrulama kodu ve oturum çerezi kabul etmez, öğrenci verisini takma adla işler. Her menüde "4) Hepsini akıllıca doldur" seçeneği vardır: asistan doldurur, sunucu denetler, sonunda tek özet gösterilir. Kurumlara barındırılan hizmet sponsor bulunana kadar askıdadır.
+> Akredit, Türk yükseköğretimi için ücretsiz ve açık kaynak (Apache-2.0) bir akreditasyon ve Bologna yardımcısıdır. Kullanıcı kendi yapay zekâsına (Claude, ChatGPT, Claude Code, Cursor, VS Code) herkese açık MCP sunucusunu https://akredit.org/mcp ekler, yeni sohbette akredit yazar (menü gelmezse "Akredit araçlarıyla Bologna paketimi denetle" yazar); asistan hangi aracın kullanılacağını sorar, kullanıcı rakamla seçer. Hesap gerekmez, sunucu yalnız okur, hesaplar ve kaynakları açık kataloglarda doğrular; parola, doğrulama kodu ve oturum çerezi kabul etmez, öğrenci verisini takma adla işler. Her menüde "4) Hepsini akıllıca doldur" seçeneği vardır: asistan doldurur, sunucu denetler, sonunda tek özet gösterilir. Kurumlara barındırılan hizmet sponsor bulunana kadar askıdadır.
 
 Önemli sınırlar: Akredit akreditasyon sonucu için garanti vermez. YÖKAK, MÜDEK, YÖK ya da başka bir kuruluşla bağı yoktur. OBS'ye girişte kullanıcı adı ve parola yalnız OBS'nin kendi ekranına, kullanıcının kendisi tarafından yazılır.
 
 ## Başlangıç
 
-- [Ana sayfa](https://akredit.org/): iki adım; Akredit'i yapay zekânıza ekleyin (Claude, ChatGPT, geliştirici araçları; Claude Code için claude mcp add --transport http akredit https://akredit.org/mcp), sonra akredit yazın
+- [Ana sayfa](https://akredit.org/): kurgu bir ders sayfasında gerçek Bologna denetiminin önce/sonra örneği ve iki adım; Akredit'i yapay zekânıza ekleyin (Claude, ChatGPT, geliştirici araçları; Claude Code için claude mcp add --transport http akredit https://akredit.org/mcp), sonra akredit yazın
 - [Ayrıntılı kurulum ve araçlar](https://akredit.org/mcp-kullan): YÖKAK, MÜDEK, FEDEK, EPDAD ve SABAK ölçüt metni ve olgunluk düzeyleri, Bologna denetimi ve uçtan uca doldurma, ÇK/PÇ hesabı, öz değerlendirme iskeleti, rapor dil denetimi; npm paketi @akredit/acik-mcp
 - [Proje ayrıntıları](https://akredit.org/proje): bütün sayfalar ve durumları (çalışıyor, askıda, taslak)
-- [İletişim](https://akredit.org/iletisim): proje sahibi Tarık İsmet ALKAN, LinkedIn (https://www.linkedin.com/in/tialkan/)
+- [İletişim](https://akredit.org/iletisim): proje sahibi Tarık İsmet ALKAN, LinkedIn (https://www.linkedin.com/in/tialkan/); hata bildirimi GitHub Issues (https://github.com/tialkan/akredit/issues)
 
 ## Projenin devam eden ayrıntıları
 
-- [Demo](https://akredit.org/deneyin): uydurma veriyle Örnek Üniversitesi; henüz tamamlanmadı, arka plandaki masrafları karşılayacak sponsor ya da iş birliği bulunamadı
+- [Demo](https://akredit.org/deneyin): taslak; uydurma veriyle Örnek Üniversitesi, henüz tamamlanmadı, arka plandaki masrafları karşılayacak sponsor ya da iş birliği bulunamadı
 - [Ne yapar](https://akredit.org/ne-yapar): platform modülleri ve durumları
-- [Nasıl çalışır](https://akredit.org/nasil-calisir): kanıt, hesap, atıflı taslak, denetim, onay, günlük
+- [Nasıl çalışır](https://akredit.org/nasil-calisir): kanıt, hesap, atıflı öneri, denetim, onay, günlük
 - [Kimler için](https://akredit.org/kimler-icin): rektörlük, kalite komisyonu, bölüm başkanı, öğretim elemanı
-- [Desteklenen çerçeveler](https://akredit.org/cerceveler): YÖKAK 3.3 (4 başlık, 14 ölçüt, 46 alt ölçüt), KİDR 3.2.1
+- [Desteklenen çerçeveler](https://akredit.org/cerceveler): YÖKAK 3.3 (4 başlık, 14 ölçüt, 46 alt ölçüt), KİDR 3.2.1, MÜDEK 3.1, MÜDEK YL 2.0, FEDEK 4.1, SABAK R4, EPDAD 1.1 ve EPDAD RPD; resmî belgeden alındı, uzman onayı bekliyor
 - [Yapay zekâ ve anahtar](https://akredit.org/yapay-zeka): kurum anahtarı, modele giden veri, maskeleme
 - [Sınırlar](https://akredit.org/sinirlar): Akredit'in yapmadıkları
 - [Yol haritası](https://akredit.org/yol-haritasi): şimdi yapılan ve sıradaki işler
 - [Sık sorulan sorular](https://akredit.org/sss)
-- [Güvenlik ve KVKK](https://akredit.org/guvenlik): hukuk metinleri taslaktır
+- [Güvenlik](https://akredit.org/guvenlik): bilgi sayfası; bağımsız sızma testi henüz yapılmadı
 - [Kurum açma](https://akredit.org/kurum-ac), [Pilot](https://akredit.org/pilot), [Giriş ve hesap](https://akredit.org/giris-ve-hesap): barındırılan hizmetle birlikte askıda
 
 ## İsteğe bağlı
 
 - [Kılavuzlar](https://akredit.org/belgeler): taslak
-- [KVKK](https://akredit.org/kvkk), [Gizlilik](https://akredit.org/gizlilik), [Kullanım koşulları](https://akredit.org/kosullar): taslak
+- [KVKK](https://akredit.org/kvkk), [Gizlilik](https://akredit.org/gizlilik), [Kullanım koşulları](https://akredit.org/kosullar): yayında; işletmecinin tüzel kimliği henüz belirlenmedi
 - [Açık kaynak](https://akredit.org/acik-kaynak)

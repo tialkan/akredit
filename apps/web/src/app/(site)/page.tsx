@@ -2,10 +2,11 @@
 // Kurulum adımları elle yazılmaz; herkese açık MCP'nin kurulum rehberinden (kurulum_yardimi aracı) okunur.
 // Platform tanıtımı ve diğer her şey /proje sayfasındadır.
 
-import { type Adim, AKREDIT_ODAKLARI } from "@akredit/acik-mcp";
+import { AKREDIT_ODAKLARI } from "@akredit/acik-mcp";
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { CSSProperties } from "react";
+import { AdimListesi } from "../../site/adim-listesi.tsx";
 import { BelirmeGozlemcisi } from "../../site/belirme.tsx";
 import { YapisalVeri } from "../../site/bilesenler.tsx";
 import { GORSELLER, Gorsel } from "../../site/gorsel.tsx";
@@ -19,6 +20,7 @@ import {
   UYGULAMALAR,
   type Uygulama,
 } from "../../site/kurulum.ts";
+import { ornekDenetim } from "../../site/ornek-denetim.ts";
 import { sayfaUstVerisi } from "../../site/yapisal.ts";
 
 export const metadata: Metadata = sayfaUstVerisi(SAYFALAR.ana);
@@ -54,7 +56,8 @@ const SSS: { soru: string; cevap: string }[] = [
   },
   {
     soru: "ChatGPT'de olmuyor",
-    cevap: "Ayarlarda geliştirici kipi açık olmalı. Kurum hesabında bunu yönetici açar.",
+    cevap:
+      "Özel bağlayıcı eklemenin açık olup olmadığı planınıza göre değişebilir. Kurum hesabında izinleri yönetici verir.",
   },
 ];
 
@@ -62,28 +65,6 @@ const BAG = "text-vurgu underline underline-offset-4";
 
 /** Kapanış sloganı; kelimeleri sırayla belirir. */
 const SLOGAN = "Kurallar ve hesaplar Akredit'te. Karar ve son tık sizde.";
-
-function AdimListesi({ adimlar }: { adimlar: Adim[] }) {
-  return (
-    <ol className="mt-4 grid gap-3">
-      {adimlar.map((a) => (
-        <li key={a.no} className="grid grid-cols-[2.25rem_1fr] gap-x-2">
-          <span className="paragraf-no text-xl leading-7" aria-hidden>
-            {a.no}.
-          </span>
-          <div>
-            <p>
-              <span className="sr-only">{a.no}. </span>
-              {a.yap}
-            </p>
-            {a.goreceginiz ? <p className="text-soluk">Göreceğiniz: {a.goreceginiz}</p> : null}
-            {a.degisebilir ? <p className="text-soluk">Menünün adı sizde biraz farklı olabilir.</p> : null}
-          </div>
-        </li>
-      ))}
-    </ol>
-  );
-}
 
 function UygulamaBolumu({ u }: { u: Uygulama }) {
   return (
@@ -101,6 +82,24 @@ function UygulamaBolumu({ u }: { u: Uygulama }) {
         {u.ek ? <p className="mt-3 text-soluk">{u.ek}</p> : null}
       </div>
     </details>
+  );
+}
+
+/** Önce/sonra: kurgu ders sayfası, gerçek Bologna denetimi. Bulgu metinleri hesaptan gelir. */
+function OnceSonra() {
+  const { once, sonra } = ornekDenetim();
+  return (
+    <figure className="rounded-sm border border-cizgi-guclu bg-zemin p-4 text-base sm:p-5">
+      <figcaption className="bolum-etiketi text-soluk">Örnek: kurgu bir ders sayfası, gerçek denetim</figcaption>
+      <h2 className="mt-3 text-xl text-vurgu">Önce: {once.length} bulgu</h2>
+      <ul className="mt-2 grid list-disc gap-1 pl-5">
+        {once.map((b) => (
+          <li key={b.kural}>{b.aciklama}</li>
+        ))}
+      </ul>
+      <h2 className="mt-4 text-xl text-vurgu">Sonra: {sonra.length === 0 ? "bulgu yok" : `${sonra.length} bulgu`}</h2>
+      <p className="mt-1 text-soluk">İş yükü, değerlendirme ve haftalar düzeltildi; denetim yeniden çalıştı.</p>
+    </figure>
   );
 }
 
@@ -132,14 +131,7 @@ export default function AnaSayfa() {
             </h1>
             <p className="mt-5 max-w-[46ch] text-xl">Ücretsiz, açık kaynak, hesapsız. Kendi yapay zekânızda çalışır.</p>
           </div>
-          <div className="gravur-levha w-full max-w-[17rem] justify-self-start lg:max-w-none lg:justify-self-end">
-            <Gorsel
-              gorsel={GORSELLER.calismaMasasi}
-              alt="Gravür çizim: pencere önünde bir çalışma masası; üzerinde açık bir dizüstü bilgisayar, kitaplar ve bir fincan."
-              boyutlar="(min-width: 64rem) 30rem, 17rem"
-              oncelikli
-            />
-          </div>
+          <OnceSonra />
         </div>
       </section>
 
@@ -148,10 +140,15 @@ export default function AnaSayfa() {
           <AdimBasligi no={1} id="adim-1">
             Akredit'i yapay zekânıza ekleyin
           </AdimBasligi>
-          <h3 className="bolum-etiketi mt-6 text-lg text-metin">En kolay yol: kopyalayın, yapıştırın</h3>
-          <p className="mt-1">
-            Claude Code ya da Codex masaüstünde yeni bir oturuma yapıştırın; kurulumu kendisi yapar.
-          </p>
+          <div className="mt-6 grid gap-3">
+            {UYGULAMALAR.map((u) => (
+              <UygulamaBolumu key={u.kimlik} u={u} />
+            ))}
+          </div>
+          <h3 className="bolum-etiketi mt-8 text-lg text-metin">
+            Claude Code ya da Codex masaüstü kullanıyorsanız: tam otomatik kurulum
+          </h3>
+          <p className="mt-1">Yeni bir oturuma yapıştırın; kurulumu kendisi yapar.</p>
           <ul className="mt-3 grid gap-2">
             <li>
               Claude Code:{" "}
@@ -169,13 +166,6 @@ export default function AnaSayfa() {
             </li>
           </ul>
           <KopyalaKutusu etiket="Claude Code ya da Codex'e yapıştırılacak metin" metin={KURULUM_ISTEGI} uzun />
-          <p className="mt-2 text-base text-soluk">claude.ai ve ChatGPT sohbetinde aşağıdaki adımları izleyin.</p>
-          <h3 className="bolum-etiketi mt-8 text-lg text-metin">Kendiniz ekleyin</h3>
-          <div className="mt-4 grid gap-3">
-            {UYGULAMALAR.map((u) => (
-              <UygulamaBolumu key={u.kimlik} u={u} />
-            ))}
-          </div>
           <h3 className="bolum-etiketi mt-8 text-lg text-metin">Geliştirici araçları</h3>
           <div className="mt-3 grid gap-3">
             {GELISTIRICI_ARACLARI.map((u) => (
@@ -192,6 +182,7 @@ export default function AnaSayfa() {
           </AdimBasligi>
           <ol className="mt-4 grid list-decimal gap-2 pl-7">
             <li>Yeni sohbette akredit yazın.</li>
+            <li>Menü gelmezse şunu yazın: Akredit araçlarıyla Bologna paketimi denetle</li>
             <li>Menüden numarayla seçin.</li>
           </ol>
           <figure className="mt-6 rounded-sm border border-cizgi bg-zemin p-4 sm:p-5">
@@ -242,9 +233,10 @@ export default function AnaSayfa() {
       <section aria-label="Akredit'in ilkesi" className="border-t border-cizgi bg-yuzey">
         <div data-belir className="mx-auto max-w-4xl px-4 py-16 text-center sm:py-24">
           <p className="font-baslik text-[1.9rem] leading-[1.2] tracking-[-0.015em] text-balance text-vurgu sm:text-[2.6rem]">
+            <span className="sr-only">{SLOGAN}</span>
             {SLOGAN.split(" ").map((k, i) => (
               // biome-ignore lint/suspicious/noArrayIndexKey: sabit cümlenin kelimeleri; sıra değişmez
-              <span key={i} className="slogan-kelime" style={{ "--sira": i } as CSSProperties}>
+              <span key={i} aria-hidden className="slogan-kelime" style={{ "--sira": i } as CSSProperties}>
                 {k}{" "}
               </span>
             ))}

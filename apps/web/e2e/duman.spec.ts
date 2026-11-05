@@ -9,6 +9,9 @@ test.describe("tanıtım sitesi", () => {
     await expect(page).toHaveTitle(/Akredit/);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Akreditasyon ve Bologna yardımcısı");
     await expect(page.locator("main h2")).toHaveText([
+      // İlk ekrandaki önce/sonra örneği: bulgular gerçek Bologna denetiminden (src/site/ornek-denetim.ts).
+      /^Önce: 3 bulgu$/u,
+      "Sonra: bulgu yok",
       /Adım 1.*Akredit'i yapay zekânıza ekleyin/u,
       /Adım 2.*akredit yazın/u,
       "Takıldınız mı?",
@@ -47,6 +50,10 @@ test.describe("tanıtım sitesi", () => {
       await expect(page.getByRole("heading", { level: 1 })).toHaveText(baslik);
     }
     const alt = page.getByRole("navigation", { name: "Alt menü" });
+    await expect(alt.getByRole("link", { name: "Hata bildirin" })).toHaveAttribute(
+      "href",
+      "https://github.com/tialkan/akredit/issues",
+    );
     await expect(alt.getByRole("link", { name: "Kaynak kodu (GitHub)" })).toHaveAttribute(
       "href",
       "https://github.com/tialkan/akredit",

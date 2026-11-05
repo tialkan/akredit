@@ -55,31 +55,35 @@ const ISTEMCI_ADI: Record<Istemci, string> = {
 };
 
 const BAGLAYICI: Record<Istemci, HamAdim[]> = {
+  // Anthropic yardım belgesi "Get started with custom connectors using remote MCP" (erişim 2026-11-05).
   claude_web: [
     ["claude.ai adresine girin ve oturum açın.", "Sol tarafta sohbet listesi, ortada yazı kutusu."],
-    ["Sol alttaki adınıza tıklayın, Settings (Ayarlar) seçin.", "Ayarlar sayfası açılır.", true],
-    ["Connectors (Bağlayıcılar) bölümünü açın.", "Bağlı araçların listesi.", true],
-    ["Add custom connector (Özel bağlayıcı ekle) düğmesine basın.", "Ad ve adres soran küçük bir pencere.", true],
-    [`Ad olarak Akredit, adres olarak ${MCP_ADRESI} yazın ve Add (Ekle) deyin.`, "Listede Akredit görünür."],
+    ["Customize (Özelleştir), ardından Connectors (Bağlayıcılar) bölümünü açın.", "Bağlı araçların listesi."],
+    ["+ Add düğmesine, ardından Add custom connector seçeneğine basın.", "Ad ve adres soran pencere."],
+    [`Ad olarak Akredit, adres olarak ${MCP_ADRESI} yazın ve Continue deyin.`, "Kimlik doğrulama seçenekleri."],
+    ["Authentication altında No sign in seçin ve Add deyin.", "Listede Akredit görünür."],
+    [
+      "Ücretsiz planda tek özel bağlayıcı eklenebilir. Team ve Enterprise planlarında bağlayıcıyı kuruluş sahibi ekler; siz Connectors listesinde Akredit'i bulup Connect dersiniz.",
+      undefined,
+    ],
     [
       "Yeni sohbet açın. Yazı kutusunun altındaki + düğmesinden Akredit'in açık olduğunu denetleyin.",
       "Akredit'in yanında açık anahtar.",
       true,
     ],
     [
-      "Yazı kutusuna akredit yazın ya da + menüsünden Akredit altındaki akredit başlangıcını seçin.",
-      "Odak menüsü: 1-5 arası seçenek.",
+      "akredit yazın. Menü gelmezse Akredit araçlarıyla Bologna paketimi denetle yazın.",
+      "Odak menüsü: numaralı seçenekler.",
     ],
   ],
   claude_masaustu: [
     ["Claude masaüstü uygulamasını açın ve oturum açın.", "claude.ai ile aynı görünüm."],
+    ["Customize (Özelleştir), ardından Connectors (Bağlayıcılar) bölümünü açın.", "Bağlayıcı listesi."],
     [
-      "Sol alttaki adınızdan Settings (Ayarlar), ardından Connectors (Bağlayıcılar) bölümüne girin.",
-      "Bağlayıcı listesi.",
-      true,
+      `+ Add, Add custom connector ile ad Akredit, adres ${MCP_ADRESI} yazın; Authentication altında No sign in seçip Add deyin.`,
+      "Listede Akredit görünür.",
     ],
-    [`Add custom connector ile ad Akredit, adres ${MCP_ADRESI} olarak ekleyin.`, "Listede Akredit görünür.", true],
-    ["Yeni sohbette akredit yazın.", "Odak menüsü."],
+    ["Yeni sohbette akredit yazın. Menü gelmezse Akredit araçlarıyla Bologna paketimi denetle yazın.", "Odak menüsü."],
   ],
   claude_chrome: [
     ["Önce Claude'a Akredit bağlayıcısını ekleyin (Claude web adımları).", "Sohbette Akredit açık."],
@@ -101,20 +105,26 @@ const BAGLAYICI: Record<Istemci, HamAdim[]> = {
       true,
     ],
   ],
+  // OpenAI geliştirici belgesi "Custom MCP server" (erişim 2026-11-05). Hangi planlarda açık olduğu belgede yazmıyor.
   chatgpt: [
-    ["chatgpt.com adresinde oturum açın.", "Sohbet ekranı."],
+    ["chatgpt.com adresinde, web tarayıcısında oturum açın.", "Sohbet ekranı."],
+    ["chatgpt.com/plugins adresini açın; + düğmesine basıp Add custom MCP server seçin.", "Ad ve bağlantı soran form."],
     [
-      "Settings (Ayarlar), Apps (Uygulamalar), Advanced settings altında Developer mode (geliştirici kipi) seçeneğini açın.",
-      "Uygulama oluşturma düğmesi görünür.",
+      `Ad olarak Akredit yazın; Connection altında Server URL olarak ${MCP_ADRESI} girin; kimlik doğrulama olarak no authentication seçin.`,
+      undefined,
       true,
     ],
     [
-      `Create (Oluştur) ile yeni uygulama ekleyin: ad Akredit, adres ${MCP_ADRESI}, kimlik doğrulama yok.`,
-      "Akredit araçları listelenir.",
+      "Uyarıyı okuyup I understand and want to continue, ardından Create as a plugin deyin; sonra eklentiyi kurun.",
+      "Akredit eklentilerinizde görünür.",
       true,
     ],
-    ["İş ve kurum hesaplarında bu ayarı yönetici açar; açamıyorsanız yöneticinize sorun.", undefined, true],
-    ["Yeni sohbette Akredit'i seçin ve akredit yazın.", "Odak menüsü."],
+    [
+      "Bu özelliğin açık olup olmadığı planınıza göre değişebilir. Kurum hesabında çalışma alanı izinleri yöneticiye bağlıdır.",
+      undefined,
+      true,
+    ],
+    ["Yeni sohbette @ yazıp Akredit'i seçin, sonra akredit yazın.", "Odak menüsü."],
   ],
   cursor: [
     ["Cursor'da Settings (Ayarlar), ardından MCP bölümünü açın.", "MCP sunucu listesi.", true],

@@ -102,8 +102,8 @@
     "indirildi": false,
     "dosya": null,
     "sha256": null,
-    "durum": "DOĞRULANMADI",
-    "not": "Ağ vekili mudek.org.tr'yi engelledi; belge adresi bulunamadı. Kullanıcı MÜDEK sitesinden indirmeli."
+    "durum": "YERİNE İNDİRİLEN BELGE VAR",
+    "not": "Ağ vekili mudek.org.tr'yi engelledi; belge adresi bulunamadı. Kullanıcı MÜDEK sitesinden indirmeli. Güncelleme 2026-11-05: Bu genel kayıt tarihsel olarak korunur. MÜDEK Lisans 3.1 ve Yüksek Lisans 2.0 belgeleri 2026-10-30'da indirildi (aşağıdaki İNDİRİLDİ kayıtları, SHA-256 özetleriyle); packages/cerceveler bu belgeleri kullanır. Uzman onayı bekleniyor."
   },
   {
     "kurum": "MÜDEK",

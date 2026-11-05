@@ -1,5 +1,5 @@
-// Bütün yanıtlara eklenen güvenlik ve sürüm başlıkları, herkese açık sayfaların önbellek politikası (İP-49).
-// Saf işlevler; next.config.ts (headers) ve src/proxy.ts (Cache-Control) kullanır, test edilir.
+// Bütün yanıtlara eklenen güvenlik ve sürüm başlıkları, durağan varlıkların önbellek politikası (İP-49).
+// Saf işlevler; next.config.ts (headers) kullanır, test edilir.
 // CSP ve frame-ancestors burada değil, istek başına nonce ile src/proxy.ts'te verilir (G-27-1).
 
 export interface Baslik {
@@ -32,39 +32,12 @@ export function surumBelirle(ortam: Record<string, string | undefined>, paketSur
   return /^[0-9A-Za-z._-]{1,64}$/u.test(c) ? c : paketSurumu;
 }
 
-/** Herkese açık, kişiye özel içerik taşımayan tanıtım sayfaları. Panel, API, form ve giriş yolları burada yok. */
-export const ONBELLEKLI_YOLLAR: readonly string[] = [
-  "/",
-  "/ne-yapar",
-  "/nasil-calisir",
-  "/kimler-icin",
-  "/cerceveler",
-  "/yapay-zeka",
-  "/giris-ve-hesap",
-  "/guvenlik",
-  "/sinirlar",
-  "/sss",
-  "/iletisim",
-  "/mcp-kullan",
-  "/acik-kaynak",
-  "/kvkk",
-  "/gizlilik",
-  "/kosullar",
-  "/yol-haritasi",
-  "/belgeler",
-  "/proje",
-];
-
 /**
- * Paylaşılan önbellek (CDN, ters vekil) 5 dakika tutar, arka planda yeniler. Sayfalar yine istek başına işlenir
- * (CSP nonce'u, barındırma bayrağı çalışma anında okunur); bayrak değişikliği en geç 5 dakikada yansır.
- * Tarayıcı s-maxage'ı uygulamaz. Diğer yollar için null: Next'in kendi değeri (no-store) kalır.
+ * Sayfalar paylaşılan önbelleğe alınmaz: her yanıt istek başına yeni bir CSP nonce'u taşır; önbellekteki sayfa
+ * bütün ziyaretçilere aynı nonce'u verirdi (dış inceleme, 05.11.2026). Uzun önbellek yalnız durağan varlıklara.
+ * _next/static dosyalarının adı içerik özeti taşır; Next onlara kendisi "max-age=31536000, immutable" verir.
+ * public/gorsel ve public/marka adları içerik özeti taşımaz: içerik değişirse dosya adı da değişmelidir.
  */
-export const ONBELLEK_DEGERI = "public, s-maxage=300, stale-while-revalidate=600";
+export const DURAGAN_ONBELLEK = "public, max-age=31536000, immutable";
 
-export function onbellekPolitikasi(yol: string): string | null {
-  const y = yol.length > 1 && yol.endsWith("/") ? yol.slice(0, -1) : yol;
-  if (ONBELLEKLI_YOLLAR.includes(y)) return ONBELLEK_DEGERI;
-  if (/^\/belgeler\/[a-z0-9-]+$/u.test(y)) return ONBELLEK_DEGERI;
-  return null;
-}
+export const DURAGAN_YOLLAR: readonly string[] = ["/gorsel/:yol*", "/marka/:yol*"];

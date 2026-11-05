@@ -3,3 +3,6 @@
 
 export const ILETISIM_ADRESI = "https://www.linkedin.com/in/tialkan/";
 export const PROJE_SAHIBI = "Tarık İsmet ALKAN";
+
+/** Hata bildirimi: depodaki GitHub Issues (dış inceleme, 05.11.2026). İletişim kanalı yine LinkedIn'dir. */
+export const HATA_BILDIRIM_ADRESI = "https://github.com/tialkan/akredit/issues";

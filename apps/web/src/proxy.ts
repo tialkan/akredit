@@ -1,5 +1,4 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { onbellekPolitikasi } from "./guvenlik/basliklar.ts";
 import { cspBasligi, cspBaslikAdi, cspKipi, NONCE_BASLIGI, nonceUret } from "./guvenlik/csp.ts";
 
 // G-27-1: istek başına nonce'lu CSP. Next.js nonce'u istek başlığındaki CSP'den okuyup kendi
@@ -14,11 +13,7 @@ export function proxy(istek: NextRequest) {
   basliklar.set("Content-Security-Policy", politika);
   const yanit = NextResponse.next({ request: { headers: basliklar } });
   yanit.headers.set(cspBaslikAdi(kip), politika);
-  // Herkese açık tanıtım sayfaları paylaşılan önbellekte kısa süre tutulur (İP-49). Yalnız tam sayfa GET;
-  // istemci gezintisinin RSC istekleri ve panel/API yolları Next'in no-store değerinde kalır.
-  const onbellek =
-    istek.method === "GET" && !istek.headers.has("rsc") ? onbellekPolitikasi(istek.nextUrl.pathname) : null;
-  if (onbellek) yanit.headers.set("Cache-Control", onbellek);
+  // Sayfalara paylaşılan önbellek başlığı verilmez: nonce istek başınadır (basliklar.ts, DURAGAN_ONBELLEK).
   return yanit;
 }
 

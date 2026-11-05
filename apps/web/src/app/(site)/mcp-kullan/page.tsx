@@ -1,6 +1,7 @@
-import { ACIK_ARACLAR, ACIK_ISTEMLER } from "@akredit/acik-mcp";
+import { ACIK_ARACLAR, ACIK_ISTEMLER, baglayiciAdimlari } from "@akredit/acik-mcp";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { AdimListesi } from "../../../site/adim-listesi.tsx";
 import { Bolum, Metin, SayfaBasi, YapisalVeri } from "../../../site/bilesenler.tsx";
 import { GORSELLER, Gorsel } from "../../../site/gorsel.tsx";
 import { SAYFALAR } from "../../../site/icerik.ts";
@@ -46,12 +47,12 @@ const ORNEK_KONUSMA: { kim: "Hoca" | "Asistan"; metin: string }[] = [
 const ILK_KEZ: { baslik: string; yap: string; gorursunuz: string }[] = [
   {
     baslik: "Claude'a Akredit'i ekleyin",
-    yap: `Settings, Connectors, Add custom connector. Ad: Akredit, adres: ${MCP_ADRESI}.`,
+    yap: `Customize, Connectors, + Add, Add custom connector. Ad: Akredit, adres: ${MCP_ADRESI}. Ayrıntısı aşağıda.`,
     gorursunuz: "Bağlayıcı listesinde Akredit.",
   },
   {
     baslik: "akredit yazın",
-    yap: "Yeni sohbette akredit yazın; Bologna için 1 seçin.",
+    yap: "Yeni sohbette akredit yazın. Menü gelmezse Akredit araçlarıyla Bologna paketimi denetle yazın.",
     gorursunuz: "Beş seçenekli bir menü.",
   },
   {
@@ -116,7 +117,8 @@ export default function McpKullan() {
               <code className={KOD}>{MCP_ADRESI}</code> adresini ekleyin (aşağıda, "Nasıl eklenir").
             </li>
             <li>
-              Yeni sohbette <code className={KOD}>akredit</code> yazın. Görünmüyorsa "Akredit ile başlayalım" yazın.
+              Yeni sohbette <code className={KOD}>akredit</code> yazın. Menü gelmezse "Akredit araçlarıyla Bologna
+              paketimi denetle" yazın.
             </li>
             <li>Odağınızı seçin. "4) Hepsini akıllıca doldur" her alanı doldurur, denetler ve tek özet gösterir.</li>
           </ol>
@@ -201,26 +203,13 @@ export default function McpKullan() {
       <Bolum id="ekleme" baslik="Nasıl eklenir">
         <Metin>
           <h3>Claude (claude.ai ve masaüstü uygulaması)</h3>
-          <ol>
-            <li>Ayarlarda Customize, ardından Connectors bölümünü açın.</li>
-            <li>"+ Add" ve "Add custom connector" seçin.</li>
-            <li>
-              Ad olarak "Akredit" yazın, adres olarak <code className={KOD}>{MCP_ADRESI}</code> girin, Continue deyin.
-            </li>
-            <li>Kimlik doğrulamada "No sign in" seçin ve Add ile bitirin.</li>
-            <li>Sohbette sol alttaki "+" düğmesinden Connectors altında Akredit'i açın.</li>
-          </ol>
-          <p>Kurumsal planlarda bağlayıcıyı yönetici ekler.</p>
+          <AdimListesi adimlar={baglayiciAdimlari("claude_web")} />
 
           <h3>Claude Code</h3>
           <pre className={BLOK}>claude mcp add --transport http akredit {MCP_ADRESI}</pre>
 
           <h3>ChatGPT</h3>
-          <p>
-            Settings, Apps, Advanced settings altında geliştirici kipini açın. Apps altında Create ile adres olarak{" "}
-            <code className={KOD}>{MCP_ADRESI}</code> girin, kimlik doğrulamasız seçin. Kurum hesabında bunu yönetici
-            açar.
-          </p>
+          <AdimListesi adimlar={baglayiciAdimlari("chatgpt")} />
 
           <h3>Cursor</h3>
           <p>

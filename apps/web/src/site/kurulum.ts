@@ -26,9 +26,9 @@ export const UYGULAMALAR: Uygulama[] = [
     istemci: "claude_web",
     adet: 5,
     acik: true,
-    ek: "Masaüstü uygulamasında da aynı menüler vardır.",
+    ek: "Masaüstü uygulamasında da aynı menüler vardır. Ücretsiz planda tek özel bağlayıcı eklenebilir; Team ve Enterprise planlarında bağlayıcıyı kuruluş sahibi ekler.",
   },
-  { kimlik: "chatgpt", ad: "ChatGPT", istemci: "chatgpt", adet: 4 },
+  { kimlik: "chatgpt", ad: "ChatGPT", istemci: "chatgpt", adet: 5 },
 ];
 
 export const GELISTIRICI_ARACLARI: Uygulama[] = [
