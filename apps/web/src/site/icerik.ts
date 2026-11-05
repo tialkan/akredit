@@ -5,7 +5,7 @@
 export const SITE_ADRESI = "https://akredit.org";
 export const SON_GUNCELLEME = "2026-10-28";
 
-export { ILETISIM_ADRESI, PROJE_SAHIBI } from "./iletisim.ts";
+export { ILETISIM_ADRESI, ILETISIM_EPOSTA, PROJE_SAHIBI } from "./iletisim.ts";
 
 /** Demonun dürüst durumu (kurucu kararı, İP-49). /deneyin üstünde ve proje ayrıntılarında aynen görünür. */
 export const DEMO_NOTU =

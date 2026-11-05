@@ -16,8 +16,8 @@ export default function Sayfa() {
           anda askıdadır. Demo uydurma veriler kullanır.
         </p>
         <p>
-          Site ve hizmeti işleten veri sorumlusunun tüzel kimliği, adresi ve başvuru kanalları henüz
-          kesinleştirilmemiştir. Bunlar belirlendiğinde bu sayfada duyurulur.
+          Site ve açık aracın veri sorumlusu Tarık İsmet ALKAN'dır. Başvuru kanalı:{" "}
+          <a href="mailto:iletisim@akredit.org">iletisim@akredit.org</a>. Posta adresi bu kanaldan istenebilir.
         </p>
       </section>
       <section>
@@ -42,8 +42,7 @@ export default function Sayfa() {
         </p>
         <p>
           Veriler ilgili kişinin doğrudan girişiyle, kurumun yetkili kullanıcısı veya entegrasyonuyla ya da hizmetin
-          güvenli biçimde işletilmesi sırasında elektronik ortamda elde edilebilir. Hangi kategorilerin gerçekten
-          işlendiği, etkin hizmet ve veri envanteriyle doğrulanmalıdır.
+          güvenli biçimde işletilmesi sırasında elektronik ortamda elde edilebilir.
         </p>
       </section>
       <section>
@@ -54,10 +53,10 @@ export default function Sayfa() {
           işlenmesi farklı değerlendirme gerektirebilir.
         </p>
         <p>
-          Her amaç için uygulanabilir hukuki sebep, veri kategorisi ve ilgili kişi grubu ayrıca belirlenmelidir.
-          Sözleşmenin kurulması veya ifası, hukuki yükümlülük ya da meşru menfaat gibi sebepler ancak somut şartları
-          sağlandığında kullanılabilir. Gerekli olduğu durumlarda açık rıza özgür iradeyle, belirli ve bilgilendirilmiş
-          olarak ayrıca alınır; aydınlatma metni rıza yerine geçmez.
+          Her amaç için uygulanabilir hukuki sebep ayrı değerlendirilir. Sözleşmenin kurulması veya ifası, hukuki
+          yükümlülük ya da meşru menfaat gibi sebepler ancak somut şartları sağlandığında kullanılabilir. Gerekli olduğu
+          durumlarda açık rıza özgür iradeyle, belirli ve bilgilendirilmiş olarak ayrıca alınır; aydınlatma metni rıza
+          yerine geçmez.
         </p>
       </section>
       <section>
@@ -83,8 +82,8 @@ export default function Sayfa() {
         <p>
           Kanun’un 11. maddesi kapsamındaki bilgi alma, düzeltme, silme veya yok etme, aktarılan üçüncü kişilere
           bildirme ve diğer haklar için ilgili veri sorumlusuna başvurulabilir. Kurum verileri bakımından öncelikle
-          ilgili üniversitenin resmî başvuru kanalı kullanılmalıdır. İşletmeciye ilişkin sorular için iletişim sayfası
-          kullanılabilir; resmî başvuru usulü ve adresi işletmeci kimliği kesinleştiğinde açıklanacaktır.
+          ilgili üniversitenin resmî başvuru kanalı kullanılmalıdır. Site ve açık araçla ilgili başvurular{" "}
+          <a href="mailto:iletisim@akredit.org">iletisim@akredit.org</a> adresine yazılı olarak yapılabilir.
         </p>
       </section>
       <section>

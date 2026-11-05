@@ -12,7 +12,8 @@ export default function Sayfa() {
         <h2>Kapsam</h2>
         <p>
           Bu koşullar kamuya açık site, açık MCP aracı, demo ve ileride açılabilecek kurum hizmeti için ayrı
-          değerlendirilir. İşletmeci kimliği, sözleşme tarafları ve yürürlük tarihi henüz belirlenmemiştir.
+          değerlendirilir. Site ve açık aracı Tarık İsmet ALKAN işletir; iletişim:{" "}
+          <a href="mailto:iletisim@akredit.org">iletisim@akredit.org</a>.
         </p>
       </section>
       <section>

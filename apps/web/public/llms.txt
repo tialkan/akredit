@@ -9,7 +9,7 @@
 - [Ana sayfa](https://akredit.org/): kurgu bir ders sayfasında gerçek Bologna denetiminin önce/sonra örneği ve iki adım; Akredit'i yapay zekânıza ekleyin (Claude, ChatGPT, geliştirici araçları; Claude Code için claude mcp add --transport http akredit https://akredit.org/mcp), sonra akredit yazın
 - [Ayrıntılı kurulum ve araçlar](https://akredit.org/mcp-kullan): YÖKAK, MÜDEK, FEDEK, EPDAD ve SABAK ölçüt metni ve olgunluk düzeyleri, Bologna denetimi ve uçtan uca doldurma, ÇK/PÇ hesabı, öz değerlendirme iskeleti, rapor dil denetimi; npm paketi @akredit/acik-mcp
 - [Proje ayrıntıları](https://akredit.org/proje): bütün sayfalar ve durumları (çalışıyor, askıda, taslak)
-- [İletişim](https://akredit.org/iletisim): proje sahibi Tarık İsmet ALKAN, LinkedIn (https://www.linkedin.com/in/tialkan/); hata bildirimi GitHub Issues (https://github.com/tialkan/akredit/issues)
+- [İletişim](https://akredit.org/iletisim): proje sahibi Tarık İsmet ALKAN, iletisim@akredit.org, LinkedIn (https://www.linkedin.com/in/tialkan/); hata bildirimi GitHub Issues (https://github.com/tialkan/akredit/issues)
 
 ## Projenin devam eden ayrıntıları
 

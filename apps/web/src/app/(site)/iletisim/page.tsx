@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Bolum, Metin, SayfaBasi, YapisalVeri } from "../../../site/bilesenler.tsx";
-import { ILETISIM_ADRESI, PROJE_SAHIBI, SAYFALAR } from "../../../site/icerik.ts";
+import { ILETISIM_ADRESI, ILETISIM_EPOSTA, PROJE_SAHIBI, SAYFALAR } from "../../../site/icerik.ts";
 import { sayfaUstVerisi } from "../../../site/yapisal.ts";
 
 export const metadata: Metadata = sayfaUstVerisi(SAYFALAR.iletisim);
@@ -13,7 +13,8 @@ export default function Iletisim() {
       <Bolum id="sahip" baslik="Proje sahibi">
         <Metin>
           <p>
-            Proje sahibi {PROJE_SAHIBI}. İletişim: <a href={ILETISIM_ADRESI}>LinkedIn</a>
+            Proje sahibi {PROJE_SAHIBI}. İletişim: <a href={`mailto:${ILETISIM_EPOSTA}`}>{ILETISIM_EPOSTA}</a> ya da{" "}
+            <a href={ILETISIM_ADRESI}>LinkedIn</a>
           </p>
         </Metin>
       </Bolum>
@@ -28,7 +29,7 @@ export default function Iletisim() {
       <Bolum id="guvenlik" baslik="Güvenlik açığı bildirimi">
         <Metin>
           <p>
-            Açıkları herkese açık yazmayın: LinkedIn'den özel ileti ya da{" "}
+            Açıkları herkese açık yazmayın: <a href={`mailto:${ILETISIM_EPOSTA}`}>{ILETISIM_EPOSTA}</a> ya da{" "}
             <a href="https://github.com/tialkan/akredit/security/advisories/new">GitHub güvenlik bildirimi</a>. Sürümü,
             adımları ve etkiyi yazın. İlk yanıt hedefi 3 iş günü.
           </p>
