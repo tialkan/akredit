@@ -1,15 +1,45 @@
 // Bologna ders sayfası taslağı denetimi (K1-K12 ve diğer kurallar).
 // apps/cli/lib/bologna-taslak.mjs `taslakDenetle` işlevinin saf, tipli taşıması. Mesajlar aynen korunur:
 // CLI'deki "K8: metin" dizesi burada { kural: "K8", aciklama: "metin" } olur.
+//
+// İki kural seti vardır (dış inceleme 2026-11-05):
+// - "cli" (varsayılan): CLI ile birebir eşdeğer, eşdeğerlik testleri bunu sınar.
+// - "guncel": açık MCP'nin kullandığı set. ÖÇ sayısı 4-10 geçerli (5-8 önerilir), "-ebilme/-abilme" kabul,
+//   "sahip ol/farkında ol/haberdar ol/vakıf ol" ölçülemez, AKTS iş yükü 25-30 saat/AKTS aralığı (kurum değeri
+//   verilirse tam o değer). Her bulgu kuralTuru ve dayanak taşır; resmî olduğu doğrulanamayan kural resmî sayılmaz.
 
-import type { Bulgu } from "../turler.ts";
+import type { Bulgu, KuralTuru } from "../turler.ts";
 import type { BolognaTaslagi } from "./turler.ts";
 
 export interface TaslakDenetimSonucu {
   bulgular: Bulgu[];
   isToplam: number;
   hedef: number;
+  /** "guncel" kural setinde iş yükünün kabul aralığı (saat). Kurum değeri verildiyse alt ve üst eşittir. */
+  hedefAraligi?: [number, number];
 }
+
+export type TaslakKuralSeti = "cli" | "guncel";
+
+export interface TaslakDenetimSecenekleri {
+  /** "cli" kural setinde AKTS başına saat (varsayılan 30). */
+  bolen?: number;
+  kuralSeti?: TaslakKuralSeti;
+  /** "guncel" sette kurumun AKTS başına saati; verilirse iş yükü tam AKTS × bu değer olmalı. */
+  kurumBoleni?: number | undefined;
+  /** "guncel" sette kurum değeri yoksa AKTS başına saat aralığı; varsayılan [25, 30]. */
+  aktsSaat?: readonly [number, number];
+}
+
+/** Kuralların dayanak notları. Hiçbiri resmî belgeyle doğrulanmadı; bu yüzden hiçbiri "resmî" değildir. */
+export const TASLAK_DAYANAK = {
+  akredit: "Akredit iç kuralı (packages/cekirdek/src/bologna/taslak.ts); resmî dayanağı DOĞRULANMADI.",
+  akts: "AKTS başına 25-30 saat yaygın uygulamadır; resmî metinle DOĞRULANMADI. Kurumun yönergesi önceliklidir.",
+  kurum: "Kurumun verdiği AKTS başına saat değeri.",
+} as const;
+
+const ONERILEN_CIKTI: readonly [number, number] = [5, 8];
+const GECERLI_CIKTI: readonly [number, number] = [4, 10];
 
 const kelime = (s: unknown): number =>
   String(s ?? "")
@@ -26,11 +56,17 @@ const OLCULEMEZ = /(bilgi sahibi olur|hakkında bilgi|fikir sahibi olur|(^|\s)(�
 const ZAYIF = /farkındalık/i;
 // Türkçe çekimli fiille biten çıktı: açıklar, uygular, tasarlar, geliştirebilir…
 const FIILLE_BITER = /(ar|er|ır|ir|ur|ür)\.?\s*$/i;
+// "guncel" set: "-ebilme/-abilme" kalıbı da kabul (tasarlayabilme, analiz edebilme).
+const FIILLE_BITER_GUNCEL = /(ar|er|ır|ir|ur|ür|abilme|ebilme)\.?\s*$/iu;
+// "guncel" set: "sahip olur", "farkında olur", "haberdar olur", "vakıf olur" (ve -abilir, -ma biçimleri) ölçülemez.
+const OLCULEMEZ_GUNCEL = /(sahibi? ol|sahip ol|farkında ol|haberdar ol|vakıf ol)\p{L}*\.?\s*$/iu;
 
 /** Kısmi ya da dışarıdan gelmiş taslak da denetlenebilir; eksik alanlar bulgu üretir. */
 export type DenetlenecekTaslak = Partial<BolognaTaslagi>;
 
-export function taslakDenetle(t: DenetlenecekTaslak, { bolen = 30 }: { bolen?: number } = {}): TaslakDenetimSonucu {
+export function taslakDenetle(t: DenetlenecekTaslak, secenek: TaslakDenetimSecenekleri = {}): TaslakDenetimSonucu {
+  const { bolen = 30 } = secenek;
+  const guncel = secenek.kuralSeti === "guncel";
   const bulgular: Bulgu[] = [];
   const hata = (kural: string, aciklama: string) => bulgular.push({ duzey: "hata", kural, aciklama });
   const uyari = (kural: string, aciklama: string) => bulgular.push({ duzey: "uyari", kural, aciklama });
@@ -73,12 +109,37 @@ export function taslakDenetle(t: DenetlenecekTaslak, { bolen = 30 }: { bolen?: n
   const isyuku = t.isyuku ?? [];
   const isToplam = isyuku.reduce((s, x) => s + Number(x.sayi || 0) * Number(x.sure || 0), 0);
   const carpan = t.bolen || bolen;
-  const hedef = Number(t.akts) * carpan;
-  if (isToplam !== hedef)
-    hata(
-      "K8",
-      `Toplam iş yükü ${isToplam} saat, AKTS ${t.akts} × ${carpan} = ${hedef} olmalı. AKTS'yi değil saat dağılımını değiştir.`,
-    );
+  let hedef = Number(t.akts) * carpan;
+  let hedefAraligi: [number, number] | undefined;
+  if (!guncel) {
+    if (isToplam !== hedef)
+      hata(
+        "K8",
+        `Toplam iş yükü ${isToplam} saat, AKTS ${t.akts} × ${carpan} = ${hedef} olmalı. AKTS'yi değil saat dağılımını değiştir.`,
+      );
+  } else {
+    const kurum = secenek.kurumBoleni ?? t.bolen;
+    const [alt, ust] = secenek.aktsSaat ?? [25, 30];
+    const akts = Number(t.akts);
+    hedefAraligi = kurum ? [akts * kurum, akts * kurum] : [akts * alt, akts * ust];
+    hedef = kurum ? akts * kurum : akts * ust;
+    if (kurum && isToplam !== hedef)
+      bulgular.push({
+        duzey: "hata",
+        kural: "K8",
+        aciklama: `Toplam iş yükü ${isToplam} saat, AKTS ${t.akts} × ${kurum} (kurum değeri) = ${hedef} olmalı. AKTS'yi değil saat dağılımını değiştir.`,
+        kuralTuru: "kurum",
+        dayanak: TASLAK_DAYANAK.kurum,
+      });
+    else if (!kurum && (isToplam < hedefAraligi[0] || isToplam > hedefAraligi[1]))
+      bulgular.push({
+        duzey: "hata",
+        kural: "K8",
+        aciklama: `Toplam iş yükü ${isToplam} saat, AKTS ${t.akts} için ${hedefAraligi[0]}-${hedefAraligi[1]} saat (AKTS başına ${alt}-${ust}) olmalı. AKTS'yi değil saat dağılımını değiştir.`,
+        kuralTuru: "Akredit önerisi",
+        dayanak: TASLAK_DAYANAK.akts,
+      });
+  }
   const dersSuresi = isyuku.find((x) => /ders süresi/i.test(x.ad));
   if (dersSuresi && Number(dersSuresi.sure) !== teorik + uygulama + lab) {
     uyari("K8", `Ders süresi satırı haftada ${dersSuresi.sure} saat, T+U+L toplamı ${teorik + uygulama + lab}.`);
@@ -90,11 +151,21 @@ export function taslakDenetle(t: DenetlenecekTaslak, { bolen = 30 }: { bolen?: n
 
   // K4, K5: öğrenme çıktıları.
   const cik = t.ciktilar ?? [];
-  if (cik.length < 8 || cik.length > 12) hata("K5", `${cik.length} öğrenme çıktısı var, 8-12 olmalı.`);
+  if (!guncel) {
+    if (cik.length < 8 || cik.length > 12) hata("K5", `${cik.length} öğrenme çıktısı var, 8-12 olmalı.`);
+  } else if (cik.length < GECERLI_CIKTI[0] || cik.length > GECERLI_CIKTI[1])
+    hata(
+      "K5",
+      `${cik.length} öğrenme çıktısı var, ${GECERLI_CIKTI[0]}-${GECERLI_CIKTI[1]} olmalı (${ONERILEN_CIKTI[0]}-${ONERILEN_CIKTI[1]} önerilir).`,
+    );
+  else if (cik.length < ONERILEN_CIKTI[0] || cik.length > ONERILEN_CIKTI[1])
+    uyari("K5", `${cik.length} öğrenme çıktısı var; ${ONERILEN_CIKTI[0]}-${ONERILEN_CIKTI[1]} önerilir.`);
+  const olculemez = (m: string) => OLCULEMEZ.test(m) || (guncel && OLCULEMEZ_GUNCEL.test(m));
+  const fiilleBiter = (m: string) => (guncel ? FIILLE_BITER_GUNCEL : FIILLE_BITER).test(m);
   cik.forEach((c, i) => {
     if (c.kod !== `Ö${i + 1}`) hata("K5", `Çıktı numaralandırması kesintili: ${i + 1}. sırada "${c.kod}" var.`);
     if (bos(c.tr)) hata("K3", `${c.kod} boş.`);
-    else if (OLCULEMEZ.test(c.tr) || !FIILLE_BITER.test(c.tr.trim()))
+    else if (olculemez(c.tr) || !fiilleBiter(c.tr.trim()))
       hata("K4", `${c.kod} ölçülebilir bir eylem fiiliyle bitmiyor: "${c.tr}"`);
     else if (ZAYIF.test(c.tr))
       uyari("K4", `${c.kod} "farkındalık" ifadesi ölçmesi zor. Gözlenebilir bir eylemle yazmayı düşün.`);
@@ -180,6 +251,13 @@ export function taslakDenetle(t: DenetlenecekTaslak, { bolen = 30 }: { bolen?: n
   if (ascii.length) hata("Türkçe", `Türkçe karakteri düşürülmüş kelimeler: ${ascii.slice(0, 10).join(", ")}.`);
 
   // CLI hataları önce, uyarıları sonra listeler; sıra korunur.
-  const sirali = [...bulgular.filter((b) => b.duzey === "hata"), ...bulgular.filter((b) => b.duzey !== "hata")];
-  return { bulgular: sirali, isToplam, hedef };
+  const etiketli: Bulgu[] = guncel
+    ? bulgular.map((b) => ({
+        ...b,
+        kuralTuru: b.kuralTuru ?? ("Akredit önerisi" satisfies KuralTuru),
+        dayanak: b.dayanak ?? TASLAK_DAYANAK.akredit,
+      }))
+    : bulgular;
+  const sirali = [...etiketli.filter((b) => b.duzey === "hata"), ...etiketli.filter((b) => b.duzey !== "hata")];
+  return { bulgular: sirali, isToplam, hedef, ...(hedefAraligi ? { hedefAraligi } : {}) };
 }

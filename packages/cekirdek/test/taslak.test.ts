@@ -105,6 +105,96 @@ describe("Bologna taslak denetimi", () => {
     esdeger(t2);
   });
 
+  it("varsayılan set CLI ile eşdeğer kalır; 'guncel' set yalnız istenince çalışır", () => {
+    const t = ornekTaslak();
+    t.ciktilar = t.ciktilar.slice(0, 6);
+    // CLI setinde 6 çıktı hatadır (8-12).
+    expect(hatalar(t)).toMatch(/K5: 6 öğrenme çıktısı var, 8-12/u);
+    esdeger(t);
+  });
+});
+
+describe("Bologna taslak denetimi: güncel kural seti (dış inceleme 2026-11-05)", () => {
+  const guncel = (t: Parameters<typeof taslakDenetle>[0], s: Parameters<typeof taslakDenetle>[1] = {}) =>
+    taslakDenetle(t, { kuralSeti: "guncel", ...s });
+  const yaz = (s: TaslakDenetimSonucu, duzey: "hata" | "uyari") => metinler(s, duzey).join("\n");
+
+  it("ÖÇ sayısı 4-10 geçerli, 5-8 dışı uyarı, 3 ve 11 hata", () => {
+    const t = ornekTaslak();
+    const ciktilar = t.ciktilar;
+    const say = (n: number) => {
+      t.ciktilar = ciktilar
+        .slice(0, n)
+        .map((c, i) => ({ ...c, kod: `Ö${i + 1}`, tur: i === 0 ? "Yetkinlik" : "Beceri" }));
+      return guncel(t);
+    };
+    expect(yaz(say(4), "hata")).not.toMatch(/K5: \d+ öğrenme/u);
+    expect(yaz(say(4), "uyari")).toMatch(/K5: 4 öğrenme çıktısı var; 5-8 önerilir/u);
+    expect(yaz(say(6), "hata") + yaz(say(6), "uyari")).not.toMatch(/K5: \d+ öğrenme/u);
+    expect(yaz(say(10), "uyari")).toMatch(/10 öğrenme çıktısı var; 5-8/u);
+    expect(yaz(say(3), "hata")).toMatch(/K5: 3 öğrenme çıktısı var, 4-10 olmalı/u);
+    t.ciktilar = [...ciktilar, ...ciktilar].slice(0, 11).map((c, i) => ({ ...c, kod: `Ö${i + 1}` }));
+    expect(yaz(guncel(t), "hata")).toMatch(/K5: 11 öğrenme çıktısı var, 4-10/u);
+  });
+
+  it("-ebilme/-abilme ve -ebilir kabul; sahip ol, farkında ol, haberdar ol, vakıf ol ölçülemez", () => {
+    const t = ornekTaslak();
+    const metin = [
+      "HTML ile erişilebilir sayfa yapısı tasarlayabilme.",
+      "Ağ protokollerini analiz edebilme.",
+      "Veri tabanı sorgusu yazabilir.",
+      "Web güvenliği konusunda bilgiye sahip olur.",
+      "Erişilebilirlik ilkelerinin farkında olur.",
+      "Güncel standartlardan haberdar olur.",
+      "Protokollere vakıf olur.",
+    ];
+    metin.forEach((m, i) => {
+      const c = t.ciktilar[i];
+      if (c) c.tr = m;
+    });
+    const h = yaz(guncel(t), "hata");
+    for (const k of ["Ö1", "Ö2", "Ö3"]) expect(h).not.toMatch(new RegExp(`K4: ${k} `, "u"));
+    for (const k of ["Ö4", "Ö5", "Ö6", "Ö7"]) expect(h).toMatch(new RegExp(`K4: ${k} `, "u"));
+    // Aynı metin CLI setinde: "-ebilme" hata, "farkında olur" geçer (eski davranış korunur).
+    const cli = hatalar(t);
+    expect(cli).toMatch(/K4: Ö1 /u);
+    expect(cli).not.toMatch(/K4: Ö5 /u);
+  });
+
+  it("AKTS iş yükü: kurum değeri yoksa AKTS başına 25-30 saat aralığı, verilirse tam o değer", () => {
+    const t = ornekTaslak();
+    delete t.bolen;
+    // Örnek: 5 AKTS, toplam 150 saat. Aralık 5 × 25 = 125 ile 5 × 30 = 150.
+    expect(guncel(t).hedefAraligi).toEqual([125, 150]);
+    expect(yaz(guncel(t), "hata")).not.toMatch(/K8/u);
+    const ilk = t.isyuku[0];
+    if (!ilk) throw new Error("örnek eksik");
+    // İlk satırı 1 saat azaltınca toplam 150 - 14 = 136: aralıkta, geçer (CLI setinde tam eşitlik ister).
+    ilk.sure -= 1;
+    expect(guncel(t).isToplam).toBe(136);
+    expect(yaz(guncel(t), "hata")).not.toMatch(/K8/u);
+    expect(hatalar(t)).toMatch(/K8: Toplam iş yükü 136/u);
+    // Kurum değeri 30 verilirse tam 150 istenir; bulgu "kurum" türündedir.
+    const k = guncel(t, { kurumBoleni: 30 });
+    const k8 = k.bulgular.find((b) => b.kural === "K8");
+    expect(k8?.aciklama).toMatch(/136 saat, AKTS 5 × 30 \(kurum değeri\) = 150/u);
+    expect(k8?.kuralTuru).toBe("kurum");
+    // Aralık dışı: 2 saat azaltınca 122 < 125.
+    ilk.sure -= 2;
+    const a = guncel(t).bulgular.find((b) => b.kural === "K8");
+    expect(a?.aciklama).toMatch(/108 saat, AKTS 5 için 125-150/u);
+  });
+
+  it("her bulgu kural türü ve dayanak taşır; hiçbiri doğrulanmadan resmî sayılmaz", () => {
+    const s = guncel({});
+    expect(s.bulgular.length).toBeGreaterThan(5);
+    for (const b of s.bulgular) {
+      expect(["kurum", "Akredit önerisi"]).toContain(b.kuralTuru);
+      expect(b.dayanak).toBeTruthy();
+    }
+    expect(s.bulgular.some((b) => b.kuralTuru === "resmî")).toBe(false);
+  });
+
   it("bölen seçeneği ve taslaktaki bölen", () => {
     const t = ornekTaslak();
     delete t.bolen;

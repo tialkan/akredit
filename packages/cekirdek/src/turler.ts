@@ -238,4 +238,13 @@ export interface Bulgu {
   /** Bulgunun konusu: ders kodu, çıktı kodu, paragraf numarası. */
   konu?: string;
   aciklama: string;
+  /**
+   * Kuralın dayanağının türü. "resmî" yalnız resmî belgeyle doğrulanmış kuraldır; doğrulanamayan kural resmî
+   * sayılmaz. "kurum": kurumun verdiği değer (ör. AKTS başına saat). "Akredit önerisi": iç kural.
+   */
+  kuralTuru?: KuralTuru;
+  /** Kuralın kaynağı (belge, kod yolu ya da "DOĞRULANMADI" notu). */
+  dayanak?: string;
 }
+
+export type KuralTuru = "resmî" | "kurum" | "Akredit önerisi";
