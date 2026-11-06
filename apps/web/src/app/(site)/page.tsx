@@ -116,6 +116,32 @@ const CLAUDE_ADIMLARI = [
   },
 ];
 
+/** ChatGPT masaüstünde (Codex) MCP ekleme. Menü adları kurucunun 06.11.2026 ekran görüntülerinden (Türkçe arayüz). */
+const CODEX_ADIMLARI = [
+  {
+    metin: "Sol alttaki profil simgesine, ardından Ayarlar'a basın.",
+    gorsel: "codex-1-ayarlar",
+    alt: "Profil menüsü; Ayarlar seçeneği.",
+    en: 546,
+    boy: 275,
+  },
+  {
+    metin: "Soldan Eklentiler'i seçin. Sağ üstte Ekle'ye, ardından MCP sunucusu ekle'ye basın.",
+    gorsel: "codex-2-mcp-ekle",
+    alt: "Eklentiler sayfası; Ekle menüsünde MCP sunucusu ekle seçeneği.",
+    en: 1200,
+    boy: 836,
+  },
+  {
+    metin:
+      "Ad kutusuna Akredit yazın, Tür olarak Akış destekli HTTP'yi seçin, URL kutusuna https://akredit.org/mcp yazın. Diğer kutuları boş bırakıp sayfanın altındaki kaydetme düğmesine basın.",
+    gorsel: "codex-3-adres-yaz",
+    alt: "Özel bir MCP sunucusuna bağlan formu; ad Akredit, tür Akış destekli HTTP, URL https://akredit.org/mcp.",
+    en: 1200,
+    boy: 601,
+  },
+];
+
 /** Önerilen masaüstü uygulamaları. Plan adı ve fiyatı sağlayıcının fiyat sayfasındandır (Kasım 2026). */
 const MASAUSTU = [
   {
@@ -171,6 +197,46 @@ function OnceSonra() {
       <h2 className="mt-4 text-xl text-vurgu">Sonra: {sonra.length === 0 ? "bulgu yok" : `${sonra.length} bulgu`}</h2>
       <p className="mt-1 text-soluk">İş yükü, değerlendirme ve haftalar düzeltildi; denetim yeniden çalıştı.</p>
     </figure>
+  );
+}
+
+type GorselliAdim = { metin: string; gorsel: string; alt: string; en: number; boy: number };
+
+/** Ekran görüntülü, numaralı kurulum adımları. */
+function GorselliAdimlar({ adimlar }: { adimlar: GorselliAdim[] }) {
+  return (
+    <ol className="mt-4 grid gap-8">
+      {adimlar.map((a, i) => (
+        <li key={a.gorsel} className="grid gap-3">
+          <p className="flex gap-3">
+            <span
+              aria-hidden
+              className="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-vurgu font-baslik text-yuzey"
+            >
+              {i + 1}
+            </span>
+            <span>
+              <span className="sr-only">{`${i + 1}. `}</span>
+              {a.metin}
+            </span>
+          </p>
+          <figure
+            className={`overflow-hidden rounded-sm border border-cizgi-guclu bg-yuzey ${a.boy > 800 || a.en < 800 ? "max-w-md" : ""}`}
+          >
+            {/* biome-ignore lint/performance/noImgElement: sabit ekran görüntüsü, boyutları belli */}
+            <img
+              src={`/gorsel/kurulum/${a.gorsel}.webp`}
+              alt={a.alt}
+              width={a.en}
+              height={a.boy}
+              loading="lazy"
+              decoding="async"
+              className="h-auto w-full"
+            />
+          </figure>
+        </li>
+      ))}
+    </ol>
   );
 }
 
@@ -294,44 +360,17 @@ export default function AnaSayfa() {
             Akredit'i ekleyin
           </AdimBasligi>
           <h3 className="bolum-etiketi mt-6 text-lg text-metin">Claude masaüstünde, beş tıkla</h3>
-          <ol className="mt-4 grid gap-8">
-            {CLAUDE_ADIMLARI.map((a, i) => (
-              <li key={a.gorsel} className="grid gap-3">
-                <p className="flex gap-3">
-                  <span
-                    aria-hidden
-                    className="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-vurgu font-baslik text-yuzey"
-                  >
-                    {i + 1}
-                  </span>
-                  <span>
-                    <span className="sr-only">{`${i + 1}. `}</span>
-                    {a.metin}
-                  </span>
-                </p>
-                <figure
-                  className={`overflow-hidden rounded-sm border border-cizgi-guclu bg-yuzey ${a.boy > 800 ? "max-w-md" : ""}`}
-                >
-                  {/* biome-ignore lint/performance/noImgElement: sabit ekran görüntüsü, boyutları belli */}
-                  <img
-                    src={`/gorsel/kurulum/${a.gorsel}.webp`}
-                    alt={a.alt}
-                    width={a.en}
-                    height={a.boy}
-                    loading="lazy"
-                    decoding="async"
-                    className="h-auto w-full"
-                  />
-                </figure>
-              </li>
-            ))}
-          </ol>
+          <GorselliAdimlar adimlar={CLAUDE_ADIMLARI} />
           <p className="mt-6 rounded-sm border border-cizgi-guclu bg-yuzey px-4 py-3">
             "Oturum açma olmadan herkes kullanabilir" uyarısı normaldir: Akredit hesap istemez ve yalnız okur.
           </p>
 
-          <h3 className="bolum-etiketi mt-10 text-lg text-metin">ChatGPT kullanıyorsanız</h3>
-          <p className="mt-2">Codex'te yeni bir oturum açın, metni yapıştırın. Kurulumu kendisi yapar.</p>
+          <h3 className="bolum-etiketi mt-12 text-lg text-metin">ChatGPT masaüstünde (Codex), üç adımda</h3>
+          <GorselliAdimlar adimlar={CODEX_ADIMLARI} />
+          <p className="mt-6">Kaydettikten sonra yeni bir sohbet açın.</p>
+          <p className="mt-6 text-base text-soluk">
+            Ya da kurulumu Codex'e yaptırın: yeni bir sohbete bu metni yapıştırın.
+          </p>
           <KopyalaKutusu etiket="Yapıştırılacak metin" metin={KURULUM_ISTEGI} gizli />
           <details className="kart mt-8 rounded-sm border border-cizgi bg-yuzey">
             <summary className="flex min-h-12 cursor-pointer items-center px-4 py-2">
@@ -353,8 +392,8 @@ export default function AnaSayfa() {
           </AdimBasligi>
           <ol className="mt-4 grid list-decimal gap-2 pl-7">
             <li>Yeni sohbette akredit yazın.</li>
-            <li>Menü gelmezse şunu yazın: Akredit araçlarıyla Bologna paketimi denetle</li>
-            <li>Menüden numarayla seçin.</li>
+            <li>Menü gelmezse şunu yazın: Akredit menüsünü göster</li>
+            <li>Seçenekleri yalnız numarasını yazarak seçin: 1, 2, 3.</li>
           </ol>
           <figure className="mt-6 rounded-sm border border-cizgi bg-zemin p-4 sm:p-5">
             <figcaption className="bolum-etiketi text-base text-soluk">Örnek konuşma (kurgu)</figcaption>

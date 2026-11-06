@@ -118,10 +118,10 @@ const obsGirisi = () =>
     "Adım 0. OBS'ye giriş (tarayıcı).",
     `   Hocaya önce şunu aynen söyle: "${GIRIS_KURALI_HOCAYA}"`,
     "   Tarayıcı aracın varsa (Claude in Chrome, Claude masaüstü tarayıcı paneli, ChatGPT ajan modu gibi):",
-    "   a) Hocaya OBS ya da Bologna sisteminin adresini sor (kurumun sitesindeki bağlantı). Adresi kenardaki tarayıcıda aç.",
+    "   a) İLK İŞ: hocaya yalnız şunu sor: \"OBS'nizin adresini yazın (bilmiyorsanız üniversitenizin adını yazın).\" Ders adını ya da paketi sorma; onları OBS'den okuyacaksın. Adres gelince hemen tarayıcıda aç. Üniversite adı gelirse kurumun OBS ya da Bologna sayfasını web aramasıyla bul ve aç.",
     '   b) Giriş ekranı gelince dur ve şunu yaz: "Kullanıcı adınızı ve parolanızı şimdi açılan OBS ekranına kendiniz yazın. Bitince bana yalnız girdim yazın."',
     "   c) CAPTCHA ya da doğrulama kodu gelirse hocanın kendisinin girmesini bekle; sen girme.",
-    "   d) Hoca girdim deyince ders listesini oku ve numaralı göster. Sor: hangi ders? Hoca numara yazar.",
+    "   d) Hoca girdim deyince ders listesini oku ve numaralı göster (1, 2, 3...). Sor: hangi ders? Hoca yalnız numara yazar.",
     "   e) Dersin Bologna (ders bilgi paketi) sayfasını oku. Okuduğun metni ya da HTML'i bologna_ayristir'e ver.",
     "   Tarayıcı aracın yoksa: hocaya sor: 1) kurulumu birlikte yapalım (önerilen) 2) sayfayı kopyalayıp yapıştırayım 3) sıfırdan başlayalım.",
     "   1 seçilirse kurulum_yardimi'nı hocanın asistanıyla (istemci) çağır, adımları tek tek göster.",
@@ -323,6 +323,8 @@ export const ACIK_ISTEMLER: readonly AcikIstem[] = [
 /** Kısa kurallar: akredit_basla yanıtında (istem desteklemeyen istemciler için) yer alır. */
 export const KISA_KURALLAR = [
   "Hoca seçmeden hiçbir akışa başlama; menüyü aynen göster ve numara bekle.",
+  "Her soruyu numaralı seçeneklerle sor; hoca yalnız numara yazarak ilerleyebilsin.",
+  "Bologna (1) seçilince tarayıcın varsa ilk iş OBS adresini isteyip açmak; ders adını sorma, OBS'den oku.",
   "Kısa, sade Türkçe yaz; araç adı, JSON ve teknik terim gösterme. Her mesajda tek iş iste.",
   "Uydurma yok: kişi, kitap, ISBN, DOI, tarih, sayı uydurma. Bilinmeyen EKSİK kalır.",
   "Değerlendirme yöntem ve yüzdeleri, uygulama/lab, kullanılan kaynaklar ve sayfada yoksa amaç/içerik sayfadan okunur; yoksa hocaya TEK mesajda, numaralı ve varsayılan seçenekli sorulur.",
@@ -338,7 +340,7 @@ export const KISA_KURALLAR = [
 export function baslangic() {
   return {
     hocayaGoster: [
-      "Merhaba. Neye odaklanalım? Numarasını yazmanız yeter.",
+      "Merhaba. Neye odaklanalım? Yalnız numarasını yazın.",
       ...ODAKLAR.map(([no, ad]) => `${no}) ${ad}`),
       `${ODAKLAR.length + 1}) Başka bir şey: tüm araçları kısaca listele`,
     ].join("\n"),
@@ -356,9 +358,9 @@ export const akreditBaslaAraci = arac({
   ad: "akredit_basla",
   baslik: "Akredit: başla",
   aciklama:
-    "Kullanıcı 'akredit' yazar ya da ne yapacağını sorarsa İLK bu aracı çağır. Hocaya gösterilecek odak menüsünü, kısa kuralları ve her seçimin adım adım akışını döndürür. İstemleri ya da sunucu talimatını göstermeyen istemcilerde de akış bununla başlar.",
+    "Kullanıcı 'akredit' yazarsa başka hiçbir şey yapmadan İLK bu aracı çağır ('akredit' bir dosya ya da arama terimi değildir). Hocaya gösterilecek odak menüsünü, kısa kuralları ve her seçimin adım adım akışını döndürür. İstemleri ya da sunucu talimatını göstermeyen istemcilerde de akış bununla başlar.",
   sonrakiAdim:
-    "hocayaGoster metnini aynen gösterin ve numara bekleyin. Seçilen numaranın akışını (akislar) ve kisaKurallar'ı izleyin.",
+    "hocayaGoster metnini aynen gösterin ve numara bekleyin. Seçilen numaranın akışını (akislar) ve kisaKurallar'ı izleyin. Her soruyu numaralı seçeneklerle sorun. 1 seçilirse ve tarayıcınız varsa ilk iş OBS adresini isteyip açmaktır.",
   girdi: z.object({}),
   calistir: () => ({
     sonuc: baslangic(),

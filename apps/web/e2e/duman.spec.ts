@@ -29,8 +29,8 @@ test.describe("tanıtım sitesi", () => {
       await expect(page.locator(`#kur-${k}`)).not.toHaveAttribute("open");
     await expect(kutular.last()).toHaveAttribute("id", "kur-vscode");
     await expect(page.locator("#kur-claude ol > li")).toHaveCount(5);
-    // Claude masaüstü için beş görselli adım.
-    await expect(page.locator("section[aria-labelledby='adim-3'] figure img")).toHaveCount(5);
+    // Claude masaüstü (5) ve Codex (3) için görselli adımlar.
+    await expect(page.locator("section[aria-labelledby='adim-3'] figure img")).toHaveCount(8);
     await page.locator("#kur-claude-code summary").click();
     await expect(page.locator("#kur-claude-code")).toContainText(
       "claude mcp add --transport http akredit https://akredit.org/mcp",

@@ -16,11 +16,13 @@ import { GIRIS_BILGISI_ILETISI, girisBilgisiVar, kisiselVeriIletisi, kisiselVeri
 import { ACIK_ISTEMLER, type AcikIstem, istemSemasi } from "./promptlar.ts";
 
 export const SUNUCU_ADI = "akredit-acik";
-export const SUNUCU_SURUMU = "0.5.0";
+export const SUNUCU_SURUMU = "0.5.1";
 
 export const SUNUCU_TALIMATI = [
   "Akredit açık araçları öğretim elemanlarına kalite ve akreditasyon işlerinde yardım eder: Bologna ders paketi denetimi ve doldurma, öğrenme çıktısı yazma, ÇK/PÇ hesabı, YÖKAK ve program akreditasyonu (MÜDEK, FEDEK, SABAK, EPDAD) ölçüt ve kanıt rehberi, rapor dil denetimi, kaynak doğrulama.",
-  "Hoca ne yapacağını söylemediyse ya da 'akredit' yazarsa İLK akredit_basla aracını çağır, menüyü göster ve önce hangi aracı kullanmak istediğini sor.",
+  "KURAL 1: Kullanıcı 'akredit' yazarsa (tek başına ya da cümle içinde) ya da ne yapacağını söylemediyse başka hiçbir şey yapmadan İLK akredit_basla aracını çağır ve hocayaGoster metnini aynen göster. 'akredit' bir dosya, klasör ya da arama terimi değildir; dosya sisteminde ya da webde arama.",
+  "KURAL 2: Hocaya her soruyu numaralı seçeneklerle sor (1, 2, 3...), önerdiğin seçeneği işaretle; hoca yalnız numara yazarak ilerleyebilsin. Serbest metin yalnız ders adı, adres gibi seçenekle sorulamayan bilgilerde istenir.",
+  "KURAL 3: Bologna seçilirse ve tarayıcı aracın varsa ilk iş OBS'yi açmaktır: hocadan yalnız OBS adresini iste (bilmiyorsa üniversite adını), adresi hemen tarayıcıda aç; ders adını ve paketi hocaya sorma, OBS'den oku.",
   "Amaç: hocanın en az müdahalesiyle işi hızlı ama denetimli ve teyitli bitirmek. Her seçim menüsünde son seçenek '4) Hepsini akıllıca doldur (önerilen)' olur: her alan için en iyi seçeneği sen seçersin, araçla denetlersin, geçmeyeni düzeltip yeniden denetlersin, sonunda tek özet gösterip değiştirmek istediği numarayı sorarsın.",
   "Yalnız hocanın bilebileceği ve resmî taahhüt olan bilgiler (değerlendirme yöntem ve yüzdeleri, uygulama/lab, kullanılan kaynaklar, sayfada yoksa amaç ve içerik) sayfadan okunur; yoksa hocaya TEK mesajda, numaralı ve varsayılan seçenekli sorulur, uydurulmaz. Ders adından üretilen her şey 'öneri' etiketiyle gösterilir. Araç sonucu 'biçim denetiminden geçti; içerik teyidi: hoca' diye sunulur.",
   "Giriş bilgisi: hocadan kullanıcı adı, parola, doğrulama kodu ya da çerez asla isteme. Sunucu bunları istemez; görülürse çağrıyı reddeder ve kaydetmez. Hoca yazarsa kullanma, araçlara gönderme, silmesini ve parolasını değiştirmesini öner. Hoca giriş bilgisini yalnız OBS'nin kendi ekranına kendisi yazar. CAPTCHA'yı hoca çözer.",

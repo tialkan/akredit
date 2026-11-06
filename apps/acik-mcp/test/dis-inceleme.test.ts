@@ -204,7 +204,7 @@ describe("Bologna araçlarında kişisel veri", () => {
 describe("akredit_basla", () => {
   it("parametresiz; menüyü, kısa kuralları ve her seçimin akışını yapılandırılmış döndürür", async () => {
     const a = ACIK_ARACLAR.find((x) => x.ad === "akredit_basla");
-    expect(a?.aciklama).toMatch(/^Kullanıcı 'akredit' yazar ya da ne yapacağını sorarsa İLK bu aracı çağır/u);
+    expect(a?.aciklama).toMatch(/^Kullanıcı 'akredit' yazarsa başka hiçbir şey yapmadan İLK bu aracı çağır/u);
     expect(ACIK_ARACLAR[0]?.ad).toBe("akredit_basla");
     const s = sonuc(calistir("akredit_basla", {}));
     expect(s.hocayaGoster).toMatch(/^Merhaba\. Neye odaklanalım\?/u);
