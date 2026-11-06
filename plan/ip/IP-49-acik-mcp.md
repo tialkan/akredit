@@ -52,3 +52,14 @@ Herkes, hesap açmadan ve ücretsiz, kendi yapay zekâ asistanıyla (Claude, Cha
 - 2026-11-06: Bologna akışında ders listesi açılınca 'hangi ders?' sorulmaz: asistan en çok 15 dersi tarar, eksikleri sayar, en eksikten başlayıp hepsini kapatmayı önerilen seçenek olarak sunar (KURAL 4).
 - 2026-11-06 (0.6.0): Dış incelemeye göre otonom akış. sonrakiAdim metinleri artık ara soru sordurmuyor (alan alan A/B/C, 'nasıl dolduralım', kanıt kanıt var/yok, bulgu bulgu düzeltme, sütun sütun eşleme kalktı). Zorunlu duraklar: sayfada olmayan değerlendirme yüzdesi ve kaynak (tek mesaj) ile OBS kayıt onayı (özetle aynı mesajda; 1 = kaydet). Uygulama/lab T+U+L'den okunur; amaç/içerik 'öneri' olarak son özette. akredit_basla'ya odak parametresi (niyet yazıldıysa menü atlanır), tetikleyici sözcükler, her yanıtta asistanKurali. Reddedilen öneriler: değerlendirme yüzdesine ve sınav ağırlığına varsayılan (uydurma olur), bilinmeyen ders koduna 'DERS' etiketi (EKSİK yazılır). Ertelenen: bologna_ayristir içinde denetimi birleştirme, müdahale sayısını ölçen senaryo testleri.
 - 2026-11-06 (0.6.1): Yeni araç obs_ders_listesi: ders listesi açılınca 'hangi ders?' yerine çağrılır, ilk 15 dersin tarama planını ve 'Şu eksiklikleri tespit ettim, önerilerim şunlar' rapor biçimini verir. Eksik yoksa 'eksik görünmüyor' ve kaliteyi artıracak somut öneriler (bologna_denetle sonrakiAdim ve KURAL 4).
+
+### 2026-11-06 (0.6.2): ikinci görüşten otonomi değişiklikleri
+
+- `bologna_kopya_metni` varsayılan adımı eski "OBS'ye yapıştırdım" sorusunu sorduruyordu; özet tablosu + kayıt onayı tek mesajda olacak biçimde düzeltildi. Kalan eksik varsa sormadan doldurmaya dönülür.
+- Değerlendirme yüzdesi kod kapısı: `degerlendirmeDayanagi` 'sayfa' ya da 'hoca' olsa da her katkı yüzdesi yeni `degerlendirmeKaniti` metninde (sayfa tablosu ya da hocanın yanıtı) geçmelidir; geçmezse teyitsiz sayılır ve yazma paketine girmez.
+- `akredit_basla`: `kullaniciMesaji` alanı ve `odak: "otomatik"` (varsayılan); niyet sunucuda deterministik çözülür, çözülemezse menü.
+- Her yanıtta `hocayaSimdiSor` bayrağı; false ise `simdiYap` "soru sormadan devam" der. true yalnız menü, kopya metni/kayıt onayı, dur, giriş/CAPTCHA engellerinde. KURAL 6 eklendi.
+- `obs_ders_listesi`: `baslangic` ile 15'erli dilimli tarama; dilim bitince sormadan sonrakine geçilir.
+- `engel_coz`: çerçeve, okunamayan sayfa, Kaydet, oturum düşmesi ve açılmayan sitede `asistanOnceKendisiDener`.
+- `obs_karsilastir`: farkta sormadan bir kez toparlama (Kaydet'e basma ya da onaylanan aynı değeri yeniden yazma); içeriği değiştirmek yeni onay ister. Toplu kayıtta dur tüm döngüyü durdurur.
+- Ertelendi: HMAC `sayfaJetonu` zinciri, ayrıştır+denetle birleştirme, sahte asistanla müdahale sayan senaryo testi.

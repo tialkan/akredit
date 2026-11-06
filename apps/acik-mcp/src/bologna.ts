@@ -427,6 +427,13 @@ const TaslakAlanlari = z.object({
     .describe(
       "Değerlendirme yöntem ve yüzdelerinin kaynağı: 'sayfa' (OBS sayfasından okundu), 'hoca' (hoca söyledi), 'oneri' (asistan önerisi, teyitsiz). Teyitsiz yüzde OBS'ye yazılmaz.",
     ),
+  degerlendirmeKaniti: z
+    .string()
+    .max(2000)
+    .optional()
+    .describe(
+      "'sayfa' ya da 'hoca' dayanağının kanıtı: sayfadaki değerlendirme tablosunun metni ya da hocanın sohbete yazdığı yanıt, olduğu gibi (ör. 'vize 40 final 60'). Her katkı yüzdesi bu metinde geçmelidir; geçmezse yüzde teyitsiz sayılır.",
+    ),
   kaynaklar: z
     .array(KaynakOgesi)
     .max(30)
@@ -540,16 +547,12 @@ export function alanBulgulari(
           aciklama: `${i + 1}. kaynakta yıl görünmüyor. Yılı hocaya sorun ya da kaynak_bicimle ile biçimlendirin.`,
         });
     }
-  if (
-    verilen.has("degerlendirme") &&
-    alanlar.degerlendirmeDayanagi !== "sayfa" &&
-    alanlar.degerlendirmeDayanagi !== "hoca"
-  )
+  if (verilen.has("degerlendirme") && !degerlendirmeTeyitli(alanlar))
     ekle("degerlendirme", {
       duzey: "uyari",
       kural: "Değerlendirme",
       aciklama:
-        "Değerlendirme yöntem ve yüzdeleri teyitsiz (sayfadan okunmadı, hoca söylemedi). Hocaya tek mesajda sorun; teyitsiz yüzde OBS'ye yazılmaz.",
+        "Değerlendirme yöntem ve yüzdeleri teyitsiz: dayanak 'sayfa' ya da 'hoca' değil ya da yüzdeler degerlendirmeKaniti metninde geçmiyor. Hocaya tek mesajda sorun, yanıtını degerlendirmeKaniti'ne olduğu gibi yazın; teyitsiz yüzde OBS'ye yazılmaz.",
       kuralTuru: "Akredit önerisi",
       dayanak: "Değişmez ilke 2-3: değerlendirme oranları resmî taahhüttür, uydurulmaz; beyan hocadadır.",
     });
@@ -1345,9 +1348,7 @@ const durumAraci = arac({
     const kalan = satirlar.filter((s) => s.durum !== "tamam");
     const tamamlandi = kalan.length === 0 && genel.length === 0;
     const teyitBekleyen = [
-      ...(alanlar.degerlendirme && alanlar.degerlendirmeDayanagi !== "sayfa" && alanlar.degerlendirmeDayanagi !== "hoca"
-        ? ["Değerlendirme yöntem ve yüzdeleri"]
-        : []),
+      ...(alanlar.degerlendirme && !degerlendirmeTeyitli(alanlar) ? ["Değerlendirme yöntem ve yüzdeleri"] : []),
     ];
     return {
       sonuc: {
@@ -1671,7 +1672,7 @@ const obsKarsilastirAraci = arac({
   aciklama:
     "OBS'ye kaydettikten sonra sayfa geri okunur; bu araç beklenen alanları (bologna_kopya_metni'nin obsKarsilastirGirdisi) geri okunan sayfa metniyle karşılaştırır ve farkları döndürür. Ders kodu ya da dönem değişmişse dur der. OBS'ye yazmaz.",
   sonrakiAdim:
-    "dur true ise yazmayı hemen bırakın ve hocaya nedenini söyleyin. Farklı alan varsa hocaya alan alan gösterin; düzeltmeyi hoca onaylarsa yapın ve yeniden karşılaştırın. Hepsi eşleştiyse 'Kaydedildi ve geri okunarak doğrulandı' deyin.",
+    "dur true ise yazmayı hemen bırakın, toplu kayıttaysa sonraki derslere de geçmeyin ve hocaya nedenini söyleyin. Farklı alan varsa önce sormadan bir kez toparlayın: o sekmenin Kaydet'ine basılmamışsa basın ya da onaylanan AYNI değeri yeniden yazın, sonra geri okuyup yeniden karşılaştırın. Metni kısaltmak ya da değiştirmek gerekiyorsa bu yeni içeriktir: hocaya alan alan gösterip onay alın. Hepsi eşleştiyse 'Kaydedildi ve geri okunarak doğrulandı' deyin ve toplu kayıttaysa sormadan sonraki derse geçin. Onaya Gönder'e hoca basar.",
   kisiselVeriKapsami: BOLOGNA_KAPSAMI,
   kunyeAlanlari: ["beklenen"],
   onAyikla: (g) => {
@@ -1704,6 +1705,7 @@ const obsKarsilastirAraci = arac({
     return {
       sonuc,
       kaynak: [KOD_KAYNAGI("apps/acik-mcp/src/bologna.ts", "Akredit OBS geri okuma karşılaştırması")],
+      hocayaSimdiSor: sonuc.dur,
       ...(sonuc.dur
         ? {
             sonrakiAdim:
@@ -1725,13 +1727,31 @@ const SEKME_SIRASI = [
   "Diğer Kaynaklar",
 ];
 
+/**
+ * Değerlendirme yüzdesi kod kapısı (ilke 2-3): dayanak 'sayfa' ya da 'hoca' olsa da her katkı yüzdesi verilen
+ * kanıt metninde (sayfa tablosu ya da hocanın yanıtı) ayrı bir sayı olarak geçmelidir. Model beyanına güvenilmez.
+ */
+export function degerlendirmeTeyitli(a: {
+  degerlendirme?: { katki: number }[] | undefined;
+  degerlendirmeDayanagi?: string | undefined;
+  degerlendirmeKaniti?: string | undefined;
+}): boolean {
+  if (a.degerlendirmeDayanagi !== "sayfa" && a.degerlendirmeDayanagi !== "hoca") return false;
+  if (!a.degerlendirme?.length) return true;
+  const sayilar = new Set(
+    (a.degerlendirmeKaniti ?? "").match(/\d+(?:[.,]\d+)?/gu)?.map((x) => Number(x.replace(",", "."))),
+  );
+  return a.degerlendirme.every((x) => sayilar.has(x.katki));
+}
+
 const kopyaMetniAraci = arac({
   ad: "bologna_kopya_metni",
   baslik: "OBS'ye kopyalanacak metin",
+  hocayaSimdiSor: true,
   aciklama:
     "Hocanın seçtiği alanları OBS sekmesi ve alan adıyla sıralı, alan alan kopyalanacak düz metin olarak verir. Tablolar sekmeyle ayrılır. Toplamları kendisi hesaplar ve kalan eksikleri yazar. OBS'ye yazmaz; kaydı hoca yapar.",
   sonrakiAdim:
-    "Metni olduğu gibi, kod bloğu içinde gösterin. Hocaya sorun: 1) OBS'ye yapıştırdım, yeniden denetle 2) bir alanı değiştir 3) bitir.",
+    "Metnin tamamını basmayın. Yalnız degisiklikOzeti'ni tablo olarak gösterin (Alan | Önceki | Yeni, ilk cümle | Dayanak: sayfa/hoca/öneri) ve AYNI mesajda sorun: 1) OBS'ye yaz ve kaydet (önerilen; bu seçim özete 'kaydet' onayıdır) 2) formu doldur, Kaydet'e ben basayım 3) alan alan kopya metnini ver. Değiştirmek istediği alan varsa numarasını yazar. Tarayıcı aracınız yoksa yalnız 3'ü uygulayın ve metni kod bloğunda verin. Birden çok ders taranıyorsa tüm derslerin özetini tek tabloda gösterip tek onay alın.",
   kisiselVeriKapsami: BOLOGNA_KAPSAMI,
   kunyeAlanlari: BOLOGNA_KUNYE_ALANLARI,
   girdi: z.object({
@@ -1755,17 +1775,17 @@ const kopyaMetniAraci = arac({
       });
       return false;
     });
-    const degerlendirmeTeyitli = gelen.degerlendirmeDayanagi === "sayfa" || gelen.degerlendirmeDayanagi === "hoca";
-    if (gelen.degerlendirme && !degerlendirmeTeyitli)
+    const teyitli = degerlendirmeTeyitli(gelen);
+    if (gelen.degerlendirme && !teyitli)
       yazilamayan.push({
         alan: "Değerlendirme",
         neden:
-          "Değerlendirme yöntem ve yüzdeleri teyitsiz (sayfadan okunmadı, hoca söylemedi); OBS'ye yazılmaz. Hocaya sorun.",
+          "Değerlendirme yöntem ve yüzdeleri teyitsiz (sayfadan okunmadı, hoca söylemedi ya da yüzdeler degerlendirmeKaniti metninde yok); OBS'ye yazılmaz. Hocaya sorun.",
       });
     const { degerlendirme: _d, kaynaklar: _k, ...kalanAlanlar } = gelen;
     const alanlar: TaslakAlanlariT = {
       ...kalanAlanlar,
-      ...(gelen.degerlendirme && degerlendirmeTeyitli ? { degerlendirme: gelen.degerlendirme } : {}),
+      ...(gelen.degerlendirme && teyitli ? { degerlendirme: gelen.degerlendirme } : {}),
       ...(kaynaklar ? { kaynaklar } : {}),
     };
     const bolumler: { sira: number; sekme: string; alan: string; deger: string }[] = [];
@@ -1899,7 +1919,7 @@ const kopyaMetniAraci = arac({
       ...(kalanEksikler.length
         ? {
             sonrakiAdim:
-              "Kalan eksikleri hocaya numaralı gösterin ve sorun: 1) eksikleri dolduralım 2) böyle kalsın, metni kopyalayacağım.",
+              "Kalan eksikleri sormadan doldurmaya dönün (bologna_alan_rehberi, bologna_taslak_denetle); yalnız hocanın bilebileceği resmî bilgi (değerlendirme, kullanılan kaynak) eksikse onu TEK mesajda, numaralı sorun. Sonra degisiklikOzeti ile kayıt onayını aynı mesajda isteyin.",
           }
         : {}),
     };
@@ -1920,16 +1940,31 @@ const dersListesiAraci = arac({
       .array(z.object({ kod: z.string().trim().min(1).max(30), ad: z.string().trim().max(160).optional() }))
       .min(1)
       .max(60)
-      .describe("Listede görünen dersler: kod ve ad"),
+      .describe("Listede görünen dersler: kod ve ad (her çağrıda listenin tamamı)"),
+    baslangic: z
+      .number()
+      .int()
+      .min(0)
+      .max(59)
+      .default(0)
+      .describe(
+        "Taranacak dilimin ilk dersinin sırası (0'dan). İlk çağrıda 0; sonraki dilimde yanıttaki sonrakiBaslangic.",
+      ),
   }),
-  calistir: ({ dersler }) => {
-    const plan = dersler.slice(0, 15);
-    const kalan = dersler.length - plan.length;
+  calistir: ({ dersler, baslangic }) => {
+    const DILIM = 15;
+    const plan = dersler.slice(baslangic, baslangic + DILIM);
+    const sonraki = baslangic + plan.length;
+    const kalan = dersler.length - sonraki;
+    const hepsi = baslangic === 0 && kalan === 0;
     return {
       sonuc: {
-        hocayaGoster: `${dersler.length} dersiniz var. ${plan.length === dersler.length ? "Hepsini" : `İlk ${plan.length} dersi`} tarıyorum; eksikleri ve önerilerimi birazdan tek listede göstereceğim.`,
-        taramaPlani: plan.map((d, i) => ({ sira: i + 1, kod: d.kod, ad: d.ad ?? "" })),
-        ...(kalan > 0 ? { taranmayan: kalan } : {}),
+        hocayaGoster:
+          baslangic === 0
+            ? `${dersler.length} dersiniz var. ${hepsi ? "Hepsini" : `${DILIM}'erli dilimlerle hepsini`} tarıyorum; eksikleri ve önerilerimi birazdan tek listede göstereceğim.`
+            : `Sıradaki ${plan.length} dersi tarıyorum (${baslangic + 1}-${sonraki} / ${dersler.length}).`,
+        taramaPlani: plan.map((d, i) => ({ sira: baslangic + i + 1, kod: d.kod, ad: d.ad ?? "" })),
+        ...(kalan > 0 ? { taranmayan: kalan, sonrakiBaslangic: sonraki } : {}),
         raporBicimi: [
           "Başlık: 'Şu eksiklikleri tespit ettim, önerilerim şunlar.'",
           "Her ders bir satır, en eksikten en tamama: ders kodu, eksik ya da kurala uymayan alan sayısı, en önemli 1-2 eksik.",
@@ -1939,6 +1974,12 @@ const dersListesiAraci = arac({
         ],
       },
       kaynak: [KAYNAK_KURALLAR],
+      hocayaSimdiSor: false,
+      ...(kalan > 0
+        ? {
+            sonrakiAdim: `Bu dilimi sormadan tarayın ve raporunu verin. Hoca 1'i seçip bu dilim kapanınca 'devam edeyim mi' diye sormadan obs_ders_listesi'ni baslangic=${sonraki} ile yeniden çağırıp sonraki dilime geçin.`,
+          }
+        : {}),
     };
   },
 });

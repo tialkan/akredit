@@ -462,6 +462,7 @@ describe("bologna_kopya_metni", () => {
         ciktilar: CIKTILAR,
         amac: { tr: kelimeler(70) },
         degerlendirmeDayanagi: "sayfa",
+        degerlendirmeKaniti: "Ara Sınav 1 30 Proje 1 20 Yarıyıl Sonu Sınavı 1 40",
         degerlendirme: [
           { ad: "Ara Sınav", sayi: 1, katki: 30 },
           { ad: "Proje", sayi: 1, katki: 20 },
@@ -495,7 +496,7 @@ describe("bologna_kopya_metni", () => {
     expect(sekmeler.indexOf("Öğrenme Çıktıları")).toBeGreaterThan(sekmeler.lastIndexOf("Ders Bilgileri"));
     expect(sekmeler.at(-1)).toBe("Sür. Kalkınma Amaçları");
     expect(s.hesap.isyuku.toplam).toBe(150);
-    expect(String(r.veri.sonrakiAdim)).toMatch(/eksikleri dolduralım/u);
+    expect(String(r.veri.sonrakiAdim)).toMatch(/Kalan eksikleri sormadan doldurmaya dönün/u);
   });
 
   it("boş istek açık iletiyle reddedilir", () => {

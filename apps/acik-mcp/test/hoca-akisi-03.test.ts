@@ -546,7 +546,7 @@ describe("giriş bilgisi yasağı", () => {
     expect(talimat).toMatch(/parola, doğrulama kodu ya da çerez asla isteme/u);
     expect(talimat).toMatch(/'akredit'/u);
     expect(c.getServerVersion()?.version).toBe(SUNUCU_SURUMU);
-    expect(SUNUCU_SURUMU).toBe("0.6.1");
+    expect(SUNUCU_SURUMU).toBe("0.6.2");
     await c.close();
   });
 });
@@ -696,7 +696,12 @@ describe("uçtan uca Bologna turu (SDK istemcisi): ayrıştır, eksik, hepsi 1, 
     // 4. Her seçimden sonra kalan alan sayısı azalır.
     const sira = ["amac", "icerik", "yontem", "notlar", "ciktilar", "degerlendirme", "isyuku", "haftalar", "kaynaklar"];
     // Değerlendirme yüzdelerini hoca söyledi (teyit sorusuna yanıt).
-    let secilen: Record<string, unknown> = { kaynaklar: sayfaKunyesi, degerlendirmeDayanagi: "hoca" };
+    // Hocanın teyit yanıtı olduğu gibi kanıt olarak verilir; yüzdeler (30, 20, 50) bu metinde geçer.
+    let secilen: Record<string, unknown> = {
+      kaynaklar: sayfaKunyesi,
+      degerlendirmeDayanagi: "hoca",
+      degerlendirmeKaniti: "Vize 30, proje 20, final 50",
+    };
     let onceki = ilk.kalanAlanSayisi as number;
     for (const alan of sira) {
       secilen = { ...secilen, [alan]: hepsi1[alan] };

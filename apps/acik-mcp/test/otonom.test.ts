@@ -67,20 +67,69 @@ describe("ders listesi: önce tara, eksik yoksa kalite önerisi", () => {
     const r = calistir("obs_ders_listesi", { dersler });
     // biome-ignore lint/suspicious/noExplicitAny: test erişimi
     const s = r.veri.sonuc as any;
-    // 17 ders: ilk 15'i taranır, 2 ders kalır.
+    // 17 ders: ilk dilimde 15'i taranır, 2 ders kalır; sonraki dilim 15. sıradan başlar.
     expect(s.hocayaGoster).toBe(
-      "17 dersiniz var. İlk 15 dersi tarıyorum; eksikleri ve önerilerimi birazdan tek listede göstereceğim.",
+      "17 dersiniz var. 15'erli dilimlerle hepsini tarıyorum; eksikleri ve önerilerimi birazdan tek listede göstereceğim.",
     );
     expect(s.taramaPlani).toHaveLength(15);
     expect(s.taranmayan).toBe(2);
+    expect(s.sonrakiBaslangic).toBe(15);
+    expect(r.veri.hocayaSimdiSor).toBe(false);
+    expect(String(r.veri.sonrakiAdim)).toContain("baslangic=15");
+    // İkinci dilim: kalan 2 ders, sıra numaraları 16-17.
+    const r2 = calistir("obs_ders_listesi", { dersler, baslangic: 15 });
+    // biome-ignore lint/suspicious/noExplicitAny: test erişimi
+    const s2 = r2.veri.sonuc as any;
+    expect(s2.hocayaGoster).toBe("Sıradaki 2 dersi tarıyorum (16-17 / 17).");
+    expect(s2.taramaPlani.map((x: { sira: number }) => x.sira)).toEqual([16, 17]);
+    expect(s2.taranmayan).toBeUndefined();
     expect(s.raporBicimi.join(" ")).toContain("Şu eksiklikleri tespit ettim, önerilerim şunlar.");
     expect(s.raporBicimi.join(" ")).toContain("eksik görünmüyor");
-    expect(String(r.veri.sonrakiAdim)).toContain("hiçbir şey sormadan");
   });
 
   it("araç açıklaması 'hangi ders?' sorusunu yasaklar; sunucu talimatı kalite önerisini ister", () => {
     const a = ACIK_ARACLAR.find((x) => x.ad === "obs_ders_listesi");
     expect(a?.aciklama).toContain("hocaya 'hangi ders?' diye SORMADAN İLK bu aracı çağır");
     expect(SUNUCU_TALIMATI).toContain("Eksik yoksa 'eksik görünmüyor' de ve kaliteyi artıracak somut öneriler ver.");
+  });
+});
+
+describe("niyet çözümü ve sorma bayrağı (0.6.2)", () => {
+  it("akredit_basla kullanıcının cümlesinden odağı sunucuda çözer; çözemezse menü gösterir", () => {
+    const bologna = calistir("akredit_basla", { kullaniciMesaji: "akredit ders paketimi doldur" });
+    // biome-ignore lint/suspicious/noExplicitAny: test erişimi
+    expect((bologna.veri.sonuc as any).odak.no).toBe("1");
+    expect(bologna.veri.hocayaSimdiSor).toBe(false);
+    // biome-ignore lint/suspicious/noExplicitAny: test erişimi
+    expect((calistir("akredit_basla", { kullaniciMesaji: "ÇK PÇ hesabı" }).veri.sonuc as any).odak.no).toBe("3");
+    // biome-ignore lint/suspicious/noExplicitAny: test erişimi
+    expect((calistir("akredit_basla", { kullaniciMesaji: "MÜDEK ölçütleri" }).veri.sonuc as any).odak.no).toBe("4");
+    const menu = calistir("akredit_basla", { kullaniciMesaji: "akredit" });
+    // biome-ignore lint/suspicious/noExplicitAny: test erişimi
+    expect((menu.veri.sonuc as any).menu).toHaveLength(6);
+    expect(menu.veri.hocayaSimdiSor).toBe(true);
+  });
+
+  it("ara araçlar sormadan devam der; kayıt onayı durağında bayrak true olur", () => {
+    const ara = calistir("bologna_alan_rehberi", { alan: "amac" });
+    expect(ara.veri.hocayaSimdiSor).toBe(false);
+    expect(String(ara.veri.simdiYap)).toContain("hocaya soru sormayın");
+    const kopya = calistir("bologna_kopya_metni", {
+      ders: { kod: "KRG101", ad: "Kurgu Bilimine Giriş" },
+      alanlar: { amac: { tr: "Kurgu biliminin temel kavramlarını tanıtmak." } },
+    });
+    expect(kopya.veri.hocayaSimdiSor).toBe(true);
+    // Eksik kalmadığında dönen varsayılan adım: özet + kayıt onayı tek mesajda; eski "yapıştırdım" sorusu yok.
+    const varsayilan = ACIK_ARACLAR.find((x) => x.ad === "bologna_kopya_metni")?.sonrakiAdim ?? "";
+    expect(varsayilan).not.toContain("OBS'ye yapıştırdım");
+    expect(varsayilan).toContain("1) OBS'ye yaz ve kaydet");
+  });
+
+  it("engel_coz çerçeve ve okunamayan sayfada önce asistanın kendisi dener", () => {
+    const r = calistir("engel_coz", { engel: "cerceve" });
+    // biome-ignore lint/suspicious/noExplicitAny: test erişimi
+    expect((r.veri.sonuc as any).asistanOnceKendisiDener).toContain("iframe");
+    expect(r.veri.hocayaSimdiSor).toBe(false);
+    expect(calistir("engel_coz", { engel: "captcha" }).veri.hocayaSimdiSor).toBe(true);
   });
 });

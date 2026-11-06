@@ -16,7 +16,7 @@ import { GIRIS_BILGISI_ILETISI, girisBilgisiVar, kisiselVeriIletisi, kisiselVeri
 import { ACIK_ISTEMLER, type AcikIstem, istemSemasi } from "./promptlar.ts";
 
 export const SUNUCU_ADI = "akredit-acik";
-export const SUNUCU_SURUMU = "0.6.1";
+export const SUNUCU_SURUMU = "0.6.2";
 
 export const SUNUCU_TALIMATI = [
   "Akredit açık araçları öğretim elemanlarına kalite ve akreditasyon işlerinde yardım eder: Bologna ders paketi denetimi ve doldurma, öğrenme çıktısı yazma, ÇK/PÇ hesabı, YÖKAK ve program akreditasyonu (MÜDEK, FEDEK, SABAK, EPDAD) ölçüt ve kanıt rehberi, rapor dil denetimi, kaynak doğrulama.",
@@ -24,6 +24,7 @@ export const SUNUCU_TALIMATI = [
   "KURAL 2: Hocaya her soruyu numaralı seçeneklerle sor (1, 2, 3...), önerdiğin seçeneği işaretle; hoca yalnız numara yazarak ilerleyebilsin. Serbest metin yalnız ders adı, adres gibi seçenekle sorulamayan bilgilerde istenir.",
   "KURAL 3: Bologna seçilirse ve tarayıcı aracın varsa ilk iş OBS'yi açmaktır: hocadan yalnız OBS adresini iste (bilmiyorsa üniversite adını), adresi hemen tarayıcıda aç; ders adını ve paketi hocaya sorma, OBS'den oku.",
   "KURAL 5: Ara adımda hocaya soru sorma; varsayılan ya da en iyi seçeneği kendin seç ve sıradaki aracı çağır. Hocaya yalnız iki yerde durulur: sayfada olmayan resmî bilgi (değerlendirme yüzdeleri, kullanılan kaynaklar) ve OBS'ye kayıt onayı. Bu ikisi de TEK mesajdır.",
+  "KURAL 6: Her araç yanıtında hocayaSimdiSor var. false ise hocaya soru yazmayın, onay beklemeyin, doğrudan sonrakiAdim'ı uygulayın; yalnız true olduğunda ya da zorunlu teyit/kayıt onayında durun.",
   "KURAL 4: Önce sen tara, sonra öner. Ders listesi açılınca 'hangi ders?' diye sorma; obs_ders_listesi'ni çağır, bütün derslerin paketlerini oku, eksikleri say, kısa özetle ve 'önerilen' seçenekle gel (örneğin 1) en eksikten başlayıp hepsini kapatalım). Eksik yoksa 'eksik görünmüyor' de ve kaliteyi artıracak somut öneriler ver.",
   "Amaç: hocanın en az müdahalesiyle işi hızlı ama denetimli ve teyitli bitirmek. Her seçim menüsünde son seçenek '4) Hepsini akıllıca doldur (önerilen)' olur: her alan için en iyi seçeneği sen seçersin, araçla denetlersin, geçmeyeni düzeltip yeniden denetlersin, sonunda tek özet gösterip değiştirmek istediği numarayı sorarsın.",
   "Yalnız hocanın bilebileceği ve resmî taahhüt olan bilgiler (değerlendirme yöntem ve yüzdeleri, uygulama/lab, kullanılan kaynaklar, sayfada yoksa amaç ve içerik) sayfadan okunur; yoksa hocaya TEK mesajda, numaralı ve varsayılan seçenekli sorulur, uydurulmaz. Ders adından üretilen her şey 'öneri' etiketiyle gösterilir. Araç sonucu 'biçim denetiminden geçti; içerik teyidi: hoca' diye sunulur.",
@@ -37,6 +38,8 @@ export const SUNUCU_TALIMATI = [
 ].join(" ");
 
 /** Her araç yanıtında yinelenen kısa kural: uzun sohbette son okunan metin de aynı şeyi söyler. */
+export const SORMADAN_DEVAM = "Bu adımda hocaya soru sormayın ve onay beklemeyin; doğrudan sonrakiAdim'ı uygulayın.";
+
 export const ASISTAN_KURALI =
   "1) Ara adımda hocaya A/B/C sorma; en iyi seçeneği kendin seç, sıradaki aracı çağır. 2) Zorunlu soruyu (sayfada olmayan değerlendirme yüzdesi ve kaynak, OBS kayıt onayı) TEK mesajda ve numaralı sor. 3) Sayı, kaynak ve değerlendirme yüzdesi uydurma. 4) Parola ve doğrulama kodu isteme; Onaya Gönder'e hoca basar.";
 
@@ -102,6 +105,8 @@ function basari(a: AcikArac, s: AracSonucu, atilan: string[], ileti: string | un
     veri: {
       sonuc: s.sonuc,
       sonrakiAdim: s.sonrakiAdim ?? a.sonrakiAdim,
+      hocayaSimdiSor: s.hocayaSimdiSor ?? a.hocayaSimdiSor ?? false,
+      ...((s.hocayaSimdiSor ?? a.hocayaSimdiSor) ? {} : { simdiYap: SORMADAN_DEVAM }),
       asistanKurali: ASISTAN_KURALI,
       ...(atilan.length
         ? { atilan: ileti ?? `Şu kısımlar okunmadan atıldı, hiçbir yere yazılmadı: ${atilan.join(", ")}.` }

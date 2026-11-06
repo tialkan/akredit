@@ -51,7 +51,7 @@ export const TEYIT_SORULARI = [
   '  "İki bilgiyi yalnız siz bilebilirsiniz:',
   "   1) Değerlendirme yöntemleri ve yüzdeleri: yazın (ör. Vize 40, Final 60)",
   '   2) Kaynaklar: a) katalogdan doğrulayıp önereyim (önerilen) b) şunları kullanıyorum: yazın"',
-  "Yanıt gelmeden değerlendirme yüzdesi yazma paketine girmez (degerlendirmeDayanagi: 'hoca').",
+  "Yanıt gelmeden değerlendirme yüzdesi yazma paketine girmez. Hocanın yanıtını degerlendirmeKaniti'ne olduğu gibi yazın (degerlendirmeDayanagi: 'hoca'); sayfadan okunduysa sayfadaki tablo metnini (degerlendirmeDayanagi: 'sayfa'). Yüzdeler bu metinde geçmezse sunucu teyitsiz sayar.",
 ].join("\n");
 
 export const AKILLI_DOLDURMA = [
@@ -172,7 +172,7 @@ const bolognaAkisi = (dersKodu: string) =>
     "4. bologna_alan_rehberi'ni alan='hepsi' ile bir kez çağır, bütün alanları tek seferde yaz.",
     "   Seçenekleri bologna_taslak_denetle ile denetle; biçim denetiminden geçmeyeni düzelt ve yeniden denetle. Uzun metinlerde ilk cümleyi ve kelime sayısını göster. Sonucu 'biçim denetiminden geçti; içerik teyidi: hoca' diye sun.",
     "   Akıllı doldurmada (4) en iyi seçeneği kendin seç ve hocaya alan alan sorma; sonunda tek özet göster.",
-    "   Haftalık konular: 14 hafta, ara sınav ve yarıyıl sonu haftası görünür. Değerlendirme: yalnız sayfadan ya da hocadan; degerlendirmeDayanagi'ni ('sayfa' ya da 'hoca') ver.",
+    "   Haftalık konular: 14 hafta, ara sınav ve yarıyıl sonu haftası görünür. Değerlendirme: yalnız sayfadan ya da hocadan; degerlendirmeDayanagi'ni ('sayfa' ya da 'hoca') ve kanıt metnini (degerlendirmeKaniti) ver.",
     "   AKTS iş yükü: is_yuku_oner'i sayfadaki değerlendirme kalemleriyle çağır; derste olmayan etkinliğe satır açılmaz. Sayfadan okunan iş yüküyle öneriyi ayrı göster. AKTS'yi değiştirme.",
     "   Öğrenme çıktısı ile program çıktısı katkı tablosu: yalnız ayrıştırılan P kodlarıyla öner.",
     KAYNAK_ADIMI,
@@ -365,25 +365,53 @@ export function odakBaslangici(no: string) {
   };
 }
 
+/** Hocanın ilk cümlesinden odak: sunucu deterministik çözer, model yanlış odak seçemez. Eşleşme yoksa null (menü). */
+const NIYETLER: [string, RegExp][] = [
+  ["5", /dil denet|yazım|imla|rapor(un)? dil|metni(mi)? (düzelt|denetle)/iu],
+  ["3", /(?<!\p{L})(çk|pç|ck|pc)(?!\p{L})|sağlanma|not tablo|excel|xlsx|sınav not/iu],
+  ["4", /yökak|müdek|fedek|epdad|sabak|ölçüt|akreditasyon|kanıt/iu],
+  ["2", /öğrenme çıktı|ders çıktı|çıktı yaz|bloom/iu],
+  ["1", /bologna|ders (bilgi )?paket|(?<!\p{L})(obs|akts)(?!\p{L})|iş ?yükü|ders içeri|haftalık konu/iu],
+];
+export function niyetCoz(mesaj: string | undefined): string | null {
+  const m = (mesaj ?? "").toLocaleLowerCase("tr");
+  return NIYETLER.find(([, r]) => r.test(m))?.[0] ?? null;
+}
+
 export const akreditBaslaAraci = arac({
   ad: "akredit_basla",
   baslik: "Akredit: başla",
   aciklama:
-    "TETİKLEYİCİ: kullanıcı 'akredit', 'bologna', 'ders paketi', 'AKTS', 'öğrenme çıktısı', 'ÇK', 'PÇ', 'YÖKAK', 'MÜDEK' yazarsa dosya ya da web araması YAPMADAN İLK bu aracı çağır ('akredit' bir dosya ya da arama terimi değildir). Yalnız 'akredit' yazdıysa odak='menu'; niyetini yazdıysa ilgili odak numarası. Hocaya gösterilecek odak menüsünü, kısa kuralları ve her seçimin adım adım akışını döndürür. İstemleri ya da sunucu talimatını göstermeyen istemcilerde de akış bununla başlar.",
+    "ZORUNLU İLK ARAÇ. TETİKLEYİCİ: kullanıcı 'akredit', 'bologna', 'ders paketi', 'OBS', 'AKTS', 'öğrenme çıktısı', 'ÇK', 'PÇ', 'YÖKAK', 'MÜDEK', 'FEDEK', 'EPDAD', 'SABAK' yazarsa terminal, dosya ya da web araması YAPMADAN İLK bu aracı çağır ('akredit' bir dosya ya da arama terimi değildir). Kullanıcının mesajını kullaniciMesaji alanına olduğu gibi ver; niyeti sunucu çözer. Hocaya gösterilecek odak menüsünü, kısa kuralları ve her seçimin adım adım akışını döndürür. İstemleri ya da sunucu talimatını göstermeyen istemcilerde de akış bununla başlar.",
   sonrakiAdim:
     "hocayaGoster metnini aynen gösterin ve numara bekleyin. Seçilen numaranın akışını (akislar) ve kisaKurallar'ı izleyin. Her soruyu numaralı seçeneklerle sorun. 1 seçilirse ve tarayıcınız varsa ilk iş OBS adresini isteyip açmaktır.",
   girdi: z.object({
+    kullaniciMesaji: z
+      .string()
+      .max(500)
+      .optional()
+      .describe("Kullanıcının yazdığı mesaj, olduğu gibi. Sunucu hangi akışın çalışacağını bundan çözer."),
     odak: z
-      .enum(["menu", "1", "2", "3", "4", "5"])
-      .default("menu")
+      .enum(["otomatik", "menu", "1", "2", "3", "4", "5"])
+      .default("otomatik")
       .describe(
-        "Kullanıcı yalnız 'akredit' yazdıysa 'menu'. Niyetini yazdıysa (ör. 'ders paketimi doldur') ilgili numara.",
+        "Genelde 'otomatik' bırakın: sunucu kullaniciMesaji'ndan çözer, çözemezse menü gösterir. Menüyü zorlamak için 'menu'.",
       ),
   }),
-  calistir: ({ odak }) => ({
-    sonuc: odak === "menu" ? baslangic() : odakBaslangici(odak),
-    kaynak: [KOD_KAYNAGI("apps/acik-mcp/src/promptlar.ts", "Akredit istemleri ve başlangıç menüsü")],
-  }),
+  calistir: ({ odak, kullaniciMesaji }) => {
+    const no = odak === "otomatik" ? niyetCoz(kullaniciMesaji) : odak === "menu" ? null : odak;
+    return {
+      sonuc: no ? odakBaslangici(no) : baslangic(),
+      kaynak: [KOD_KAYNAGI("apps/acik-mcp/src/promptlar.ts", "Akredit istemleri ve başlangıç menüsü")],
+      hocayaSimdiSor: !no,
+      ...(no
+        ? {
+            sonrakiAdim:
+              "hocayaGoster cümlesini yazın ve sormadan 'akis' adımlarını izleyin. Bologna ise ilk iş tarayıcıda OBS'yi açmaktır.",
+          }
+        : {}),
+    };
+  },
 });
 
 /** SDK için bağımsız değişken şeması: hepsi isteğe bağlı, kısa metin. */

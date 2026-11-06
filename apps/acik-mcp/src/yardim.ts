@@ -386,6 +386,20 @@ export const kurulumYardimiAraci = arac({
   }),
 });
 
+/** Asistanın hocaya sormadan önce kendisinin deneyeceği toparlama; yalnız giriş, CAPTCHA ve kurulum hocadadır. */
+const KENDI_TOPARLAMA: Partial<Record<Engel, string>> = {
+  cerceve:
+    "Hocaya 'yeni sekmede açın' demeden önce: sayfadaki iframe'in src adresini okuyup o adrese kendiniz gidin ve sayfayı yeniden okuyun. Giriş ekranına düşerseniz adımlara geçin.",
+  sayfa_okunamiyor:
+    "Hocaya söylemeden önce: sayfadaki sekmeleri (Ders Bilgileri, Öğrenme Çıktıları, Ders Akışı, Katkı) sırayla açıp metinlerini birleştirin ve bologna_ayristir'ı yeniden çağırın. Hâlâ temel alanlar okunamıyorsa adımlara geçin.",
+  kaydet_basilamiyor:
+    "Önce kendiniz: sayfayı aşağı kaydırıp sekmenin kendi Kaydet düğmesini arayın, açık uyarı penceresi varsa okuyun. Hata iletisi bir alanı gösteriyorsa onu düzeltin (onaylanan içerik değişmeden). Olmazsa adımlara geçin.",
+  oturum_dustu:
+    "Taslağı kaybetmeyin: hemen bologna_kopya_metni ile yedek metni alın. Hocaya tek mesajda 'Oturum düştü; OBS sekmesinde yeniden girip girdim yazın, kaldığım yerden sürdürürüm' deyin ve aynı mesajda kopya metnini verin.",
+  site_acilmiyor:
+    "Önce kendiniz: adresi http/https ve www'lü/www'süz deneyin, kurumun OBS sayfasını web aramasıyla bulun. Olmazsa adımlara geçin.",
+};
+
 export const engelCozAraci = arac({
   ad: "engel_coz",
   baslik: "Engel çöz",
@@ -403,6 +417,7 @@ export const engelCozAraci = arac({
     return {
       sonuc: {
         engel: e.ad,
+        ...(KENDI_TOPARLAMA[engel] ? { asistanOnceKendisiDener: KENDI_TOPARLAMA[engel] } : {}),
         girisKurali: GIRIS_KURALI_HOCAYA,
         adimlar: numarala([...ozel, ...e.adimlar]),
         ...(e.yedek ? { yedekYol: numarala(KOPYALA_YAPISTIR) } : {}),
@@ -410,6 +425,13 @@ export const engelCozAraci = arac({
           "Tarayıcı aracı yoksa asistan bologna_kopya_metni ile alan alan kopyalanacak metni verir; siz OBS'de ilgili kutuya yapıştırıp Kaydet'e basarsınız.",
       },
       kaynak: [KOD_KAYNAGI("apps/acik-mcp/src/yardim.ts", "Akredit engel çözme rehberi")],
+      ...(KENDI_TOPARLAMA[engel] && engel !== "oturum_dustu"
+        ? {
+            hocayaSimdiSor: false,
+            sonrakiAdim:
+              "Önce asistanOnceKendisiDener'i hocaya sormadan uygulayın. Çözülmezse adımları hocaya tek tek gösterin. Parola, doğrulama kodu ya da çerez istemeyin.",
+          }
+        : { hocayaSimdiSor: true }),
     };
   },
 });

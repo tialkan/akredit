@@ -23,6 +23,8 @@ export interface AracSonucu {
   kaynak: Kaynak[];
   /** Asistana bir sonraki adım önerisi; verilmezse aracın varsayılanı kullanılır. */
   sonrakiAdim?: string;
+  /** Bu adımda hocaya bir şey sorulmalı mı; verilmezse aracın varsayılanı (o da yoksa false). */
+  hocayaSimdiSor?: boolean;
 }
 
 export interface AracBaglami {
@@ -38,6 +40,8 @@ export interface AcikArac<S extends z.ZodObject = z.ZodObject> {
   girdi: S;
   /** Yanıtta dönen varsayılan "sonraki adım" önerisi. */
   sonrakiAdim: string;
+  /** Yanıttaki hocayaSimdiSor bayrağının varsayılanı: true yalnız hocanın karar verdiği duraklarda. */
+  hocayaSimdiSor?: boolean;
   /** Kişisel veri reddinde iletiye eklenecek, bu araca özgü ipucu. */
   kisiselVeriIpucu?: string;
   /**

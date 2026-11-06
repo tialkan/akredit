@@ -204,7 +204,7 @@ describe("Bologna araçlarında kişisel veri", () => {
 describe("akredit_basla", () => {
   it("parametresiz; menüyü, kısa kuralları ve her seçimin akışını yapılandırılmış döndürür", async () => {
     const a = ACIK_ARACLAR.find((x) => x.ad === "akredit_basla");
-    expect(a?.aciklama).toMatch(/^TETİKLEYİCİ: kullanıcı 'akredit'/u);
+    expect(a?.aciklama).toMatch(/^ZORUNLU İLK ARAÇ\. TETİKLEYİCİ: kullanıcı 'akredit'/u);
     expect(a?.aciklama).toContain("dosya ya da web araması YAPMADAN İLK bu aracı çağır");
     expect(ACIK_ARACLAR[0]?.ad).toBe("akredit_basla");
     const s = sonuc(calistir("akredit_basla", {}));
@@ -249,8 +249,24 @@ describe("yazma paketi kapısı", () => {
       calistir("bologna_kopya_metni", { ders, alanlar: { degerlendirme, degerlendirmeDayanagi: "oneri" } }),
     );
     expect(oneri.metin).not.toContain("Ara Sınav\t1\t40");
-    const hoca = sonuc(
+    // 'hoca' beyanı tek başına yetmez: yüzdeler hocanın yanıtında (kanıt) geçmelidir.
+    const kanitsiz = sonuc(
       calistir("bologna_kopya_metni", { ders, alanlar: { degerlendirme, degerlendirmeDayanagi: "hoca" } }),
+    );
+    expect(kanitsiz.metin).not.toContain("Ara Sınav\t1\t40");
+    // Kanıtta 40 var ama 60 yok (model 60'ı uydurmuş): teyitsiz.
+    const eksikKanit = sonuc(
+      calistir("bologna_kopya_metni", {
+        ders,
+        alanlar: { degerlendirme, degerlendirmeDayanagi: "sayfa", degerlendirmeKaniti: "Ara sınav %40" },
+      }),
+    );
+    expect(eksikKanit.yazilamayan[0]).toMatchObject({ alan: "Değerlendirme" });
+    const hoca = sonuc(
+      calistir("bologna_kopya_metni", {
+        ders,
+        alanlar: { degerlendirme, degerlendirmeDayanagi: "hoca", degerlendirmeKaniti: "vize 40 final 60" },
+      }),
     );
     expect(hoca.metin).toContain("Ara Sınav\t1\t40");
     expect(hoca.yazilamayan).toEqual([]);
