@@ -32,7 +32,37 @@ export const KURULUS = {
   url: `${SITE_ADRESI}/`,
   logo: `${SITE_ADRESI}/marka/simge-512.png`,
   description: SAYFALAR.ana.aciklama,
+  founder: { "@type": "Person", name: "Tarık İsmet ALKAN", sameAs: "https://www.linkedin.com/in/tialkan/" },
+  sameAs: ["https://github.com/tialkan/akredit", "https://www.npmjs.com/package/@akredit/acik-mcp"],
 };
+
+/** Ana sayfa için site ve uygulama düğümleri: ücretsiz, açık kaynak, Türkçe. */
+export function anaSayfaDugumleri() {
+  return [
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_ADRESI}/#site`,
+      name: "Akredit",
+      url: `${SITE_ADRESI}/`,
+      inLanguage: "tr-TR",
+      publisher: { "@id": KURULUS["@id"] },
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": `${SITE_ADRESI}/#uygulama`,
+      name: "Akredit",
+      url: `${SITE_ADRESI}/`,
+      description: SAYFALAR.ana.aciklama,
+      applicationCategory: "EducationalApplication",
+      operatingSystem: "Windows, macOS, Linux",
+      inLanguage: "tr-TR",
+      isAccessibleForFree: true,
+      license: "https://www.apache.org/licenses/LICENSE-2.0",
+      offers: { "@type": "Offer", price: "0", priceCurrency: "TRY" },
+      publisher: { "@id": KURULUS["@id"] },
+    },
+  ];
+}
 
 export function kirintiYolu(s: SayfaBilgisi) {
   const ogeler = [{ ad: SAYFALAR.ana.ad, yol: "/" }, ...(s.yol === "/" ? [] : [{ ad: s.ad, yol: s.yol }])];

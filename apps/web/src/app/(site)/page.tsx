@@ -22,7 +22,7 @@ import {
   type Uygulama,
 } from "../../site/kurulum.ts";
 import { ornekDenetim } from "../../site/ornek-denetim.ts";
-import { sayfaUstVerisi } from "../../site/yapisal.ts";
+import { anaSayfaDugumleri, sayfaUstVerisi, sssVerisi } from "../../site/yapisal.ts";
 
 export const metadata: Metadata = sayfaUstVerisi(SAYFALAR.ana);
 
@@ -144,7 +144,7 @@ function AdimBasligi({ no, id, children }: { no: number; id: string; children: s
 export default function AnaSayfa() {
   return (
     <>
-      <YapisalVeri sayfa={SAYFALAR.ana} />
+      <YapisalVeri sayfa={SAYFALAR.ana} ek={[...anaSayfaDugumleri(), sssVerisi(SSS)]} />
       <BelirmeGozlemcisi />
       <section aria-labelledby="ana-baslik" className="ilk-ekran border-b border-cizgi bg-yuzey">
         <div className="mx-auto grid max-w-3xl items-center gap-8 px-4 pt-10 pb-10 sm:pt-14 lg:max-w-6xl lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)] lg:gap-14 lg:pt-16 lg:pb-16">
@@ -156,11 +156,6 @@ export default function AnaSayfa() {
               {SAYFALAR.ana.baslik}
             </h1>
             <p className="mt-5 max-w-[46ch] text-xl">Ücretsiz, açık kaynak, hesapsız. Kendi yapay zekânızda çalışır.</p>
-            <p className="mt-3 text-lg">
-              <Link href="/deneyin" className={`inline-flex min-h-11 items-center ${BAG}`}>
-                Kurulum istemiyor musunuz? Araçları tarayıcıda deneyin
-              </Link>
-            </p>
           </div>
           <OnceSonra />
         </div>
