@@ -201,16 +201,19 @@ export default function AnaSayfa() {
               {SAYFALAR.ana.baslik}
             </h1>
             <p className="mt-5 max-w-[46ch] text-xl">Ücretsiz, açık kaynak, hesapsız. Kendi yapay zekânızda çalışır.</p>
-            <p className="mt-4 max-w-[52ch] rounded-sm border border-risk-orta bg-risk-orta-zemin px-4 py-3 text-base text-risk-orta">
-              <strong>Kurum demosu askıda.</strong> {DEMO_NOTU}{" "}
-              <Link href="/deneyin#kurum-demosu" className="underline underline-offset-4">
-                Ayrıntı
-              </Link>
-            </p>
           </div>
           <OnceSonra />
         </div>
       </section>
+
+      <div className="border-b border-risk-orta bg-risk-orta-zemin">
+        <p className="mx-auto max-w-5xl px-4 py-3 text-base text-risk-orta">
+          <strong>Kurum demosu askıda.</strong> {DEMO_NOTU}{" "}
+          <Link href="/deneyin#kurum-demosu" className="underline underline-offset-4">
+            Ayrıntı
+          </Link>
+        </p>
+      </div>
 
       <nav aria-label="Kurulum adımları" className="border-b border-cizgi bg-zemin">
         <ol className="mx-auto grid max-w-5xl gap-2 px-4 py-4 text-base sm:grid-cols-2 lg:grid-cols-4">
