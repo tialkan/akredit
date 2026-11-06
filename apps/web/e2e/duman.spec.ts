@@ -4,7 +4,7 @@ const grup = (page: Page, ad: RegExp) =>
   page.locator("section").filter({ has: page.getByRole("heading", { name: ad }) });
 
 test.describe("tanıtım sitesi", () => {
-  test("ana sayfa: yalnız iki adım ve SSS; menü üç öğe", async ({ page }) => {
+  test("ana sayfa: dört adım ve SSS; menü üç öğe", async ({ page }) => {
     await page.goto("/");
     await expect(page).toHaveTitle(/Akredit/);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Akreditasyon ve Bologna yardımcısı");
@@ -12,28 +12,31 @@ test.describe("tanıtım sitesi", () => {
       // İlk ekrandaki önce/sonra örneği: bulgular gerçek Bologna denetiminden (src/site/ornek-denetim.ts).
       /^Önce: 3 bulgu$/u,
       "Sonra: bulgu yok",
-      /Adım 1.*Akredit'i yapay zekânıza ekleyin/u,
-      /Adım 2.*akredit yazın/u,
+      /Adım 1.*Uygulamayı indirin/u,
+      /Adım 2.*Chrome eklentisini kurun/u,
+      /Adım 3.*Akredit'i ekleyin/u,
+      /Adım 4.*akredit yazın/u,
       "Takıldınız mı?",
     ]);
     // Eski tanıtım bölümleri ana sayfadan kalktı.
     for (const ad of ["Platform", "İşi kim yapar", "Kim için ne yapar", "Bir dönem nasıl geçer"])
       await expect(page.getByRole("heading", { name: ad, exact: true })).toHaveCount(0);
-    // Claude varsayılan açık, diğerleri kapalı; geliştirici araçları en sonda.
-    const kutular = page.locator("#kurulum details");
+    // Diğer uygulamalar "Başka bir uygulama" açılır bölümünde, hepsi kapalı; geliştirici araçları en sonda.
+    const kutular = page.locator("details[id^='kur-']");
     await expect(kutular).toHaveCount(5);
-    await expect(page.locator("#kur-claude")).toHaveAttribute("open", "");
-    for (const k of ["chatgpt", "claude-code", "cursor", "vscode"])
+    await page.getByText("Başka bir uygulama mı kullanıyorsunuz?").click();
+    for (const k of ["claude", "chatgpt", "claude-code", "cursor", "vscode"])
       await expect(page.locator(`#kur-${k}`)).not.toHaveAttribute("open");
     await expect(kutular.last()).toHaveAttribute("id", "kur-vscode");
     await expect(page.locator("#kur-claude ol > li")).toHaveCount(5);
-    await expect(page.locator("#kur-claude")).toContainText("Add custom connector");
+    // Claude masaüstü için beş görselli adım.
+    await expect(page.locator("section[aria-labelledby='adim-3'] figure img")).toHaveCount(5);
     await page.locator("#kur-claude-code summary").click();
     await expect(page.locator("#kur-claude-code")).toContainText(
       "claude mcp add --transport http akredit https://akredit.org/mcp",
     );
     await expect(page.getByText("parolanızı yalnız OBS'nin kendi ekranına yazın")).toBeVisible();
-    await expect(page.locator("main details:not([id])")).toHaveCount(4);
+    await expect(page.locator("main details:not([id])")).toHaveCount(5);
     await expect(page.getByRole("link", { name: "Ayrıntılı rehber ve bütün araçlar" })).toHaveAttribute(
       "href",
       "/mcp-kullan",

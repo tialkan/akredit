@@ -67,8 +67,53 @@ const BAG = "text-vurgu underline underline-offset-4";
 
 const ADIMLAR = [
   { id: "adim-1", ad: "Uygulamayı indirin" },
-  { id: "adim-2", ad: "Akredit'i ekleyin" },
-  { id: "adim-3", ad: "akredit yazın" },
+  { id: "adim-2", ad: "Chrome eklentisini kurun" },
+  { id: "adim-3", ad: "Akredit'i ekleyin" },
+  { id: "adim-4", ad: "akredit yazın" },
+];
+
+/** Claude in Chrome eklentisi; adres claude.com/claude-in-chrome sayfasındaki resmî bağlantıdır (06.11.2026). */
+const CHROME_EKLENTISI = "https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn";
+
+/** Claude masaüstünde bağdaştırıcı ekleme. Menü adları kurucunun 06.11.2026 ekran görüntülerinden (Türkçe arayüz). */
+const CLAUDE_ADIMLARI = [
+  {
+    metin:
+      "Sol alttaki çark simgesinden Ayarlar'ı açın. Soldan Bağdaştırıcılar'ı seçin, sağ üstte Ekle'ye, ardından Özel bağdaştırıcı ekle'ye basın.",
+    gorsel: "1-ekle-menusu",
+    alt: "Bağdaştırıcılar sayfası; sağ üstte Ekle menüsünde Özel bağdaştırıcı ekle seçeneği.",
+    en: 1200,
+    boy: 150,
+  },
+  {
+    metin: "Ad kutusuna Akredit, alttaki kutuya https://akredit.org/mcp yazın. Devam et'e basın.",
+    gorsel: "2-adres-yaz",
+    alt: "Özel bağdaştırıcı ekle penceresi; ad Akredit, adres https://akredit.org/mcp.",
+    en: 1200,
+    boy: 978,
+  },
+  {
+    metin: "Sonraki pencerede başka bir şey doldurmayın. Ekle'ye basın.",
+    gorsel: "3-ekle-onayla",
+    alt: "İstek başlıkları boş; sağ altta Ekle düğmesi.",
+    en: 1200,
+    boy: 1185,
+  },
+  {
+    metin: "Bağlan'a basın.",
+    gorsel: "4-baglan",
+    alt: "Akredit bağdaştırıcısı sayfası; ortada Bağlan düğmesi.",
+    en: 1200,
+    boy: 621,
+  },
+  {
+    metin:
+      "Araç izinlerinde Salt okunur araçlar için Her zaman izin ver'i seçin. Akredit'in bütün araçları yalnız okur.",
+    gorsel: "5-izin-ver",
+    alt: "Araç izinleri; Salt okunur araçlar için Her zaman izin ver seçili.",
+    en: 1200,
+    boy: 621,
+  },
 ];
 
 /** Önerilen masaüstü uygulamaları. Plan adı ve fiyatı sağlayıcının fiyat sayfasındandır (Kasım 2026). */
@@ -168,7 +213,7 @@ export default function AnaSayfa() {
       </section>
 
       <nav aria-label="Kurulum adımları" className="border-b border-cizgi bg-zemin">
-        <ol className="mx-auto grid max-w-3xl gap-2 px-4 py-4 text-base sm:grid-cols-3">
+        <ol className="mx-auto grid max-w-5xl gap-2 px-4 py-4 text-base sm:grid-cols-2 lg:grid-cols-4">
           {ADIMLAR.map((a, i) => (
             <li key={a.id}>
               <a
@@ -220,15 +265,77 @@ export default function AnaSayfa() {
       <section aria-labelledby="adim-2" className="border-t border-cizgi bg-yuzey">
         <div data-belir className="mx-auto max-w-3xl px-4 py-10 text-lg sm:py-14">
           <AdimBasligi no={2} id="adim-2">
+            Chrome eklentisini kurun
+          </AdimBasligi>
+          <p className="mt-3">
+            Claude, OBS ve Bologna sayfalarını sizin Chrome'unuzda, sizin oturumunuzla açar. Uygulamanın kendi
+            tarayıcısı bazı üniversite sitelerinde engellenebilir; eklenti bu sorunu çözer.
+          </p>
+          <ol className="mt-4 grid list-decimal gap-2 pl-7">
+            <li>
+              <a href={CHROME_EKLENTISI} className={BAG}>
+                Chrome Web Mağazası'ndaki Claude eklentisini
+              </a>{" "}
+              açın ve Chrome'a ekleyin.
+            </li>
+            <li>Eklentiyi açıp Claude hesabınızla giriş yapın.</li>
+            <li>Claude masaüstünde Ayarlar penceresinin solunda Claude in Chrome bölümünü görürsünüz; açık kalsın.</li>
+          </ol>
+          <p className="mt-4 text-base text-soluk">ChatGPT kullanıyorsanız bu adımı atlayın.</p>
+        </div>
+      </section>
+
+      <section aria-labelledby="adim-3" className="border-t border-cizgi bg-zemin">
+        <div data-belir className="mx-auto max-w-3xl px-4 py-10 text-lg sm:py-14">
+          <AdimBasligi no={3} id="adim-3">
             Akredit'i ekleyin
           </AdimBasligi>
-          <ol className="mt-4 grid list-decimal gap-2 pl-7">
-            <li>Claude'da Code sekmesini, ChatGPT'de Codex bölümünü açın.</li>
-            <li>Yeni bir oturum başlatın.</li>
+          <h3 className="bolum-etiketi mt-6 text-lg text-metin">Claude masaüstünde, beş tıkla</h3>
+          <ol className="mt-4 grid gap-8">
+            {CLAUDE_ADIMLARI.map((a, i) => (
+              <li key={a.gorsel} className="grid gap-3">
+                <p className="flex gap-3">
+                  <span
+                    aria-hidden
+                    className="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-vurgu font-baslik text-yuzey"
+                  >
+                    {i + 1}
+                  </span>
+                  <span>
+                    <span className="sr-only">{`${i + 1}. `}</span>
+                    {a.metin}
+                  </span>
+                </p>
+                <figure
+                  className={`overflow-hidden rounded-sm border border-cizgi-guclu bg-yuzey ${a.boy > 800 ? "max-w-md" : ""}`}
+                >
+                  {/* biome-ignore lint/performance/noImgElement: sabit ekran görüntüsü, boyutları belli */}
+                  <img
+                    src={`/gorsel/kurulum/${a.gorsel}.webp`}
+                    alt={a.alt}
+                    width={a.en}
+                    height={a.boy}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-auto w-full"
+                  />
+                </figure>
+              </li>
+            ))}
+          </ol>
+          <p className="mt-6 rounded-sm border border-cizgi-guclu bg-yuzey px-4 py-3">
+            "Oturum açma olmadan herkes kullanabilir" uyarısı normaldir: Akredit hesap istemez ve yalnız okur.
+          </p>
+
+          <h3 className="bolum-etiketi mt-10 text-lg text-metin">
+            ChatGPT (Codex) ya da Claude Code: metni yapıştırın
+          </h3>
+          <ol className="mt-3 grid list-decimal gap-2 pl-7">
+            <li>Codex bölümünde ya da Claude'un Code sekmesinde yeni bir oturum açın.</li>
             <li>Aşağıdaki metni kopyalayıp yapıştırın. Kurulumu kendisi yapar; sizden yalnız onay ister.</li>
           </ol>
           <KopyalaKutusu etiket="Yapıştırılacak metin" metin={KURULUM_ISTEGI} uzun />
-          <details className="kart mt-8 rounded-sm border border-cizgi bg-zemin">
+          <details className="kart mt-8 rounded-sm border border-cizgi bg-yuzey">
             <summary className="flex min-h-12 cursor-pointer items-center px-4 py-2">
               Başka bir uygulama mı kullanıyorsunuz? (claude.ai, ChatGPT sohbeti, Cursor, VS Code)
             </summary>
@@ -241,9 +348,9 @@ export default function AnaSayfa() {
         </div>
       </section>
 
-      <section aria-labelledby="adim-3" className="border-t border-cizgi bg-zemin">
+      <section aria-labelledby="adim-4" className="border-t border-cizgi bg-zemin">
         <div data-belir className="mx-auto max-w-3xl px-4 py-10 text-lg sm:py-14">
-          <AdimBasligi no={3} id="adim-3">
+          <AdimBasligi no={4} id="adim-4">
             akredit yazın
           </AdimBasligi>
           <ol className="mt-4 grid list-decimal gap-2 pl-7">
