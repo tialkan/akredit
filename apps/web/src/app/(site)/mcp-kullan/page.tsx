@@ -250,7 +250,7 @@ export default function McpKullan() {
           <p>
             Bu bağlantı kurum verisine erişmez. Kanıta bağlı rapor ve onay Akredit platformundadır; kurumunuz kendi
             sunucusuna kurabilir. akredit.org'da kurum hizmeti sponsor bulunana kadar askıda.{" "}
-            <Link href="/deneyin">Demo</Link> henüz tamamlanmadı.
+            <Link href="/deneyin">Demo</Link> hazır, sponsor bulunana kadar askıda.
           </p>
         </Metin>
       </Bolum>

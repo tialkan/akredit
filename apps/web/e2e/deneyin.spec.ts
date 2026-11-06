@@ -207,7 +207,7 @@ test.describe("deneyin kurum demosu", () => {
     const serit = page.locator("[data-sayfa-durumu]");
     await expect(serit.locator("[data-durum]")).toHaveText("Çalışıyor");
     await expect(page.locator("[data-demo-notu]")).toContainText(
-      "Demo henüz tamamlanmadı: arka plandaki masrafları karşılayacak sponsor ya da iş birliği bulunamadı.",
+      "Demo hazır ve çalışır durumda, ancak askıda: sunucu ve yapay zekâ maliyeti var. Bu masrafı karşılayacak sponsor aranıyor.",
     );
   });
 

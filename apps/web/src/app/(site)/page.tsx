@@ -11,7 +11,7 @@ import { AdimListesi } from "../../site/adim-listesi.tsx";
 import { BelirmeGozlemcisi } from "../../site/belirme.tsx";
 import { YapisalVeri } from "../../site/bilesenler.tsx";
 import { GORSELLER, Gorsel } from "../../site/gorsel.tsx";
-import { SAYFALAR } from "../../site/icerik.ts";
+import { DEMO_NOTU, SAYFALAR } from "../../site/icerik.ts";
 import { KopyalaKutusu } from "../../site/kopyala.tsx";
 import {
   GELISTIRICI_ARACLARI,
@@ -156,6 +156,12 @@ export default function AnaSayfa() {
               {SAYFALAR.ana.baslik}
             </h1>
             <p className="mt-5 max-w-[46ch] text-xl">Ücretsiz, açık kaynak, hesapsız. Kendi yapay zekânızda çalışır.</p>
+            <p className="mt-4 max-w-[52ch] rounded-sm border border-risk-orta bg-risk-orta-zemin px-4 py-3 text-base text-risk-orta">
+              <strong>Kurum demosu askıda.</strong> {DEMO_NOTU}{" "}
+              <Link href="/deneyin#kurum-demosu" className="underline underline-offset-4">
+                Ayrıntı
+              </Link>
+            </p>
           </div>
           <OnceSonra />
         </div>

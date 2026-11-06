@@ -9,7 +9,7 @@ export { ILETISIM_ADRESI, ILETISIM_EPOSTA, PROJE_SAHIBI } from "./iletisim.ts";
 
 /** Demonun dürüst durumu (kurucu kararı, İP-49). /deneyin üstünde ve proje ayrıntılarında aynen görünür. */
 export const DEMO_NOTU =
-  "Demo henüz tamamlanmadı: arka plandaki masrafları karşılayacak sponsor ya da iş birliği bulunamadı.";
+  "Demo hazır ve çalışır durumda, ancak askıda: sunucu ve yapay zekâ maliyeti var. Bu masrafı karşılayacak sponsor aranıyor.";
 
 /** Açık kaynak deposu. Dayanaklar son kullanıcıya depo yolu yazmaz; bu adrese bağlanır. */
 export const DEPO_ADRESI = "https://github.com/tialkan/akredit";
@@ -188,7 +188,7 @@ export const SAYFALAR = {
     baslik: "Pilot uygulama",
     title: "Pilot başvurusu: sponsor bulunana kadar askıda",
     aciklama:
-      "Pilot uygulama ve barındırılan kurum hizmeti sponsor bulunana kadar askıda. Yazılım hazır ve açık kaynak; kurum kendi sunucusuna kurabilir. Demo henüz tamamlanmadı.",
+      "Pilot uygulama ve barındırılan kurum hizmeti sponsor bulunana kadar askıda. Yazılım hazır ve açık kaynak; kurum kendi sunucusuna kurabilir. Demo hazır, sponsor bulunana kadar askıda.",
   },
   belgeler: {
     yol: "/belgeler",
@@ -348,7 +348,7 @@ export function projeSayfasi(yol: string): ProjeSayfasi | undefined {
 
 // Dayanak: kurucu kararı 2026-11-01 (docs/adr/0008). Barındırma bayrağı: src/site/barindirma.ts.
 export const DURUM_NOTU =
-  "Platform tamamlandı ve açık kaynaktır. Kurumlara barındırılan hizmet, sponsor bulunana kadar sunulmuyor. Kendi yapay zekânızla kullanılan araçlar açık; demo henüz tamamlanmadı.";
+  "Platform tamamlandı ve açık kaynaktır. Kurumlara barındırılan hizmet, sponsor bulunana kadar sunulmuyor. Kendi yapay zekânızla kullanılan araçlar açık; demo hazır, sponsor bulunana kadar askıda.";
 
 /** Ana sayfadaki ve askıdaki sayfalardaki "Durum" notu (kurucu kararı 2026-11-01). Sade, kısa maddeler. */
 export const PLATFORM_DURUMU: string[] = [
@@ -899,7 +899,7 @@ export const SSS: { soru: string; cevap: string }[] = [
   {
     soru: "Şu an kullanabilir miyiz?",
     cevap:
-      "Üç yol var. Ölçüt ve denetim araçlarını kendi yapay zekânıza ekleyip hemen kullanabilirsiniz. Demo henüz tamamlanmadı; çalışan bölümünü hesap açmadan görebilirsiniz. Yazılımı kendi sunucunuza kurabilirsiniz. Kurumlara barındırılan hizmet sponsor bulunana kadar sunulmuyor; kurum açma ve pilot başvurusu kapalı.",
+      "Üç yol var. Ölçüt ve denetim araçlarını kendi yapay zekânıza ekleyip hemen kullanabilirsiniz. Demo hazır ama sponsor bulunana kadar askıda. Yazılımı kendi sunucunuza kurabilirsiniz. Kurumlara barındırılan hizmet sponsor bulunana kadar sunulmuyor; kurum açma ve pilot başvurusu kapalı.",
   },
   {
     soru: "Web araması nasıl çalışır, ne kadar tutar?",

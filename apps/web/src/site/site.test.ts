@@ -244,7 +244,7 @@ describe("İP-49: sade site, iki adım ve proje ayrıntıları", () => {
     expect(durum("/deneyin")).toBe("calisiyor");
     expect(durum("/deneyin#kurum-demosu")).toBe("askida");
     expect(projeSayfasi("/deneyin#kurum-demosu")?.not).toBe(
-      "Demo henüz tamamlanmadı: arka plandaki masrafları karşılayacak sponsor ya da iş birliği bulunamadı.",
+      "Demo hazır ve çalışır durumda, ancak askıda: sunucu ve yapay zekâ maliyeti var. Bu masrafı karşılayacak sponsor aranıyor.",
     );
     // Hukuk metinleri avukat incelemesinden geçti ve yayımlandı (kurucu, 05.11.2026); kılavuzlar taslak.
     for (const y of ["/kvkk", "/gizlilik", "/kosullar", "/guvenlik"]) expect(durum(y), y).toBe("calisiyor");
