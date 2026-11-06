@@ -34,7 +34,7 @@ const calistir = (ad: string, girdi: unknown) => {
 };
 
 describe("uçtan uca (SDK istemcisi)", () => {
-  it("araç listesi yirmi salt okuma aracı döner; yalnız kaynak_dogrula dış kataloğa sorar", async () => {
+  it("araç listesi yirmi bir salt okuma aracı döner; yalnız kaynak_dogrula dış kataloğa sorar", async () => {
     const c = await baglan();
     const { tools } = await c.listTools();
     expect(tools.map((t) => t.name).sort()).toEqual(
@@ -54,6 +54,7 @@ describe("uçtan uca (SDK istemcisi)", () => {
         "kurulum_yardimi",
         "not_tablosu_ayristir",
         "obs_karsilastir",
+        "obs_ders_listesi",
         "olcut_ara",
         "olcut_getir",
         "olgunluk_duzeyleri",

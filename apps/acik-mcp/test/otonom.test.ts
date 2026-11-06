@@ -60,3 +60,27 @@ describe("otonom akış", () => {
     expect(SUNUCU_TALIMATI).toContain("KURAL 5: Ara adımda hocaya soru sorma");
   });
 });
+
+describe("ders listesi: önce tara, eksik yoksa kalite önerisi", () => {
+  it("obs_ders_listesi hocaya soru sordurmaz; ilk 15 dersi tarama planına alır, rapor biçimini verir", () => {
+    const dersler = Array.from({ length: 17 }, (_, i) => ({ kod: `KRG${100 + i}`, ad: `Kurgu Ders ${i + 1}` }));
+    const r = calistir("obs_ders_listesi", { dersler });
+    // biome-ignore lint/suspicious/noExplicitAny: test erişimi
+    const s = r.veri.sonuc as any;
+    // 17 ders: ilk 15'i taranır, 2 ders kalır.
+    expect(s.hocayaGoster).toBe(
+      "17 dersiniz var. İlk 15 dersi tarıyorum; eksikleri ve önerilerimi birazdan tek listede göstereceğim.",
+    );
+    expect(s.taramaPlani).toHaveLength(15);
+    expect(s.taranmayan).toBe(2);
+    expect(s.raporBicimi.join(" ")).toContain("Şu eksiklikleri tespit ettim, önerilerim şunlar.");
+    expect(s.raporBicimi.join(" ")).toContain("eksik görünmüyor");
+    expect(String(r.veri.sonrakiAdim)).toContain("hiçbir şey sormadan");
+  });
+
+  it("araç açıklaması 'hangi ders?' sorusunu yasaklar; sunucu talimatı kalite önerisini ister", () => {
+    const a = ACIK_ARACLAR.find((x) => x.ad === "obs_ders_listesi");
+    expect(a?.aciklama).toContain("hocaya 'hangi ders?' diye SORMADAN İLK bu aracı çağır");
+    expect(SUNUCU_TALIMATI).toContain("Eksik yoksa 'eksik görünmüyor' de ve kaliteyi artıracak somut öneriler ver.");
+  });
+});

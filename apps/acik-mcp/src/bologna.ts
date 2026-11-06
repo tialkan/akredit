@@ -927,7 +927,10 @@ export const bolognaDenetleAraci = arac({
       kaynak: [KAYNAK_SAYFA, KAYNAK_KURALLAR],
       ...(doldurulacak.length
         ? {}
-        : { sonrakiAdim: "Hocaya sorun: 1) başka bir ders 2) OBS'ye kopya metni (bologna_kopya_metni) 3) bitir." }),
+        : {
+            sonrakiAdim:
+              "Eksik görünmüyor. Bunu tek cümleyle söyleyin ve sormadan kaliteyi artıracak 2-4 somut öneri verin: zayıf ya da kısa alanlar, öğrenme çıktılarında Bloom düzeyi ve ölçülebilirlik, iş yükü ile AKTS uyumu, kaynakların güncelliği, İngilizce alanlar. Altına: 1) önerileri uygulayalım (önerilen) 2) sıradaki derse geç 3) bitir.",
+          }),
     };
   },
 });
@@ -1903,7 +1906,45 @@ const kopyaMetniAraci = arac({
   },
 });
 
+/** OBS'de ders listesi açılınca: hocaya "hangi ders?" sordurmaz, tarama planını ve rapor biçimini verir. */
+const dersListesiAraci = arac({
+  ad: "obs_ders_listesi",
+  baslik: "OBS ders listesini tara",
+  aciklama:
+    "OBS ya da Bologna sisteminde hocanın ders listesi açılınca, hocaya 'hangi ders?' diye SORMADAN İLK bu aracı çağır: listedeki ders kodlarını ve adlarını ver. Tarama sırasını, hocaya gösterilecek kısa bilgi cümlesini ve sonuç raporunun biçimini döndürür. OBS'ye yazmaz, adres açmaz.",
+  sonrakiAdim:
+    "Hocaya hocayaGoster cümlesini yazın ve hiçbir şey sormadan taramaPlani sırasıyla her dersin Bologna sayfasını açın; bologna_ayristir ve bologna_denetle ile eksikleri sayın. Bitince raporBicimi'ne göre TEK mesaj yazın.",
+  kisiselVeriKapsami: "tam",
+  girdi: z.object({
+    dersler: z
+      .array(z.object({ kod: z.string().trim().min(1).max(30), ad: z.string().trim().max(160).optional() }))
+      .min(1)
+      .max(60)
+      .describe("Listede görünen dersler: kod ve ad"),
+  }),
+  calistir: ({ dersler }) => {
+    const plan = dersler.slice(0, 15);
+    const kalan = dersler.length - plan.length;
+    return {
+      sonuc: {
+        hocayaGoster: `${dersler.length} dersiniz var. ${plan.length === dersler.length ? "Hepsini" : `İlk ${plan.length} dersi`} tarıyorum; eksikleri ve önerilerimi birazdan tek listede göstereceğim.`,
+        taramaPlani: plan.map((d, i) => ({ sira: i + 1, kod: d.kod, ad: d.ad ?? "" })),
+        ...(kalan > 0 ? { taranmayan: kalan } : {}),
+        raporBicimi: [
+          "Başlık: 'Şu eksiklikleri tespit ettim, önerilerim şunlar.'",
+          "Her ders bir satır, en eksikten en tamama: ders kodu, eksik ya da kurala uymayan alan sayısı, en önemli 1-2 eksik.",
+          "Eksiği olmayan dersler için: 'eksik görünmüyor' ve kaliteyi artıracak 1-2 somut öneri (zayıf alan, Bloom düzeyi, iş yükü ile AKTS uyumu, kaynak güncelliği, İngilizce alanlar).",
+          "Sayfada olmayan değerlendirme yüzdeleri ve kaynakları aynı mesajda sor (tahmin etme).",
+          "Altına: 1) eksikleri en çok olandan başlayarak hepsini kapatalım (önerilen) 2) yalnız en eksik dersi 3) kalite önerilerini de uygulayalım 4) dersi ben seçeyim.",
+        ],
+      },
+      kaynak: [KAYNAK_KURALLAR],
+    };
+  },
+});
+
 export const BOLOGNA_ARACLARI: readonly AcikArac[] = [
+  dersListesiAraci,
   ayristirAraci,
   alanRehberi,
   taslakDenetleAraci,
