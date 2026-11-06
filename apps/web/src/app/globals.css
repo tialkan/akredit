@@ -418,3 +418,29 @@ dialog::backdrop {
     visibility: hidden;
   }
 }
+
+/* Sağ alttaki tanıtım (src/site/tanitim.tsx): kayarak girer, alt çizgi kalan süreyi gösterir. */
+.tanitim {
+  animation: tanitim-gir 400ms var(--egri) both;
+}
+.tanitim-sure {
+  animation-name: tanitim-sure;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+@keyframes tanitim-gir {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+}
+@keyframes tanitim-sure {
+  to {
+    transform: scaleX(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tanitim {
+    animation: none;
+  }
+}

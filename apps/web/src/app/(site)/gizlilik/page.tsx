@@ -54,7 +54,10 @@ export default function Sayfa() {
       </section>
       <section>
         <h2>Çerezler ve benzeri teknolojiler</h2>
-        <p>Site reklam amaçlı çerez kullanmaz.</p>
+        <p>
+          Site reklam amaçlı çerez kullanmaz. Sağ alttaki tanıtım kurucunun kendi projesidir; çerez ya da izleme
+          kullanmaz.
+        </p>
         <p>Zorunlu olmayan bir çerez eklenirse önce izniniz alınır; kabul ve ret eşit kolaylıkta sunulur.</p>
       </section>
       <section>

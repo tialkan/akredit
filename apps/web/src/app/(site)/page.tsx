@@ -6,6 +6,7 @@ import { AKREDIT_ODAKLARI } from "@akredit/acik-mcp";
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { CSSProperties } from "react";
+import { dugmeSinifi } from "../../bilesenler/dugme.tsx";
 import { AdimListesi } from "../../site/adim-listesi.tsx";
 import { BelirmeGozlemcisi } from "../../site/belirme.tsx";
 import { YapisalVeri } from "../../site/bilesenler.tsx";
@@ -47,7 +48,8 @@ const SSS: { soru: string; cevap: string }[] = [
   },
   {
     soru: "Ücretli mi?",
-    cevap: "Hayır, hesap da gerekmez. Yapay zekâ hizmetinizin kendi planı ayrıca geçerlidir.",
+    cevap:
+      "Akredit ücretsizdir, hesap istemez. Claude ya da ChatGPT'nin ücretli planı (aylık 20 dolar) ayrıca gerekir.",
   },
   {
     soru: "Yazdıklarım nereye gidiyor?",
@@ -62,6 +64,30 @@ const SSS: { soru: string; cevap: string }[] = [
 ];
 
 const BAG = "text-vurgu underline underline-offset-4";
+
+const ADIMLAR = [
+  { id: "adim-1", ad: "Uygulamayı indirin" },
+  { id: "adim-2", ad: "Akredit'i ekleyin" },
+  { id: "adim-3", ad: "akredit yazın" },
+];
+
+/** Önerilen masaüstü uygulamaları. Plan adı ve fiyatı sağlayıcının fiyat sayfasındandır (Kasım 2026). */
+const MASAUSTU = [
+  {
+    ad: "Claude",
+    yer: "Mac ve Windows. Code sekmesi Claude Code'dur.",
+    plan: "Claude Pro",
+    indir: "https://code.claude.com/docs/en/desktop",
+    fiyat: "https://claude.com/pricing",
+  },
+  {
+    ad: "ChatGPT",
+    yer: "Mac ve Windows. Codex bölümü kullanılır.",
+    plan: "ChatGPT Plus",
+    indir: "https://learn.chatgpt.com/docs/app",
+    fiyat: "https://chatgpt.com/pricing",
+  },
+];
 
 /** Kapanış sloganı; kelimeleri sırayla belirir. */
 const SLOGAN = "Kurallar ve hesaplar Akredit'te. Karar ve son tık sizde.";
@@ -140,49 +166,83 @@ export default function AnaSayfa() {
         </div>
       </section>
 
+      <nav aria-label="Kurulum adımları" className="border-b border-cizgi bg-zemin">
+        <ol className="mx-auto grid max-w-3xl gap-2 px-4 py-4 text-base sm:grid-cols-3">
+          {ADIMLAR.map((a, i) => (
+            <li key={a.id}>
+              <a
+                href={`#${a.id}`}
+                className="flex min-h-11 items-center gap-3 rounded-sm border border-cizgi bg-yuzey px-3 py-2 text-metin no-underline hover:border-vurgu"
+              >
+                <span
+                  aria-hidden
+                  className="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-vurgu font-baslik text-yuzey"
+                >
+                  {i + 1}
+                </span>
+                <span>{a.ad}</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+
       <section id="kurulum" aria-labelledby="adim-1" className="bg-zemin">
         <div data-belir className="mx-auto max-w-3xl px-4 py-10 text-lg sm:py-14">
           <AdimBasligi no={1} id="adim-1">
-            Akredit'i yapay zekânıza ekleyin
+            Uygulamayı indirin
           </AdimBasligi>
-          <div className="mt-6 grid gap-3">
-            {UYGULAMALAR.map((u) => (
-              <UygulamaBolumu key={u.kimlik} u={u} />
+          <p className="mt-3">Akredit en kolay bu iki masaüstü uygulamasından biriyle çalışır. Birini seçin.</p>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            {MASAUSTU.map((m) => (
+              <div key={m.ad} className="kart flex flex-col rounded-sm border border-cizgi-guclu bg-yuzey p-5">
+                <h3 className="text-2xl text-vurgu">{m.ad}</h3>
+                <p className="mt-1 text-soluk">{m.yer}</p>
+                <p className="mt-3">
+                  Ücretli plan gerekir: <strong>{m.plan}</strong>, aylık 20 dolar.{" "}
+                  <a href={m.fiyat} className={BAG}>
+                    Planlar
+                  </a>
+                </p>
+                <a href={m.indir} className={dugmeSinifi("birincil", "orta", "mt-5 min-h-11 self-start")}>
+                  {m.ad} indir
+                </a>
+              </div>
             ))}
           </div>
-          <h3 className="bolum-etiketi mt-8 text-lg text-metin">
-            Claude Code ya da Codex masaüstü kullanıyorsanız: tam otomatik kurulum
-          </h3>
-          <p className="mt-1">Yeni bir oturuma yapıştırın; kurulumu kendisi yapar.</p>
-          <ul className="mt-3 grid gap-2">
-            <li>
-              Claude Code:{" "}
-              <a href="https://code.claude.com/docs/en/desktop" className="inline-flex min-h-11 items-center">
-                Claude masaüstü
-              </a>{" "}
-              (Mac, Windows), Code sekmesi.
-            </li>
-            <li>
-              Codex:{" "}
-              <a href="https://learn.chatgpt.com/docs/app" className="inline-flex min-h-11 items-center">
-                ChatGPT masaüstü
-              </a>
-              , Codex bölümü.
-            </li>
-          </ul>
-          <KopyalaKutusu etiket="Claude Code ya da Codex'e yapıştırılacak metin" metin={KURULUM_ISTEGI} uzun />
-          <h3 className="bolum-etiketi mt-8 text-lg text-metin">Geliştirici araçları</h3>
-          <div className="mt-3 grid gap-3">
-            {GELISTIRICI_ARACLARI.map((u) => (
-              <UygulamaBolumu key={u.kimlik} u={u} />
-            ))}
-          </div>
+          <p className="mt-4 text-base text-soluk">
+            Uygulamayı açın, hesabınızla girin ve planınızı etkinleştirin. Akredit'in kendisi ücretsizdir.
+          </p>
         </div>
       </section>
 
       <section aria-labelledby="adim-2" className="border-t border-cizgi bg-yuzey">
         <div data-belir className="mx-auto max-w-3xl px-4 py-10 text-lg sm:py-14">
           <AdimBasligi no={2} id="adim-2">
+            Akredit'i ekleyin
+          </AdimBasligi>
+          <ol className="mt-4 grid list-decimal gap-2 pl-7">
+            <li>Claude'da Code sekmesini, ChatGPT'de Codex bölümünü açın.</li>
+            <li>Yeni bir oturum başlatın.</li>
+            <li>Aşağıdaki metni kopyalayıp yapıştırın. Kurulumu kendisi yapar; sizden yalnız onay ister.</li>
+          </ol>
+          <KopyalaKutusu etiket="Yapıştırılacak metin" metin={KURULUM_ISTEGI} uzun />
+          <details className="kart mt-8 rounded-sm border border-cizgi bg-zemin">
+            <summary className="flex min-h-12 cursor-pointer items-center px-4 py-2">
+              Başka bir uygulama mı kullanıyorsunuz? (claude.ai, ChatGPT sohbeti, Cursor, VS Code)
+            </summary>
+            <div className="grid gap-3 border-t border-cizgi p-4">
+              {[...UYGULAMALAR, ...GELISTIRICI_ARACLARI].map((u) => (
+                <UygulamaBolumu key={u.kimlik} u={{ ...u, acik: false }} />
+              ))}
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <section aria-labelledby="adim-3" className="border-t border-cizgi bg-zemin">
+        <div data-belir className="mx-auto max-w-3xl px-4 py-10 text-lg sm:py-14">
+          <AdimBasligi no={3} id="adim-3">
             akredit yazın
           </AdimBasligi>
           <ol className="mt-4 grid list-decimal gap-2 pl-7">
@@ -211,7 +271,7 @@ export default function AnaSayfa() {
         </div>
       </section>
 
-      <section aria-labelledby="takildiniz" className="border-t border-cizgi bg-zemin">
+      <section aria-labelledby="takildiniz" className="border-t border-cizgi bg-yuzey">
         <div data-belir className="mx-auto max-w-3xl px-4 py-10 text-lg sm:py-14">
           <div aria-hidden className="mx-auto mb-8 max-w-xl overflow-hidden border-y border-cizgi py-2">
             <Gorsel gorsel={GORSELLER.araclar} alt="" boyutlar="(min-width: 40rem) 36rem, calc(100vw - 2rem)" />

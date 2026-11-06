@@ -6,6 +6,7 @@ import { barindirmaAcik } from "../../site/barindirma.ts";
 import { DEPO_ADRESI, SAYFALAR, UST_MENU } from "../../site/icerik.ts";
 import { HATA_BILDIRIM_ADRESI } from "../../site/iletisim.ts";
 import { SayfaDurumu } from "../../site/sayfa-durumu.tsx";
+import { Tanitim } from "../../site/tanitim.tsx";
 
 const ALT_BAG = "inline-flex min-h-11 items-center text-metin underline underline-offset-4 hover:text-vurgu";
 
@@ -84,6 +85,7 @@ export default function SiteYerlesimi({ children }: { children: ReactNode }) {
           </nav>
         </div>
       </footer>
+      <Tanitim />
     </div>
   );
 }
