@@ -27,11 +27,13 @@ async function durumNotuVar(page: Page) {
 test.describe("barındırma kapalı (varsayılan)", () => {
   test.use({ baseURL: KAPALI_ADRESI, viewport: { width: 1440, height: 900 } });
 
-  test("ana sayfa: ilk ekranda iki adım ve MCP adresi; başlıkta giriş ve kurum açma yok", async ({ page }) => {
+  test("ana sayfa: ilk ekranda adım gezintisi, sayfada MCP adresi; başlıkta giriş ve kurum açma yok", async ({
+    page,
+  }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Akreditasyon ve Bologna yardımcısı");
-    await expect(page.getByRole("heading", { level: 2, name: /Akredit'i yapay zekânıza ekleyin/u })).toBeInViewport();
-    await expect(page.locator("#kur-claude").getByText("https://akredit.org/mcp", { exact: true })).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "Kurulum adımları" })).toBeInViewport();
+    await expect(page.locator("section[aria-labelledby='adim-3']")).toContainText("https://akredit.org/mcp");
     const ust = page.locator("header").first();
     await expect(ust.getByRole("link", { name: "Giriş", exact: true })).toHaveCount(0);
     await expect(ust.getByRole("link", { name: "Kurumunuzu açın" })).toHaveCount(0);

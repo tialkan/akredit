@@ -12,6 +12,7 @@ export function Tanitim() {
   const [acik, setAcik] = useState(true);
   const [durdu, setDurdu] = useState(false);
   const kalan = useRef(SURE_MS);
+  const kutu = useRef<HTMLElement>(null);
 
   useEffect(() => {
     if (!acik || durdu) return;
@@ -23,10 +24,21 @@ export function Tanitim() {
     };
   }, [acik, durdu]);
 
+  // Klavyeyle gezinen biri sekmeye bastığında tanıtım kapanır; sabit kutu odağı örtmez (WCAG 2.4.11).
+  useEffect(() => {
+    if (!acik) return;
+    const tus = (e: KeyboardEvent) => {
+      if (e.key === "Tab" && !kutu.current?.contains(document.activeElement)) setAcik(false);
+    };
+    document.addEventListener("keydown", tus);
+    return () => document.removeEventListener("keydown", tus);
+  }, [acik]);
+
   if (!acik) return null;
 
   return (
     <aside
+      ref={kutu}
       aria-label="Tanıtım"
       onMouseEnter={() => setDurdu(true)}
       onMouseLeave={() => setDurdu(false)}

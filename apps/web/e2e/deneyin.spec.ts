@@ -191,11 +191,11 @@ test.describe("deneyin araçları", () => {
 });
 
 test.describe("deneyin kurum demosu", () => {
-  test("ana sayfadan tek satır bağlantı; proje ayrıntılarında araçlar çalışıyor, demo askıda", async ({ page }) => {
+  test("ana sayfada yalnız demo askı notu; proje ayrıntılarında araçlar çalışıyor, demo askıda", async ({ page }) => {
     await page.goto("/");
-    const bag = page.locator('main a[href="/deneyin"]');
-    await expect(bag).toHaveCount(1);
-    await expect(bag).toHaveText("Kurulum istemiyor musunuz? Araçları tarayıcıda deneyin");
+    // Kurucu kararı (06.11.2026): ana sayfa araçlara bağlanmaz, yalnız demonun askıda olduğunu söyler.
+    await expect(page.locator('main a[href="/deneyin"]')).toHaveCount(0);
+    await expect(page.locator('main a[href="/deneyin#kurum-demosu"]')).toHaveCount(1);
     await page.goto("/proje");
     await expect(page.locator('[data-proje-sayfasi="/deneyin"] [data-durum]')).toHaveText("Çalışıyor");
     // Bu sunucuda barındırma açık: askıdaki satır "bu kurulumda açık" görünür. akredit.org'daki "Askıda" durumu

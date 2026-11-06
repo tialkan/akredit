@@ -69,15 +69,20 @@ test.describe("tanıtım sitesi", () => {
   test("kopyala düğmesi klavyeyle çalışır ve sonucu söyler", async ({ page, context }) => {
     await context.grantPermissions(["clipboard-read", "clipboard-write"]);
     await page.goto("/");
-    const dugme = page.locator("#kur-claude").getByRole("button", { name: "Kopyala" });
+    // Diğer uygulamalar "Başka bir uygulama" bölümünde; önce o, sonra Claude kutusu klavyeyle açılır.
+    await page.getByText("Başka bir uygulama mı kullanıyorsunuz?").focus();
+    await page.keyboard.press("Enter");
+    await page.locator("#kur-claude summary").focus();
+    await page.keyboard.press("Enter");
+    const dugme = page.locator("#kur-claude").getByRole("button", { name: "Kopyala" }).first();
     await dugme.focus();
     await page.keyboard.press("Enter");
     await expect(page.locator("#kur-claude").getByText("Kopyalandı.")).toBeVisible();
     expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("https://akredit.org/mcp");
     // En kolay yol: kurulum isteğinin tamamı tek düğmeyle kopyalanır.
     const istek = page
-      .locator("#kurulum > div > div")
-      .filter({ hasText: "Claude Code ya da Codex'e yapıştırılacak metin" });
+      .locator("section[aria-labelledby='adim-3'] > div > div")
+      .filter({ hasText: "Yapıştırılacak metin" });
     await istek.getByRole("button", { name: "Kopyala" }).focus();
     await page.keyboard.press("Enter");
     await expect(istek.getByText("Kopyalandı.")).toBeVisible();
