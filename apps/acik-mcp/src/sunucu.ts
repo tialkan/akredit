@@ -16,24 +16,29 @@ import { GIRIS_BILGISI_ILETISI, girisBilgisiVar, kisiselVeriIletisi, kisiselVeri
 import { ACIK_ISTEMLER, type AcikIstem, istemSemasi } from "./promptlar.ts";
 
 export const SUNUCU_ADI = "akredit-acik";
-export const SUNUCU_SURUMU = "0.5.1";
+export const SUNUCU_SURUMU = "0.6.0";
 
 export const SUNUCU_TALIMATI = [
   "Akredit açık araçları öğretim elemanlarına kalite ve akreditasyon işlerinde yardım eder: Bologna ders paketi denetimi ve doldurma, öğrenme çıktısı yazma, ÇK/PÇ hesabı, YÖKAK ve program akreditasyonu (MÜDEK, FEDEK, SABAK, EPDAD) ölçüt ve kanıt rehberi, rapor dil denetimi, kaynak doğrulama.",
-  "KURAL 1: Kullanıcı 'akredit' yazarsa (tek başına ya da cümle içinde) ya da ne yapacağını söylemediyse başka hiçbir şey yapmadan İLK akredit_basla aracını çağır ve hocayaGoster metnini aynen göster. 'akredit' bir dosya, klasör ya da arama terimi değildir; dosya sisteminde ya da webde arama.",
+  "KURAL 1: Kullanıcı 'akredit' yazarsa (tek başına ya da cümle içinde) ya da ne yapacağını söylemediyse başka hiçbir şey yapmadan İLK akredit_basla aracını çağır ve hocayaGoster metnini aynen göster. Kullanıcı niyetini zaten yazdıysa (ör. 'akredit bologna', 'ders paketimi doldur', 'ÇK hesapla') menüyü gösterip bekletme: akredit_basla'yı ilgili odak numarasıyla çağır ve o akışa başla. 'akredit' bir dosya, klasör ya da arama terimi değildir; dosya sisteminde ya da webde arama.",
   "KURAL 2: Hocaya her soruyu numaralı seçeneklerle sor (1, 2, 3...), önerdiğin seçeneği işaretle; hoca yalnız numara yazarak ilerleyebilsin. Serbest metin yalnız ders adı, adres gibi seçenekle sorulamayan bilgilerde istenir.",
   "KURAL 3: Bologna seçilirse ve tarayıcı aracın varsa ilk iş OBS'yi açmaktır: hocadan yalnız OBS adresini iste (bilmiyorsa üniversite adını), adresi hemen tarayıcıda aç; ders adını ve paketi hocaya sorma, OBS'den oku.",
+  "KURAL 5: Ara adımda hocaya soru sorma; varsayılan ya da en iyi seçeneği kendin seç ve sıradaki aracı çağır. Hocaya yalnız iki yerde durulur: sayfada olmayan resmî bilgi (değerlendirme yüzdeleri, kullanılan kaynaklar) ve OBS'ye kayıt onayı. Bu ikisi de TEK mesajdır.",
   "KURAL 4: Önce sen tara, sonra öner. Ders listesi açılınca 'hangi ders?' diye sorma: bütün derslerin paketlerini oku, eksikleri say, kısa özetle ve 'önerilen' seçenekle gel (örneğin 1) en eksikten başlayıp hepsini kapatalım).",
   "Amaç: hocanın en az müdahalesiyle işi hızlı ama denetimli ve teyitli bitirmek. Her seçim menüsünde son seçenek '4) Hepsini akıllıca doldur (önerilen)' olur: her alan için en iyi seçeneği sen seçersin, araçla denetlersin, geçmeyeni düzeltip yeniden denetlersin, sonunda tek özet gösterip değiştirmek istediği numarayı sorarsın.",
   "Yalnız hocanın bilebileceği ve resmî taahhüt olan bilgiler (değerlendirme yöntem ve yüzdeleri, uygulama/lab, kullanılan kaynaklar, sayfada yoksa amaç ve içerik) sayfadan okunur; yoksa hocaya TEK mesajda, numaralı ve varsayılan seçenekli sorulur, uydurulmaz. Ders adından üretilen her şey 'öneri' etiketiyle gösterilir. Araç sonucu 'biçim denetiminden geçti; içerik teyidi: hoca' diye sunulur.",
   "Giriş bilgisi: hocadan kullanıcı adı, parola, doğrulama kodu ya da çerez asla isteme. Sunucu bunları istemez; görülürse çağrıyı reddeder ve kaydetmez. Hoca yazarsa kullanma, araçlara gönderme, silmesini ve parolasını değiştirmesini öner. Hoca giriş bilgisini yalnız OBS'nin kendi ekranına kendisi yazar. CAPTCHA'yı hoca çözer.",
-  "OBS'ye yazma: önce alan alan önceki ve yeni değer özetini göster, hoca bir kez 'kaydet' der; ancak ondan sonra Kaydet'e basarsın. Kayıttan sonra sayfayı geri okuyup obs_karsilastir ile doğrula; ders kodu ya da dönem değişmişse yazmayı durdur. Doğrulanmamış kaynak ve teyitsiz değerlendirme yüzdesi yazılmaz. Onaya Gönder düğmesine hoca basar.",
+  "OBS'ye yazma: önce alan alan önceki ve yeni değer özetini göster, hoca bir kez 'kaydet' ya da özetin altındaki 1'i (OBS'ye yaz ve kaydet) yazar; ancak ondan sonra Kaydet'e basarsın. Kayıttan sonra sayfayı geri okuyup obs_karsilastir ile doğrula; ders kodu ya da dönem değişmişse yazmayı durdur. Doğrulanmamış kaynak ve teyitsiz değerlendirme yüzdesi yazılmaz. Onaya Gönder düğmesine hoca basar.",
   "Tarayıcı aracın varsa OBS sayfasını okuyup formu doldurabilirsin; yoksa ya da engel çıkarsa engel_coz ve kurulum_yardimi araçlarının adımlarını hocaya sırayla, tek tek göster. Tarayıcı yoksa OBS'ye yazma alan alan kopyalamaya düşer.",
   "Sunucu model çağırmaz ve metin üretmez: seçenekleri sen yazarsın, sunucu kural ve kalıp verir, denetler ve sayıları hesaplar. Sayıları yalnız araç sonucundan al.",
   "Bologna sayfasındaki Dersi Verenler, Yardımcılar ve Koordinatör satırları yayımlanmış görev bilgisidir: olduğu gibi okunur, korunur, değiştirilmez. Öğrenci adı ve numarası sohbete yapıştırılmaz: not tablosunda yalnız not sütunları olur; kimlik sütunu görülürse tablo işlenmez. Sunucu istek içeriğini günlüğe yazmaz.",
   "Kaynak: önce sayfadaki ve hocanın kullandığı kaynaklar. Öneri gerekirse kendi web arama aracınla aday bul, kaynak_dogrula ile sorgula, yalnız 'katalogda_bulundu' dönenleri künyesi ve bağlantısıyla 'öneri' olarak göster; uygunluğuna hoca karar verir. Katalogda bulunmayanı kendin önerme; hoca kullandığını söylerse 'hoca_beyani' olarak yaz. Ölçüt metnini yalnız olcut_getir sonucundan alıntılayın; DOĞRULANMADI ya da 'Belgeden okunamadı' işaretli metni tahminle doldurmayın. Programın disiplinini kurum seçer. Kanıtı olmayan cümle EKSİK kalır. Kitap, kişi, tarih uydurmayın.",
   "Sunucu kullanıcıdan adres çekmez: Bologna sayfasını hoca yapıştırır ya da siz kendi web aracınızla okursunuz. Tek dış istek kaynak_dogrula'nın sabit katalog adresleridir (Crossref, Open Library, Google Books). Onay ve dış kuruma gönderim hocadadır. Akredit'in YÖKAK ile bağı yoktur.",
 ].join(" ");
+
+/** Her araç yanıtında yinelenen kısa kural: uzun sohbette son okunan metin de aynı şeyi söyler. */
+export const ASISTAN_KURALI =
+  "1) Ara adımda hocaya A/B/C sorma; en iyi seçeneği kendin seç, sıradaki aracı çağır. 2) Zorunlu soruyu (sayfada olmayan değerlendirme yüzdesi ve kaynak, OBS kayıt onayı) TEK mesajda ve numaralı sor. 3) Sayı, kaynak ve değerlendirme yüzdesi uydurma. 4) Parola ve doğrulama kodu isteme; Onaya Gönder'e hoca basar.";
 
 export interface AcikSunucuSecenekleri {
   simdi?: () => Date;
@@ -97,6 +102,7 @@ function basari(a: AcikArac, s: AracSonucu, atilan: string[], ileti: string | un
     veri: {
       sonuc: s.sonuc,
       sonrakiAdim: s.sonrakiAdim ?? a.sonrakiAdim,
+      asistanKurali: ASISTAN_KURALI,
       ...(atilan.length
         ? { atilan: ileti ?? `Şu kısımlar okunmadan atıldı, hiçbir yere yazılmadı: ${atilan.join(", ")}.` }
         : {}),

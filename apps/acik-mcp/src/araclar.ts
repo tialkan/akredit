@@ -130,7 +130,8 @@ const olcutAra = arac({
   baslik: "Ölçüt ara (YÖKAK ve program akreditasyonu)",
   aciklama:
     "YÖKAK ya da program akreditasyonu (MÜDEK, FEDEK, SABAK, EPDAD) ölçütlerinde sözcük ya da kodla arar. Metinler resmî belgeden alınır; alınamayan metin DOĞRULANMADI döner.",
-  sonrakiAdim: "Hocaya en uygun 2-3 sonucu numaralı gösterin; seçtiği ölçütün tam metni için olcut_getir'i çağırın.",
+  sonrakiAdim:
+    "Hocaya hangi ölçütü getireceğinizi sormayın: en uygun 1-2 sonuç için hemen olcut_getir'i (YÖKAK alt ölçütüyse olgunluk_duzeyleri'ni de) çağırıp yanıtı tek seferde hazırlayın. Diğer adayları sonda tek satırda anın.",
   girdi: z.object({
     sorgu: z.string().trim().min(1).max(200).describe("Aranacak ifade ya da kod, ör. 'paydaş katılımı' ya da 'B.3'"),
     cerceve: cerceveGirdisi,
@@ -210,7 +211,7 @@ const olcutGetir = arac({
   aciklama:
     "Bir ölçütün resmî metnini kaynak belge, sayfa ve dosya özetiyle getirir; üst ve alt ölçütler, EPDAD göstergeleri, MÜDEK ve FEDEK programa özgü bölümleri de gelir. Metin tahminle doldurulmaz.",
   sonrakiAdim:
-    "Alt ölçütse olgunluk_duzeyleri ile düzeyleri ve örnek kanıtları gösterin. Hocaya sorun: 1) örnek kanıtlar 2) başka ölçüt 3) öz değerlendirme iskeleti.",
+    "Alt ölçütse sormadan olgunluk_duzeyleri'ni çağırın. Resmî metni, düzeyleri ve kanıt kontrol listesini tek mesajda gösterin; sonda kısa bir satırla başka ölçüt ya da öz değerlendirme iskeleti önerin.",
   girdi: z.object({
     kod: z
       .string()
@@ -282,7 +283,7 @@ const olgunlukDuzeyleri = arac({
   aciklama:
     "Bir YÖKAK alt ölçütünün (ör. B.1.2) 1-5 olgunluk düzeyi metinlerini ve örnek kanıtlarını getirir. Düzey önermez; düzeye kurum kanıtla karar verir.",
   sonrakiAdim:
-    "Örnek kanıtları hocanın elindekilerle eşleştirin: her kanıt için 1) var 2) yok 3) emin değilim diye sorun. Yok olanlar EKSİK kalır.",
+    "Kanıtları hocaya tek tek sormayın. Resmî metni, 1-5 düzeylerini ve '[ ] kanıt (durum: hocaya sorulacak)' biçiminde kopyalanabilir kontrol listesini tek mesajda gösterin. Kurumda olup olmadığını tahmin etmeyin.",
   girdi: z.object({ kod: z.string().trim().min(1).max(20).describe("Alt ölçüt kodu, ör. 'B.1.2'") }),
   calistir: ({ kod }) => {
     const CERCEVE = YOKAK_KURUMSAL_3_3;
@@ -377,7 +378,7 @@ const ckPcHesapla = arac({
   aciklama:
     "Takma adlı puan tablosundan ders öğrenme çıktısı (ÇK) başarısını ve program çıktısı (PÇ) sağlanma düzeyini hesaplar. Öğrenci adı ve numarası kabul edilmez; yalnız toplu sonuç döner.",
   sonrakiAdim:
-    "Sonucu tablo olarak gösterin, sayıları yalnız bu yanıttan alın. Eşiğin altında kalan çıktılar için hocaya sorun: 1) iyileştirme notu yaz 2) başka eşikle yeniden hesapla 3) bitir.",
+    "Sonucu tablo olarak gösterin, sayıları yalnız bu yanıttan alın. Eşiğin altında kalan çıktılar için aynı mesajda kısa iyileştirme notu taslağı verin (sayı uydurmadan); ayrıca soru sormayın.",
   girdi: z.object({
     dersKodu: kimlik,
     donem: z.string().trim().min(1).max(40).describe("ör. '2025-2026 Güz'"),
@@ -492,7 +493,7 @@ const raporDilDenetle = arac({
   aciklama:
     "Rapor metnindeki dil sorunlarını işaretler: kanıtsız üstünlük, ölçüsüz nicelik, öznesiz eylem, dönem ve tarih tutarsızlığı. Metni değiştirmez.",
   sonrakiAdim:
-    "Her bulgu için 2-3 numaralı düzeltme seçeneği sunun (uydurma sayı ya da kanıt eklemeden); hoca seçince düzeltilmiş metni yeniden denetleyin.",
+    "Bulguları hocaya tek tek sormayın. Hepsini kendiniz düzeltin (kanıt ya da sayı gereken yere uydurmadan [EKSİK: ...] yazın), düzeltilmiş metni yeniden rapor_dil_denetle ile denetleyin ve tek mesajda numaralı eski → yeni tablosunu ve düzeltilmiş tam metni verin.",
   girdi: z.object({
     metin: z.string().min(1).max(60_000),
     donem: z

@@ -88,7 +88,8 @@ describe("istemler (prompts)", () => {
       expect(metin).toContain(n);
     expect(metin).toContain(ORTAK_KURALLAR);
     expect(metin).toContain("4) Hepsini akıllıca doldur (önerilen)");
-    expect(metin).toContain("Şu alanları şöyle doldurdum; öneri yazanlar benim önerimdir");
+    // Özet, OBS kayıt onayıyla aynı mesajdadır (ara "devam" turu yok).
+    expect(metin).toContain("Öneri yazanlar benim önerimdir, içeriği siz teyit edersiniz. 1) OBS'ye yaz ve kaydet");
     // Akıllı doldurma teyit gerektiren bilgileri tek mesajda sorar, uydurmaz.
     expect(metin).toContain("TEK mesajda birlikte sor");
     expect(metin).toContain("Değerlendirme yöntemleri ve yüzdeleri");
@@ -125,13 +126,13 @@ describe("istemler (prompts)", () => {
     expect(m).toContain("kaynak_dogrula");
     expect(m).toMatch(/Katalogda bulunmayan eseri kendin önerme/u);
     expect(m).toContain("'hoca_beyani'");
-    expect(m).toContain("1) Formu ben doldurayım, Kaydet'e siz basın");
-    expect(m).toContain("2) Formu ben doldurup kaydedeyim");
-    expect(m).toContain("3) Alan alan kopyalayın");
-    expect(m).toContain("Tarayıcı aracın yoksa doğrudan 3'ü uygula");
+    expect(m).toContain("1) OBS'ye yaz ve kaydet (bu seçim, yukarıdaki özete 'kaydet' onayıdır)");
+    expect(m).toContain("2) Formu doldur, Kaydet'e ben basayım");
+    expect(m).toContain("3) Alan alan kopya metni ver");
+    expect(m).toContain("Tarayıcı aracın yoksa yalnız 3'ü sun");
     // Önce önceki/yeni özeti, tek "kaydet", sonra geri okuma ve karşılaştırma.
     expect(m).toContain("degisiklikOzeti");
-    expect(m).toMatch(/bir kez "kaydet" yazın/u);
+    expect(m).toMatch(/Yalnız hoca 1 ya da 'kaydet' yazdıysa/u);
     expect(m).toContain("obs_karsilastir");
     expect(m).toMatch(/ders kodunu ve dönemi sayfada denetle; beklenenden farklıysa yazmayı durdur/u);
     expect(m).not.toContain("hepsini kaydet");
@@ -188,7 +189,8 @@ describe("bologna_denetle (alan listesi)", () => {
         .map((a: { no: number }) => a.no),
     );
     expect(s.ozet).toMatch(/alan doldurulmalı/u);
-    expect(r.veri.sonrakiAdim).toMatch(/4\) Hepsini akıllıca doldur/u);
+    // Nasıl doldurulacağı sorulmaz: varsayılan akıllı doldurmadır.
+    expect(r.veri.sonrakiAdim).toMatch(/Nasıl doldurulacağını hocaya sormayın/u);
   });
 });
 
@@ -523,7 +525,7 @@ describe("uçtan uca Bologna akışı (SDK istemcisi)", () => {
     expect(ds.doldurulacak.length).toBeGreaterThan(0);
 
     const reh = veri(await c.callTool({ name: "bologna_alan_rehberi", arguments: { alan: "ciktilar" } }));
-    expect(String(reh.sonrakiAdim)).toMatch(/hepsi A/u);
+    expect(String(reh.sonrakiAdim)).toMatch(/hocaya alan alan A\/B\/C sormayın/u);
 
     // Asistanın ürettiği iki seçenek: A kurallara uyar, B'de 2 çıktı var.
     const td = veri(

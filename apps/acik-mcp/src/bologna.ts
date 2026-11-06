@@ -833,7 +833,7 @@ export const bolognaDenetleAraci = arac({
   aciklama:
     "Bir dersin Bologna bilgi paketini denetler: hangi alan boş, hangisi zayıf, neden. AKTS ve iş yükü uyumu, değerlendirme toplamı, öğrenme çıktıları, haftalar ve katkı tablosu. Kurallar Akredit'in iç kurallarıdır, karar komisyonundur.",
   sonrakiAdim:
-    "Doldurulacak alanları hocaya numaralı gösterin ve sorun: 1) alan alan seçenek göstererek dolduralım 2) yalnız boş olanlar 3) numaraları kendim seçeyim 4) Hepsini akıllıca doldur (önerilen). 4'te her alanı kendiniz doldurup denetleyin, sonunda tek özet gösterin. Her alan için bologna_alan_rehberi'ni çağırın.",
+    "Nasıl doldurulacağını hocaya sormayın; doğrudan akıllı doldurun. Sayfada değerlendirme yüzdeleri ya da kaynaklar yoksa yalnız bunları TEK mesajda sorun (yüzdeyi tahmin etmeyin). Gerisini sormadan bologna_alan_rehberi(alan='hepsi'), is_yuku_oner ve bologna_taslak_denetle ile doldurup denetleyin; sonunda bologna_kopya_metni özetini tek seferde gösterin.",
   kisiselVeriKapsami: BOLOGNA_KAPSAMI,
   kunyeAlanlari: BOLOGNA_KUNYE_ALANLARI,
   girdi: z.object({
@@ -940,7 +940,7 @@ const alanRehberi = arac({
   aciklama:
     "Bir Bologna alanının (amaç, içerik, çıktılar, iş yükü, haftalar...) doldurma kurallarını, sınırlarını, örnek kalıplarını ve Bloom fiillerini verir. AKTS ve T+U+L verilirse iş yükü hedefini hesaplar. Metin üretmez.",
   sonrakiAdim:
-    "Bu kurallara uyan 2-3 kısa seçenek (A, B, C) yazın, bologna_taslak_denetle ile denetleyin, geçenleri hocaya gösterin. Hoca harfle seçer; 'hepsi A' toplu onaydır.",
+    "Doldurulacak bütün alanların taslağını bu kurallarla tek seferde yazın ve bologna_taslak_denetle ile denetleyin. Ara adımda hocaya alan alan A/B/C sormayın; en iyi seçeneği kendiniz seçin.",
   girdi: z.object({
     alan: z.enum([...ALAN_KODLARI, "hepsi"]).describe("Alan kodu ya da 'hepsi'"),
     akts: z.number().min(0).max(60).optional(),
@@ -1008,7 +1008,7 @@ const taslakDenetleAraci = arac({
   aciklama:
     "Asistanın yazdığı 1-3 seçeneği (A, B, C) Akredit kurallarıyla BİÇİM yönünden denetler (sayılar, uzunluklar, fiil, toplamlar, kaynak doğrulaması). İçeriğin doğruluğunu bilemez: içerik teyidi hocadadır. Her seçenek için biçim sonucu ve eksik nedenlerini döndürür; her kuralın türü (resmî, kurum, Akredit önerisi) ve dayanağı vardır. İş yükü toplamını ve yüzde toplamlarını kendisi hesaplar.",
   sonrakiAdim:
-    "Biçim denetiminden geçen seçenekleri hocaya 'öneri' etiketiyle kısa gösterin (A, B, C; ilki önerilen) ve içeriği hocanın teyit edeceğini söyleyin. Geçmeyeni düzeltip yeniden denetleyin, hocaya göstermeyin. Seçim bitince bologna_kopya_metni ile OBS metnini verin.",
+    "Geçmeyen alanı düzeltip yeniden denetleyin; hocaya göstermeyin. Hepsi geçince bologna_durum ve bologna_kopya_metni'ni çağırıp bütün alanları TEK özet tablosunda ('öneri' etiketiyle) gösterin; alan alan soru sormayın.",
   kisiselVeriKapsami: BOLOGNA_KAPSAMI,
   kunyeAlanlari: BOLOGNA_KUNYE_ALANLARI,
   girdi: z.object({
@@ -1173,7 +1173,7 @@ const ayristirAraci = arac({
   aciklama:
     "Yapıştırılan Bologna ders sayfasını ya da program çıktıları sayfasını çözer. Önce Proliz biçimini dener, olmazsa her OBS için genel ayrıştırıcı çalışır (HTML ya da düz metin, Türkçe ya da İngilizce etiketler). Bulunan ve bulunamayan alanları, güven düzeyini söyler. Adres çekmez.",
   sonrakiAdim:
-    "Çıkan ders verisini bologna_denetle'ye verin (girdi hazır: bolognaDenetleGirdisi). Sonraki çağrılarda ingilizce değerini aynen verin. Değerlendirme yöntem ve yüzdeleri, uygulama/lab, kaynaklar, amaç ve içerik sayfada yoksa bunları hocaya TEK mesajda, numaralı ve varsayılan seçenekli sorun; uydurmayın.",
+    "Çıkan ders verisini bologna_denetle'ye verin (girdi hazır: bolognaDenetleGirdisi). Sonraki çağrılarda ingilizce değerini aynen verin. Sayfada değerlendirme yüzdeleri ya da kaynaklar yoksa yalnız bunları hocaya TEK mesajda sorun; yüzdeyi tahmin etmeyin. Uygulama/lab T+U+L'den okunur (U+L > 0 ise var), sorulmaz. Amaç ve içerik sayfada yoksa önden sorulmaz; 'öneri' olarak yazılıp son özette teyide sunulur.",
   kisiselVeriKapsami: BOLOGNA_KAPSAMI,
   kunyeAlanlari: BOLOGNA_KUNYE_ALANLARI,
   onAyikla: ayristirOnAyikla,
@@ -1373,7 +1373,7 @@ const durumAraci = arac({
       ...(tamamlandi
         ? {
             sonrakiAdim:
-              "bologna_kopya_metni ile yazma paketini alın (sayfadaki önceki değerleri oncekiDegerler olarak verin). Hocaya alan alan önceki/yeni değer özetini gösterip sorun: 1) formu doldurayım, Kaydet'e siz basın 2) formu ben doldurup kaydedeyim (bir kez 'kaydet' demeniz yeter) 3) alan alan kopyalayın 4) bitir.",
+              "Hocaya ara özet gösterip 'devam' beklemeyin; hemen bologna_kopya_metni ile yazma paketini alın (sayfadaki önceki değerleri oncekiDegerler olarak verin). Tek mesajda önceki → yeni tablosunu gösterip sorun: 1) OBS'ye yaz ve kaydet (bu seçim 'kaydet' onayıdır) 2) formu doldur, Kaydet'e ben basayım 3) alan alan kopya metni ver. Değiştirmek istenen alan varsa numarası yazılır.",
           }
         : {}),
     };
@@ -1540,7 +1540,7 @@ const isYukuOnerAraci = arac({
   aciklama:
     "AKTS, T+U+L ve sayfadaki değerlendirme kalemlerinden iş yükü dağılımı ÖNERİR. Yalnız derste olan etkinliklere satır açar (ödev yoksa ödev satırı yok); her satırda kaynak ve varsayım yazar. Sayfadan okunan iş yükü verilirse ayrı gösterir, öneriyle karıştırmaz. Hesap deterministiktir; AKTS'yi değiştirmez.",
   sonrakiAdim:
-    "Önce sayfadan okunan iş yükü varsa onu gösterin. Sonra önerileri 'öneri' etiketiyle 1, 2, 3 diye kısa gösterin (1 önerilen), satırların kaynak ve varsayımını yazın. Değerlendirme kalemleri bilinmiyorsa önce hocaya sorun. Seçileni bologna_taslak_denetle ile denetleyin.",
+    "Sayfadaki iş yükü AKTS hedef aralığındaysa onu koruyun. Değilse ilk öneriyi ('öneri' etiketiyle) doğrudan taslağa alıp bologna_taslak_denetle ile denetleyin; hocaya ayrı mesajda iş yükü seçeneği sormayın, son özette varsayımıyla gösterin. Değerlendirme kalemleri bilinmiyorsa uydurmayın.",
   kisiselVeriKapsami: BOLOGNA_KAPSAMI,
   girdi: z.object({
     akts: z.number().min(1).max(60),

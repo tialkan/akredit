@@ -168,7 +168,7 @@ export const notTablosuAyristirAraci = arac({
   aciklama:
     "Excel ya da CSV'den yapıştırılan not tablosunu ÇK/PÇ hesabına hazırlar. Tabloda yalnız not sütunları olmalı: ad, soyad ya da numara sütunu ya da 9-11 haneli numara görülürse tablo işlenmez. Öğrencilere o1, o2 takma adı verir. Başlıklardan sınav, soru, tam puan ve ders çıktısı eşlemesini sezer; eksikleri listeler.",
   sonrakiAdim:
-    "Sezilen eşlemeyi hocaya tablo olarak gösterin ve eksikleri tek tek seçenekle sorun (ör. S3 hangi çıktıyı ölçüyor? 1) Ö2 2) Ö3). Eksik kalmayınca ckPcHesaplaTaslagi'ni ck_pc_hesapla'ya verin.",
+    "Eksik yoksa hocaya soru sormadan ckPcHesaplaTaslagi'ni hemen ck_pc_hesapla'ya verin. Eksik varsa (tam puan, soru-çıktı eşlemesi, sınav ağırlığı) hepsini TEK mesajda, numaralı sorun; tahmin etmeyin, sütun sütun ayrı mesaj açmayın.",
   kisiselVeriIpucu: NOT_TABLOSU_KISISEL_ILETI,
   kisiselVeriKapsami: "tam",
   onDenetim: (g) => {
@@ -273,7 +273,7 @@ export const notTablosuAyristirAraci = arac({
           ciktilar: ciktilar.map((kod) => ({ kod })),
           araclar,
           puanlar,
-          not: "dersKodu ve donem alanlarını hocadan alıp ekleyin. Eksik kalmayınca ck_pc_hesapla'ya verin.",
+          not: "dersKodu ve donem biliniyorsa ekleyin; bilinmiyorsa bunun için hocayı durdurmayın, çıktıda EKSİK yazın. Eksik kalmayınca ck_pc_hesapla'ya verin.",
         },
         sutunEslemeRehberi: SUTUN_ESLEME_REHBERI,
       },
@@ -281,7 +281,7 @@ export const notTablosuAyristirAraci = arac({
       ...(eksikler.length
         ? {
             sonrakiAdim:
-              "Eksikleri hocaya numaralı ve tek tek, seçenekle sorun; yanıtları tamPuanlar, eslemeler ve agirliklar olarak verip aracı yeniden çağırın. Tabloyu yeniden yapıştırtmayın, aynı tabloyu kullanın.",
+              "Bütün eksikleri TEK mesajda, numaralı sorun (tahmin etmeyin); yanıtları tamPuanlar, eslemeler ve agirliklar olarak verip aracı yeniden çağırın. Tabloyu yeniden yapıştırtmayın, aynı tabloyu kullanın.",
           }
         : {}),
     };
