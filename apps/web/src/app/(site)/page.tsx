@@ -330,14 +330,9 @@ export default function AnaSayfa() {
             "Oturum açma olmadan herkes kullanabilir" uyarısı normaldir: Akredit hesap istemez ve yalnız okur.
           </p>
 
-          <h3 className="bolum-etiketi mt-10 text-lg text-metin">
-            ChatGPT (Codex) ya da Claude Code: metni yapıştırın
-          </h3>
-          <ol className="mt-3 grid list-decimal gap-2 pl-7">
-            <li>Codex bölümünde ya da Claude'un Code sekmesinde yeni bir oturum açın.</li>
-            <li>Aşağıdaki metni kopyalayıp yapıştırın. Kurulumu kendisi yapar; sizden yalnız onay ister.</li>
-          </ol>
-          <KopyalaKutusu etiket="Yapıştırılacak metin" metin={KURULUM_ISTEGI} uzun />
+          <h3 className="bolum-etiketi mt-10 text-lg text-metin">ChatGPT kullanıyorsanız</h3>
+          <p className="mt-2">Codex'te yeni bir oturum açın, metni yapıştırın. Kurulumu kendisi yapar.</p>
+          <KopyalaKutusu etiket="Yapıştırılacak metin" metin={KURULUM_ISTEGI} gizli />
           <details className="kart mt-8 rounded-sm border border-cizgi bg-yuzey">
             <summary className="flex min-h-12 cursor-pointer items-center px-4 py-2">
               Başka bir uygulama mı kullanıyorsunuz? (claude.ai, ChatGPT sohbeti, Cursor, VS Code)
