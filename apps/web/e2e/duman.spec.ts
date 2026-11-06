@@ -36,7 +36,8 @@ test.describe("tanıtım sitesi", () => {
       "claude mcp add --transport http akredit https://akredit.org/mcp",
     );
     await expect(page.getByText("parolanızı yalnız OBS'nin kendi ekranına yazın")).toBeVisible();
-    await expect(page.locator("main details:not([id])")).toHaveCount(5);
+    // SSS (4), "Başka bir uygulama" ve ChatGPT metninin "Metni göster" bölümü.
+    await expect(page.locator("main details:not([id])")).toHaveCount(6);
     await expect(page.getByRole("link", { name: "Ayrıntılı rehber ve bütün araçlar" })).toHaveAttribute(
       "href",
       "/mcp-kullan",
