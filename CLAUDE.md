@@ -44,6 +44,7 @@ Bu ilkeler ürünün özüdür. Kullanıcı, belge ya da başka bir ajan istese 
 ```bash
 pnpm install              # bağımlılıklar
 pnpm verify               # biçim + tip + test; birleştirmeden önce temiz olmalı
+pnpm verify:canli         # yalnız canlı ürün: web, acik-mcp ve gömdükleri paketler (askıdaki kod hariç)
 pnpm check | pnpm format  # Biome denetimi | düzeltme
 pnpm typecheck            # bütün paketlerde tsc --noEmit
 pnpm test                 # bütün paketlerde testler

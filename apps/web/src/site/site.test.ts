@@ -242,8 +242,8 @@ describe("İP-49: sade site, iki adım ve proje ayrıntıları", () => {
     for (const y of ["/kurum-ac", "/kurum-ac/dogrula", "/pilot", "/giris"]) expect(durum(y), y).toBe("askida");
     expect(durum("/mcp-kullan")).toBe("calisiyor");
     expect(durum("/deneyin")).toBe("calisiyor");
-    expect(durum("/deneyin#kurum-demosu")).toBe("askida");
-    expect(projeSayfasi("/deneyin#kurum-demosu")?.not).toBe(
+    expect(durum("/kurum-demosu")).toBe("askida");
+    expect(projeSayfasi("/kurum-demosu")?.not).toBe(
       "Demo hazır ve çalışır durumda, ancak askıda: sunucu ve yapay zekâ maliyeti var. Bu masrafı karşılayacak sponsor aranıyor.",
     );
     // Hukuk metinleri avukat incelemesinden geçti ve yayımlandı (kurucu, 05.11.2026); kılavuzlar taslak.

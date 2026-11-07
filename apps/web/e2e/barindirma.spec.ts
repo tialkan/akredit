@@ -98,7 +98,7 @@ test.describe("barındırma kapalı (varsayılan)", () => {
 
   test("demo askıda görünür ama etkilenmez: rol seçimi panele götürür", async ({ page }) => {
     await page.goto("/proje");
-    await expect(page.locator('[data-proje-sayfasi="/deneyin#kurum-demosu"] [data-durum]')).toHaveText("Askıda");
+    await expect(page.locator('[data-proje-sayfasi="/kurum-demosu"] [data-durum]')).toHaveText("Askıda");
     await expect(page.locator('[data-proje-sayfasi="/deneyin"] [data-durum]')).toHaveText("Çalışıyor");
     await page.getByRole("link", { name: "Demo: Örnek Üniversitesi" }).click();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Araçları tarayıcıda deneyin");

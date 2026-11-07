@@ -5,6 +5,7 @@ export const SAYFALAR = [
   "/proje",
   "/mcp-kullan",
   "/deneyin",
+  "/kurum-demosu",
   "/ne-yapar",
   "/nasil-calisir",
   "/kimler-icin",

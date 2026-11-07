@@ -13,7 +13,8 @@
 
 ## Projenin devam eden ayrıntıları
 
-- [Araçları tarayıcıda deneyin](https://akredit.org/deneyin): çalışıyor; ÇK/PÇ hesaplayıcı, Bologna denetleyici ve ölçüt arama tamamen tarayıcıda çalışır, veri sunucuya ve yapay zekâya gitmez. Barındırılan kurum demosunun durumu Proje ayrıntılarında.
+- [Araçları tarayıcıda deneyin](https://akredit.org/deneyin): çalışıyor; ÇK/PÇ hesaplayıcı, Bologna denetleyici ve ölçüt arama tamamen tarayıcıda çalışır, veri sunucuya ve yapay zekâya gitmez.
+- [Kurum demosu](https://akredit.org/kurum-demosu): askıda; barındırılan kurum platformunun sentetik Örnek Üniversitesi demosu hazır, sponsor bulunana kadar bekletiliyor.
 - [Ne yapar](https://akredit.org/ne-yapar): platform modülleri ve durumları
 - [Nasıl çalışır](https://akredit.org/nasil-calisir): kanıt, hesap, atıflı öneri, denetim, onay, günlük
 - [Kimler için](https://akredit.org/kimler-icin): rektörlük, kalite komisyonu, bölüm başkanı, öğretim elemanı

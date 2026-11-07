@@ -68,4 +68,15 @@ Herkes, hesap açmadan ve ücretsiz, kendi yapay zekâ asistanıyla (Claude, Cha
 
 - `bologna_ayristir` yanıtına gömülü `denetim` (özet, doldurulacak alanlar, teyit sorulacaklar): taramada ders başına bir çağrı yeter, `bologna_denetle` ayrıca çağrılmaz.
 - `test/otonomi-senaryosu.test.ts`: kural tabanlı sahte asistan; "akredit ders paketimi doldur" turunda hocaya en çok iki kez danışılır (rapor+teyit, kayıt onayı); uydurma yüzde paketten düşer.
-- Kalan: HMAC `sayfaJetonu` (değerlendirme kanıt kapısı şimdilik yeterli görüldü), gerçek Codex/Claude sohbetinde deneme, npm 0.6.3 yayını (hoca/sahip `npm login` ister).
+- Kalan: HMAC `sayfaJetonu` (değerlendirme kanıt kapısı şimdilik yeterli görüldü), gerçek Codex/Claude sohbetinde deneme, npm yayını (sahip `npm login` ister).
+
+### 2026-11-08 (0.7.0): strateji raporu uygulaması (docs/strateji-raporu-2026-11.md)
+
+- Web: tarayıcı içi araçlar (/deneyin) ana sayfadan yeniden bağlanır ("kurulum istemiyor musunuz" bandı); askıdaki barındırılan demo ayrı sayfaya taşındı (/kurum-demosu). 06.11 kararı (ana sayfa araçlara bağlanmaz) raporun 1. maddesiyle geri alındı: araçlar sunucu maliyeti olmayan, verisi tarayıcıdan çıkmayan kod; askı notu demoya aittir.
+- `obs_ders_listesi` ve `bologna_ayristir` yanıtına `tarayiciEylemPlani` (emir kipinde adımlar): model tarayıcı turlarında sunucuya uğramadığı için.
+- Yeni araç `bologna_toplu_ozet`: 1-15 dersin yazma paketi tek tabloda, tek onay; her ders için kopya metni kapıları aynen; `paketler[kod]` obs_karsilastir girdisi.
+- `kaynak_dogrula` bulunamadı'da hocaya sormadan 2 aday ile ikinci deneme, sonra EKSİK.
+- `not_tablosu_ayristir` açıklaması: notları sohbete yapıştırmak yerine /deneyin#ck tarayıcı içi hesaplayıcıya yönlendirir (KVKK yurt dışı aktarım).
+- `pnpm verify:canli` (CLAUDE.md'ye bir satır); yayın kılavuzuna 10.1 "köken yalnız Cloudflare'a açık" notu (cf-connecting-ip).
+- Testler: toplu mod ve tarayıcı adım senaryoları (114 test).
+- Yapılmadı (uzman/insan ister): çerçeve hücre doğrulama sayfası, CSP-CDN e2e sınaması, npm yayını, Codex denemesi.

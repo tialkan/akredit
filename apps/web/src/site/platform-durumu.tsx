@@ -21,7 +21,7 @@ export function PlatformDurumu({ baslikId = "platform-durumu" }: { baslikId?: st
         <a href={ILETISIM_ADRESI} className={`inline-flex min-h-11 items-center ${BAG}`}>
           Sponsor olmak için iletişim: LinkedIn
         </a>
-        <Link href="/deneyin#kurum-demosu" className={`inline-flex min-h-11 items-center ${BAG}`}>
+        <Link href="/kurum-demosu" className={`inline-flex min-h-11 items-center ${BAG}`}>
           Demonun durumu
         </Link>
         <a href={DEPO_ADRESI} className={`inline-flex min-h-11 items-center ${BAG}`}>

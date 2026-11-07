@@ -115,3 +115,58 @@ describe("otonomi senaryosu: 'akredit ders paketimi doldur' → tarama → tek r
     expect(kopya.sonuc.metin).not.toContain("Ara Sınav\t1\t40");
   });
 });
+
+describe("toplu mod: birden çok ders, tek özet, tek onay", () => {
+  it("bologna_toplu_ozet her ders için kopya metni kapılarını uygular; teyitsiz yüzde satırda 'yazılmaz' görünür", () => {
+    const a = sahteAsistan();
+    const amac = { tr: "Kurgu biliminin temel kavramlarını tanıtmak ve uygulamalı örneklerle pekiştirmek." };
+    const degerlendirme = [
+      { ad: "Ara Sınav", sayi: 1, katki: 40 },
+      { ad: "Yarıyıl Sonu Sınavı", sayi: 1, katki: 60 },
+    ];
+    const r = a.cagir("bologna_toplu_ozet", {
+      dersler: [
+        {
+          ders: { kod: "KRG9001", ad: "Kurgu 1", akts: 5 },
+          alanlar: { amac, degerlendirme, degerlendirmeDayanagi: "hoca", degerlendirmeKaniti: "vize 40 final 60" },
+          oncekiDegerler: { "Dersin Amacı (Türkçe)": "" },
+        },
+        {
+          // Kanıtsız yüzde: pakete girmez, tabloda görünür; hoca ders numarasıyla ayırabilir.
+          ders: { kod: "KRG9002", ad: "Kurgu 2", akts: 4 },
+          alanlar: { amac, degerlendirme, degerlendirmeDayanagi: "sayfa", degerlendirmeKaniti: "tablo boş" },
+        },
+      ],
+    });
+    expect(r.hocayaSimdiSor).toBe(true);
+    expect(r.sonuc.tablo).toHaveLength(2);
+    expect(r.sonuc.tablo[0]).toMatchObject({
+      no: 1,
+      kod: "KRG9001",
+      degerlendirme: "Ara Sınav %40, Yarıyıl Sonu Sınavı %60 (hoca)",
+    });
+    expect(r.sonuc.tablo[0].degisecekAlanlar).toContain("Dersin Amacı (Türkçe)");
+    expect(r.sonuc.tablo[1]).toMatchObject({
+      kod: "KRG9002",
+      degerlendirme: "teyitsiz, yazılmaz",
+      yazilamayan: ["Değerlendirme"],
+    });
+    // Paketler obs_karsilastir girdisidir; teyitsiz yüzde ikinci paketin beklenenlerinde yoktur.
+    const p2 = r.sonuc.paketler.KRG9002 as { beklenen: { alan: string }[] };
+    expect(p2.beklenen.map((x) => x.alan)).not.toContain("Değerlendirme (ad, sayı, katkı %)");
+    expect(r.sonuc.hocayaGoster).toContain("1) 2 dersin tamamını OBS'ye yaz ve kaydet");
+    expect(r.sonuc.hocayaGoster).toContain("2) KRG9002");
+    // Tek durak: toplu özet.
+    expect(a.duraklar).toEqual(["bologna_toplu_ozet"]);
+  });
+
+  it("obs_ders_listesi ve bologna_ayristir tarayıcı adım dizisi verir; adımlar soru sormayı yasaklar", () => {
+    const a = sahteAsistan();
+    const liste = a.cagir("obs_ders_listesi", { dersler: [{ kod: "KRG9001" }, { kod: "KRG9002" }] }).sonuc;
+    expect(liste.tarayiciEylemPlani[0]).toContain("Hocaya soru sormayın");
+    expect(liste.tarayiciEylemPlani[0]).toContain("KRG9001");
+    const ayr = a.cagir("bologna_ayristir", { html: sayfa("9001") }).sonuc;
+    expect(ayr.tarayiciEylemPlani.join(" ")).toContain("bologna_toplu_ozet");
+    expect(a.duraklar).toEqual([]);
+  });
+});

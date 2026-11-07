@@ -144,7 +144,7 @@ const KAYNAK_ADIMI = [
 const OBS_YAZMA = [
   "6. OBS'ye yazma.",
   "   Önce bologna_kopya_metni'ni çağır (OBS'deki şimdiki değerleri oncekiDegerler olarak ver). Yazma paketine alınmayanları (doğrulanmamış kaynak, teyitsiz değerlendirme yüzdesi) hocaya söyle; onları yazma.",
-  "   Ara özet gösterip 'devam' bekleme. TEK mesajda degisiklikOzeti'ni göster (numara, sekme, alan, önceki değer, yeni değer, kaynağı: sayfa, hoca ya da öneri; toplu modda bütün dersler tek tabloda) ve altına sor:",
+  "   Ara özet gösterip 'devam' bekleme. TEK mesajda degisiklikOzeti'ni göster (numara, sekme, alan, önceki değer, yeni değer, kaynağı: sayfa, hoca ya da öneri; toplu modda bologna_toplu_ozet ile bütün dersler tek tabloda) ve altına sor:",
   "   1) OBS'ye yaz ve kaydet (bu seçim, yukarıdaki özete 'kaydet' onayıdır)",
   "   2) Formu doldur, Kaydet'e ben basayım",
   "   3) Alan alan kopya metni ver",

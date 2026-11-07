@@ -34,7 +34,7 @@ const calistir = (ad: string, girdi: unknown) => {
 };
 
 describe("uçtan uca (SDK istemcisi)", () => {
-  it("araç listesi yirmi bir salt okuma aracı döner; yalnız kaynak_dogrula dış kataloğa sorar", async () => {
+  it("araç listesi yirmi iki salt okuma aracı döner; yalnız kaynak_dogrula dış kataloğa sorar", async () => {
     const c = await baglan();
     const { tools } = await c.listTools();
     expect(tools.map((t) => t.name).sort()).toEqual(
@@ -46,6 +46,7 @@ describe("uçtan uca (SDK istemcisi)", () => {
         "bologna_durum",
         "bologna_kopya_metni",
         "bologna_taslak_denetle",
+        "bologna_toplu_ozet",
         "ck_pc_hesapla",
         "engel_coz",
         "is_yuku_oner",

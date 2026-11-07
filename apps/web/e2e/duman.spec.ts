@@ -112,7 +112,7 @@ test.describe("tanıtım sitesi", () => {
     for (const y of ["/mcp-kullan", "/ne-yapar", "/sss", "/pilot"]) await expect(durum(y), y).toHaveText("Çalışıyor");
     // Tarayıcı araçları çalışır; barındırılan demo ayrı satırdadır (kurucu, İP-49).
     await expect(durum("/deneyin")).toHaveText("Çalışıyor");
-    await expect(durum("/deneyin#kurum-demosu")).toHaveCount(1);
+    await expect(durum("/kurum-demosu")).toHaveCount(1);
     for (const y of ["/kvkk", "/gizlilik", "/kosullar", "/guvenlik"]) await expect(durum(y), y).toHaveText("Çalışıyor");
     await expect(durum("/belgeler")).toHaveText("Taslak");
     await expect(page.locator("main h2")).toContainText([

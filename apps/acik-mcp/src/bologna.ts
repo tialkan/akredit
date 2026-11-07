@@ -1202,6 +1202,13 @@ function gomuluDenetim(ders: unknown, b: AracBaglami) {
   };
 }
 
+/** Ders sayfası okunduktan sonra tarayıcıda yapılacaklar; model bu turlarda sunucuya uğramaz. */
+const AYRISTIRMA_SONRASI = [
+  "ADIM 1: Hocaya soru sormayın. Tarama planında ders kaldıysa ders listesine dönüp sıradakini açın.",
+  "ADIM 2: Plan bittiyse bütün derslerin denetim özetinden TEK rapor yazın (obs_ders_listesi'nin raporBicimi); sayfada olmayan değerlendirme yüzdeleri ve kaynakları aynı mesajda sorun.",
+  "ADIM 3: Hoca seçince taslakları bologna_alan_rehberi ve bologna_taslak_denetle ile sormadan hazırlayın; sonra bologna_kopya_metni (birden çok derste bologna_toplu_ozet) ile tek özet ve tek kayıt onayı.",
+];
+
 const gomuluDenetimAlani = (ders: unknown, b: AracBaglami) => {
   const d = gomuluDenetim(ders, b);
   return d ? { denetim: d } : {};
@@ -1290,6 +1297,7 @@ const ayristirAraci = arac({
           ingilizce: sayfaIpucu?.ingilizce ?? ingilizceAlanVar(html),
           bolognaDenetleGirdisi: { ders },
           ...gomuluDenetimAlani(ders, b),
+          tarayiciEylemPlani: AYRISTIRMA_SONRASI,
           bulunamayan: bulunamayan.map((k) => GENEL_ALAN_ADLARI[k] ?? k),
           okunamayan: bulunamayan.length
             ? [
@@ -1320,6 +1328,7 @@ const ayristirAraci = arac({
         ingilizce: sayfaIpucu?.ingilizce ?? ingilizceAlanVar(ham),
         bolognaDenetleGirdisi: { ders },
         ...gomuluDenetimAlani(ders, b),
+        tarayiciEylemPlani: AYRISTIRMA_SONRASI,
         bilgiler: g.bilgiler,
         haftaKonulari,
         bulunan: g.bulunan.map((k) => GENEL_ALAN_ADLARI[k] ?? k),
@@ -1969,7 +1978,7 @@ const dersListesiAraci = arac({
   aciklama:
     "OBS ya da Bologna sisteminde hocanın ders listesi açılınca, hocaya 'hangi ders?' diye SORMADAN İLK bu aracı çağır: listedeki ders kodlarını ve adlarını ver. Tarama sırasını, hocaya gösterilecek kısa bilgi cümlesini ve sonuç raporunun biçimini döndürür. OBS'ye yazmaz, adres açmaz.",
   sonrakiAdim:
-    "Hocaya hocayaGoster cümlesini yazın ve hiçbir şey sormadan taramaPlani sırasıyla her dersin Bologna sayfasını açın; bologna_ayristir ve bologna_denetle ile eksikleri sayın. Bitince raporBicimi'ne göre TEK mesaj yazın.",
+    "Hocaya hocayaGoster cümlesini yazın ve hiçbir şey sormadan tarayiciEylemPlani'nı uygulayın: taramaPlani sırasıyla her dersin Bologna sayfasını açıp bologna_ayristir'a verin (yanıttaki denetim eksikleri sayar). Bitince raporBicimi'ne göre TEK mesaj yazın.",
   kisiselVeriKapsami: "tam",
   girdi: z.object({
     dersler: z
@@ -2000,6 +2009,15 @@ const dersListesiAraci = arac({
             ? `${dersler.length} dersiniz var. ${hepsi ? "Hepsini" : `${DILIM}'erli dilimlerle hepsini`} tarıyorum; eksikleri ve önerilerimi birazdan tek listede göstereceğim.`
             : `Sıradaki ${plan.length} dersi tarıyorum (${baslangic + 1}-${sonraki} / ${dersler.length}).`,
         taramaPlani: plan.map((d, i) => ({ sira: baslangic + i + 1, kod: d.kod, ad: d.ad ?? "" })),
+        // Model tarayıcı turlarında sunucuya uğramaz; adımlar emir kipinde verilir ki ara soru doğmasın.
+        tarayiciEylemPlani: [
+          `ADIM 1: Hocaya soru sormayın. Listede '${plan[0]?.kod ?? ""}' satırının düzenleme/ders bilgi paketi bağlantısına tıklayın.`,
+          "ADIM 2: Açılan sayfanın tamamını (metin ya da HTML) okuyup bologna_ayristir'a verin; yanıttaki 'denetim' alanı eksikleri sayar, bologna_denetle'yi ayrıca çağırmayın.",
+          "ADIM 3: Sayfa iframe içindeyse iframe'in src adresine gidin. Alanlar ayrı sekmelerdeyse (Ders Bilgileri, Öğrenme Çıktıları, Ders Akışı, Katkı) sırayla açıp metinleri birleştirin.",
+          "ADIM 4: Listeye dönüp sıradaki derse geçin; bütün plan bitene kadar hocaya hiçbir şey yazmayın.",
+          "ADIM 5: Giriş ekranına düşerseniz durun: 'Oturum düştü; OBS sekmesinde yeniden girip girdim yazın' deyin. Parola ve doğrulama kodu istemeyin.",
+          "ADIM 6: Plan bitince raporBicimi'ne göre TEK mesaj yazın.",
+        ],
         ...(kalan > 0 ? { taranmayan: kalan, sonrakiBaslangic: sonraki } : {}),
         raporBicimi: [
           "Başlık: 'Şu eksiklikleri tespit ettim, önerilerim şunlar.'",
@@ -2020,6 +2038,87 @@ const dersListesiAraci = arac({
   },
 });
 
+// ---------------------------------------------------------------- bologna_toplu_ozet
+
+/**
+ * Toplu mod: birden çok dersin yazma paketi tek tabloda, tek onayla. Her ders için bologna_kopya_metni'nin kapıları
+ * aynen çalışır (teyitsiz yüzde ve doğrulanmamış kaynak pakete girmez). Onay hakkı korunur: her satırda dayanak
+ * etiketi görünür, hoca ders numarasıyla seçebilir, kayıt döngüsünde her dersten sonra obs_karsilastir çalışır.
+ */
+const topluOzetAraci = arac({
+  ad: "bologna_toplu_ozet",
+  baslik: "Birden çok dersin yazma özeti",
+  aciklama:
+    "Birden çok dersin (1-15) hazır taslaklarını tek çağrıda yazma paketine çevirir ve hocaya gösterilecek tek özet tablosunu üretir: ders, değişecek alanlar, değerlendirme dayanağı, iş yükü, kaynak sayısı, pakete alınmayanlar. Her ders için bologna_kopya_metni kuralları aynen uygulanır. OBS'ye yazmaz.",
+  sonrakiAdim:
+    "tablo'yu olduğu gibi ve hocayaGoster seçenekleriyle TEK mesajda gösterin; tek onay alın. Hoca 1 derse kayıt döngüsü: her dersi sırayla yazın, Kaydet'e basın, geri okuyup o dersin paketi (paketler[kod]) ile obs_karsilastir çağırın; dur true ya da ikinci farkta bütün döngüyü durdurup hocaya söyleyin. Onaya Gönder'e hiçbir derste basmayın.",
+  hocayaSimdiSor: true,
+  kisiselVeriKapsami: BOLOGNA_KAPSAMI,
+  kunyeAlanlari: BOLOGNA_KUNYE_ALANLARI,
+  girdi: z.object({
+    dersler: z.array(kopyaMetniAraci.girdi).min(1).max(15).describe("Her öğe bologna_kopya_metni girdisiyle aynı"),
+  }),
+  calistir: (g, b) => {
+    const satirlar = g.dersler.map((d, i) => {
+      const r = kopyaMetniAraci.calistir(d, b) as AracSonucu;
+      const s = r.sonuc as {
+        degisiklikOzeti: { alan: string; degisim: string }[];
+        yazilamayan: { alan: string }[];
+        hesap: { degerlendirmeToplami?: number; isyuku?: { toplam: number } };
+        kalanEksikler: unknown[];
+        obsKarsilastirGirdisi: unknown;
+      };
+      const dayanak = d.alanlar.degerlendirmeDayanagi;
+      const degerlendirme = d.alanlar.degerlendirme
+        ? degerlendirmeTeyitli(d.alanlar)
+          ? `${d.alanlar.degerlendirme.map((x) => `${x.ad} %${x.katki}`).join(", ")} (${dayanak})`
+          : "teyitsiz, yazılmaz"
+        : "sayfadaki korunur";
+      const kaynaklar = d.alanlar.kaynaklar ?? [];
+      const kaynakOzeti = kaynaklar.length
+        ? `${kaynaklar.length} (${kaynaklar.map((k) => kaynakDurumu(k)).join(", ")})`
+        : "EKSİK";
+      return {
+        no: i + 1,
+        kod: d.ders.kod,
+        ad: d.ders.ad ?? "",
+        degisecekAlanlar: s.degisiklikOzeti.filter((x) => x.degisim !== "aynı").map((x) => x.alan),
+        degerlendirme,
+        isYuku: s.hesap.isyuku
+          ? `${s.hesap.isyuku.toplam} saat${d.ders.akts ? ` / ${d.ders.akts} AKTS` : ""}`
+          : "EKSİK",
+        kaynaklar: kaynakOzeti,
+        yazilamayan: s.yazilamayan.map((y) => y.alan),
+        kalanEksik: s.kalanEksikler.length,
+        paket: s.obsKarsilastirGirdisi,
+      };
+    });
+    const paketler = Object.fromEntries(satirlar.map((s) => [s.kod, s.paket]));
+    const tablo = satirlar.map(({ paket: _p, ...kalan }) => kalan);
+    const sorunlu = satirlar.filter((s) => s.yazilamayan.length || s.kalanEksik);
+    return {
+      sonuc: {
+        tablo,
+        paketler,
+        hocayaGoster: [
+          `${satirlar.length} dersin değişiklik özeti yukarıda. Dayanak: sayfa = OBS'den okundu, hoca = siz söylediniz, öneri = ders adından üretildi.`,
+          ...(sorunlu.length
+            ? [
+                `Pakete alınmayan ya da eksik kalan alanı olan dersler: ${sorunlu.map((s) => `${s.no}) ${s.kod}`).join(", ")}.`,
+              ]
+            : []),
+          `1) ${satirlar.length} dersin tamamını OBS'ye yaz ve kaydet (önerilen; bu seçim 'kaydet' onayıdır)`,
+          "2) Yalnız şu dersleri yaz: numaralarını yazın (ör. 1, 3)",
+          "3) Bir dersin tam metnini göster: numarasını yazın (ör. detay 2)",
+          "Onaya Gönder'e siz basarsınız.",
+        ].join("\n"),
+        not: "Biçim denetiminden geçti; içerik teyidi: hoca. Her ders kaydedildikten sonra geri okunup obs_karsilastir ile doğrulanır.",
+      },
+      kaynak: [KAYNAK_KURALLAR],
+    };
+  },
+});
+
 export const BOLOGNA_ARACLARI: readonly AcikArac[] = [
   dersListesiAraci,
   ayristirAraci,
@@ -2028,5 +2127,6 @@ export const BOLOGNA_ARACLARI: readonly AcikArac[] = [
   isYukuOnerAraci,
   durumAraci,
   kopyaMetniAraci,
+  topluOzetAraci,
   obsKarsilastirAraci,
 ] as unknown as readonly AcikArac[];

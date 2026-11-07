@@ -533,7 +533,7 @@ export const kaynakDogrulaAraci = arac({
   aciklama:
     "DOI, ISBN ya da başlık ile yazar verilen eserleri (çağrı başına en çok 5) açık kataloglarda (Crossref, Open Library, Google Books) arar. Eşleşme için tam soyad, başlık sözcükleri, verildiyse kayıt türü ve yıl denetlenir. Bulursa katalogdaki bilgiden künye, bağlantı ve imza döndürür ('katalogda_bulundu'); bulamazsa 'bulunamadi' der. Katalogda bulunmak ders kaynağı olarak uygunluk demek değildir; ona hoca karar verir.",
   sonrakiAdim:
-    "Yalnız 'katalogda_bulundu' olan kaynakları hocaya künyesi ve bağlantısıyla gösterin; uygunluğuna hoca karar verir. Bologna araçlarına kaynağı { kunye, dogrulama: { durum, baglanti, imza } } olarak aynen verin. 'bulunamadi' olan kaynağı asla kendiniz önermeyin; hoca o eseri kullandığını söylerse yalnız hocanın verdiği bilgiyle dogrulama: 'hoca_beyani' olarak yazın.",
+    "Yalnız 'katalogda_bulundu' olan kaynakları hocaya künyesi ve bağlantısıyla gösterin; uygunluğuna hoca karar verir. Bologna araçlarına kaynağı { kunye, dogrulama: { durum, baglanti, imza } } olarak aynen verin. 'bulunamadi' dönerse hocaya 'ne yapayım' diye sormayın: kendi web aramanızla aynı konuda en çok 2 başka aday (ISBN ya da DOI ile) bulup bu aracı bir kez daha çağırın; yine bulunamazsa alanı 'EKSİK: ders kaynağı' bırakıp akışı sürdürün, son özette sorun. 'bulunamadi' olan kaynağı asla kendiniz önermeyin; hoca o eseri kullandığını söylerse yalnız hocanın verdiği bilgiyle dogrulama: 'hoca_beyani' olarak yazın.",
   kunyeAlanlari: ["kaynaklar"],
   disAg: true,
   // Künye ve katalog numaraları kişisel veri değildir; ISBN gibi uzun sayılar numara deseniyle karışmasın.

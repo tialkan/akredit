@@ -272,10 +272,20 @@ export default function AnaSayfa() {
         </div>
       </section>
 
+      <div className="border-b border-cizgi bg-zemin">
+        <p className="mx-auto max-w-5xl px-4 py-3 text-base">
+          <strong>Kurulum istemiyor musunuz?</strong> ÇK/PÇ hesabı, Bologna denetimi ve ölçüt arama tarayıcınızda
+          çalışır; verileriniz bilgisayarınızdan çıkmaz, sunucu maliyeti yoktur.{" "}
+          <Link href="/deneyin" className="underline underline-offset-4">
+            Araçları tarayıcıda deneyin
+          </Link>
+        </p>
+      </div>
+
       <div className="border-b border-risk-orta bg-risk-orta-zemin">
         <p className="mx-auto max-w-5xl px-4 py-3 text-base text-risk-orta">
           <strong>Kurum demosu askıda.</strong> {DEMO_NOTU}{" "}
-          <Link href="/deneyin#kurum-demosu" className="underline underline-offset-4">
+          <Link href="/kurum-demosu" className="underline underline-offset-4">
             Ayrıntı
           </Link>
         </p>

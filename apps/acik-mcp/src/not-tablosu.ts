@@ -166,7 +166,7 @@ export const notTablosuAyristirAraci = arac({
   ad: "not_tablosu_ayristir",
   baslik: "Not tablosunu ayrıştır",
   aciklama:
-    "Excel ya da CSV'den yapıştırılan not tablosunu ÇK/PÇ hesabına hazırlar. Tabloda yalnız not sütunları olmalı: ad, soyad ya da numara sütunu ya da 9-11 haneli numara görülürse tablo işlenmez. Öğrencilere o1, o2 takma adı verir. Başlıklardan sınav, soru, tam puan ve ders çıktısı eşlemesini sezer; eksikleri listeler.",
+    "Excel ya da CSV'den yapıştırılan not tablosunu ÇK/PÇ hesabına hazırlar. ÖNCE ŞUNU SÖYLEYİN: öğrenci notları sohbete yapıştırılınca yapay zekâ sağlayıcısına gider; kimlik sütunu olmasa da en güvenli yol akredit.org/deneyin#ck sayfasındaki tarayıcı içi hesaplayıcıdır (veri bilgisayardan çıkmaz). Hoca yine burada isterse devam edin. Tabloda yalnız not sütunları olmalı: ad, soyad ya da numara sütunu ya da 9-11 haneli numara görülürse tablo işlenmez. Öğrencilere o1, o2 takma adı verir. Başlıklardan sınav, soru, tam puan ve ders çıktısı eşlemesini sezer; eksikleri listeler.",
   sonrakiAdim:
     "Eksik yoksa hocaya soru sormadan ckPcHesaplaTaslagi'ni hemen ck_pc_hesapla'ya verin. Eksik varsa (tam puan, soru-çıktı eşlemesi, sınav ağırlığı) hepsini TEK mesajda, numaralı sorun; tahmin etmeyin, sütun sütun ayrı mesaj açmayın.",
   kisiselVeriIpucu: NOT_TABLOSU_KISISEL_ILETI,

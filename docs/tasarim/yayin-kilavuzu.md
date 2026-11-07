@@ -218,6 +218,22 @@ Sırlar Git deposuna yazılmaz. Örnek değerler `.env.example` içinde açıkla
 
 Nameserver yayılımı dakikalar veya saatler sürebilir. Sürekli yeni değişiklik yapmayın; yetkili DNS cevabını ölçün.
 
+### 10.1 Köken sunucuyu yalnız Cloudflare'a açın (MCP hız sınırı için zorunlu)
+
+Herkese açık MCP (`apps/acik-mcp/src/http.ts`, `istemciAdresi`) hız sınırı için istemci adresini önce
+`cf-connecting-ip` başlığından okur. Bu başlığa yalnız istek gerçekten Cloudflare üzerinden geldiyse güvenilebilir;
+köken sunucuya doğrudan ulaşan biri başlığı istediği gibi yazıp adres başına kotayı aşabilir. Bu yüzden:
+
+1. Hetzner Cloud → Firewall: 80 ve 443 portlarını yalnız Cloudflare IP aralıklarına açın
+   (`https://www.cloudflare.com/ips-v4` ve `.../ips-v6`; aralıklar değiştikçe güncelleyin). SSH ayrı kuraldır.
+2. Cloudflare'da proxy (turuncu bulut) açık olsun; DNS'te gri bulut köken adresini açığa çıkarır.
+3. Doğrulama: köken IP'ye doğrudan `curl -k https://<köken-ip>/mcp` zaman aşımına düşmeli; alan adı üzerinden çalışmalı.
+4. Bu kısıt uygulanamıyorsa `cf-connecting-ip`'yi kapatın ve `guvenilenVekil` ile `x-forwarded-for`'un ters vekilin
+   yazdığı öğesini kullanın.
+
+Bellek: adres başına kova sayısı 10.000 ile sınırlıdır (`AdresKovasi.enCokAdres`); dolunca jetonu dolmuş kayıtlar
+temizlenir, yine doluysa yeni adres reddedilir. Adres uzayı taramasıyla bellek şişmez.
+
 ## 11. Cloudflare API token'ı oluşturma
 
 Global API Key kullanmayın. Her proje için ayrı, alan adıyla sınırlandırılmış token oluşturun.

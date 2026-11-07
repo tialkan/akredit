@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, type Page, type Request, test } from "@playwright/test";
 
-// /deneyin (İP-49): tarayıcıda çalışan üç araç ve altta askıdaki barındırılan kurum demosu (İP-41).
+// /deneyin (İP-49): tarayıcıda çalışan üç araç. Askıdaki barındırılan kurum demosu (İP-41) /kurum-demosu'nda.
 // Araçlar ağ isteği yapmaz: her akışta, araç kodu yüklendikten sonra page.on("request") ile hiçbir istek
 // olmadığı sınanır. Uçtan uca testler örnek veri kipinde derlenmiş uygulamaya karşı çalışır.
 
@@ -191,21 +191,24 @@ test.describe("deneyin araçları", () => {
 });
 
 test.describe("deneyin kurum demosu", () => {
-  test("ana sayfada yalnız demo askı notu; proje ayrıntılarında araçlar çalışıyor, demo askıda", async ({ page }) => {
+  test("ana sayfa araçlara ve demo askı notuna bağlanır; proje ayrıntılarında araçlar çalışıyor, demo askıda", async ({
+    page,
+  }) => {
     await page.goto("/");
-    // Kurucu kararı (06.11.2026): ana sayfa araçlara bağlanmaz, yalnız demonun askıda olduğunu söyler.
-    await expect(page.locator('main a[href="/deneyin"]')).toHaveCount(0);
-    await expect(page.locator('main a[href="/deneyin#kurum-demosu"]')).toHaveCount(1);
+    // Strateji raporu 2026-11 (#1): tarayıcı araçları kurulumsuz ve masrafsızdır, ana sayfadan görünür;
+    // askıdaki barındırılan demo ayrı sayfadadır (/kurum-demosu).
+    await expect(page.locator('main a[href="/deneyin"]')).toHaveCount(1);
+    await expect(page.locator('main a[href="/kurum-demosu"]')).toHaveCount(1);
     await page.goto("/proje");
     await expect(page.locator('[data-proje-sayfasi="/deneyin"] [data-durum]')).toHaveText("Çalışıyor");
     // Bu sunucuda barındırma açık: askıdaki satır "bu kurulumda açık" görünür. akredit.org'daki "Askıda" durumu
     // src/site/site.test.ts'te sınanır.
-    await expect(page.locator('[data-proje-sayfasi="/deneyin#kurum-demosu"]')).toContainText(
-      "Demo: Örnek Üniversitesi",
-    );
+    await expect(page.locator('[data-proje-sayfasi="/kurum-demosu"]')).toContainText("Demo: Örnek Üniversitesi");
     await page.goto("/deneyin");
     const serit = page.locator("[data-sayfa-durumu]");
     await expect(serit.locator("[data-durum]")).toHaveText("Çalışıyor");
+    await expect(page.locator("[data-demo-notu]")).toHaveCount(0);
+    await page.goto("/kurum-demosu");
     await expect(page.locator("[data-demo-notu]")).toContainText(
       "Demo hazır ve çalışır durumda, ancak askıda: sunucu ve yapay zekâ maliyeti var. Bu masrafı karşılayacak sponsor aranıyor.",
     );
@@ -214,7 +217,7 @@ test.describe("deneyin kurum demosu", () => {
   test("proje ayrıntılarından rol seçerek panele, şerit ve rehber turuyla", async ({ page }) => {
     await page.goto("/proje");
     await page.getByRole("link", { name: "Demo: Örnek Üniversitesi" }).click();
-    await expect(page).toHaveURL(/\/deneyin#kurum-demosu$/u);
+    await expect(page).toHaveURL(/\/kurum-demosu$/u);
     // Örnek veri derlemesinde oturum açılır: rol düğmeleri görünür, kapalı bölüm notu yok.
     await expect(page.locator("[data-demo-kapali]")).toHaveCount(0);
     for (const ad of [

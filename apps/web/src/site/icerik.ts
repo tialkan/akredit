@@ -7,7 +7,7 @@ export const SON_GUNCELLEME = "2026-10-28";
 
 export { ILETISIM_ADRESI, ILETISIM_EPOSTA, PROJE_SAHIBI } from "./iletisim.ts";
 
-/** Demonun dürüst durumu (kurucu kararı, İP-49). /deneyin üstünde ve proje ayrıntılarında aynen görünür. */
+/** Demonun dürüst durumu (kurucu kararı, İP-49). /kurum-demosu üstünde ve proje ayrıntılarında aynen görünür. */
 export const DEMO_NOTU =
   "Demo hazır ve çalışır durumda, ancak askıda: sunucu ve yapay zekâ maliyeti var. Bu masrafı karşılayacak sponsor aranıyor.";
 
@@ -259,7 +259,7 @@ export const PROJE_GRUPLARI: { baslik: string; not: string; sayfalar: ProjeSayfa
         not: "Hesapsız. Verileriniz tarayıcınızdan çıkmaz.",
       },
       {
-        yol: "/deneyin#kurum-demosu",
+        yol: "/kurum-demosu",
         ad: "Demo: Örnek Üniversitesi",
         aciklama: "Uydurma veriyle kurulmuş örnek kurumda bir rol seçip paneli ve onay kutusunu deneyin.",
         durum: "askida",
