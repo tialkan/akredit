@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { AracSekmeleri } from "../../../deneyin/sekmeler.tsx";
 
 // İP-49: /deneyin, MCP kurmayı bilmeyenler için tarayıcıda çalışan üç deterministik araçtır (src/deneyin). Araçlar
@@ -38,16 +37,17 @@ export default function Deneyin() {
           <AracSekmeleri />
         </div>
       </section>
+      {/* Düz bağlantı: Link ön yüklemesi ağ isteği doğurur; bu sayfa "hiçbir istek yok" sözünü e2e ile tutar. */}
       <section aria-label="Diğer yollar" className="border-t border-cizgi bg-zemin">
         <p className="mx-auto max-w-6xl px-4 py-6">
           Bu araçları kendi yapay zekânızın içinde, OBS'yi okuyup yazarak kullanmak için{" "}
-          <Link href="/mcp-kullan" className={BAG}>
+          <a href="/mcp-kullan" className={BAG}>
             kurulum ve araçlar
-          </Link>
+          </a>
           . Barındırılan kurum platformunun demosu ayrı sayfada:{" "}
-          <Link href="/kurum-demosu" className={BAG}>
+          <a href="/kurum-demosu" className={BAG}>
             kurum demosu
-          </Link>
+          </a>
           .
         </p>
       </section>

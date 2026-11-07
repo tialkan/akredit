@@ -101,7 +101,7 @@ test.describe("barındırma kapalı (varsayılan)", () => {
     await expect(page.locator('[data-proje-sayfasi="/kurum-demosu"] [data-durum]')).toHaveText("Askıda");
     await expect(page.locator('[data-proje-sayfasi="/deneyin"] [data-durum]')).toHaveText("Çalışıyor");
     await page.getByRole("link", { name: "Demo: Örnek Üniversitesi" }).click();
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Araçları tarayıcıda deneyin");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Barındırılan kurum demosu");
     await expect(page.getByRole("button", { name: "Öğretim elemanı olarak dene" })).toBeVisible();
   });
 
