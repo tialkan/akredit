@@ -62,4 +62,10 @@ Herkes, hesap açmadan ve ücretsiz, kendi yapay zekâ asistanıyla (Claude, Cha
 - `obs_ders_listesi`: `baslangic` ile 15'erli dilimli tarama; dilim bitince sormadan sonrakine geçilir.
 - `engel_coz`: çerçeve, okunamayan sayfa, Kaydet, oturum düşmesi ve açılmayan sitede `asistanOnceKendisiDener`.
 - `obs_karsilastir`: farkta sormadan bir kez toparlama (Kaydet'e basma ya da onaylanan aynı değeri yeniden yazma); içeriği değiştirmek yeni onay ister. Toplu kayıtta dur tüm döngüyü durdurur.
-- Ertelendi: HMAC `sayfaJetonu` zinciri, ayrıştır+denetle birleştirme, sahte asistanla müdahale sayan senaryo testi.
+- Ertelendi: HMAC `sayfaJetonu` zinciri.
+
+### 2026-11-07 (0.6.3)
+
+- `bologna_ayristir` yanıtına gömülü `denetim` (özet, doldurulacak alanlar, teyit sorulacaklar): taramada ders başına bir çağrı yeter, `bologna_denetle` ayrıca çağrılmaz.
+- `test/otonomi-senaryosu.test.ts`: kural tabanlı sahte asistan; "akredit ders paketimi doldur" turunda hocaya en çok iki kez danışılır (rapor+teyit, kayıt onayı); uydurma yüzde paketten düşer.
+- Kalan: HMAC `sayfaJetonu` (değerlendirme kanıt kapısı şimdilik yeterli görüldü), gerçek Codex/Claude sohbetinde deneme, npm 0.6.3 yayını (hoca/sahip `npm login` ister).

@@ -22,7 +22,7 @@ import { z } from "zod";
 import { GENEL_ALAN_ADLARI, genelAyikla, genelAyristir, ingilizceAlanVar, prolizMetniMi } from "./genel-ayristir.ts";
 import { kaynakImzasiDogru } from "./kaynak-dogrula.ts";
 import { girisBilgisiAyikla } from "./kisisel-veri.ts";
-import { type AcikArac, AracHatasi, arac, KOD_KAYNAGI } from "./temel.ts";
+import { type AcikArac, type AracBaglami, AracHatasi, type AracSonucu, arac, KOD_KAYNAGI } from "./temel.ts";
 
 // ---------------------------------------------------------------- Alan modeli
 
@@ -1173,13 +1173,47 @@ export function ayristirOnAyikla(g: unknown): { girdi: unknown; atilan: string[]
   };
 }
 
+/**
+ * Ayrıştırmanın hemen ardından denetim: tarama sırasında ders başına iki çağrı yerine bir çağrı yeter.
+ * Girdi denetimin şemasından geçmezse (sayfa eksik okunduysa) denetim atlanır, asistan bologna_denetle'yi çağırır.
+ */
+function gomuluDenetim(ders: unknown, b: AracBaglami) {
+  const g = bolognaDenetleAraci.girdi.safeParse({ ders });
+  if (!g.success) return undefined;
+  const r = bolognaDenetleAraci.calistir(g.data, b) as AracSonucu;
+  const s = r.sonuc as {
+    ozet: string;
+    doldurulacak: number[];
+    kalanAlanSayisi: number;
+    alanlar: { no: number; ad: string; durum: string }[];
+  };
+  const d = ders as { degerlendirme?: unknown[]; kaynaklar?: unknown[]; kaynakSayisi?: number };
+  return {
+    ozet: s.ozet,
+    kalanAlanSayisi: s.kalanAlanSayisi,
+    doldurulacak: s.alanlar
+      .filter((a) => s.doldurulacak.includes(a.no))
+      .map((a) => ({ no: a.no, ad: a.ad, durum: a.durum })),
+    // Yalnız hocanın bilebileceği resmî bilgi sorulur; sayfada varsa sorulmaz.
+    teyitSorulacak: [
+      ...(d.degerlendirme?.length ? [] : ["Değerlendirme yöntem ve yüzdeleri"]),
+      ...(d.kaynaklar?.length || d.kaynakSayisi ? [] : ["Kullanılan kaynaklar"]),
+    ],
+  };
+}
+
+const gomuluDenetimAlani = (ders: unknown, b: AracBaglami) => {
+  const d = gomuluDenetim(ders, b);
+  return d ? { denetim: d } : {};
+};
+
 const ayristirAraci = arac({
   ad: "bologna_ayristir",
   baslik: "Bologna sayfasını ayrıştır",
   aciklama:
     "Yapıştırılan Bologna ders sayfasını ya da program çıktıları sayfasını çözer. Önce Proliz biçimini dener, olmazsa her OBS için genel ayrıştırıcı çalışır (HTML ya da düz metin, Türkçe ya da İngilizce etiketler). Bulunan ve bulunamayan alanları, güven düzeyini söyler. Adres çekmez.",
   sonrakiAdim:
-    "Çıkan ders verisini bologna_denetle'ye verin (girdi hazır: bolognaDenetleGirdisi). Sonraki çağrılarda ingilizce değerini aynen verin. Sayfada değerlendirme yüzdeleri ya da kaynaklar yoksa yalnız bunları hocaya TEK mesajda sorun; yüzdeyi tahmin etmeyin. Uygulama/lab T+U+L'den okunur (U+L > 0 ise var), sorulmaz. Amaç ve içerik sayfada yoksa önden sorulmaz; 'öneri' olarak yazılıp son özette teyide sunulur.",
+    "Yanıttaki denetim alanı varsa bologna_denetle'yi ayrıca çağırmayın: eksikler (denetim.doldurulacak) ve teyit sorulacaklar (denetim.teyitSorulacak) hazırdır. Denetim alanı yoksa ders verisini bologna_denetle'ye verin (girdi hazır: bolognaDenetleGirdisi). Sonraki çağrılarda ingilizce değerini aynen verin. Sayfada değerlendirme yüzdeleri ya da kaynaklar yoksa yalnız bunları hocaya TEK mesajda sorun; yüzdeyi tahmin etmeyin. Uygulama/lab T+U+L'den okunur (U+L > 0 ise var), sorulmaz. Amaç ve içerik sayfada yoksa önden sorulmaz; 'öneri' olarak yazılıp son özette teyide sunulur.",
   kisiselVeriKapsami: BOLOGNA_KAPSAMI,
   kunyeAlanlari: BOLOGNA_KUNYE_ALANLARI,
   onAyikla: ayristirOnAyikla,
@@ -1199,7 +1233,7 @@ const ayristirAraci = arac({
       .optional()
       .describe("Sunucu doldurur; göndermeyin"),
   }),
-  calistir: ({ html, metin, kaynaklar = [], yetkililer = [], tur, sayfaIpucu }) => {
+  calistir: ({ html, metin, kaynaklar = [], yetkililer = [], tur, sayfaIpucu }, b) => {
     if (!html && !metin) throw new AracHatasi("Sayfanın HTML'ini ya da metnini yapıştırın.");
     const kaynakAlani = {
       ...(kaynaklar.length ? { kaynaklar, kaynakSayisi: kaynaklar.length } : {}),
@@ -1255,6 +1289,7 @@ const ayristirAraci = arac({
           guven: "yüksek",
           ingilizce: sayfaIpucu?.ingilizce ?? ingilizceAlanVar(html),
           bolognaDenetleGirdisi: { ders },
+          ...gomuluDenetimAlani(ders, b),
           bulunamayan: bulunamayan.map((k) => GENEL_ALAN_ADLARI[k] ?? k),
           okunamayan: bulunamayan.length
             ? [
@@ -1284,6 +1319,7 @@ const ayristirAraci = arac({
         guven: g.guven,
         ingilizce: sayfaIpucu?.ingilizce ?? ingilizceAlanVar(ham),
         bolognaDenetleGirdisi: { ders },
+        ...gomuluDenetimAlani(ders, b),
         bilgiler: g.bilgiler,
         haftaKonulari,
         bulunan: g.bulunan.map((k) => GENEL_ALAN_ADLARI[k] ?? k),
