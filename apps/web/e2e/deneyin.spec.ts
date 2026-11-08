@@ -15,9 +15,15 @@ const BOLOGNA = readFileSync(
 );
 
 /** Bundan sonra yapılan istekleri toplar. */
+/**
+ * Araç çalışırken atılan istekler. Next.js yönlendiricisinin görünür bağlantılar için yaptığı ön yüklemeler (?_rsc=)
+ * sayılmaz: sayfa gezintisidir, araç verisi taşımaz; sayfa kısaldıkça alt bilgi bağlantıları görünür alana girer.
+ */
 function istekleriTopla(page: Page): Request[] {
   const istekler: Request[] = [];
-  page.on("request", (r) => istekler.push(r));
+  page.on("request", (r) => {
+    if (!new URL(r.url()).searchParams.has("_rsc")) istekler.push(r);
+  });
   return istekler;
 }
 
