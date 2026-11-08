@@ -170,3 +170,82 @@ describe("toplu mod: birden çok ders, tek özet, tek onay", () => {
     expect(a.duraklar).toEqual([]);
   });
 });
+
+describe("peşin onay (tam otonom kip): hoca başta bir kez 'hepsini yap ve kaydet' der, sonda rapor alır", () => {
+  const ONAY = "akredit ders paketlerimi hepsini yap ve kaydet";
+  const amac = { tr: "Kurgu biliminin temel kavramlarını tanıtmak ve uygulamalı örneklerle pekiştirmek." };
+
+  it("giriş dışında hiç durak yok; kanıtsız yüzde yine yazılmaz, EKSİK kalır; onay metni kayda geçer", () => {
+    const a = sahteAsistan();
+    const basla = a.cagir("akredit_basla", { kullaniciMesaji: ONAY });
+    expect(basla.sonuc.odak.no).toBe("1");
+    expect(basla.sonuc.pesinOnay.metin).toBe(ONAY);
+    expect(basla.sonuc.hocayaGoster).toContain("Onaya Gönder'e siz basarsınız");
+
+    const liste = a.cagir("obs_ders_listesi", { dersler: [{ kod: "KRG9001" }, { kod: "KRG9002" }], pesinOnay: ONAY });
+    expect(liste.sonuc.hocayaGoster).toContain("OBS'ye kaydedeceğim");
+    expect(liste.sonrakiAdim).toContain("rapor durağı yok");
+
+    for (const n of ["9001", "9002"]) a.cagir("bologna_ayristir", { html: sayfa(n) });
+
+    // Değerlendirme sayfada yok, hocaya sorulmaz: paket değerlendirmesiz gider, EKSİK raporda görünür.
+    const kopya = a.cagir("bologna_kopya_metni", {
+      ders: { kod: "KRG9001", ad: "Kurgu 1", akts: 5 },
+      alanlar: { amac },
+      pesinOnay: ONAY,
+    });
+    expect(kopya.hocayaSimdiSor).toBe(false);
+    expect(kopya.sonuc.pesinOnayKaydi).toBe(ONAY);
+    expect(kopya.sonrakiAdim).toContain("sormadan");
+    expect(kopya.sonrakiAdim).toContain("TEK rapor");
+
+    // Kanıtsız yüzde peşin onayla da yazılmaz.
+    const toplu = a.cagir("bologna_toplu_ozet", {
+      dersler: [
+        {
+          ders: { kod: "KRG9002", ad: "Kurgu 2", akts: 4 },
+          alanlar: {
+            amac,
+            degerlendirme: [
+              { ad: "Ara Sınav", sayi: 1, katki: 40 },
+              { ad: "Yarıyıl Sonu Sınavı", sayi: 1, katki: 60 },
+            ],
+            degerlendirmeDayanagi: "hoca",
+            degerlendirmeKaniti: "söylemedi",
+          },
+        },
+      ],
+      pesinOnay: ONAY,
+    });
+    expect(toplu.hocayaSimdiSor).toBe(false);
+    expect(toplu.sonuc.tablo[0].yazilamayan).toEqual(["Değerlendirme"]);
+
+    const beklenen = kopya.sonuc.obsKarsilastirGirdisi;
+    const geri = a.cagir("obs_karsilastir", {
+      ...beklenen,
+      geriOkunan: {
+        metin: ["KRG9001 Kurgu 1", ...beklenen.beklenen.map((x: { deger: string }) => x.deger)].join("\n"),
+        dersKodu: "KRG9001",
+      },
+    });
+    expect(geri.sonuc.dur).toBe(false);
+    expect(a.duraklar).toEqual([]);
+  });
+
+  it("kayıt sözü olmayan metin peşin onay sayılmaz: özet gösterilir, onay sorulur", () => {
+    const a = sahteAsistan();
+    const r = a.cagir("bologna_kopya_metni", {
+      ders: { kod: "KRG9001", ad: "Kurgu 1" },
+      alanlar: { amac },
+      pesinOnay: "tamam bakalım",
+    });
+    expect(r.hocayaSimdiSor).toBe(true);
+    expect(r.sonuc.pesinOnayKaydi).toBeUndefined();
+    // Kalan eksik varken o adım öne geçer; iki durumda da hocaya sorulur.
+    expect(r.sonrakiAdim).toMatch(/peşin onay sayılmadı|kayıt onayını aynı mesajda isteyin/u);
+    // Yalnız odak, onay yok: ipucu verilir, akış eski durakla sürer.
+    const b = a.cagir("akredit_basla", { kullaniciMesaji: "ders paketimi doldur" });
+    expect(b.sonuc.pesinOnay).toBeUndefined();
+    expect(b.sonuc.ipucu).toContain("hepsini yap ve kaydet");
+  });
+});

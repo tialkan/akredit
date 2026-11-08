@@ -16,7 +16,7 @@ import { GIRIS_BILGISI_ILETISI, girisBilgisiVar, kisiselVeriIletisi, kisiselVeri
 import { ACIK_ISTEMLER, type AcikIstem, istemSemasi } from "./promptlar.ts";
 
 export const SUNUCU_ADI = "akredit-acik";
-export const SUNUCU_SURUMU = "0.7.0";
+export const SUNUCU_SURUMU = "0.8.0";
 
 export const SUNUCU_TALIMATI = [
   "Akredit açık araçları öğretim elemanlarına kalite ve akreditasyon işlerinde yardım eder: Bologna ders paketi denetimi ve doldurma, öğrenme çıktısı yazma, ÇK/PÇ hesabı, YÖKAK ve program akreditasyonu (MÜDEK, FEDEK, SABAK, EPDAD) ölçüt ve kanıt rehberi, rapor dil denetimi, kaynak doğrulama.",
@@ -25,6 +25,7 @@ export const SUNUCU_TALIMATI = [
   "KURAL 3: Bologna seçilirse ve tarayıcı aracın varsa ilk iş OBS'yi açmaktır: hocadan yalnız OBS adresini iste (bilmiyorsa üniversite adını), adresi hemen tarayıcıda aç; ders adını ve paketi hocaya sorma, OBS'den oku.",
   "KURAL 5: Ara adımda hocaya soru sorma; varsayılan ya da en iyi seçeneği kendin seç ve sıradaki aracı çağır. Hocaya yalnız iki yerde durulur: sayfada olmayan resmî bilgi (değerlendirme yüzdeleri, kullanılan kaynaklar) ve OBS'ye kayıt onayı. Bu ikisi de TEK mesajdır.",
   "KURAL 6: Her araç yanıtında hocayaSimdiSor var. false ise hocaya soru yazmayın, onay beklemeyin, doğrudan sonrakiAdim'ı uygulayın; yalnız true olduğunda ya da zorunlu teyit/kayıt onayında durun.",
+  "KURAL 7: Peşin onay (tam otonom kip). Hoca 'hepsini yap ve kaydet', 'sen hallet', 'sormadan kaydet' gibi bir sözle baştan onay verdiyse o sözü Bologna araçlarına pesinOnay olarak olduğu gibi ver ve ara durak yapma: tara, doldur, OBS'ye yaz, Kaydet'e bas, geri oku, obs_karsilastir ile doğrula, sonda TEK rapor ver (yazılanlar, EKSİK kalanlar, geri okuma sonucu). Sayfada olmayan değerlendirme yüzdesi ve kaynağı sorma da uydurma da: EKSİK bırak. Yalnız OBS giriş ekranı, CAPTCHA, dur ve ikinci fark için dur. Onaya Gönder yine hocadadır; itirazı olan alanı hoca OBS'de düzeltir ya da sana numarasını yazar.",
   "KURAL 4: Önce sen tara, sonra öner. Ders listesi açılınca 'hangi ders?' diye sorma; obs_ders_listesi'ni çağır, bütün derslerin paketlerini oku, eksikleri say, kısa özetle ve 'önerilen' seçenekle gel (örneğin 1) en eksikten başlayıp hepsini kapatalım). Eksik yoksa 'eksik görünmüyor' de ve kaliteyi artıracak somut öneriler ver.",
   "Amaç: hocanın en az müdahalesiyle işi hızlı ama denetimli ve teyitli bitirmek. Her seçim menüsünde son seçenek '4) Hepsini akıllıca doldur (önerilen)' olur: her alan için en iyi seçeneği sen seçersin, araçla denetlersin, geçmeyeni düzeltip yeniden denetlersin, sonunda tek özet gösterip değiştirmek istediği numarayı sorarsın.",
   "Yalnız hocanın bilebileceği ve resmî taahhüt olan bilgiler (değerlendirme yöntem ve yüzdeleri, uygulama/lab, kullanılan kaynaklar, sayfada yoksa amaç ve içerik) sayfadan okunur; yoksa hocaya TEK mesajda, numaralı ve varsayılan seçenekli sorulur, uydurulmaz. Ders adından üretilen her şey 'öneri' etiketiyle gösterilir. Araç sonucu 'biçim denetiminden geçti; içerik teyidi: hoca' diye sunulur.",
@@ -41,7 +42,7 @@ export const SUNUCU_TALIMATI = [
 export const SORMADAN_DEVAM = "Bu adımda hocaya soru sormayın ve onay beklemeyin; doğrudan sonrakiAdim'ı uygulayın.";
 
 export const ASISTAN_KURALI =
-  "1) Ara adımda hocaya A/B/C sorma; en iyi seçeneği kendin seç, sıradaki aracı çağır. 2) Zorunlu soruyu (sayfada olmayan değerlendirme yüzdesi ve kaynak, OBS kayıt onayı) TEK mesajda ve numaralı sor. 3) Sayı, kaynak ve değerlendirme yüzdesi uydurma. 4) Parola ve doğrulama kodu isteme; Onaya Gönder'e hoca basar.";
+  "1) Ara adımda hocaya A/B/C sorma; en iyi seçeneği kendin seç, sıradaki aracı çağır. 2) Zorunlu soruyu (sayfada olmayan değerlendirme yüzdesi ve kaynak, OBS kayıt onayı) TEK mesajda ve numaralı sor; peşin onay varsa sorma, EKSİK bırak, sonda listele. 3) Sayı, kaynak ve değerlendirme yüzdesi uydurma. 4) Parola ve doğrulama kodu isteme; Onaya Gönder'e hoca basar.";
 
 export interface AcikSunucuSecenekleri {
   simdi?: () => Date;

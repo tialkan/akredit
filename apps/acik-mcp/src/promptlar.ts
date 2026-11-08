@@ -15,7 +15,7 @@
 // çerez) istenmez; görülürse reddedilir ve kaydedilmez (ilke 8).
 
 import { z } from "zod";
-import { arac, KOD_KAYNAGI } from "./temel.ts";
+import { arac, KOD_KAYNAGI, pesinOnayVar } from "./temel.ts";
 import { GIRIS_KURALI_HOCAYA } from "./yardim.ts";
 
 export interface AcikIstem {
@@ -150,6 +150,7 @@ const OBS_YAZMA = [
   "   3) Alan alan kopya metni ver",
   "   Değiştirmek istediğiniz alan varsa numarasını yazın.",
   "   Tarayıcı aracın yoksa yalnız 3'ü sun.",
+  "   Peşin onay: hoca başta 'hepsini yap ve kaydet' gibi bir sözle onay verdiyse o metni bologna_kopya_metni'ne (toplu modda bologna_toplu_ozet'e) pesinOnay olarak ver; araç 'peşin onay var' derse özet gösterip beklemeden yaz, kaydet, geri oku, doğrula ve sonda tek rapor ver. Bilmediğin resmî bilgiyi EKSİK bırak, uydurma.",
   "   1: Yalnız hoca 1 ya da 'kaydet' yazdıysa, yalnız özetteki alanları yaz ve kaydet. Her sekmeden önce ders kodunu ve dönemi sayfada denetle; beklenenden farklıysa yazmayı durdur ve hocaya söyle.",
   "   2: OBS düzenleme ekranında sekme sekme ilgili kutulara yaz. Her sekmeden sonra dur ve hocadan gözle denetleyip Kaydet'e basmasını iste.",
   "   3: bologna_kopya_metni metnini her alan ayrı kod bloğunda ver, hangi sekmedeki hangi kutuya yapıştırılacağını yaz.",
@@ -400,14 +401,33 @@ export const akreditBaslaAraci = arac({
   }),
   calistir: ({ odak, kullaniciMesaji }) => {
     const no = odak === "otomatik" ? niyetCoz(kullaniciMesaji) : odak === "menu" ? null : odak;
+    const pesin = pesinOnayVar(kullaniciMesaji);
+    const temel = no ? odakBaslangici(no) : baslangic();
+    const sonuc =
+      no && pesin
+        ? {
+            ...temel,
+            hocayaGoster: `${temel.hocayaGoster} Peşin onayınızla ara soru sormadan ilerleyeceğim: tarar, doldurur, OBS'ye kaydeder, geri okuyup doğrularım. Yalnız OBS giriş ekranında dururum. Bilmediğim resmî bilgiyi (değerlendirme yüzdesi, kullandığınız kaynak) uydurmam, boş bırakıp sonda listelerim. Onaya Gönder'e siz basarsınız. Vazgeçmek için 'dur' yazın.`,
+            pesinOnay: {
+              metin: kullaniciMesaji ?? "",
+              not: "Bologna araçlarına (obs_ders_listesi, bologna_kopya_metni, bologna_toplu_ozet) pesinOnay olarak bu metni olduğu gibi verin.",
+            },
+          }
+        : no
+          ? {
+              ...temel,
+              ipucu: "Hoca 'hepsini yap ve kaydet' yazarsa peşin onay kipi açılır: ara durak olmaz, sonda tek rapor.",
+            }
+          : temel;
     return {
-      sonuc: no ? odakBaslangici(no) : baslangic(),
+      sonuc,
       kaynak: [KOD_KAYNAGI("apps/acik-mcp/src/promptlar.ts", "Akredit istemleri ve başlangıç menüsü")],
       hocayaSimdiSor: !no,
       ...(no
         ? {
-            sonrakiAdim:
-              "hocayaGoster cümlesini yazın ve sormadan 'akis' adımlarını izleyin. Bologna ise ilk iş tarayıcıda OBS'yi açmaktır.",
+            sonrakiAdim: pesin
+              ? "hocayaGoster cümlesini yazın ve sormadan başlayın. Bologna ise ilk iş tarayıcıda OBS'yi açmaktır; ders listesi gelince obs_ders_listesi'ni pesinOnay ile çağırın."
+              : "hocayaGoster cümlesini yazın ve sormadan 'akis' adımlarını izleyin. Bologna ise ilk iş tarayıcıda OBS'yi açmaktır.",
           }
         : {}),
     };

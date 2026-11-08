@@ -68,4 +68,17 @@ export const arac = <S extends z.ZodObject>(a: AcikArac<S>): AcikArac<S> => a;
 /** Araç girdisi hatası: kullanıcıya gösterilecek Türkçe ileti. */
 export class AracHatasi extends Error {}
 
+/**
+ * Peşin onay (tam otonom kip): hoca başta bir kez "hepsini yap ve kaydet" der; asistan ara durak olmadan tarar, doldurur,
+ * OBS'ye kaydeder, geri okuyup doğrular ve sonda tek rapor verir. Onay hocanın kendi sözleriyle verilir ve kayda
+ * geçer (ilke 3); metinde kayıt/yetki sözü yoksa onay sayılmaz. Onaya Gönder yine hocadadır; bilinmeyen resmî bilgi
+ * uydurulmaz, EKSİK bırakılıp raporda listelenir (ilke 2).
+ */
+const PESIN_ONAY = /hepsini|sen hallet|hallet|otonom|sormadan|tam yetki|kaydet|yaz ve kaydet|onaylıyorum|onayliyorum/iu;
+export function pesinOnayVar(metin: string | undefined): boolean {
+  return !!metin && metin.trim().length >= 3 && PESIN_ONAY.test(metin);
+}
+export const PESIN_ONAY_ACIKLAMASI =
+  "Hocanın peşin onayı, kendi sözleriyle olduğu gibi (ör. 'hepsini yap ve kaydet'). Varsa ve kayıt sözü içeriyorsa ara durak olmadan yazılıp kaydedilir; sonda tek rapor verilir. Onaya Gönder hocada kalır.";
+
 export const KOD_KAYNAGI = (yol: string, ad: string): Kaynak => ({ ad, adres: `${DEPO}/tree/main/${yol}` });

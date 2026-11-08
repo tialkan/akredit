@@ -546,7 +546,7 @@ describe("giriş bilgisi yasağı", () => {
     expect(talimat).toMatch(/parola, doğrulama kodu ya da çerez asla isteme/u);
     expect(talimat).toMatch(/'akredit'/u);
     expect(c.getServerVersion()?.version).toBe(SUNUCU_SURUMU);
-    expect(SUNUCU_SURUMU).toBe("0.7.0");
+    expect(SUNUCU_SURUMU).toBe("0.8.0");
     await c.close();
   });
 });

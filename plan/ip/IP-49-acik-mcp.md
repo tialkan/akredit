@@ -80,3 +80,11 @@ Herkes, hesap açmadan ve ücretsiz, kendi yapay zekâ asistanıyla (Claude, Cha
 - `pnpm verify:canli` (CLAUDE.md'ye bir satır); yayın kılavuzuna 10.1 "köken yalnız Cloudflare'a açık" notu (cf-connecting-ip).
 - Testler: toplu mod ve tarayıcı adım senaryoları (114 test).
 - Yapılmadı (uzman/insan ister): çerçeve hücre doğrulama sayfası, CSP-CDN e2e sınaması, npm yayını, Codex denemesi.
+
+### 2026-11-08 (0.8.0): peşin onay, tam otonom kip (ADR-0009)
+
+- Kurucu hedefi: hoca başta bir kez "hallet" der, sonda yalnız raporu görür; itirazı olan alanı OBS'de düzeltir.
+- `pesinOnayVar` (temel.ts): hocanın kendi sözünde kayıt/yetki sözü (hepsini, sen hallet, sormadan, kaydet...) varsa onay; yoksa sayılmaz.
+- `akredit_basla` sözü yakalar, sözleşmeyi hocaya geri söyler (giriş dışında durak yok, EKSİK uydurulmaz, Onaya Gönder hocada, 'dur' ile vazgeçilir) ve `pesinOnay` metnini döndürür.
+- `obs_ders_listesi`, `bologna_kopya_metni`, `bologna_toplu_ozet` `pesinOnay` alır: geçerliyse `hocayaSimdiSor: false`, yazma adımı sormadan Kaydet + geri okuma + obs_karsilastir; `pesinOnayKaydi` yanıta yazılır (kayıt). Kanıt kapıları değişmez: teyitsiz yüzde ve doğrulanmamış kaynak yine yazılmaz, EKSİK raporda listelenir.
+- KURAL 7, ASISTAN_KURALI 2 ve OBS_YAZMA güncellendi. Senaryo testi: peşin onayla durak sayısı 0; kayıt sözü olmayan metin onay sayılmaz (116 test).

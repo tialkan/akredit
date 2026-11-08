@@ -22,7 +22,16 @@ import { z } from "zod";
 import { GENEL_ALAN_ADLARI, genelAyikla, genelAyristir, ingilizceAlanVar, prolizMetniMi } from "./genel-ayristir.ts";
 import { kaynakImzasiDogru } from "./kaynak-dogrula.ts";
 import { girisBilgisiAyikla } from "./kisisel-veri.ts";
-import { type AcikArac, type AracBaglami, AracHatasi, type AracSonucu, arac, KOD_KAYNAGI } from "./temel.ts";
+import {
+  type AcikArac,
+  type AracBaglami,
+  AracHatasi,
+  type AracSonucu,
+  arac,
+  KOD_KAYNAGI,
+  PESIN_ONAY_ACIKLAMASI,
+  pesinOnayVar,
+} from "./temel.ts";
 
 // ---------------------------------------------------------------- Alan modeli
 
@@ -1789,6 +1798,10 @@ export function degerlendirmeTeyitli(a: {
   return a.degerlendirme.every((x) => sayilar.has(x.katki));
 }
 
+/** Peşin onay varken yazma adımı: durak yok, sonda tek rapor. */
+const PESIN_ONAY_YAZMA =
+  "Peşin onay var (pesinOnayKaydi): hocaya sormadan yalnız bu paketteki alanları OBS'ye yazın, Kaydet'e basın, sayfayı geri okuyup obs_karsilastir ile doğrulayın. yazilamayan ve kalanEksikler'i uydurmayın, boş bırakın. Başka ders kaldıysa sormadan ona geçin. Hepsi bitince TEK rapor: ders ders yazılan alanlar, 'EKSİK' bırakılanlar (değerlendirme yüzdesi, kaynak), geri okuma sonucu, ve 'Onaya Gönder'e siz basarsınız; itirazınız olan alanı OBS'de düzeltin ya da bana numarasını yazın.' dur/fark çıkarsa o derste durun, rapora yazın.";
+
 const kopyaMetniAraci = arac({
   ad: "bologna_kopya_metni",
   baslik: "OBS'ye kopyalanacak metin",
@@ -1808,8 +1821,9 @@ const kopyaMetniAraci = arac({
       .record(z.string().max(120), z.string().max(20_000))
       .optional()
       .describe("OBS'deki şimdiki değerler (alan adı, ör. 'Dersin Amacı (Türkçe)' → değer); önceki/yeni özeti için"),
+    pesinOnay: z.string().max(500).optional().describe(PESIN_ONAY_ACIKLAMASI),
   }),
-  calistir: ({ ders, alanlar: gelen, programCiktilari, ingilizce, oncekiDegerler }) => {
+  calistir: ({ ders, alanlar: gelen, programCiktilari, ingilizce, oncekiDegerler, pesinOnay }) => {
     // Yazma paketi kapısı: doğrulanmamış kaynak ve teyitsiz değerlendirme yüzdesi pakete giremez (ilke 1-3).
     const yazilamayan: { alan: string; neden: string }[] = [];
     const kaynaklar = gelen.kaynaklar?.filter((k, i) => {
@@ -1958,10 +1972,22 @@ const kopyaMetniAraci = arac({
           ...(ders.donem ? { donem: ders.donem } : {}),
           beklenen: numarali.map((x) => ({ alan: x.alan, deger: x.deger })),
         },
+        ...(pesinOnayVar(pesinOnay) ? { pesinOnayKaydi: pesinOnay } : {}),
         not: "Biçim denetiminden geçti; içerik teyidi: hoca. Yazmadan önce degisiklikOzeti'ni (önceki/yeni) hocaya alan alan gösterin; hoca bir kez 'kaydet' der. Kayıttan sonra sayfayı geri okuyup obs_karsilastir ile doğrulayın. Alan adları OBS sürümüne göre küçük farklar gösterebilir.",
       },
       kaynak: [KAYNAK_KURALLAR],
-      ...(kalanEksikler.length
+      ...(pesinOnayVar(pesinOnay)
+        ? {
+            hocayaSimdiSor: false,
+            sonrakiAdim: PESIN_ONAY_YAZMA,
+          }
+        : pesinOnay
+          ? {
+              sonrakiAdim:
+                "pesinOnay metninde kayıt sözü yok; peşin onay sayılmadı. degisiklikOzeti'ni gösterip kayıt onayını isteyin: 1) OBS'ye yaz ve kaydet 2) formu doldur, Kaydet'e ben basayım 3) kopya metni.",
+            }
+          : {}),
+      ...(kalanEksikler.length && !pesinOnayVar(pesinOnay)
         ? {
             sonrakiAdim:
               "Kalan eksikleri sormadan doldurmaya dönün (bologna_alan_rehberi, bologna_taslak_denetle); yalnız hocanın bilebileceği resmî bilgi (değerlendirme, kullanılan kaynak) eksikse onu TEK mesajda, numaralı sorun. Sonra degisiklikOzeti ile kayıt onayını aynı mesajda isteyin.",
@@ -1995,8 +2021,10 @@ const dersListesiAraci = arac({
       .describe(
         "Taranacak dilimin ilk dersinin sırası (0'dan). İlk çağrıda 0; sonraki dilimde yanıttaki sonrakiBaslangic.",
       ),
+    pesinOnay: z.string().max(500).optional().describe(PESIN_ONAY_ACIKLAMASI),
   }),
-  calistir: ({ dersler, baslangic }) => {
+  calistir: ({ dersler, baslangic, pesinOnay }) => {
+    const pesin = pesinOnayVar(pesinOnay);
     const DILIM = 15;
     const plan = dersler.slice(baslangic, baslangic + DILIM);
     const sonraki = baslangic + plan.length;
@@ -2004,8 +2032,11 @@ const dersListesiAraci = arac({
     const hepsi = baslangic === 0 && kalan === 0;
     return {
       sonuc: {
-        hocayaGoster:
-          baslangic === 0
+        hocayaGoster: pesin
+          ? baslangic === 0
+            ? `${dersler.length} dersiniz var. Hepsini tarayıp eksikleri dolduracak ve OBS'ye kaydedeceğim; bilmediğim resmî bilgiyi boş bırakacağım. Bitince tek rapor vereceğim. Vazgeçmek için 'dur' yazın.`
+            : ""
+          : baslangic === 0
             ? `${dersler.length} dersiniz var. ${hepsi ? "Hepsini" : `${DILIM}'erli dilimlerle hepsini`} tarıyorum; eksikleri ve önerilerimi birazdan tek listede göstereceğim.`
             : `Sıradaki ${plan.length} dersi tarıyorum (${baslangic + 1}-${sonraki} / ${dersler.length}).`,
         taramaPlani: plan.map((d, i) => ({ sira: baslangic + i + 1, kod: d.kod, ad: d.ad ?? "" })),
@@ -2029,11 +2060,15 @@ const dersListesiAraci = arac({
       },
       kaynak: [KAYNAK_KURALLAR],
       hocayaSimdiSor: false,
-      ...(kalan > 0
+      ...(pesin
         ? {
-            sonrakiAdim: `Bu dilimi sormadan tarayın ve raporunu verin. Hoca 1'i seçip bu dilim kapanınca 'devam edeyim mi' diye sormadan obs_ders_listesi'ni baslangic=${sonraki} ile yeniden çağırıp sonraki dilime geçin.`,
+            sonrakiAdim: `Peşin onay var: rapor durağı yok. Her ders için sırayla: bologna_ayristir → eksik alanları bologna_alan_rehberi ve bologna_taslak_denetle ile hazırla → bologna_kopya_metni'ni pesinOnay ile çağır → yaz, Kaydet, geri oku, obs_karsilastir. Sayfada olmayan değerlendirme yüzdesi ve kaynağı sorma, EKSİK bırak.${kalan > 0 ? ` Dilim bitince obs_ders_listesi'ni baslangic=${sonraki} ve aynı pesinOnay ile çağır.` : ""} Hepsi bitince TEK rapor: ders ders yazılanlar, EKSİK kalanlar, geri okuma sonucu; Onaya Gönder hocada.`,
           }
-        : {}),
+        : kalan > 0
+          ? {
+              sonrakiAdim: `Bu dilimi sormadan tarayın ve raporunu verin. Hoca 1'i seçip bu dilim kapanınca 'devam edeyim mi' diye sormadan obs_ders_listesi'ni baslangic=${sonraki} ile yeniden çağırıp sonraki dilime geçin.`,
+            }
+          : {}),
     };
   },
 });
@@ -2057,8 +2092,10 @@ const topluOzetAraci = arac({
   kunyeAlanlari: BOLOGNA_KUNYE_ALANLARI,
   girdi: z.object({
     dersler: z.array(kopyaMetniAraci.girdi).min(1).max(15).describe("Her öğe bologna_kopya_metni girdisiyle aynı"),
+    pesinOnay: z.string().max(500).optional().describe(PESIN_ONAY_ACIKLAMASI),
   }),
   calistir: (g, b) => {
+    const pesin = pesinOnayVar(g.pesinOnay);
     const satirlar = g.dersler.map((d, i) => {
       const r = kopyaMetniAraci.calistir(d, b) as AracSonucu;
       const s = r.sonuc as {
@@ -2112,9 +2149,11 @@ const topluOzetAraci = arac({
           "3) Bir dersin tam metnini göster: numarasını yazın (ör. detay 2)",
           "Onaya Gönder'e siz basarsınız.",
         ].join("\n"),
+        ...(pesin ? { pesinOnayKaydi: g.pesinOnay } : {}),
         not: "Biçim denetiminden geçti; içerik teyidi: hoca. Her ders kaydedildikten sonra geri okunup obs_karsilastir ile doğrulanır.",
       },
       kaynak: [KAYNAK_KURALLAR],
+      ...(pesin ? { hocayaSimdiSor: false, sonrakiAdim: PESIN_ONAY_YAZMA } : {}),
     };
   },
 });
