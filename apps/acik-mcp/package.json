@@ -13,6 +13,12 @@
     "akts"
   ],
   "homepage": "https://akredit.org/mcp-kullan",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tialkan/akredit.git",
+    "directory": "apps/acik-mcp"
+  },
+  "bugs": "https://github.com/tialkan/akredit/issues",
   "engines": {
     "node": ">=22.18"
   },
