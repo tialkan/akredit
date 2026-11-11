@@ -5,6 +5,12 @@ import type { ReactNode } from "react";
 import { PAYLASIM_ALT } from "../site/yapisal.ts";
 import "./globals.css";
 
+const ON_YUKLENEN_YAZI_TIPLERI = [
+  "/yazi-tipleri/LatoLatin-Regular.woff2",
+  "/yazi-tipleri/Oswald-500-latin.woff2",
+  "/yazi-tipleri/Oswald-500-latin-ext.woff2",
+];
+
 const ACIKLAMA =
   "Akreditasyon ve kalite işlerini kanıta dayalı, kayıtlı ve onaylı yürüten açık kaynak platform. Sistem hazırlar, siz onaylarsınız.";
 
@@ -44,6 +50,12 @@ export default async function KokYerlesim({ children }: { children: ReactNode })
   await connection();
   return (
     <html lang="tr">
+      <head>
+        {/* Yazı tipleri ilk boyamaya yetişsin (yazi-tipi.css: font-display optional). Lato 700 ve gerisi gerektikçe. */}
+        {ON_YUKLENEN_YAZI_TIPLERI.map((href) => (
+          <link key={href} rel="preload" href={href} as="font" type="font/woff2" crossOrigin="anonymous" />
+        ))}
+      </head>
       <body className="min-h-screen">
         <a
           href="#icerik"

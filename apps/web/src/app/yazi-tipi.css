@@ -1,11 +1,14 @@
 /* Yazı tipleri (İP-49, kurucu isteği): başlıklar Oswald 500, gövde Lato 400 ve 700. İkisi de SIL OFL 1.1
-   lisanslıdır, kendi sunucumuzdan verilir (dış istek yok): Oswald @fontsource'tan, Lato depodaki dosyalardan.
+   lisanslıdır, kendi sunucumuzdan verilir (dış istek yok). Dosyalar sabit adreste durur (public/yazi-tipleri,
+   lisans metinleriyle) ve kök yerleşimde ön yüklenir: optional ile birlikte ilk ziyarette de yetişir (önceden
+   yetişmiyordu, ilk ziyarette site sistem yazı tipiyle görünüyordu). Oswald dosyaları @fontsource/oswald 5.3.0'dan
+   değiştirilmeden kopyalandı. Dosya değişirse ADI da değişmeli: adres bir yıl değişmez önbellektedir.
    Oswald'da Türkçe karakterler: ı (U+0131) latin, ğ ş İ (U+011E-015F) latin-ext alt kümesindedir.
    font-display: optional: yazı tipi ilk boyamaya yetişmezse o ziyarette sistem yazı tipi kalır, sayfa kaymaz
    (CLS, İP-31). Lato 600 yoktur; font-semibold 700 ile çizilir. */
 
 /* Gövde: Lato 2.015, yazarın kendi web paketindeki LatoLatin dosyaları (latofonts.com/files/Lato2OFLWeb.zip,
-   indirildi 2026-11-12, OFL 1.1, lisans metni yazi-tipleri/OFL-Lato.txt). @fontsource/lato Google'ın Lato 1.x'idir
+   indirildi 2026-11-12, OFL 1.1, lisans metni public/yazi-tipleri/OFL-Lato.txt). @fontsource/lato Google'ın Lato 1.x'idir
    ve ğ Ğ ş Ş İ içermez (review.md madde 20); LatoLatin Türkçe harflerin hepsini tek dosyada içerir. Dosyalar
    değiştirilmeden (alt küme üretilmeden) kullanılır. SHA-256:
    LatoLatin-Regular.woff2 ddd4ef7f97f4361b60841d59753218a57134b0f99f5b46a9612234f1c2733ab0
@@ -16,7 +19,7 @@
   font-style: normal;
   font-display: optional;
   font-weight: 400;
-  src: url(./yazi-tipleri/LatoLatin-Regular.woff2) format("woff2");
+  src: url("/yazi-tipleri/LatoLatin-Regular.woff2") format("woff2");
 }
 
 @font-face {
@@ -24,7 +27,7 @@
   font-style: normal;
   font-display: optional;
   font-weight: 700;
-  src: url(./yazi-tipleri/LatoLatin-Bold.woff2) format("woff2");
+  src: url("/yazi-tipleri/LatoLatin-Bold.woff2") format("woff2");
 }
 
 @font-face {
@@ -32,7 +35,7 @@
   font-style: normal;
   font-display: optional;
   font-weight: 500;
-  src: url(@fontsource/oswald/files/oswald-latin-ext-500-normal.woff2) format("woff2");
+  src: url("/yazi-tipleri/Oswald-500-latin-ext.woff2") format("woff2");
   unicode-range:
     U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F,
     U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
@@ -43,7 +46,7 @@
   font-style: normal;
   font-display: optional;
   font-weight: 500;
-  src: url(@fontsource/oswald/files/oswald-latin-500-normal.woff2) format("woff2");
+  src: url("/yazi-tipleri/Oswald-500-latin.woff2") format("woff2");
   unicode-range:
     U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC,
     U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;

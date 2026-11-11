@@ -33,7 +33,7 @@ describe("önbellek politikası", () => {
   it("durağan varlıklar uzun ve değişmez önbellekte", () => {
     expect(DURAGAN_ONBELLEK).toContain("max-age=31536000");
     expect(DURAGAN_ONBELLEK).toContain("immutable");
-    expect(DURAGAN_YOLLAR).toEqual(["/gorsel/:yol*", "/marka/:yol*"]);
+    expect(DURAGAN_YOLLAR).toEqual(["/gorsel/:yol*", "/marka/:yol*", "/yazi-tipleri/:yol*"]);
   });
   it("proxy sayfalara paylaşılan önbellek başlığı vermez (nonce istek başına)", () => {
     const proxy = readFileSync(new URL("../proxy.ts", import.meta.url), "utf8");

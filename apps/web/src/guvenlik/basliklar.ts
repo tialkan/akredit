@@ -40,4 +40,4 @@ export function surumBelirle(ortam: Record<string, string | undefined>, paketSur
  */
 export const DURAGAN_ONBELLEK = "public, max-age=31536000, immutable";
 
-export const DURAGAN_YOLLAR: readonly string[] = ["/gorsel/:yol*", "/marka/:yol*"];
+export const DURAGAN_YOLLAR: readonly string[] = ["/gorsel/:yol*", "/marka/:yol*", "/yazi-tipleri/:yol*"];
