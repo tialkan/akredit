@@ -67,7 +67,7 @@ const BAG = "text-vurgu underline underline-offset-4";
 
 const ADIMLAR = [
   { id: "adim-1", ad: "Uygulamayı indirin" },
-  { id: "adim-2", ad: "Chrome eklentisini kurun" },
+  { id: "adim-2", ad: "Chrome eklentisini kurun (gerekli)" },
   { id: "adim-3", ad: "Akredit'i ekleyin" },
   { id: "adim-4", ad: "akredit yazın" },
 ];
@@ -272,16 +272,6 @@ export default function AnaSayfa() {
         </div>
       </section>
 
-      <div className="border-b border-cizgi bg-zemin">
-        <p className="mx-auto max-w-5xl px-4 py-3 text-base">
-          <strong>Kurulum istemiyor musunuz?</strong> ÇK/PÇ hesabı, Bologna denetimi ve ölçüt arama tarayıcınızda
-          çalışır; verileriniz bilgisayarınızdan çıkmaz, sunucu maliyeti yoktur.{" "}
-          <Link href="/deneyin" className="underline underline-offset-4">
-            Araçları tarayıcıda deneyin
-          </Link>
-        </p>
-      </div>
-
       <div className="border-b border-risk-orta bg-risk-orta-zemin">
         <p className="mx-auto max-w-5xl px-4 py-3 text-base text-risk-orta">
           <strong>Kurum demosu askıda.</strong> {DEMO_NOTU}{" "}
@@ -346,9 +336,13 @@ export default function AnaSayfa() {
           <AdimBasligi no={2} id="adim-2">
             Chrome eklentisini kurun
           </AdimBasligi>
+          <p data-eklenti-gerekli className="mt-3 rounded-sm border border-vurgu bg-zemin px-4 py-3">
+            <strong>Bu adım gerekli.</strong> Akredit OBS'nizi bu eklentiyle kendisi açar, eksikleri doldurur, kaydeder
+            ve kaydı geri okuyup doğrular. Eklenti olmadan her alanı OBS'ye siz kopyalarsınız.
+          </p>
           <p className="mt-3">
-            Claude, OBS ve Bologna sayfalarını sizin Chrome'unuzda, sizin oturumunuzla açar. Uygulamanın kendi
-            tarayıcısı bazı üniversite sitelerinde engellenebilir; eklenti bu sorunu çözer.
+            Eklenti sayfaları sizin Chrome'unuzda, sizin oturumunuzla açar; parolanızı yine yalnız siz yazarsınız.
+            Uygulamanın kendi tarayıcısı bazı üniversite sitelerinde engellenir; eklenti bu sorunu da çözer.
           </p>
           <ol className="mt-4 grid list-decimal gap-2 pl-7">
             <li>
@@ -360,7 +354,14 @@ export default function AnaSayfa() {
             <li>Eklentiyi açıp Claude hesabınızla giriş yapın.</li>
             <li>Claude masaüstünde Ayarlar penceresinin solunda Claude in Chrome bölümünü görürsünüz; açık kalsın.</li>
           </ol>
-          <p className="mt-4 text-base text-soluk">ChatGPT kullanıyorsanız bu adımı atlayın.</p>
+          <p className="mt-4 text-base text-soluk">
+            ChatGPT kullanıyorsanız bu adımı atlayın; Akredit size alan alan kopyalanacak metni verir. Hiçbir şey
+            kurmadan yalnız denemek isterseniz{" "}
+            <Link href="/deneyin" className="underline underline-offset-4">
+              araçları tarayıcıda deneyin
+            </Link>
+            .
+          </p>
         </div>
       </section>
 

@@ -133,3 +133,15 @@ describe("niyet çözümü ve sorma bayrağı (0.6.2)", () => {
     expect(calistir("engel_coz", { engel: "captcha" }).veri.hocayaSimdiSor).toBe(true);
   });
 });
+
+describe("Chrome eklentisi önce (kurucu kararı 12.11.2026)", () => {
+  it("tarayıcı aracı yoksa akış kopyalamadan önce eklenti kurulumunu önerir; kopyalama yalnız yedektir", () => {
+    const akis = baslangic().akislar["1"] as string;
+    const eklenti = akis.indexOf("ÖNCE eklentiyi kurdur");
+    const kopya = akis.indexOf("Ctrl+A ile seçip Ctrl+C");
+    expect(eklenti).toBeGreaterThan(-1);
+    expect(kopya).toBeGreaterThan(eklenti);
+    expect(akis).toContain("1) kuralım (önerilen) 2) kurmadan devam");
+    expect(SUNUCU_TALIMATI).toContain("otonom akış ancak eklentiyle çalışır");
+  });
+});

@@ -201,8 +201,8 @@ test.describe("deneyin kurum demosu", () => {
     page,
   }) => {
     await page.goto("/");
-    // Strateji raporu 2026-11 (#1): tarayıcı araçları kurulumsuz ve masrafsızdır, ana sayfadan görünür;
-    // askıdaki barındırılan demo ayrı sayfadadır (/kurum-demosu).
+    // Kurucu kararı (12.11.2026): ana sayfa Chrome eklentisini öne çıkarır; tarayıcı araçlarına yalnız eklenti
+    // adımının altındaki "hiçbir şey kurmadan" notundan bağlanır. Askıdaki demo ayrı sayfadadır (/kurum-demosu).
     await expect(page.locator('main a[href="/deneyin"]')).toHaveCount(1);
     await expect(page.locator('main a[href="/kurum-demosu"]')).toHaveCount(1);
     await page.goto("/proje");

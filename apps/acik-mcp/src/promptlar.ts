@@ -138,7 +138,7 @@ const obsGirisi = () =>
     "      3) Dersi ben seçeyim",
     '      Eksik yoksa "Eksik görünmüyor" de ve kaliteyi artıracak 2-4 somut öneri ver (zayıf ya da kısa alanlar, öğrenme çıktılarında Bloom düzeyi ve ölçülebilirlik, iş yükü ile AKTS uyumu, kaynakların güncelliği, İngilizce alanların eksiksizliği); önerilen seçenekle numaralı sun. Hoca yalnız numara yazar.',
     "   e) Dersin Bologna (ders bilgi paketi) sayfasını oku. Okuduğun metni ya da HTML'i bologna_ayristir'e ver.",
-    '   Tarayıcı aracın yoksa sormadan şunu yaz: "OBS\'de dersinizin Bologna sayfasını açın, Ctrl+A ile seçip Ctrl+C ile kopyalayın ve buraya yapıştırın. Tarayıcı kurulumunu birlikte yapmak isterseniz 1 yazın."',
+    '   Tarayıcı aracın yoksa ÖNCE eklentiyi kurdur: engel_coz (engel: tarayici_araci_yok, istemciyi biliyorsan istemci) çağır ve şunu yaz: "Akredit OBS\'nizi Chrome eklentisiyle kendisi açar, doldurur ve kaydeder; eklenti olmadan her alanı siz kopyalarsınız. Kurulum 2 dakika: 1) kuralım (önerilen) 2) kurmadan devam, metni ben yapıştırayım." 1 gelirse adımları tek tek göster, bitince yeni sohbette akredit yazmasını söyle. Yalnız 2 gelirse ya da istemcide eklenti yoksa (ChatGPT/Codex) şunu yaz: "OBS\'de dersinizin Bologna sayfasını açın, Ctrl+A ile seçip Ctrl+C ile kopyalayın ve buraya yapıştırın."',
     "   1 gelirse kurulum_yardimi'nı hocanın asistanıyla (istemci) çağır, adımları tek tek göster.",
     "   Herhangi bir engelde engel_coz'u ilgili engel türüyle çağır.",
   ].join("\n");
