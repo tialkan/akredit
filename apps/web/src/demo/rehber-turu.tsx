@@ -14,15 +14,25 @@ const ANAHTAR = "akredit-demo-tur";
 
 export function DemoSeridi({ rol }: { rol: DemoRolu }) {
   return (
-    <p
+    <div
       className="border-b border-cizgi bg-risk-orta-zemin px-4 py-2 text-center text-sm text-risk-orta"
       data-demo-seridi
     >
       <strong>{DEMO_SERIDI}</strong> Rol: {DEMO_ROL_BILGISI[rol].ad}.{" "}
       <Link href="/kurum-demosu" className="underline underline-offset-4">
         Başka bir rol seçin
-      </Link>
-    </p>
+      </Link>{" "}
+      {/* Demodan çıkış: oturumu kapatıp örnek kurum sayfasına döner; betiksiz çalışan sıradan form. */}
+      <form method="post" action="/api/deneyin/cikis" className="inline">
+        <button
+          type="submit"
+          className="inline-flex min-h-11 items-center px-2 font-semibold underline underline-offset-4"
+          data-demodan-cik
+        >
+          Demodan çık
+        </button>
+      </form>
+    </div>
   );
 }
 

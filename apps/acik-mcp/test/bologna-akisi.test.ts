@@ -15,6 +15,7 @@ import {
   BLOOM_FIILLERI,
   ORTAK_KURALLAR,
 } from "../src/index.ts";
+import { AKILLI_DOLDURMA_KURALI } from "../src/promptlar.ts";
 
 const SIMDI = () => new Date("2026-11-04T10:00:00Z");
 const FIXTURE = join(import.meta.dirname, "../../../packages/baglayicilar/test/fixtures");
@@ -87,7 +88,7 @@ describe("istemler (prompts)", () => {
     ])
       expect(metin).toContain(n);
     expect(metin).toContain(ORTAK_KURALLAR);
-    expect(metin).toContain("4) Hepsini akıllıca doldur (önerilen)");
+    expect(metin).toContain(AKILLI_DOLDURMA_KURALI);
     // Özet, OBS kayıt onayıyla aynı mesajdadır (ara "devam" turu yok).
     expect(metin).toContain("Öneri yazanlar benim önerimdir, içeriği siz teyit edersiniz. 1) OBS'ye yaz ve kaydet");
     // Akıllı doldurma teyit gerektiren bilgileri tek mesajda sorar, uydurmaz.
@@ -116,8 +117,10 @@ describe("istemler (prompts)", () => {
       expect(m).not.toMatch(/—|\*\*/u);
       expect(m).toMatch(/1\) .+ 2\) /u);
       expect(m).toMatch(/kopyalanabilir|kopya/u);
-      // Her menü akıllı doldurma kısayolunu taşır.
-      expect(m).toContain("4) Hepsini akıllıca");
+      // Her istem varsayılan akıllı doldurma kuralını taşır.
+      expect(m).toContain(AKILLI_DOLDURMA_KURALI);
+      expect(m).toContain("hocaya alan alan menü sorulmaz");
+      expect(m).not.toContain("Hepsini akıllıca");
     }
   });
 

@@ -8,6 +8,7 @@ import { type SorguSonucu, satirlar, type Vt } from "@akredit/vt";
 import { agParmakIzi } from "@akredit/yetki";
 import { sql } from "drizzle-orm";
 import { z } from "zod";
+import { istemciAdresi } from "../guvenlik/istemci-adresi.ts";
 import { PILOT_ROLLERI, PILOT_SURECLERI } from "../site/icerik.ts";
 
 /** Formun açılıp gönderilmesi arasında en az bu kadar süre geçmeli (bot denetimi). */
@@ -100,10 +101,7 @@ function kokenGecerli(o: PilotOrtami, istek: Request): boolean {
   return koken === new URL(o.temelAdres).origin || o.izinliKokenler.includes(koken);
 }
 
-function istemciIp(istek: Request): string | null {
-  // Güvenilir vekil (Coolify) `x-real-ip` yazar; `x-forwarded-for` ilk değeri istemci tarafından yazılabilir.
-  return istek.headers.get("x-real-ip") ?? istek.headers.get("x-forwarded-for")?.split(",").at(-1)?.trim() ?? null;
-}
+const istemciIp = (istek: Request): string | null => istemciAdresi(istek.headers);
 
 async function sayi(db: Vt, sorgu: ReturnType<typeof sql>): Promise<number> {
   const s = satirlar((await db.execute(sorgu)) as unknown as SorguSonucu<{ n: number }>);

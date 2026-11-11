@@ -26,7 +26,7 @@ describe("numaralı seçim ve önce OBS", () => {
     expect(b.akislar["1"]).toContain("Ders adını ya da paketi sorma");
     // Ders listesi açılınca "hangi ders?" diye sorulmaz: önce bütün dersler taranır, en eksikten başlanması önerilir.
     expect(b.akislar["1"]).toContain("hangi dersi incelemek istediğini SORMA");
-    expect(b.akislar["1"]).toContain("1) Eksikleri en çok olandan başlayarak hepsini sırayla kapatalım (önerilen)");
+    expect(b.akislar["1"]).toContain("1) Eksikleri en çok olandan başlayarak hepsini kapatalım (önerilen)");
     expect(SUNUCU_TALIMATI).toContain("KURAL 4: Önce sen tara, sonra öner.");
   });
 });

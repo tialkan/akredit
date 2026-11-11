@@ -3,6 +3,7 @@
 
 import type { ServisBaglami } from "@akredit/servis";
 import type { Saglayici } from "@akredit/yz";
+import { oturumsuzYonlendirme } from "../../../demo/yonlendirme.ts";
 import { GERCEK_VERI } from "../../../veri/kip.ts";
 import { aktorOlustur } from "../../api/_ortak/v1.ts";
 
@@ -23,7 +24,7 @@ export async function servisBaglami(): Promise<ServisBaglami | null> {
     const b = await istekBaglami(kimlik, new Request(kimlik.ayar.temelAdres, { headers: basliklar }));
     return { db, aktor: aktorOlustur(b), simdi: () => new Date() };
   } catch (e) {
-    if (e instanceof ErisimHatasi) redirect("/giris");
+    if (e instanceof ErisimHatasi) redirect(oturumsuzYonlendirme());
     throw e;
   }
 }

@@ -1,5 +1,6 @@
 "use client";
 // Sağ altta küçük, kapatılabilir tanıtım: kurucunun kendi projesi Mükerrer Frekans (kurucu isteği, İP-49).
+// Yalnız ana sayfada gösterilir (kurucu kararı 12.11.2026; KVKK, koşullar ve araç sayfalarında yok).
 // Çerez, yerel depolama ya da izleme yok; kapatma yalnız bu sayfa görüntülemesi içindir.
 // 7 saniye sonra kendiliğinden kapanır. Fare üstündeyken ya da klavye odağındayken süre durur (WCAG 2.2.1).
 
@@ -24,14 +25,18 @@ export function Tanitim() {
     };
   }, [acik, durdu]);
 
-  // Klavyeyle gezinen biri sekmeye bastığında tanıtım kapanır; sabit kutu odağı örtmez (WCAG 2.4.11).
+  // Klavye: kutu DOM'da sayfa içeriğinin önündedir, Sekme ile önce ona ulaşılır (bağlantı ve kapatma düğmesi).
+  // Odak kutudan sonraki bir öğeye geçince kutu kapanır; sabit kutu sayfadaki odağı hiç örtmez (WCAG 2.4.11).
   useEffect(() => {
     if (!acik) return;
-    const tus = (e: KeyboardEvent) => {
-      if (e.key === "Tab" && !kutu.current?.contains(document.activeElement)) setAcik(false);
+    const odak = (e: FocusEvent) => {
+      const k = kutu.current;
+      const h = e.target;
+      if (!k || !(h instanceof Node) || k.contains(h)) return;
+      if (k.compareDocumentPosition(h) & Node.DOCUMENT_POSITION_FOLLOWING) setAcik(false);
     };
-    document.addEventListener("keydown", tus);
-    return () => document.removeEventListener("keydown", tus);
+    document.addEventListener("focusin", odak);
+    return () => document.removeEventListener("focusin", odak);
   }, [acik]);
 
   if (!acik) return null;

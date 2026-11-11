@@ -6,7 +6,8 @@
 
 import { HizSiniri } from "@akredit/servis";
 import { z } from "zod";
-import type { KimlikSunucusu } from "../kimlik/sunucu.ts";
+import { istemciAdresi } from "../guvenlik/istemci-adresi.ts";
+import { KIMLIK_YOLU, type KimlikSunucusu } from "../kimlik/sunucu.ts";
 import { DemoHatasi, demoOturumuAc } from "./oturum.ts";
 import { DEMO_ROLLERI } from "./roller.ts";
 
@@ -21,15 +22,7 @@ export interface DemoUcSecenekleri {
 
 const Govde = z.object({ rol: z.enum(DEMO_ROLLERI) });
 
-function istemciIp(istek: Request): string {
-  // Güvenilir vekil (Coolify) `x-real-ip` yazar ve gerçek adresi `x-forwarded-for` sonuna ekler; ilk değeri
-  // istemci yazabilir, ona göre sınırlamak hız sınırını boşa çıkarır (kurum açılışı ve pilot formuyla aynı kural).
-  return (
-    istek.headers.get("x-real-ip")?.trim() ||
-    istek.headers.get("x-forwarded-for")?.split(",").at(-1)?.trim() ||
-    "bilinmiyor"
-  );
-}
+const istemciIp = (istek: Request): string => istemciAdresi(istek.headers) ?? "bilinmiyor";
 
 async function govdeOku(istek: Request): Promise<unknown> {
   const tur = istek.headers.get("content-type") ?? "";
@@ -83,4 +76,45 @@ export function demoUcu(k: KimlikSunucusu, s: DemoUcSecenekleri = {}) {
       throw e;
     }
   };
+}
+
+/**
+ * `POST /api/deneyin/cikis`: demodan çıkış. Betiksiz form gönderir; Better Auth oturum kapatma ucu çağrılır,
+ * çerezi silen başlıklar aktarılır ve `/kurum-demosu`'na 303 yönlendirilir. Köken denetimi (CSRF) vardır.
+ */
+export function demoCikisUcu(k: KimlikSunucusu) {
+  return async (istek: Request): Promise<Response> => {
+    const koken = istek.headers.get("origin");
+    const izinli = [new URL(k.ayar.temelAdres).origin, ...k.ayar.izinliKokenler];
+    if (!koken || !izinli.includes(koken))
+      return Response.json({ hata: "İstek bu siteden gelmedi. Sayfayı yenileyip yeniden deneyin." }, { status: 403 });
+    const basliklar = new Headers({ "content-type": "application/json", origin: koken });
+    const cerez = istek.headers.get("cookie");
+    if (cerez) basliklar.set("cookie", cerez);
+    const y = await k.auth.handler(
+      new Request(new URL(`${KIMLIK_YOLU}/sign-out`, k.ayar.temelAdres), {
+        method: "POST",
+        headers: basliklar,
+        body: "{}",
+      }),
+    );
+    const yanit = new Headers({
+      location: new URL("/kurum-demosu", k.ayar.temelAdres).toString(),
+      "cache-control": "no-store",
+      "clear-site-data": '"cache"',
+    });
+    for (const c of y.headers.getSetCookie()) yanit.append("set-cookie", c);
+    return new Response(null, { status: 303, headers: yanit });
+  };
+}
+
+/** `/api/deneyin` beklenmeyen hatası: betiksiz form gönderimi hata koduyla sayfaya döner, JSON istemcisi JSON alır. */
+export function beklenmeyenHataYaniti(istek: Request, temelAdres: string): Response {
+  const tur = istek.headers.get("content-type") ?? "";
+  if (tur.includes("application/json"))
+    return Response.json({ hata: "Beklenmeyen bir sorun oluştu. Biraz sonra yeniden deneyin." }, { status: 500 });
+  return new Response(null, {
+    status: 303,
+    headers: { location: new URL("/kurum-demosu?hata=hazir", temelAdres).toString() },
+  });
 }

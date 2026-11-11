@@ -7,6 +7,7 @@ import { kiraciIslemi, sema } from "@akredit/vt";
 import { agParmakIzi } from "@akredit/yetki";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { istemciAdresi } from "../guvenlik/istemci-adresi.ts";
 import { ErisimHatasi, type IstekBaglami } from "./erisim.ts";
 import type { KimlikSunucusu } from "./sunucu.ts";
 import { davetOlustur } from "./yonetim.ts";
@@ -32,10 +33,7 @@ export function kokenGecerliMi(k: KimlikSunucusu, istek: Request): boolean {
   return koken === new URL(k.ayar.temelAdres).origin || k.ayar.izinliKokenler.includes(koken ?? "");
 }
 
-function istemciIp(istek: Request): string | null {
-  // Güvenilir vekil (nginx/Coolify) `x-real-ip` yazar; `x-forwarded-for` ilk değeri istemci tarafından yazılabilir.
-  return istek.headers.get("x-real-ip") ?? istek.headers.get("x-forwarded-for")?.split(",").at(-1)?.trim() ?? null;
-}
+const istemciIp = (istek: Request): string | null => istemciAdresi(istek.headers);
 
 export type Yanit = { durum: number; govde: Record<string, unknown> };
 

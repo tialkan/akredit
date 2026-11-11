@@ -95,3 +95,11 @@ export const PESIN_ONAY_ACIKLAMASI =
   "Hocanın peşin onayı, kendi sözleriyle olduğu gibi (ör. 'hepsini yap ve kaydet'). Varsa ve kayıt sözü içeriyorsa ara durak olmadan yazılıp kaydedilir; sonda tek rapor verilir. Olumsuz söz ('kaydetme', 'kaydetmeden önce sor') onay sayılmaz. Onaya Gönder hocada kalır.";
 
 export const KOD_KAYNAGI = (yol: string, ad: string): Kaynak => ({ ad, adres: `${DEPO}/tree/main/${yol}` });
+
+/** Tarama raporunun numaralı seçenekleri: tek kaynak. obs_ders_listesi'nin raporBicimi ve istem metni bunu kullanır. */
+export const TARAMA_SECENEKLERI = [
+  "1) Eksikleri en çok olandan başlayarak hepsini kapatalım (önerilen)",
+  "2) Yalnız en eksik dersi tamamlayalım",
+  "3) Kalite önerilerini de uygulayalım",
+  "4) Dersi ben seçeyim",
+] as const;

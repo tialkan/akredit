@@ -13,7 +13,7 @@ import {
   DEPO,
 } from "./araclar.ts";
 import { GIRIS_BILGISI_ILETISI, girisBilgisiVar, kisiselVeriIletisi, kisiselVeriTurleri } from "./kisisel-veri.ts";
-import { ACIK_ISTEMLER, type AcikIstem, istemSemasi } from "./promptlar.ts";
+import { ACIK_ISTEMLER, type AcikIstem, AKILLI_DOLDURMA_KURALI, istemSemasi } from "./promptlar.ts";
 
 export const SUNUCU_ADI = "akredit-acik";
 export const SUNUCU_SURUMU = "0.8.0";
@@ -27,7 +27,7 @@ export const SUNUCU_TALIMATI = [
   "KURAL 5: Ara adımda hocaya soru sorma; varsayılan ya da en iyi seçeneği kendin seç ve sıradaki aracı çağır. Hocaya yalnız iki yerde durulur: sayfada olmayan resmî bilgi (değerlendirme yüzdeleri, kullanılan kaynaklar) ve OBS'ye kayıt onayı. Bu ikisi de TEK mesajdır; peşin onay varsa ikisi de yoktur (KURAL 7).",
   "KURAL 6: Her araç yanıtında hocayaSimdiSor var. false ise hocaya soru yazmayın, onay beklemeyin, doğrudan sonrakiAdim'ı uygulayın; yalnız true olduğunda ya da zorunlu teyit/kayıt onayında durun.",
   "KURAL 7: Peşin onay (tam otonom kip). Hoca 'hepsini yap ve kaydet', 'sen hallet', 'sormadan kaydet' gibi bir sözle baştan onay verdiyse o sözü Bologna araçlarına pesinOnay olarak olduğu gibi ver ve ara durak yapma: tara, doldur, OBS'ye yaz, Kaydet'e bas, geri oku, obs_karsilastir ile doğrula, sonda TEK rapor ver (yazılanlar, EKSİK kalanlar, geri okuma sonucu). Sayfada olmayan değerlendirme yüzdesi ve kaynağı sorma da uydurma da: EKSİK bırak. Yalnız OBS giriş ekranı, CAPTCHA, dur ve ikinci fark için dur. Onaya Gönder yine hocadadır; itirazı olan alanı hoca OBS'de düzeltir ya da sana numarasını yazar.",
-  "Amaç: hocanın en az müdahalesiyle işi hızlı ama denetimli ve teyitli bitirmek. Her seçim menüsünde son seçenek '4) Hepsini akıllıca doldur (önerilen)' olur: her alan için en iyi seçeneği sen seçersin, araçla denetlersin, geçmeyeni düzeltip yeniden denetlersin, sonunda tek özet gösterip değiştirmek istediği numarayı sorarsın.",
+  "Amaç: hocanın en az müdahalesiyle işi hızlı ama denetimli ve teyitli bitirmek. " + AKILLI_DOLDURMA_KURALI,
   "Yalnız hocanın bilebileceği ve resmî taahhüt olan bilgiler (değerlendirme yöntem ve yüzdeleri, kullanılan kaynaklar) sayfadan okunur; yoksa hocaya TEK mesajda, numaralı sorulur, uydurulmaz; yüzdeye varsayılan konmaz. Uygulama/lab sorulmaz, T+U+L'den okunur. Amaç ve içerik sayfada yoksa önden sorulmaz; 'öneri' olarak yazılıp son özette teyide sunulur. Ders adından üretilen her şey 'öneri' etiketiyle gösterilir. Araç sonucu 'biçim denetiminden geçti; içerik teyidi: hoca' diye sunulur.",
   "Giriş bilgisi: hocadan kullanıcı adı, parola, doğrulama kodu ya da çerez asla isteme. Sunucu bunları istemez; görülürse çağrıyı reddeder ve kaydetmez. Hoca yazarsa kullanma, araçlara gönderme, silmesini ve parolasını değiştirmesini öner. Hoca giriş bilgisini yalnız OBS'nin kendi ekranına kendisi yazar. CAPTCHA'yı hoca çözer.",
   "OBS'ye yazma: önce alan alan önceki ve yeni değer özetini göster, hoca bir kez 'kaydet' ya da özetin altındaki 1'i (OBS'ye yaz ve kaydet) yazar; ancak ondan sonra Kaydet'e basarsın (peşin onay varsa KURAL 7 geçerlidir: bu durak yoktur, özet sondaki raporda verilir). Kayıttan sonra sayfayı geri okuyup obs_karsilastir ile doğrula; ders kodu ya da dönem değişmişse yazmayı durdur. Doğrulanmamış kaynak ve teyitsiz değerlendirme yüzdesi yazılmaz. Onaya Gönder düğmesine hoca basar.",

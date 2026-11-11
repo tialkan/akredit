@@ -2,6 +2,7 @@
 // ve Bologna servisini çağırır; örnek kipte kurgu kayıtlar döner (adlar, kodlar ve sayılar uydurmadır).
 
 import type { bologna } from "@akredit/servis";
+import { oturumsuzYonlendirme } from "../../../../demo/yonlendirme.ts";
 import { GERCEK_VERI } from "../../../../veri/sunucu.ts";
 
 export type GecmisKaydi = bologna.GecmisKaydi;
@@ -72,7 +73,7 @@ async function baglam() {
     );
     return { db, aktor: aktorOlustur(b), simdi: () => new Date() };
   } catch (e) {
-    if (e instanceof erisim.ErisimHatasi) redirect("/giris");
+    if (e instanceof erisim.ErisimHatasi) redirect(oturumsuzYonlendirme());
     throw e;
   }
 }

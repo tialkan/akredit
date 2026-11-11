@@ -22,6 +22,7 @@ import {
   type Uygulama,
 } from "../../site/kurulum.ts";
 import { ornekDenetim } from "../../site/ornek-denetim.ts";
+import { Tanitim } from "../../site/tanitim.tsx";
 import { anaSayfaDugumleri, sayfaUstVerisi, sssVerisi } from "../../site/yapisal.ts";
 
 export const metadata: Metadata = sayfaUstVerisi(SAYFALAR.ana);
@@ -257,6 +258,8 @@ export default function AnaSayfa() {
     <>
       <YapisalVeri sayfa={SAYFALAR.ana} ek={[...anaSayfaDugumleri(), sssVerisi(SSS)]} />
       <BelirmeGozlemcisi />
+      {/* Kurucu kararı (12.11.2026): tanıtım yalnız ana sayfada; DOM'da ilk ekranın önünde, klavyeyle ilk ulaşılan. */}
+      <Tanitim />
       <section aria-labelledby="ana-baslik" className="ilk-ekran border-b border-cizgi bg-yuzey">
         <div className="mx-auto grid max-w-3xl items-center gap-8 px-4 pt-10 pb-10 sm:pt-14 lg:max-w-6xl lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)] lg:gap-14 lg:pt-16 lg:pb-16">
           <div>

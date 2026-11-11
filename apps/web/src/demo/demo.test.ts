@@ -11,7 +11,8 @@ import { ADRES, CerezKavanozu, istek, kimlikIstegi, type TestOrtami, testOrtami 
 import { apiAnahtariOlustur, davetOlustur, topluIceAktar } from "../kimlik/yonetim.ts";
 import { demoOturumuAc, imzaliCerezDegeri } from "./oturum.ts";
 import { DEMO_EYLEMLERI, DEMO_ROL_BILGISI, DEMO_ROLLERI, DEMO_SURESI_MS, demoRoluMu } from "./roller.ts";
-import { demoAcikMi, demoUcu } from "./uc.ts";
+import { beklenmeyenHataYaniti, demoAcikMi, demoCikisUcu, demoUcu } from "./uc.ts";
+import { oturumsuzYonlendirme } from "./yonlendirme.ts";
 
 let o: TestOrtami;
 let demo: string;
@@ -244,5 +245,83 @@ describe("POST /api/deneyin", () => {
     const ikinci = await uc(sahte(2));
     expect(ikinci.headers.get("location")).toBe(`${ADRES}/kurum-demosu?hata=cok`);
     expect(ikinci.headers.get("set-cookie")).toBeNull();
+  });
+});
+
+describe("POST /api/deneyin/cikis", () => {
+  const cikis = (cerez: string | null, koken: string | null = ADRES) =>
+    new Request(`${ADRES}/api/deneyin/cikis`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/x-www-form-urlencoded",
+        ...(koken ? { origin: koken } : {}),
+        ...(cerez ? { cookie: cerez } : {}),
+      },
+    });
+
+  it("demo oturumunu kapatır, çerezi siler ve örnek kurum sayfasına döner", async () => {
+    const acis = await demoUcu(o.k)(
+      new Request(`${ADRES}/api/deneyin`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/x-www-form-urlencoded",
+          origin: ADRES,
+          "x-forwarded-for": "198.51.100.77",
+        },
+        body: new URLSearchParams({ rol: "rektorluk" }).toString(),
+      }),
+    );
+    const kavanoz = new CerezKavanozu();
+    kavanoz.al(acis);
+    expect((await kimlikIstegi(o.k, "/api/kimlik/get-session", { kavanoz }).then((r) => r.json()))?.user).toBeTruthy();
+    const eski = kavanoz.baslik();
+
+    const y = await demoCikisUcu(o.k)(cikis(eski));
+    expect(y.status).toBe(303);
+    expect(y.headers.get("location")).toBe(`${ADRES}/kurum-demosu`);
+    kavanoz.al(y);
+    expect(kavanoz.cerezler.has("akredit.session_token")).toBe(false);
+    // Eski çerezle de oturum artık yoktur (sunucu tarafında silindi).
+    const sonra = await o.k.auth.handler(
+      new Request(`${ADRES}/api/kimlik/get-session`, { headers: { cookie: eski, origin: ADRES } }),
+    );
+    expect(await sonra.json()).toBeNull();
+  });
+
+  it("başka kökenden gelen isteği reddeder", async () => {
+    expect((await demoCikisUcu(o.k)(cikis(null, "https://kotu.example"))).status).toBe(403);
+    expect((await demoCikisUcu(o.k)(cikis(null, null))).status).toBe(403);
+  });
+
+  it("oturum yoksa da örnek kurum sayfasına döner", async () => {
+    const y = await demoCikisUcu(o.k)(cikis(null));
+    expect(y.status).toBe(303);
+    expect(y.headers.get("location")).toBe(`${ADRES}/kurum-demosu`);
+  });
+});
+
+describe("demo beklenmeyen hata ve oturumsuz yönlendirme", () => {
+  it("betiksiz form gönderimi beklenmeyen hatada hata koduyla sayfaya döner, JSON istemcisi JSON alır", async () => {
+    const form = new Request(`${ADRES}/api/deneyin`, {
+      method: "POST",
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+    });
+    const y = beklenmeyenHataYaniti(form, ADRES);
+    expect(y.status).toBe(303);
+    expect(y.headers.get("location")).toBe(`${ADRES}/kurum-demosu?hata=hazir`);
+    const json = beklenmeyenHataYaniti(
+      new Request(`${ADRES}/api/deneyin`, { method: "POST", headers: { "content-type": "application/json" } }),
+      ADRES,
+    );
+    expect(json.status).toBe(500);
+    expect(await json.json()).toHaveProperty("hata");
+  });
+
+  it("barındırma kapalı ve demo açıkken oturumsuz panel /kurum-demosu'na, barındırma açıkken /giris'e gider", () => {
+    expect(oturumsuzYonlendirme({ AKREDIT_DEMO: "1" })).toBe("/kurum-demosu");
+    expect(oturumsuzYonlendirme({ AKREDIT_DEMO: "1", AKREDIT_BARINDIRMA: "1" })).toBe("/giris");
+    expect(oturumsuzYonlendirme({ AKREDIT_BARINDIRMA: "1" })).toBe("/giris");
+    // İkisi de kapalıysa demo sayfası da kapalıdır; mevcut davranış korunur.
+    expect(oturumsuzYonlendirme({})).toBe("/giris");
   });
 });

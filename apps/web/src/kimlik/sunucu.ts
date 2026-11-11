@@ -20,6 +20,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { magicLink } from "better-auth/plugins/magic-link";
 import { and, desc, eq, isNull } from "drizzle-orm";
 import { demoEpostasiMi } from "../demo/roller.ts";
+import { istemciAdresi } from "../guvenlik/istemci-adresi.ts";
 import type { KimlikAyari } from "./ayar.ts";
 
 export interface EpostaGonderici {
@@ -84,9 +85,8 @@ export function epostaAlanAdiUyarMi(eposta: string, alanAdlari: string): boolean
 }
 
 export function istemciIp(basliklar: Headers | undefined): string | null {
-  // Güvenilir vekil `x-real-ip` yazar ve gerçek adresi `x-forwarded-for` sonuna ekler; ilk değeri istemci
-  // yazabilir (demo ucu, kurum açılışı ve pilot formuyla aynı kural; inceleme 4-7 #6).
-  return basliklar?.get("x-real-ip")?.trim() || basliklar?.get("x-forwarded-for")?.split(",").at(-1)?.trim() || null;
+  // Tek kaynak: guvenlik/istemci-adresi.ts (cf-connecting-ip, x-real-ip, x-forwarded-for sondan).
+  return istemciAdresi(basliklar);
 }
 
 export function kimlikSunucusuOlustur(s: KimlikSecenekleri) {

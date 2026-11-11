@@ -1,6 +1,6 @@
 // Demo oturumu açma ucu (İP-41). Mantık `src/demo/uc.ts`; burada yalnız tekil nesneler bağlanır.
 
-import { demoAcikMi, demoUcu } from "../../../demo/uc.ts";
+import { beklenmeyenHataYaniti, demoAcikMi, demoUcu } from "../../../demo/uc.ts";
 import { tekiller } from "../_ortak/sunucu.ts";
 
 export const dynamic = "force-dynamic";
@@ -14,6 +14,7 @@ export async function POST(istek: Request): Promise<Response> {
   try {
     return await kuresel.__akreditDemoUcu(istek);
   } catch {
-    return Response.json({ hata: "Beklenmeyen bir sorun oluştu. Biraz sonra yeniden deneyin." }, { status: 500 });
+    // Betiksiz form ham JSON görmesin: `/kurum-demosu?hata=hazir`'a döner (inceleme, kurucu kararı madde 8).
+    return beklenmeyenHataYaniti(istek, kimlik.ayar.temelAdres);
   }
 }

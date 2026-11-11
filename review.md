@@ -93,6 +93,16 @@ süzgeci, `CLAUDE.md` depo haritası, strateji raporuna uygulama durumu tablosu,
 - Madde 2: `olcmeGirdiSorunlari` (`packages/olcme/src/girdi.ts`); `ck_pc_hesapla` ve `/deneyin` ÇK paneli bozuk
   girdiyi hesaplamadan reddeder. `dersiOlc` ve `HESAP_SURUMU` değişmedi.
 - Madde 3: `infra/coolify/docker-compose.yml`'de `web` artık `vt` ve `goc`'u beklemiyor.
+- Madde 5: "her menüde 4) Hepsini akıllıca doldur" kuralı kalktı; yerine "varsayılan akıllı doldurmadır, alan alan menü
+  sorulmaz" (`AKILLI_DOLDURMA_KURALI`). Tarama raporu seçenekleri tek kaynak: `TARAMA_SECENEKLERI` (`apps/acik-mcp/src/temel.ts`).
+- Madde 6: web'deki beş istemci adresi kopyası `apps/web/src/guvenlik/istemci-adresi.ts`'te toplandı; sıra MCP ile aynı
+  (`cf-connecting-ip` → `x-real-ip` → XFF'nin güvenilen vekil öğesi).
+- Madde 8: barındırma kapalıyken oturumsuz panel `/kurum-demosu`'na yönlenir; panel şeridinde "Demodan çık" düğmesi
+  (`/api/deneyin/cikis`); `/api/deneyin` form hatasında ham JSON yerine `/kurum-demosu?hata=hazir`.
+- Madde 9: Mükerrer Frekans tanıtımı yalnız ana sayfada; DOM'da içeriğin önünde, klavyeyle ulaşılır, odak ötesine
+  geçince kapanır.
+- Madde 10: `/deneyin` ve `/kurum-demosu` `SAYFALAR`'da (başlık, açıklama, paylaşım kartı, yapısal veri);
+  `/kurum-demosu` askıda olduğu için site haritasında yok.
 - Ek: ana sayfa Chrome eklentisini "gerekli" adım olarak öne çıkarıyor; MCP tarayıcı yoksa önce eklenti kurulumunu öneriyor.
 
 ### Kesinti (2026-11-11/12)
@@ -144,6 +154,10 @@ süzgeci, `CLAUDE.md` depo haritası, strateji raporuna uygulama durumu tablosu,
 17. `pnpm audit --prod`: 2 orta, 1 düşük, hepsi geçişli (`esbuild`, `uuid`, `fast-xml-parser`). (review/5)
 18. npm'de yayınlı sürüm 0.6.0 (0.5.0 değil); depo 0.8.0. Yayın insan işi. (review/5)
 19. Terim: ana sayfa "Bağdaştırıcılar", `/mcp-kullan` ve MCP rehberi "Bağlayıcılar" diyor. (review/2)
+
+20. **Gövde yazı tipinde Türkçe harf eksik (yüksek, görünür).** `@fontsource/lato` (Google'ın Lato 1.x'i) `ğ Ğ ş Ş İ`
+    içermiyor; bu harfler bütün paragraflarda sistem yazı tipiyle çiziliyor. Başlıktaki Oswald tam. Seçenekler: Lato 2.0
+    dosyalarını (OFL) depoya eklemek ya da gövdeyi Türkçe destekli bir yazı tipine (Source Sans 3, Noto Sans) çevirmek.
 
 **Düşük** (parça dosyalarında): atıfsız ~1,6 MB görsel ve 12 MB ekran görüntüsü, yetim `packages/kiyaslama`, yalnız
 testte geçen sabitler, `bologna_durum` aracının gerekliliği, sabitlenmemiş imaj etiketleri, çift Dockerfile, danışmanlık

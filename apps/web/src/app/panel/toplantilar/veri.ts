@@ -2,6 +2,7 @@
 // servisini çağırır; örnek kipte örnek toplantılar döner (adlar ve tarihler uydurmadır).
 
 import type { toplanti } from "@akredit/servis";
+import { oturumsuzYonlendirme } from "../../../demo/yonlendirme.ts";
 import { GERCEK_VERI } from "../../../veri/sunucu.ts";
 
 export type Toplanti = toplanti.ToplantiGorunumu;
@@ -66,7 +67,7 @@ export async function toplantilariGetir(): Promise<Toplanti[]> {
     const b = await erisim.istekBaglami(kimlik, new Request(kimlik.ayar.temelAdres, { headers: basliklar }));
     return await servis.toplanti.toplantilar({ db, aktor: aktorOlustur(b), simdi: () => new Date() });
   } catch (e) {
-    if (e instanceof erisim.ErisimHatasi) redirect("/giris");
+    if (e instanceof erisim.ErisimHatasi) redirect(oturumsuzYonlendirme());
     throw e;
   }
 }

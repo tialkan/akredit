@@ -3,8 +3,9 @@
 // (değerlendirme yüzdesi, kaynak) ve OBS kayıt onayıdır. Yüzdeye varsayılan konmaz (uydurma yok).
 import { describe, expect, it } from "vitest";
 import { ACIK_ARACLAR, aracCalistir } from "../src/index.ts";
-import { ACIK_ISTEMLER, baslangic } from "../src/promptlar.ts";
+import { ACIK_ISTEMLER, AKILLI_DOLDURMA_KURALI, baslangic } from "../src/promptlar.ts";
 import { ASISTAN_KURALI, SUNUCU_TALIMATI } from "../src/sunucu.ts";
+import { TARAMA_SECENEKLERI } from "../src/temel.ts";
 
 const SIMDI = () => new Date("2026-11-06T10:00:00Z");
 const calistir = (ad: string, girdi: unknown) => {
@@ -85,6 +86,24 @@ describe("ders listesi: önce tara, eksik yoksa kalite önerisi", () => {
     expect(s2.taranmayan).toBeUndefined();
     expect(s.raporBicimi.join(" ")).toContain("Şu eksiklikleri tespit ettim, önerilerim şunlar.");
     expect(s.raporBicimi.join(" ")).toContain("eksik görünmüyor");
+    // Tarama seçenekleri tek kaynaktan: araçtaki ve Bologna istemindeki liste aynı, aynı sırada.
+    const aracSatiri = s.raporBicimi.find((x: string) => x.startsWith("Altına:")) as string;
+    const istem = ACIK_ISTEMLER.find((i) => i.ad === "bologna_doldur")?.metin({}) ?? "";
+    const secenekRe = /\d\) [^\n]*?(?= \d\) |\n|$)/gu;
+    const istemSecenekleri = (
+      istem.split("Altına obs_ders_listesi yanıtındaki raporBicimi seçeneklerini aynen koy:")[1] ?? ""
+    )
+      .split("\n")
+      .slice(1, 1 + TARAMA_SECENEKLERI.length)
+      .map((x) => x.trim());
+    expect(aracSatiri.slice("Altına: ".length).match(secenekRe)).toEqual([...TARAMA_SECENEKLERI]);
+    expect(istemSecenekleri).toEqual([...TARAMA_SECENEKLERI]);
+    expect(TARAMA_SECENEKLERI.length).toBe(4);
+  });
+
+  it("sunucu talimatı varsayılan akıllı doldurmayı söyler; eski '4) Hepsini akıllıca' menü kuralı yok", () => {
+    expect(SUNUCU_TALIMATI).toContain(AKILLI_DOLDURMA_KURALI);
+    expect(SUNUCU_TALIMATI).not.toContain("Hepsini akıllıca");
   });
 
   it("araç açıklaması 'hangi ders?' sorusunu yasaklar; sunucu talimatı kalite önerisini ister", () => {

@@ -129,6 +129,22 @@ export const SAYFALAR = {
     aciklama:
       "Akredit proje sahibine ulaşma yolu, sponsorluk ve barındırılan hizmetin durumu, güvenlik açığı bildirimi.",
   },
+  deneyin: {
+    yol: "/deneyin",
+    ad: "Tarayıcıda deneyin",
+    baslik: "Araçları tarayıcıda deneyin",
+    title: "Araçları tarayıcıda deneyin",
+    aciklama:
+      "Kurulum ve hesap olmadan: ÇK/PÇ hesabı, Bologna denetimi ve ölçüt arama. Hepsi tarayıcınızda çalışır; verileriniz sunucuya ve yapay zekâya gitmez.",
+  },
+  kurumDemosu: {
+    yol: "/kurum-demosu",
+    ad: "Kurum demosu",
+    baslik: "Barındırılan kurum demosu",
+    title: "Kurum demosu: Örnek Üniversitesi",
+    aciklama:
+      "Barındırılan kurum platformunun demosu: sentetik Örnek Üniversitesi'nde rol seçip paneli deneyin. Demo hazır, sponsor bulunana kadar askıda.",
+  },
   mcpKullan: {
     yol: "/mcp-kullan",
     ad: "Kendi yapay zekânızla",

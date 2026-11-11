@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { AracSekmeleri } from "../../../deneyin/sekmeler.tsx";
+import { YapisalVeri } from "../../../site/bilesenler.tsx";
+import { SAYFALAR } from "../../../site/icerik.ts";
+import { sayfaUstVerisi } from "../../../site/yapisal.ts";
 
 // İP-49: /deneyin, MCP kurmayı bilmeyenler için tarayıcıda çalışan üç deterministik araçtır (src/deneyin). Araçlar
 // ağ isteği yapmaz; ayrıştırma ve denetim herkese açık MCP'nin kodudur, hesap @akredit/olcme'dir. Sunucu maliyeti
@@ -7,16 +10,12 @@ import { AracSekmeleri } from "../../../deneyin/sekmeler.tsx";
 
 const BAG = "text-vurgu underline underline-offset-4";
 
-export const metadata: Metadata = {
-  title: "Araçları tarayıcıda deneyin",
-  description:
-    "Kurulum ve hesap olmadan: ÇK/PÇ hesabı, Bologna denetimi ve ölçüt arama. Hepsi tarayıcınızda çalışır; verileriniz sunucuya ve yapay zekâya gitmez.",
-  alternates: { canonical: "https://akredit.org/deneyin" },
-};
+export const metadata: Metadata = sayfaUstVerisi(SAYFALAR.deneyin);
 
 export default function Deneyin() {
   return (
     <>
+      <YapisalVeri sayfa={SAYFALAR.deneyin} />
       <header className="border-b border-cizgi bg-yuzey">
         <div className="mx-auto max-w-6xl px-4 pt-8 pb-10 sm:pt-10 sm:pb-12">
           <h1 className="text-[2.4rem] leading-[1.05] tracking-[-0.02em] text-vurgu sm:text-[3.2rem]">

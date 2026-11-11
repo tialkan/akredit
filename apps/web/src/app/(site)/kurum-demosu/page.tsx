@@ -3,8 +3,9 @@ import Link from "next/link";
 import { dugmeSinifi } from "../../../bilesenler/dugme.tsx";
 import { DEMO_ROL_BILGISI, DEMO_ROLLERI, DEMO_SERIDI } from "../../../demo/roller.ts";
 import { demoAcikMi } from "../../../demo/uc.ts";
-import { Bolum } from "../../../site/bilesenler.tsx";
-import { DEMO_NOTU, ILETISIM_ADRESI } from "../../../site/icerik.ts";
+import { Bolum, YapisalVeri } from "../../../site/bilesenler.tsx";
+import { DEMO_NOTU, ILETISIM_ADRESI, SAYFALAR } from "../../../site/icerik.ts";
+import { sayfaUstVerisi } from "../../../site/yapisal.ts";
 import { ORNEK_VERI } from "../../../veri/kip.ts";
 
 // Barındırılan kurum demosu (İP-41), askıda: sponsor ya da iş birliği yok. Tarayıcıda çalışan araçlardan (/deneyin)
@@ -13,12 +14,7 @@ import { ORNEK_VERI } from "../../../veri/kip.ts";
 
 const BAG = "text-vurgu underline underline-offset-4";
 
-export const metadata: Metadata = {
-  title: "Kurum demosu",
-  description:
-    "Barındırılan kurum platformunun demosu: sentetik Örnek Üniversitesi'nde rol seçip paneli deneyin. Demo hazır, sponsor bulunana kadar askıda.",
-  alternates: { canonical: "https://akredit.org/kurum-demosu" },
-};
+export const metadata: Metadata = sayfaUstVerisi(SAYFALAR.kurumDemosu);
 
 const HATALAR: Record<string, string> = {
   cok: "Kısa sürede çok fazla örnek oturum açıldı. Birkaç dakika sonra yeniden deneyin.",
@@ -35,6 +31,7 @@ export default async function KurumDemosu({
   const oturumAcilir = ORNEK_VERI || demoAcikMi(process.env);
   return (
     <>
+      <YapisalVeri sayfa={SAYFALAR.kurumDemosu} />
       <header className="border-b border-cizgi bg-yuzey">
         <div className="mx-auto max-w-6xl px-4 pt-8 pb-10 sm:pt-10 sm:pb-12">
           <h1 className="text-[2.4rem] leading-[1.05] tracking-[-0.02em] text-vurgu sm:text-[3.2rem]">

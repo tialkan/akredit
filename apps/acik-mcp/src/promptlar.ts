@@ -1,6 +1,6 @@
 // MCP istemleri (prompts). İstemciler bunları eğik çizgi komutu ya da hazır başlangıç olarak gösterir.
 // İlke (İP-49): en az kullanıcı müdahalesiyle süreci hızlıca ama denetimli, teyitli tamamlamak. Varsayılan yol
-// akıllı doldurmadır ("4) Hepsini akıllıca doldur"): asistan her alan için en iyi seçeneği kendisi seçer, sunucu
+// akıllı doldurmadır (hocaya alan alan menü sorulmaz): asistan her alan için en iyi seçeneği kendisi seçer, sunucu
 // denetiminden geçmeyeni düzeltip yeniden denetler, sonunda tek bir özet gösterir. Hoca isterse numarayla düzeltir.
 // Halüsinasyona yer yok: kitap, kişi, tarih, sayı uydurulmaz; kaynaklar kaynak_dogrula'dan geçmeden önerilmez.
 //
@@ -19,7 +19,7 @@
 // çerez) istenmez; görülürse reddedilir ve kaydedilmez (ilke 8).
 
 import { z } from "zod";
-import { arac, KOD_KAYNAGI, pesinOnayVar } from "./temel.ts";
+import { arac, KOD_KAYNAGI, pesinOnayVar, TARAMA_SECENEKLERI } from "./temel.ts";
 import { GIRIS_KURALI_HOCAYA } from "./yardim.ts";
 
 export interface AcikIstem {
@@ -41,8 +41,9 @@ export const GIRIS_BILGISI_KURALI = [
   '- OBS\'de Kaydet düğmesine yalnız hocanın açık izniyle basarsın: önce alan alan önceki ve yeni değer özetini gösterirsin, hoca bir kez "kaydet" der. Hoca başta peşin onay verdiyse ("hepsini yap ve kaydet") izin odur; özet sondaki raporda verilir. İzin yoksa basmazsın. Onaya ya da dış kuruma Gönder düğmesine hiç basmazsın; onu hoca basar.',
 ].join("\n");
 
-/** Akıllı doldurma kısayolu: bütün menülerde aynı numara ve aynı anlam. */
-export const AKILLI_DOLDURMA_SECENEGI = "4) Hepsini akıllıca doldur (önerilen)";
+/** Akıllı doldurma kuralı: varsayılan yol; bütün istemlerde ve sunucu talimatında aynen geçer. */
+export const AKILLI_DOLDURMA_KURALI =
+  "Varsayılan akıllı doldurmadır; hocaya alan alan menü sorulmaz: her alan için en iyisini sen seçersin, araçla denetlersin, geçmeyeni düzeltip yeniden denetlersin, sonda tek özet gösterirsin.";
 
 /** Bilinmesi mümkün olmayan ve resmî taahhüt olan bilgiler: sayfadan okunur, yoksa tek mesajda sorulur. */
 export const TEYIT_SORULARI = [
@@ -57,9 +58,9 @@ export const TEYIT_SORULARI = [
   "Yanıt gelmeden değerlendirme yüzdesi yazma paketine girmez. Hocanın yanıtını degerlendirmeKaniti'ne olduğu gibi yazın (degerlendirmeDayanagi: 'hoca'); sayfadan okunduysa sayfadaki tablo metnini (degerlendirmeDayanagi: 'sayfa'). Yüzdeler bu metinde geçmezse sunucu teyitsiz sayar.",
 ].join("\n");
 
-/** "4) Hepsini akıllıca doldur" seçildiğinde (ya da hoca "sen seç", "hepsi" derse) izlenecek yol. */
+/** Akıllı doldurmanın (varsayılan yol) ayrıntısı. */
 export const AKILLI_DOLDURMA = [
-  "Hepsini akıllıca doldur (seçenek 4):",
+  "Akıllı doldurma (varsayılan):",
   "- Önce teyit gerektiren bilgileri sayfadan oku; sayfada olmayanları hocaya TEK mesajda birlikte sor (aşağıdaki kural). Bundan sonra ara soru sorma.",
   "- Kalan her alan için seçeneklerini kendin yaz ve en iyisini kendin seç. Ders adından ve program çıktılarından ürettiğin her şeyi 'öneri' etiketiyle göster.",
   "- Her seçimi ilgili araçla denetle (bologna_taslak_denetle, bologna_durum, rapor_dil_denetle). Geçmeyeni düzelt ve yeniden denetle; geçene kadar hocaya gösterme. Üç denemede geçmezse o alanı EKSİK bırak.",
@@ -79,7 +80,7 @@ export const ORTAK_KURALLAR = [
   "- Amaç: hocanın en az müdahalesiyle işi hızlı ama denetimli ve teyitli bitirmek.",
   "- Karşındaki hoca yapay zekâyı belki ilk kez kullanıyor. Kısa, sade Türkçe yaz. Araç adı, JSON ve teknik terim gösterme.",
   "- Her mesajda tek iş iste. Ne yapacağını ve ekranda ne göreceğini söyle.",
-  `- Her seçim menüsünde 1-3 arası kısa seçenek ve her zaman son satırda aynı kısayol olsun: "${AKILLI_DOLDURMA_SECENEGI}". 4 her menüde aynı anlama gelir.`,
+  `- ${AKILLI_DOLDURMA_KURALI}`,
   '- Hoca tek rakamla seçer. "sen seç", "hepsi", "hepsi 1" gibi yanıtlar toplu onaydır; kalan bütün adımlara uygula, her adımı yeniden sorma.',
   "- Sunucu metin üretmez. Seçenek metinlerini sen yazarsın; sunucu kural verir, denetler ve sayıları hesaplar.",
   "- Sayıları (toplam, yüzde, iş yükü, sağlanma düzeyi) yalnız araç yanıtından al, kendin toplama.",
@@ -132,10 +133,8 @@ const obsGirisi = () =>
     "   c) CAPTCHA ya da doğrulama kodu gelirse hocanın kendisinin girmesini bekle; sen girme.",
     "   d) Hoca girdim deyince hangi dersi incelemek istediğini SORMA. Listedeki ders kodlarını ve adlarını obs_ders_listesi'ne ver, sonra kendin tara: tarama planındaki her dersin Bologna sayfasını sırayla açıp bologna_ayristir'e ver; yanıttaki denetim eksik ve kurala uymayan alanları sayar (bologna_denetle'yi ayrıca çağırma). Liste 15'erli dilimlerle taranır; sonraki dilime obs_ders_listesi'nin verdiği baslangic değeriyle geçilir.",
     "      Peşin onay varsa obs_ders_listesi'ne pesinOnay ver ve yanıtındaki adımları izle: rapor ve seçenek durağı yoktur.",
-    "      Sonra tek mesajda 'Şu eksiklikleri tespit ettim, önerilerim şunlar' başlıklı kısa bir özet ver: her ders için bir satır, eksik alan sayısı (en eksikten en tamama). Aynı mesajda, eksik derslerin sayfasında olmayan değerlendirme yüzdelerini ve kaynakları da sor (Adım 3; ayrı tur açma). Altına numaralı seçenekler koy:",
-    "      1) Eksikleri en çok olandan başlayarak hepsini sırayla kapatalım (önerilen)",
-    "      2) Yalnız en eksik dersi tamamlayalım",
-    "      3) Dersi ben seçeyim",
+    "      Sonra tek mesajda 'Şu eksiklikleri tespit ettim, önerilerim şunlar' başlıklı kısa bir özet ver: her ders için bir satır, eksik alan sayısı (en eksikten en tamama). Aynı mesajda, eksik derslerin sayfasında olmayan değerlendirme yüzdelerini ve kaynakları da sor (Adım 3; ayrı tur açma). Altına obs_ders_listesi yanıtındaki raporBicimi seçeneklerini aynen koy:",
+    ...TARAMA_SECENEKLERI.map((t) => `      ${t}`),
     '      Eksik yoksa "Eksik görünmüyor" de ve kaliteyi artıracak 2-4 somut öneri ver (zayıf ya da kısa alanlar, öğrenme çıktılarında Bloom düzeyi ve ölçülebilirlik, iş yükü ile AKTS uyumu, kaynakların güncelliği, İngilizce alanların eksiksizliği); önerilen seçenekle numaralı sun. Hoca yalnız numara yazar.',
     "   e) Dersin Bologna (ders bilgi paketi) sayfasını oku. Okuduğun metni ya da HTML'i bologna_ayristir'e ver.",
     '   Tarayıcı aracın yoksa ÖNCE eklentiyi kurdur: engel_coz (engel: tarayici_araci_yok, istemciyi biliyorsan istemci) çağır ve şunu yaz: "Akredit OBS\'nizi Chrome eklentisiyle kendisi açar, doldurur ve kaydeder; eklenti olmadan her alanı siz kopyalarsınız. Kurulum 2 dakika: 1) kuralım (önerilen) 2) kurmadan devam, metni ben yapıştırayım." 1 gelirse adımları tek tek göster, bitince yeni sohbette akredit yazmasını söyle. Yalnız 2 gelirse ya da istemcide eklenti yoksa (ChatGPT/Codex) şunu yaz: "OBS\'de dersinizin Bologna sayfasını açın, Ctrl+A ile seçip Ctrl+C ile kopyalayın ve buraya yapıştırın."',

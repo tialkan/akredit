@@ -31,6 +31,7 @@ import {
   KOD_KAYNAGI,
   PESIN_ONAY_ACIKLAMASI,
   pesinOnayVar,
+  TARAMA_SECENEKLERI,
 } from "./temel.ts";
 
 // ---------------------------------------------------------------- Alan modeli
@@ -2080,7 +2081,7 @@ const dersListesiAraci = arac({
                 "Her ders bir satır, en eksikten en tamama: ders kodu, eksik ya da kurala uymayan alan sayısı, en önemli 1-2 eksik.",
                 "Eksiği olmayan dersler için: 'eksik görünmüyor' ve kaliteyi artıracak 1-2 somut öneri (zayıf alan, Bloom düzeyi, iş yükü ile AKTS uyumu, kaynak güncelliği, İngilizce alanlar).",
                 "Sayfada olmayan değerlendirme yüzdeleri ve kaynakları aynı mesajda sor (tahmin etme).",
-                "Altına: 1) eksikleri en çok olandan başlayarak hepsini kapatalım (önerilen) 2) yalnız en eksik dersi 3) kalite önerilerini de uygulayalım 4) dersi ben seçeyim.",
+                `Altına: ${TARAMA_SECENEKLERI.join(" ")}`,
               ],
             }),
       },

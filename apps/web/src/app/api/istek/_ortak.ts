@@ -10,6 +10,7 @@ import type { NesneDeposu } from "@akredit/depo";
 import { belgeIstegi, ServisHatasi } from "@akredit/servis";
 import type { Vt } from "@akredit/vt";
 import { agParmakIzi } from "@akredit/yetki";
+import { istemciAdresi } from "../../../guvenlik/istemci-adresi.ts";
 
 /** Örnek bağlantı: sayfa gösterilir, hiçbir şey kaydedilmez (tanıtım ve erişilebilirlik denetimi için). */
 export const ORNEK_JETON = "ornek";
@@ -46,10 +47,7 @@ function kokenGecerli(o: YuklemeOrtami, istek: Request): boolean {
   return koken === new URL(o.temelAdres).origin || o.izinliKokenler.includes(koken);
 }
 
-function istemciIp(istek: Request): string | null {
-  // Güvenilir vekil (Coolify) `x-real-ip` yazar; `x-forwarded-for` ilk değeri istemci tarafından yazılabilir.
-  return istek.headers.get("x-real-ip") ?? istek.headers.get("x-forwarded-for")?.split(",").at(-1)?.trim() ?? null;
-}
+const istemciIp = (istek: Request): string | null => istemciAdresi(istek.headers);
 
 /**
  * Gövdeyi en çok `sinir` bayt okur; aşarsa null. `content-length` başlığı istemciden gelir ve parçalı aktarımda
