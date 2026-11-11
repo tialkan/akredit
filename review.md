@@ -144,7 +144,7 @@ Her madde bu ölçütle karara bağlandı.
 - **16. İşçi bağlantıları:** barındırma geri açılırken yapılacaklar listesinde (ADR 0008 geri açma koşuluna eklenmeli).
 - **17. Bağımlılık uyarıları:** üçü de geçişli ve canlı yolda değil (`drizzle-kit`, `exceljs`, `@better-auth/sso`);
   Dependabot güncellemeleriyle kapanır.
-- **18. npm yayını:** `.github/workflows/npm-yayin.yml`: `apps/acik-mcp/package.json` sürümü npm'dekinden farklıysa main'e gelen push'ta test eder, paketler, temiz klasörde 22 aracı dener ve anahtarsız (npm trusted publishing, OIDC) yayınlar. Bir kerelik npmjs.com ayarı gerekir (iş akışı dosyasının başında yazılı).
+- **18. npm yayını:** `.github/workflows/npm-yayin.yml`: `apps/acik-mcp/package.json` sürümü npm'dekinden farklıysa main'e gelen push'ta test eder, paketler, temiz klasörde 22 aracı dener ve anahtarsız (npm trusted publishing, OIDC) yayınlar. npmjs.com güvenilir yayıncı ayarı 12.11.2026'da yapıldı; 0.8.0 bu yolla, kaynak kanıtıyla (sigstore) yayınlandı. Bundan sonra sürüm yükseltmek yeterli.
 
 ### Kurucu kararı gerekiyor (önem sırasıyla)
 
