@@ -328,8 +328,9 @@ dialog::backdrop {
     0 18px 40px -28px rgb(16 50 91 / 0.35);
 }
 
-/* İlk ekran zemini: çok soluk kâğıt dokusu, yalnız geniş ekranda (telefonda indirilmez). Yüzde 16 örtücülükte
-   en koyu yeri bile metin kontrastını AA altına düşürmez. */
+/* İlk ekran zemini: Ankara tepeleri panoraması (Midjourney, 12.11.2026, docs/tasarim/gorseller.md), yalnız geniş
+   ekranda (telefonda indirilmez), alta yaslı. Yüzde 16 örtücülükte en koyu yeri bile metin kontrastını AA altına
+   düşürmez. */
 .ilk-ekran {
   position: relative;
   isolation: isolate;
@@ -340,7 +341,7 @@ dialog::backdrop {
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: url("/gorsel/kagit-dokusu-1200.webp") center / cover no-repeat;
+    background: url("/gorsel/tasarim/arkaplan.webp") center bottom / cover no-repeat;
     opacity: 0.16;
     pointer-events: none;
   }

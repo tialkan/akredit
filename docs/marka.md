@@ -22,7 +22,7 @@ kuruluşunu çağrıştırmaz: ay-yıldız, mühür, arma, defne dalı, resmî r
 | `isaret-tek-renk.svg` / `isaret-tek-renk-beyaz.svg` | Tek renk baskı, kabartma, faks, damga dışı her yer |
 | `logo-yatay.png` / `logo-yatay-acik.png` | İşaret + "Akredit" kelimesi (site dışı belgeler için) |
 | `favicon.svg`, `favicon-32.png`, `apple-touch-icon.png` (180), `simge-512.png`, `uygulama-simgesi.svg` | Tarayıcı ve uygulama simgeleri |
-| `og.png` (1200×630) | Paylaşım önizlemesi |
+| `og.jpg` (1200×630) | Paylaşım önizlemesi: Ankara Kalesi ve Hamamönü çizimi, logo ve kısa metin (12.11.2026) |
 
 Sitede yatay logo bir React bileşenidir (`apps/web/src/bilesenler/logo.tsx`: `Logo`, `Isaret`). Kelime gerçek metindir,
 yol değildir; yazı tipi SVG'ye gömülmez. Renkler belirteçlerden (`--isaret-a`, `--isaret-onay`) gelir.

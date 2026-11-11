@@ -7,6 +7,10 @@ export function tamAdres(yol: string): string {
   return yol === "/" ? `${SITE_ADRESI}/` : `${SITE_ADRESI}${yol}`;
 }
 
+/** Paylaşım kartının alternatif metni: kartta yazan ve görünen. */
+export const PAYLASIM_ALT =
+  "Akredit: kanıta dayalı kalite. Ankara Kalesi ve Hamamönü evlerinin çizimi üzerinde Bologna paketi, ÇK/PÇ hesabı ve akreditasyon ölçütleri.";
+
 /** Her sayfaya özgün başlık, açıklama, canonical ve paylaşım kartı. */
 export function sayfaUstVerisi(s: SayfaBilgisi): Metadata {
   return {
@@ -20,7 +24,7 @@ export function sayfaUstVerisi(s: SayfaBilgisi): Metadata {
       url: tamAdres(s.yol),
       title: s.title,
       description: s.aciklama,
-      images: [{ url: "/marka/og.png", width: 1200, height: 630, alt: "Akredit" }],
+      images: [{ url: "/marka/og.jpg", width: 1200, height: 630, alt: PAYLASIM_ALT }],
     },
   };
 }

@@ -2,6 +2,7 @@ import "./yazi-tipi.css";
 import type { Metadata, Viewport } from "next";
 import { connection } from "next/server";
 import type { ReactNode } from "react";
+import { PAYLASIM_ALT } from "../site/yapisal.ts";
 import "./globals.css";
 
 const ACIKLAMA =
@@ -25,9 +26,9 @@ export const metadata: Metadata = {
     siteName: "Akredit",
     title: "Akredit",
     description: ACIKLAMA,
-    images: [{ url: "/marka/og.png", width: 1200, height: 630, alt: "Akredit: kanıtla doğrulanmış kalite" }],
+    images: [{ url: "/marka/og.jpg", width: 1200, height: 630, alt: PAYLASIM_ALT }],
   },
-  twitter: { card: "summary_large_image", images: ["/marka/og.png"] },
+  twitter: { card: "summary_large_image", images: ["/marka/og.jpg"] },
   // Sürüm işareti (İP-49): derleme anındaki commit; x-app-version başlığıyla aynı değer (next.config.ts).
   other: { "app-version": process.env.AKREDIT_SURUM ?? "bilinmiyor" },
 };

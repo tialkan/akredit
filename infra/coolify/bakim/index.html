@@ -14,6 +14,7 @@
   main { max-width:560px; width:100%; background:#fff; border:1px solid var(--cizgi); border-radius:4px; padding:32px; }
   .baslik { display:flex; align-items:center; gap:10px; color:var(--lacivert); font-weight:600; font-size:20px; }
   .baslik img { width:28px; height:28px; }
+  .resim { display:block; width:calc(100% + 64px); height:auto; margin:-32px -32px 24px; border-radius:4px 4px 0 0; aspect-ratio:16/9; object-fit:cover; }
   h1 { color:var(--lacivert); font-size:28px; line-height:1.25; margin:24px 0 8px; font-family: Georgia, "Source Serif 4", serif; font-weight:600; }
   p { margin:8px 0; color:var(--ikincil); }
   .cizgi { height:4px; background:var(--cizgi); border-radius:2px; overflow:hidden; margin:24px 0 8px; }
@@ -25,6 +26,7 @@
 </head>
 <body>
 <main>
+  <img class="resim" src="/bakim.webp" width="1280" height="720" alt="">
   <div class="baslik"><img src="/isaret.svg" alt="" aria-hidden="true">Akredit</div>
   <h1>Kısa bir güncelleme yapıyoruz</h1>
   <p>Site birkaç saniye içinde yeniden açılacak. Bu sayfa kendiliğinden yenilenir, bir şey yapmanıza gerek yok.</p>
