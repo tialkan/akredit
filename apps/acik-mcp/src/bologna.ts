@@ -75,7 +75,7 @@ export const ALANLAR: Record<AlanKodu, AlanBilgisi> = {
     ad: "Dersin amacı",
     sekme: DERS_BILGILERI,
     kurallar: [
-      "K1: Ders adıyla tutarlı olsun; başka dersten kopya olmasın.",
+      "Akredit önerisi, araç denetlemez (hoca bakar): ders adıyla tutarlı olsun; başka dersten kopya olmasın.",
       "K2: 60-120 kelime. İngilizcesi tam çeviri olsun.",
     ],
     sinir: { enAzKelime: 60, enCokKelime: 120 },
@@ -100,7 +100,10 @@ export const ALANLAR: Record<AlanKodu, AlanBilgisi> = {
   yontem: {
     ad: "Yöntem ve teknikler",
     sekme: DERS_BILGILERI,
-    kurallar: ["K2: 40-90 kelime.", "K11: Başka dersin yöntem metniyle birebir aynı olmasın."],
+    kurallar: [
+      "K2: 40-90 kelime.",
+      "Akredit önerisi, araç denetlemez (hoca bakar): başka dersin yöntem metniyle birebir aynı olmasın.",
+    ],
     sinir: { enAzKelime: 40, enCokKelime: 90 },
     kaliplar: ["Ders [anlatım, tartışma, uygulama, proje] ile yürütülür. [Haftalık etkinlik] konuyu pekiştirir."],
     yasaklar: [ORTAK_YASAK],
@@ -129,6 +132,7 @@ export const ALANLAR: Record<AlanKodu, AlanBilgisi> = {
       "K4: Her çıktı ölçülebilir bir eylem fiiliyle biter (açıklar, uygular, tasarlar). 'Bilgi sahibi olur', 'öğrenir', 'kavrar' olmaz.",
       "K4: '-ebilme/-abilme' (tasarlayabilme) ve '-ebilir' kalıpları kabul edilir. 'Sahip olur', 'farkında olur', 'haberdar olur', 'vakıf olur' ölçülemez.",
       "K5: 4-10 çıktı geçerli, 5-8 önerilir (Akredit önerisi). Ö1'den kesintisiz. Her çıktının türü Bilgi, Beceri ya da Yetkinlik; çoğu Beceri, en az biri Yetkinlik.",
+      "K4 (uyarı): 'farkındalık' ifadesi hata sayılmaz ama ölçmesi zordur; gözlenebilir bir eylemle yazın.",
       "İngilizcesi tam çeviri olsun.",
     ],
     sinir: { enAzCikti: 4, enCokCikti: 10, onerilenEnAz: 5, onerilenEnCok: 8 },
@@ -137,7 +141,7 @@ export const ALANLAR: Record<AlanKodu, AlanBilgisi> = {
       "[Yöntem] kullanarak [problem türünü] çözer. (Beceri)",
       "[Ürün] tasarlar ve ekip içinde sunar. (Yetkinlik)",
     ],
-    yasaklar: ["Ölçülemeyen fiil (bilir, anlar, öğrenir, farkındalık kazanır)."],
+    yasaklar: ["Ölçülemeyen fiil (bilir, anlar, öğrenir, kavrar, bilgi sahibi olur)."],
     mcpTasir: true,
   },
   degerlendirme: {
@@ -201,7 +205,7 @@ export const ALANLAR: Record<AlanKodu, AlanBilgisi> = {
     kurallar: [
       "K12: Her Ö satırı dolu; değerler 1-5 ya da boş.",
       "Yalnız programın resmî P kodları kullanılır; P kodlarını Bologna sayfasından alın, ezberden yazmayın.",
-      "Dolu hücrelerin çoğu 5 olmasın; ayrıştırın.",
+      "K12: En az 10 dolu hücrenin %60'tan fazlası 5 olmasın (şişirilmiş matris); ayrıştırın.",
       "'Tüm' satırına dokunmayın.",
     ],
     sinir: { enAz: 1, enCok: 5 },
@@ -242,7 +246,7 @@ export const ALANLAR: Record<AlanKodu, AlanBilgisi> = {
     ad: "Dersin yetkilileri",
     sekme: "Dersin Yetkilileri",
     kurallar: [
-      "K10: Koordinatör ve dersi veren hocanın kendisidir; başka hocanın adı yazılmaz.",
+      "Araç denetlemez (kişisel veri taşınmaz; hoca bakar): koordinatör ve dersi veren hocanın kendisidir; başka hocanın adı yazılmaz.",
       "Sayfada yayımlanmış görev bilgisi (Dersi Verenler, Yardımcılar, Koordinatör) olduğu gibi okunur ve korunur.",
     ],
     kaliplar: [],

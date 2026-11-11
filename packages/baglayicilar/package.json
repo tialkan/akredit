@@ -11,7 +11,8 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p .",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests --exclude \"**/*.tarayici.test.ts\"",
+    "test:tarayici": "vitest run tarayici.test.ts"
   },
   "dependencies": {
     "@akredit/belge": "workspace:*",

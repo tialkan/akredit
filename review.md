@@ -103,6 +103,11 @@ süzgeci, `CLAUDE.md` depo haritası, strateji raporuna uygulama durumu tablosu,
   geçince kapanır.
 - Madde 10: `/deneyin` ve `/kurum-demosu` `SAYFALAR`'da (başlık, açıklama, paylaşım kartı, yapısal veri);
   `/kurum-demosu` askıda olduğu için site haritasında yok.
+- Madde 11: Bologna rehberi kodla aynı: K1, K10, K11 "araç denetlemez" diye işaretli, "farkındalık" uyarı, K12 eşiği
+  koddaki gibi. `apps/acik-mcp/test/bologna-rehber-kod.test.ts` ikisinin ayrışmasını yakalar.
+- Madde 12: tarayıcı isteyen Bologna yazma testi `yazma.tarayici.test.ts`'e ayrıldı; `pnpm test` tarayıcısız geçer,
+  CI'da `test:tarayici` adımıyla koşmaya devam eder (94 + 4 = 98 test).
+- Madde 20: gövde yazı tipi Lato 2.015 (yazarın LatoLatin web dosyaları, değiştirilmeden); ğ Ğ ş Ş İ artık Lato'dan.
 - Ek: ana sayfa Chrome eklentisini "gerekli" adım olarak öne çıkarıyor; MCP tarayıcı yoksa önce eklenti kurulumunu öneriyor.
 
 ### Kesinti (2026-11-11/12)

@@ -74,6 +74,10 @@ jobs:
             fi
             tail -3 "$RUNNER_TEMP/$adim.log"
           done
+      - name: Tarayıcılı testler (Bologna yazma bağlayıcısı, uçtan uca)
+        env:
+          NO_COLOR: "1"
+        run: pnpm --filter @akredit/baglayicilar test:tarayici
       - name: Web derlemesi
         if: needs.degisiklik.outputs.web == 'true'
         run: pnpm --filter @akredit/web build

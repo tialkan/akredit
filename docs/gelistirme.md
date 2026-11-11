@@ -39,6 +39,7 @@ pnpm check | pnpm format             # Biome denetimi | düzeltme
 pnpm typecheck
 pnpm test
 pnpm --filter <paket> test           # tek paket
+pnpm --filter @akredit/baglayicilar test:tarayici   # Chromium isteyen uçtan uca test (varsayılan testin dışında; CI'da koşar)
 pnpm --filter @akredit/web dev       # web paneli, http://localhost:3000
 pnpm --filter @akredit/web e2e       # Playwright (önce: pnpm --filter @akredit/web exec playwright install chromium)
 node --env-file=.env infra/gelistirme/vt-sinama.ts   # gerçek PostgreSQL'de eşzamanlı göç ve günlük sınaması
