@@ -95,6 +95,14 @@ süzgeci, `CLAUDE.md` depo haritası, strateji raporuna uygulama durumu tablosu,
 - Madde 3: `infra/coolify/docker-compose.yml`'de `web` artık `vt` ve `goc`'u beklemiyor.
 - Ek: ana sayfa Chrome eklentisini "gerekli" adım olarak öne çıkarıyor; MCP tarayıcı yoksa önce eklenti kurulumunu öneriyor.
 
+### Kesinti (2026-11-11/12)
+
+- yarenler-01'in diski doldu (`No space left on device`); 611cb1c, 8c40d59 ve 3aa50e4 dağıtımları klonlamada düştü,
+  site ve /mcp yaklaşık 40 dakika bakım sayfasında kaldı. Coolify "Docker Cleanup" ~3,3 GB derleme önbelleği ve
+  eski imaj sildi; af9fe2c dağıtımı başarılı.
+- Gecelik temizlik her gün "Success" dönüyordu, yine de disk doldu: sunucu küçük ve aynı makinede başka projeler de
+  derleniyor. Kalıcı çözüm (disk büyütme, derleme önbelleği sınırı, disk uyarısı) kurucu kararıdır.
+
 ### Kurucu kararı gerekiyor (önem sırasıyla)
 
 **Yüksek**
