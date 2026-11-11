@@ -145,3 +145,29 @@ describe("Chrome eklentisi önce (kurucu kararı 12.11.2026)", () => {
     expect(SUNUCU_TALIMATI).toContain("otonom akış ancak eklentiyle çalışır");
   });
 });
+
+describe("ck_pc_hesapla bozuk girdiyi hesaplamaz (kurucu kararı 12.11.2026)", () => {
+  it("tam puanı aşan puanda hata döner ve sayı üretmez", () => {
+    const a = ACIK_ARACLAR.find((x) => x.ad === "ck_pc_hesapla");
+    if (!a) throw new Error("araç yok");
+    const r = aracCalistir(
+      a,
+      {
+        dersKodu: "KRG101",
+        donem: "2026-2027 Güz",
+        ciktilar: [{ kod: "Ö1" }],
+        araclar: [
+          {
+            id: "vize",
+            agirlik: 100,
+            sorular: [{ no: "1", tamPuan: 10, eslemeler: [{ ciktiKod: "Ö1", agirlik: 1 }] }],
+          },
+        ],
+        puanlar: [{ ogrenci: "o1", aracId: "vize", soruNo: "1", puan: 15 }],
+      },
+      { simdi: () => new Date("2026-11-12T09:00:00Z") },
+    );
+    expect(r.hata).toBe(true);
+    expect(String((r.veri as { hata: string }).hata)).toContain("puanı (15) tam puanı (10) aşıyor");
+  });
+});

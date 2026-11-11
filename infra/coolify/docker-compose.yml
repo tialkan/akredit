@@ -49,9 +49,10 @@ services:
       AKREDIT_DEPO_IMZA_GIZLISI: ${SERVICE_BASE64_64_DEPO}
     volumes:
       - akredit-kanit:/veri/kanit
-    depends_on:
-      vt: { condition: service_healthy }
-      goc: { condition: service_completed_successfully }
+    # Kurucu kararı (12.11.2026, review.md madde 3): web, veritabanını ve göçü BEKLEMEZ. Tanıtım sitesi, /deneyin ve
+    # açık MCP (/mcp) veritabanı kullanmaz; vt ya da goc düşse de açılmalıdır. Veritabanı bağlantısı ilk API
+    # isteğinde kurulur (apps/web/src/app/api/_ortak/sunucu.ts); vt yokken yalnız askıdaki panel, demo ve API uçları
+    # hata verir. Sağlık denetimi (web.Dockerfile HEALTHCHECK) ana sayfaya bakar, o da veritabanı kullanmaz.
 
   isci:
     <<: *gunluk

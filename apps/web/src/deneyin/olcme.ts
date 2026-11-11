@@ -5,7 +5,7 @@
 // hocaya sorulur.
 
 import type { MatrisDegeri } from "@akredit/cekirdek";
-import { type CkPcMatrisi, type DersOlcmeSonucu, dersiOlc } from "@akredit/olcme";
+import { type CkPcMatrisi, type DersOlcmeSonucu, dersiOlc, olcmeGirdiSorunlari } from "@akredit/olcme";
 import { notTablosuAyikla, notTablosuAyristirAraci, sutunCoz, tabloOku } from "../../../acik-mcp/src/not-tablosu.ts";
 
 export interface SutunTaslagi {
@@ -123,22 +123,23 @@ export function hesapla(h: HazirTablo, g: HesapGirdisi): HesapSonucu {
       ]),
     );
   }
-  const sonuc = dersiOlc(
-    {
-      dersKodu: "DERS",
-      donem: "-",
-      ciktilar: x.ciktilar,
-      araclar: x.araclar.map((a) => ({
-        id: a.id,
-        tur: a.tur as never,
-        ad: a.ad,
-        agirlik: a.agirlik ?? 0,
-        sorular: a.sorular.map((q) => ({ no: q.no, tamPuan: q.tamPuan ?? 0, eslemeler: q.eslemeler })),
-      })),
-      puanlar: x.puanlar,
-    },
-    { esik: g.esik, ...(Object.keys(matris).length ? { matris } : {}) },
-  );
+  const veri = {
+    dersKodu: "DERS",
+    donem: "-",
+    ciktilar: x.ciktilar,
+    araclar: x.araclar.map((a) => ({
+      id: a.id,
+      tur: a.tur as never,
+      ad: a.ad,
+      agirlik: a.agirlik ?? 0,
+      sorular: a.sorular.map((q) => ({ no: q.no, tamPuan: q.tamPuan ?? 0, eslemeler: q.eslemeler })),
+    })),
+    puanlar: x.puanlar,
+  };
+  // Bozuk girdi sessizce hesaplanmaz; MCP'deki ck_pc_hesapla ile aynı denetim.
+  const sorunlar = olcmeGirdiSorunlari(veri);
+  if (sorunlar.length) return { tamam: false, eksikler: sorunlar };
+  const sonuc = dersiOlc(veri, { esik: g.esik, ...(Object.keys(matris).length ? { matris } : {}) });
   return { tamam: true, sonuc };
 }
 

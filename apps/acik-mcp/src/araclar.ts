@@ -22,7 +22,7 @@ import {
   YOKAK_KIDR_3_2_1,
   YOKAK_KURUMSAL_3_3,
 } from "@akredit/cerceveler";
-import { type CkPcMatrisi, dersiOlc, HESAP_SURUMU } from "@akredit/olcme";
+import { type CkPcMatrisi, dersiOlc, HESAP_SURUMU, olcmeGirdiSorunlari } from "@akredit/olcme";
 import { z } from "zod";
 import { BOLOGNA_ARACLARI, bolognaDenetleAraci } from "./bologna.ts";
 import { kaynakBicimleAraci } from "./kaynak.ts";
@@ -452,12 +452,14 @@ const ckPcHesapla = arac({
           ]),
         )
       : undefined;
+    const veri = { dersKodu: g.dersKodu, donem: g.donem, ciktilar: g.ciktilar, araclar: g.araclar, puanlar: g.puanlar };
+    // Bozuk girdi sessizce hesaplanmaz (tam puanı aşan puan, yinelenen satır, tanımsız araç/soru, yinelenen ÇK).
+    const sorunlar = olcmeGirdiSorunlari(veri);
+    if (sorunlar.length)
+      throw new AracHatasi(`Not tablosu tutarsız, hesap yapılmadı. Düzeltip yeniden deneyin: ${sorunlar.join(" ")}`);
     let s: ReturnType<typeof dersiOlc>;
     try {
-      s = dersiOlc(
-        { dersKodu: g.dersKodu, donem: g.donem, ciktilar: g.ciktilar, araclar: g.araclar, puanlar: g.puanlar },
-        { esik: g.esik, ...(matris ? { matris } : {}) },
-      );
+      s = dersiOlc(veri, { esik: g.esik, ...(matris ? { matris } : {}) });
     } catch (e) {
       throw new AracHatasi(e instanceof Error ? e.message : "Hesap yapılamadı. Girdiyi denetleyin.");
     }

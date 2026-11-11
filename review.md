@@ -87,6 +87,14 @@ süzgeci, `CLAUDE.md` depo haritası, strateji raporuna uygulama durumu tablosu,
 - `kurulum_yardimi` ve eksik bilgi varken `not_tablosu_ayristir` artık `hocayaSimdiSor: true` döndürüyor.
 - Peşin onayda `obs_ders_listesi` rapor biçimini, `bologna_toplu_ozet` seçenek menüsünü göndermiyor.
 
+### Uygulanan kararlar (2026-11-12)
+
+- Madde 1: peşin onay yalnız kayıt ya da yetki sözüyle ("kaydet", "sen hallet", "tam yetki", "onaylıyorum").
+- Madde 2: `olcmeGirdiSorunlari` (`packages/olcme/src/girdi.ts`); `ck_pc_hesapla` ve `/deneyin` ÇK paneli bozuk
+  girdiyi hesaplamadan reddeder. `dersiOlc` ve `HESAP_SURUMU` değişmedi.
+- Madde 3: `infra/coolify/docker-compose.yml`'de `web` artık `vt` ve `goc`'u beklemiyor.
+- Ek: ana sayfa Chrome eklentisini "gerekli" adım olarak öne çıkarıyor; MCP tarayıcı yoksa önce eklenti kurulumunu öneriyor.
+
 ### Kurucu kararı gerekiyor (önem sırasıyla)
 
 **Yüksek**

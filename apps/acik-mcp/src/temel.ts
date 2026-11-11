@@ -74,7 +74,9 @@ export class AracHatasi extends Error {}
  * geçer (ilke 3); metinde kayıt/yetki sözü yoksa onay sayılmaz. Onaya Gönder yine hocadadır; bilinmeyen resmî bilgi
  * uydurulmaz, EKSİK bırakılıp raporda listelenir (ilke 2).
  */
-const PESIN_ONAY = /hepsini|sen hallet|hallet|otonom|sormadan|tam yetki|kaydet|yaz ve kaydet|onaylıyorum|onayliyorum/iu;
+// Kurucu kararı (12.11.2026): onay için kayıt ya da yetki sözü zorunludur. "hepsini tara", "otonom", "sormadan"
+// tek başına iş tarifidir, OBS'ye kayıt izni değildir.
+const PESIN_ONAY = /kaydet|sen hallet|tam yetki|onayl[ıi]yorum/iu;
 /**
  * Olumsuz söz onay değildir: "kaydetme", "kaydetmeden önce sor", "sen halletme", "OBS'ye yazma", "onaylamıyorum",
  * "istemiyorum", "hayır", "değil". Ad-fiil ("kaydetmek") olumsuz sayılmaz; "kaydetmeni" gibi belirsiz biçimler
@@ -87,7 +89,7 @@ export function pesinOnayVar(metin: string | undefined): boolean {
   // Büyük harfle yazılan Türkçe metin (DEĞİL, HAYIR) için ayrıca Türkçe küçük harfle de bakılır.
   const kucuk = metin.toLocaleLowerCase("tr");
   if (PESIN_ONAY_OLUMSUZ.test(metin) || PESIN_ONAY_OLUMSUZ.test(kucuk)) return false;
-  return PESIN_ONAY.test(metin);
+  return PESIN_ONAY.test(metin) || PESIN_ONAY.test(kucuk);
 }
 export const PESIN_ONAY_ACIKLAMASI =
   "Hocanın peşin onayı, kendi sözleriyle olduğu gibi (ör. 'hepsini yap ve kaydet'). Varsa ve kayıt sözü içeriyorsa ara durak olmadan yazılıp kaydedilir; sonda tek rapor verilir. Olumsuz söz ('kaydetme', 'kaydetmeden önce sor') onay sayılmaz. Onaya Gönder hocada kalır.";

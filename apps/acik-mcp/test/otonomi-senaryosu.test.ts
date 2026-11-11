@@ -265,6 +265,12 @@ describe("peşin onay (tam otonom kip): hoca başta bir kez 'hepsini yap ve kayd
       "hayır, kaydet demedim",
       "HAYIR",
       "hepsini kaydet değil, yalnız göster",
+      // Kayıt ya da yetki sözü olmayan iş tarifi onay değildir (kurucu kararı 12.11.2026).
+      "hepsini tara",
+      "otonom çalış",
+      "sormadan tara",
+      "hepsini yap",
+      "hallet şunu",
     ])
       expect(pesinOnayVar(m), m).toBe(false);
     // Olumlu sözler onaydır; ad-fiil ("kaydetmek") olumsuz sayılmaz. Kısa ya da boş metin onay değildir.
