@@ -14,7 +14,7 @@ Yükseköğretimde kalite güvencesi ve akreditasyon işleri için herkese açı
 
 Yapay zekâyı ilk kez kullanıyorsanız bu adımları sırayla izleyin. Her adım tek iştir. Menü adları sürüme göre biraz farklı olabilir.
 
-1. Claude'a Akredit'i ekleyin. claude.ai'de Customize (Özelleştir), sonra Connectors (Bağlayıcılar) bölümünü açın. + Add, ardından Add custom connector deyin. Ad: Akredit. Adres: `https://akredit.org/mcp`. Authentication altında No sign in seçip Add deyin. Listede Akredit görünür.
+1. Claude'a Akredit'i ekleyin. Ayarlar'da Bağdaştırıcılar (Connectors) bölümünü açın. + Ekle, ardından Özel bağdaştırıcı ekle (Add custom connector) deyin. Ad: Akredit. Adres: `https://akredit.org/mcp`. Devam et, sonra Oturum açma olmadan (No sign in) ile Ekle deyin. Listede Akredit görünür.
 2. Yeni sohbet açın ve `akredit` yazın. Ekranda hangi aracı kullanmak istediğinizi soran bir menü görürsünüz. Bologna için 1 yazın.
 3. OBS'nize kendiniz girin. Asistan OBS adresinizi sorar ve tarayıcı aracı varsa sayfayı kenarda açar. Kullanıcı adınızı ve parolanızı yalnız OBS'nin kendi giriş ekranına, kendiniz yazın. Asistana, sohbete ya da Akredit'e asla yazmayın. Doğrulama kodu ve "Ben robot değilim" kutusu da sizindir. Girince asistana yalnız "girdim" yazın.
 4. Kenardaki tarayıcı. Claude in Chrome eklentisi, Claude masaüstü uygulamasının tarayıcı paneli ya da ChatGPT'nin ajan modu sayfayı okuyabilir. Asistan "hangi ders?" diye sormaz: bütün derslerinizin Bologna sayfasını tarar, eksikleri sayar ve tek listede gösterir.
@@ -122,7 +122,7 @@ https://akredit.org/mcp
 
 ### Claude (claude.ai)
 
-Customize > Connectors > + Add > Add custom connector. Adres olarak `https://akredit.org/mcp` yazın ve oturum açma gerektirmeyen seçeneği (No sign in) seçin.
+Ayarlar > Bağdaştırıcılar (Connectors) > + Ekle > Özel bağdaştırıcı ekle (Add custom connector). Adres olarak `https://akredit.org/mcp` yazın ve Oturum açma olmadan (No sign in) seçeneğiyle ekleyin.
 
 ### Claude Code
 

@@ -34,6 +34,11 @@ export default function Sayfa() {
           üçüncü tarafların kendi hizmet koşulları ve veri uygulamaları da geçerlidir. Parola, doğrulama kodu ve
           gereksiz kişisel veri göndermeyin.
         </p>
+        <p>
+          "Tarayıcıda deneyin" sayfasındaki araçlar (ÇK/PÇ hesabı, Bologna denetimi, ölçüt arama) girdiğiniz veriyi
+          sunucuya ya da yapay zekâya göndermez; hesap bilgisayarınızda yapılır ve hiçbir şey saklanmaz. Öğrenci
+          notlarını yapay zekâ sohbetine yapıştırmak yerine bu araçları kullanmanızı öneririz.
+        </p>
       </section>
       <section>
         <h2>Kurum ve demo verileri</h2>
@@ -55,8 +60,8 @@ export default function Sayfa() {
       <section>
         <h2>Çerezler ve benzeri teknolojiler</h2>
         <p>
-          Site reklam amaçlı çerez kullanmaz. Sağ alttaki tanıtım kurucunun kendi projesidir; çerez ya da izleme
-          kullanmaz.
+          Site reklam amaçlı çerez kullanmaz. Ana sayfanın sağ altındaki tanıtım kurucunun kendi projesidir
+          (mukerrerfrekans.com); çerez ya da izleme kullanmaz, bağlantıya tıklamadıkça o siteye hiçbir istek gitmez.
         </p>
         <p>Zorunlu olmayan bir çerez eklenirse önce izniniz alınır; kabul ve ret eşit kolaylıkta sunulur.</p>
       </section>

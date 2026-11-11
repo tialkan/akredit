@@ -122,6 +122,30 @@ süzgeci, `CLAUDE.md` depo haritası, strateji raporuna uygulama durumu tablosu,
 - Düzeltme: `infra/coolify/docker-compose.yml`'de veritabanı `archive_mode=off`, `archive_timeout=0` ile başlar;
   açılınca eski WAL'ları kendisi temizler. Elle WAL silinmez.
 
+### Kurucunun yetkisiyle kapatılanlar (2026-11-12)
+
+Kurucu: "Kararlarımı bekleme; amaç, bu işlerden anlamayan hocaların en az müdahaleyle kalite süreçlerini bitirmesi."
+Her madde bu ölçütle karara bağlandı.
+
+- **4. plan.md ile İP dosyaları:** plan tablosu esas alındı; 21 İP dosyasının Durum satırı "tamam" yapıldı, hepsinin
+  raporu `docs/raporlar/` altında var, günlüklerine gerekçe satırı eklendi.
+- **19. Terim:** Claude'un Türkçe arayüzü "Bağdaştırıcılar", "Özel bağdaştırıcı ekle", "Devam et", "Oturum açma
+  olmadan", "Ekle" diyor (kurulum ekran görüntüleri). MCP rehberi, `/mcp-kullan` ve README bu adlara çekildi; İngilizce
+  karşılığı parantezde. Hoca ekranda gördüğü kelimeyi okur.
+- **14. Hukuk:** gizlilik sayfasına iki olgu eklendi (tarayıcı araçları veri göndermez; tanıtım yalnız ana sayfada,
+  tıklanmadıkça dış istek yok). Hukuki içerik, saklama süresi, sağlayıcı yazılmadı. "Avukat incelemesinden geçti" notları
+  kurucunun 05.11.2026 beyanına dayanır, korundu.
+- **7. Barındırma kapalıyken açık uçlar:** kapatılmadı. Hepsi oturum, üyelik ya da imzalı jeton istiyor; demo bunlara
+  muhtaç. Hocanın deneyimine etkisi yok, risk düşük.
+- **13. CI:** tam set kalıyor (maliyeti yok, askıdaki kodu da koruyor). `yayin.yml` imaj yayını kalıyor: barındırma
+  açılınca gerekecek.
+- **15. Değerlendirme kalem adı:** sıkılaştırılmadı. "vize" ile "Ara Sınav" gibi eş anlamlıları reddedip hocayı gereksiz
+  durdururdu; sayıların hocanın yanıtında geçmesi uydurmayı zaten yakalıyor.
+- **16. İşçi bağlantıları:** barındırma geri açılırken yapılacaklar listesinde (ADR 0008 geri açma koşuluna eklenmeli).
+- **17. Bağımlılık uyarıları:** üçü de geçişli ve canlı yolda değil (`drizzle-kit`, `exceljs`, `@better-auth/sso`);
+  Dependabot güncellemeleriyle kapanır.
+- **18. npm yayını:** kurucunun hesabıyla yapılır (`npm login`, sonra `apps/acik-mcp` içinde `pnpm publish --access public`).
+
 ### Kurucu kararı gerekiyor (önem sırasıyla)
 
 **Yüksek**

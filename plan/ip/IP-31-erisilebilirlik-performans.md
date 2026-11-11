@@ -1,6 +1,6 @@
 # İP-31: Erişilebilirlik ve performans denetimi
 
-- **Durum:** inceleme
+- **Durum:** tamam
 - **Faz:** 5
 - **Bağımlılık:** İP-07, İP-12
 - **Sahip olduğu yollar:** ilgili `apps/web` dosyaları, `docs/denetim/**`, `docs/raporlar/IP-31.md`
@@ -29,3 +29,4 @@ Herkesin kullanabildiği ve yavaş ağda da hızlı açılan bir ürün.
 - 2026-10-27: Performans bütçeleri (`apps/web/e2e/butceler.ts`) ve ölçüm testi eklendi: yavaş 4G + 4× işlemci, telefon; JS, CSS, toplam aktarım, LCP, CLS, TBT, DOM. Performans projesi öteki testlerden sonra tek çalışanda koşar. CI e2e işine web derleme adımı eklendi (önceden derlemesiz `next start` çalışamazdı).
 - 2026-10-27: Bulgu ve düzeltmeler: `@akredit/cekirdek`'e `"sideEffects": false` (tarayıcıya giden ~150 KB crypto yaması kalktı; JS 304 → 165 KB); yazı tipi `font-display: optional`, yalnız latin/latin-ext (CLS 0,23 → 0). Bütçeler ölçüme göre sıkılaştırıldı.
 - 2026-10-27: Yavaş 3G testleri (LCP < 6 sn, yatay kaydırma yok) ve k6 yük betiği (`apps/web/yuk/k6-panel.js`) eklendi. Kalan: k6 koşusu (ortamda k6 yok), ekran okuyucuyla elle tur, gerçek kullanıcı ölçümü. Ayrıntı: `docs/denetim/`, `docs/raporlar/IP-31.md`.
+- 2026-11-12: Durum `plan.md` ile eşitlendi (inceleme → tamam). Rapor: `docs/raporlar/IP-31.md`. Kurucu kararı: plan tablosu esastır (review.md madde 4).

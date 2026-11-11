@@ -1,6 +1,6 @@
 # İP-14: Süreç motoru, takvim ve bildirim
 
-- **Durum:** inceleme
+- **Durum:** tamam
 - **Faz:** 2
 - **Bağımlılık:** İP-02, İP-12
 - **Sahip olduğu yollar:** `packages/surec/**`, `apps/isci/src/surec/**`, `docs/raporlar/IP-14.md`
@@ -32,3 +32,4 @@ Takvim tarihleri (KİDR son tarihi vb.) kod içine gömülmez; kurum ayarı ve �
 
 - 2026-10-23: İP tanımlandı. Başlamadan önce kapsamı güncel mimariye göre ayrıntılandır.
 - 2026-10-27: Uygulandı (dal `ip/14-surec-motoru`). `packages/surec`: zod'lu bildirimsel tanım (tarih/olay/koşul tetikleyici, son tarih, en az kanıt, hatırlatma, yükseltme), saf motor (tekil eylem anahtarlarıyla tekrar çalıştırmaya dayanıklı; geç kalınmış hatırlatmaları yağdırmaz; takvimde olmayan tarih `eksik_tarih` olur, uydurulmaz), 7 hazır süreç (yalnız takvim anahtarı, tarih gömülü değil), .ics üretimi/okuma ve akademik takvim eşleme (çatışma insana bırakılır), sessiz saat ve günlük özet, SMTP e-posta gönderici (nodemailer). `apps/isci/src/surec`: VT uygulayıcısı (görev + son tarih + bildirim + günlük), kanıt bağlama, kanıtsız kapanış yasağı, kendiliğinden başlatma, zamanlayıcı, panel için `surecDurumu`, takvim içe/dışa aktarma. Yeni göç gerekmedi (mevcut `surec_*`, `gorev`, `son_tarih`, `bildirim` tabloları). Kalan: panel sayfası ve API uçları (web/servis yolları), pg-boss ile üretim zamanlaması, kişi tercihi düzenleme arayüzü.
+- 2026-11-12: Durum `plan.md` ile eşitlendi (inceleme → tamam). Rapor: `docs/raporlar/IP-14.md`. Kurucu kararı: plan tablosu esastır (review.md madde 4).

@@ -53,8 +53,8 @@ const ORNEK_KONUSMA: { kim: "Hoca" | "Asistan"; metin: string }[] = [
 const ILK_KEZ: { baslik: string; yap: string; gorursunuz: string }[] = [
   {
     baslik: "Claude'a Akredit'i ekleyin",
-    yap: `Customize, Connectors, + Add, Add custom connector. Ad: Akredit, adres: ${MCP_ADRESI}. Ayrıntısı aşağıda.`,
-    gorursunuz: "Bağlayıcı listesinde Akredit.",
+    yap: `Ayarlar, Bağdaştırıcılar, + Ekle, Özel bağdaştırıcı ekle. Ad: Akredit, adres: ${MCP_ADRESI}. Ayrıntısı aşağıda.`,
+    gorursunuz: "Bağdaştırıcılar listesinde Akredit.",
   },
   {
     baslik: "akredit yazın",

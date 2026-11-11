@@ -1,6 +1,6 @@
 # İP-17: Anket modülü
 
-- **Durum:** inceleme
+- **Durum:** tamam
 - **Faz:** 3
 - **Bağımlılık:** İP-02, İP-03, İP-09, İP-14
 - **Sahip olduğu yollar:** `packages/anket/**`, `apps/web/src/app/anket/**`, `apps/web/src/app/panel/anketler/**`, `docs/raporlar/IP-17.md`
@@ -28,3 +28,4 @@ Paydaş geri bildirimini (öğrenci, mezun, işveren, iç paydaş, AKTS iş yük
 
 - 2026-10-23: İP tanımlandı. Başlamadan önce kapsamı güncel mimariye göre ayrıntılandır.
 - 2026-10-27: Uygulandı (dal `ip/17-anketler`). `@akredit/anket` paketi: 6 hazır şablon, zod tanım/yanıt doğrulama, deterministik istatistik (eşik altı gizleme), AKTS iş yükü → `bolognaDenetle`, atıflı açık uçlu özet (maskeli, sayısız, `[Y:kimlik]`), Google Forms/LimeSurvey içe aktarma (kimlik sütunları atılır), Markdown rapor + SHA-256, QR, süreç motoru kurallarıyla (sessiz saat, tekil eylem anahtarı, bastırma) davet/hatırlatma/kapanış ve yanıt oranı. Göç `0007_anket` (belirteç tablosu, yanıt saatinin güne yuvarlanması, kişi alanı reddi, yanıt değiştirilemez/silinemez). Web: `/anket/[kurum]/[anket]` erişilebilir form + aydınlatma, `/panel/anketler` (örnek veri). Kalan: panelin gerçek veri kipi, işçide zamanlayıcı bağlantısı, raporun kanıt hattına kaydı (rapor `docs/raporlar/IP-17.md`).
+- 2026-11-12: Durum `plan.md` ile eşitlendi (inceleme → tamam). Rapor: `docs/raporlar/IP-17.md`. Kurucu kararı: plan tablosu esastır (review.md madde 4).

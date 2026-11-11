@@ -1,6 +1,6 @@
 # İP-02: Veritabanı şeması, kiracı yalıtımı ve değiştirilemez kayıt
 
-- **Durum:** inceleme
+- **Durum:** tamam
 - **Faz:** 1 (Temeller)
 - **Bağımlılık:** yok (türler için `@akredit/cekirdek` sözleşmesi hazır)
 - **Sahip olduğu yollar:** `packages/vt/**`, `docs/raporlar/IP-02.md`
@@ -47,3 +47,4 @@
 
 - 2026-10-23: İP tanımlandı.
 - 2026-10-27: Uygulandı (inceleme). 41 tablolu Drizzle şeması; göçler 0000 (vector, roller), 0001 (drizzle-kit), 0002 (yetkiler, şemadan döngüyle RLS, yalnız-ekleme tetikleyicileri, karar/politika kuralları, günlük özet zinciri ve `gunluk_zinciri_dogrula`). `kiraciIslemi`, `gunlugeYaz`, `zinciriDogrula`, `zinciriDisaridanDogrula`, `gocleriUygula`, `tohumla`. 39 PGlite testi; bütün kabul ölçütleri karşılandı. Kararlar: çerçeve tabloları kurumlar arası ortak (yalnız okuma); politika kararında karar veren = imzalayan; yeni bağımlılık `@electric-sql/pglite-pgvector@0.0.12`. Kalan: eşzamanlı günlük eklemesinin gerçek PostgreSQL'de sınanması (İP-08). Rapor: `docs/raporlar/IP-02.md`.
+- 2026-11-12: Durum `plan.md` ile eşitlendi (inceleme → tamam). Rapor: `docs/raporlar/IP-02.md`. Kurucu kararı: plan tablosu esastır (review.md madde 4).

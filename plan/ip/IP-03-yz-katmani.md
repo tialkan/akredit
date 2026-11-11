@@ -1,6 +1,6 @@
 # İP-03: Yapay zekâ katmanı ve güvenceler
 
-- **Durum:** inceleme
+- **Durum:** tamam
 - **Faz:** 1 (Temeller)
 - **Bağımlılık:** yok (atıf ayrıştırıcı `@akredit/cekirdek` içinde hazır)
 - **Sahip olduğu yollar:** `packages/yz/**`, `docs/raporlar/IP-03.md`
@@ -57,3 +57,4 @@ Veritabanına yazma (çağıran yapar), gerçek EVREN/Anthropic çağrısıyla d
 
 - 2026-10-23: İP tanımlandı.
 - 2026-10-27: Uygulandı (ajan). Sağlayıcı arayüzü, OpenAI uyumlu (EVREN, vLLM, SGLang, Ollama, OpenAI, OpenRouter) ve Anthropic bağdaştırıcıları, sahte ve kayıt/oynatma sağlayıcıları, yapılandırılmış çıktı (2 onarım → InsanGerekliHatasi), yetkili ajan döngüsü, güvenceler (atıf, sayı, KVKK, istem kalkanı, politika), ölçüm, iki görev (kanit-siniflama, toplanti-bilgisi) ve değerlendirme düzeneği. 100 test, ağsız; src/guvence satır kapsamı %100 (eşik %90, vitest coverage-v8 ile zorunlu). Kararlar: KVKK yer tutucusu yazım başına verilir (geri çevirme birebir); geçersiz sağlamalı TCKN/IBAN maskelenmez; politika yurt dışı sağlayıcıyı izinsiz kurmayı reddeder, izinliyse maskeleyen sarmalayıcı zorunlu. Kalan: gerçek modelle değerlendirme (kapsam dışı), görev çıktısındaki yer tutucuları geri çevirme çağıranın işi.
+- 2026-11-12: Durum `plan.md` ile eşitlendi (inceleme → tamam). Rapor: `docs/raporlar/IP-03.md`. Kurucu kararı: plan tablosu esastır (review.md madde 4).

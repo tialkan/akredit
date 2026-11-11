@@ -55,15 +55,26 @@ const ISTEMCI_ADI: Record<Istemci, string> = {
 };
 
 const BAGLAYICI: Record<Istemci, HamAdim[]> = {
-  // Anthropic yardım belgesi "Get started with custom connectors using remote MCP" (erişim 2026-11-05).
+  // Anthropic yardım belgesi "Get started with custom connectors using remote MCP" (erişim 2026-11-05). Türkçe
+  // arayüz adları Claude masaüstünün Türkçe ekranından (apps/web/public/gorsel/kurulum, 12.11.2026); İngilizce
+  // arayüz için karşılığı parantezde.
   claude_web: [
     ["claude.ai adresine girin ve oturum açın.", "Sol tarafta sohbet listesi, ortada yazı kutusu."],
-    ["Customize (Özelleştir), ardından Connectors (Bağlayıcılar) bölümünü açın.", "Bağlı araçların listesi."],
-    ["+ Add düğmesine, ardından Add custom connector seçeneğine basın.", "Ad ve adres soran pencere."],
-    [`Ad olarak Akredit, adres olarak ${MCP_ADRESI} yazın ve Continue deyin.`, "Kimlik doğrulama seçenekleri."],
-    ["Authentication altında No sign in seçin ve Add deyin.", "Listede Akredit görünür."],
+    ["Ayarlar'da Bağdaştırıcılar (Connectors) bölümünü açın.", "Bağdaştırıcılar listesi."],
     [
-      "Ücretsiz planda tek özel bağlayıcı eklenebilir. Team ve Enterprise planlarında bağlayıcıyı kuruluş sahibi ekler; siz Connectors listesinde Akredit'i bulup Connect dersiniz.",
+      "Sağ üstte + Ekle (Add), ardından Özel bağdaştırıcı ekle (Add custom connector) seçin.",
+      "Ad ve adres soran pencere.",
+    ],
+    [
+      `Ad olarak Akredit, adres olarak ${MCP_ADRESI} yazın ve Devam et (Continue) deyin.`,
+      "Kimlik doğrulama seçenekleri.",
+    ],
+    [
+      "Oturum açma olmadan (No sign in) seçeneğini bırakın ve Ekle (Add) deyin. 'Sunucu URL'sine sahip herkes kullanabilir' uyarısı normaldir.",
+      "Listede Akredit görünür.",
+    ],
+    [
+      "Ücretsiz planda tek özel bağdaştırıcı eklenebilir. Team ve Enterprise planlarında bağdaştırıcıyı kuruluş sahibi ekler; siz Bağdaştırıcılar listesinde Akredit'i bulup Bağlan (Connect) dersiniz.",
       undefined,
     ],
     [
@@ -78,15 +89,18 @@ const BAGLAYICI: Record<Istemci, HamAdim[]> = {
   ],
   claude_masaustu: [
     ["Claude masaüstü uygulamasını açın ve oturum açın.", "claude.ai ile aynı görünüm."],
-    ["Customize (Özelleştir), ardından Connectors (Bağlayıcılar) bölümünü açın.", "Bağlayıcı listesi."],
     [
-      `+ Add, Add custom connector ile ad Akredit, adres ${MCP_ADRESI} yazın; Authentication altında No sign in seçip Add deyin.`,
+      "Sol alttaki çark simgesinden Ayarlar'ı açın, soldan Bağdaştırıcılar'ı (Connectors) seçin.",
+      "Bağdaştırıcılar listesi.",
+    ],
+    [
+      `+ Ekle, Özel bağdaştırıcı ekle (Add custom connector) ile ad Akredit, adres ${MCP_ADRESI} yazın; Devam et, sonra Oturum açma olmadan (No sign in) ile Ekle deyin.`,
       "Listede Akredit görünür.",
     ],
     ["Yeni sohbette akredit yazın. Menü gelmezse Akredit araçlarıyla Bologna paketimi denetle yazın.", "Odak menüsü."],
   ],
   claude_chrome: [
-    ["Önce Claude'a Akredit bağlayıcısını ekleyin (Claude web adımları).", "Sohbette Akredit açık."],
+    ["Önce Claude'a Akredit bağdaştırıcısını ekleyin (Claude web adımları).", "Sohbette Akredit açık."],
     [
       "Chrome tarayıcısını açın. Chrome Web Mağazası'nda Claude eklentisini arayın (Claude in Chrome).",
       "Eklentinin sayfası.",

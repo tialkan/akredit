@@ -1,6 +1,6 @@
 # İP-18: Toplantı ve karar asistanı
 
-- **Durum:** inceleme
+- **Durum:** tamam
 - **Faz:** 3
 - **Bağımlılık:** İP-03, İP-14
 - **Sahip olduğu yollar:** `packages/servis/src/toplanti/**`, `apps/web/src/app/panel/toplantilar/**`, `docs/raporlar/IP-18.md`
@@ -31,3 +31,4 @@ Ses kaydı ve konuşma tanıma yalnız kurum içi modelle ve açık rızayla.
 
 - 2026-10-23: İP tanımlandı. Başlamadan önce kapsamı güncel mimariye göre ayrıntılandır.
 - 2026-10-27: Uygulandı (`ip/18-toplanti`). `packages/servis/src/toplanti/`: gündem taslağı (açık eylem + açık görev), .ics davet, kayıttan (kanıt parçaları) atıf güvenceli tutanak taslağı (model adayları da aynı denetimden geçer; atıf yeri kararın kelimelerinin %70'ini taşımalı), katılımcı yalnız toplantı kaydındaki kişilerden ve kayıtta adı geçmiyorsa EKSİK, taslak `toplanti_tutanagi` önerisi (risk yüksek: toplu ve API anahtarıyla onaylanamaz), onaydan sonra `kesinlestir`: eylem satırları + `eylem_acildi` köprüsüyle süreç motoru + ölçüt bağı önerisi (`kanit_etiketi`), EBYS düz metin çıktısı. Panel: `/panel/toplantilar` (liste, gündem, onaya bağlantı). Yeni göç yok. Kalan: REST uçları, planlama/taslak formu, işçide köprü bağlantısı, ses dökümü (kurum içi model, İP-34).
+- 2026-11-12: Durum `plan.md` ile eşitlendi (inceleme → tamam). Rapor: `docs/raporlar/IP-18.md`. Kurucu kararı: plan tablosu esastır (review.md madde 4).

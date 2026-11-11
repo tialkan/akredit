@@ -1,6 +1,6 @@
 # İP-09: Kimlik doğrulama, kiracı ve yetki
 
-- **Durum:** inceleme
+- **Durum:** tamam
 - **Faz:** 2
 - **Bağımlılık:** İP-02, İP-07
 - **Sahip olduğu yollar:** `packages/yetki/**`, `apps/web/src/kimlik/**`, `packages/vt/src/sema/kimlik*.ts` ve ilgili göç, `docs/raporlar/IP-09.md`
@@ -34,3 +34,4 @@ YETKİM (ULAKBİM kimlik federasyonu) katılımı kurumun ve ULAKBİM'in işlemi
 
 - 2026-10-23: İP tanımlandı. Başlamadan önce kapsamı güncel mimariye göre ayrıntılandır.
 - 2026-10-27: Uygulandı, incelemeye alındı. `packages/yetki` (saf matris: 8 rol × 4 kapsam × 17 eylem, atama kuralları, API anahtarı ve davet belirteci, CSV doğrulama, CSRF/çerez/şüpheli giriş, giriş bilgisi ayıklama); `packages/vt` kimlik tabloları ve `0004_kimlik` göçü (uygulama rolü erişemez, parola sütunu CHECK ile hep NULL); `apps/web/src/kimlik` (Better Auth: sihirli bağlantı + SSO eklentisiyle OIDC ve SAML 2.0; istek bağlamı, kiracı işleminde yetki, davet, rol atama, toplu içe aktarma, API anahtarları, kimlik olayları günlüğü). Kararlar: kurum = organization, ancak üyelik Better Auth organization eklentisi yerine `kimlik_uyelik` + `rol_atamasi` ile (kapsamlı roller için); hesap yalnız üyelik ya da açık davetle açılır; SSO sağlayıcıları kurum ayarından (`defaultSSO`), kullanıcı sağlayıcı kaydedemez. Kalan: Next.js rota bağlantısı (`/api/kimlik/[...]`), `/giris` ve davet sayfaları, gerçek e-posta göndericisi (İP-12/14; bu İP'nin yolları dışında). Ayrıntı: `docs/raporlar/IP-09.md`.
+- 2026-11-12: Durum `plan.md` ile eşitlendi (inceleme → tamam). Rapor: `docs/raporlar/IP-09.md`. Kurucu kararı: plan tablosu esastır (review.md madde 4).

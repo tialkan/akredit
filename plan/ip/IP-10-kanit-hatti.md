@@ -1,6 +1,6 @@
 # İP-10: Kanıt hattı ve nesne deposu
 
-- **Durum:** inceleme
+- **Durum:** tamam
 - **Faz:** 2
 - **Bağımlılık:** İP-02, İP-03, İP-04
 - **Sahip olduğu yollar:** `apps/isci/src/kanit-hatti/**`, `packages/depo/**`, `docs/raporlar/IP-10.md`
@@ -30,3 +30,4 @@ Her belgenin hocadan ek iş istemeden kanıta dönüşmesi: alma, saklama, okuma
 
 - 2026-10-23: İP tanımlandı. Başlamadan önce kapsamı güncel mimariye göre ayrıntılandır.
 - 2026-10-27: Uygulandı, incelemeye alındı. `packages/depo` (yerel, bellek, S3/SigV4 sürücüleri; içerik adresli `kurum/ozet`, üzerine yazmaz, COMPLIANCE nesne kilidi, imzalı süreli bağlantı). `apps/isci/src/kanit-hatti`: alma yolları (tekli, ZIP, doğrulanmış e-posta, bağlayıcı/üretilen), dört kuyruk (çıkar, ocr, zenginleştir, sınıfla), pg-boss ve bellek kuyruğu (yeniden deneme + ölü mektup), worker thread'de yalıtılmış metin çıkarma (İP-04'ün PDF zaman aşımı sınırı kapatıldı), Tesseract OCR, isteğe bağlı ClamAV. Kararlar: `kanit` yalnız eklendiği için kişisel veri sonucu `kanit_isleme.ayrinti.kisiselVeri`'de tutulur; çıkarılan metin depoya içerik adresli JSON olarak konur. Kalan: panel sayfası (İP-12/web), gerçek PostgreSQL + pg-boss tümleşik testi (İP-08 CI), MIME e-posta ayrıştırma (İP-23).
+- 2026-11-12: Durum `plan.md` ile eşitlendi (inceleme → tamam). Rapor: `docs/raporlar/IP-10.md`. Kurucu kararı: plan tablosu esastır (review.md madde 4).

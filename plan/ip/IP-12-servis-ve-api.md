@@ -1,6 +1,6 @@
 # İP-12: Servis katmanı ve API
 
-- **Durum:** inceleme
+- **Durum:** tamam
 - **Faz:** 2
 - **Bağımlılık:** İP-01, İP-02, İP-09
 - **Sahip olduğu yollar:** `packages/servis/**`, `apps/web/src/app/api/**`, `apps/web/src/veri/gercek.ts`, `docs/raporlar/IP-12.md`
@@ -33,3 +33,4 @@ Arayüzün, CLI'nin, MCP sunucusunun ve bağlayıcıların aynı iş kuralların
   - Göç `0005_servis.sql`: kişi kimliklerinin kurum sınırı tetikleyicisi (bulgu 1), `istek_tekrari` tablosu.
   - Web: `/api/kimlik/[...yol]`, `/api/v1/[...yol]`, `/api/v1/openapi.json`, `/api/davet`; `/giris` ve `/davet` sayfaları çalışır; panel `NEXT_PUBLIC_AKREDIT_VERI=gercek` ile gerçek veriye geçer; kanıtlar sayfasında işleme durumu.
   - Kalan: sunucu eylemleri yerine REST + istemci fetch kullanıldı; e-posta gönderici (İP-14); otomatik politika kararı (İP-13); Playwright ile gerçek veri kipinde e2e yok.
+- 2026-11-12: Durum `plan.md` ile eşitlendi (inceleme → tamam). Rapor: `docs/raporlar/IP-12.md`. Kurucu kararı: plan tablosu esastır (review.md madde 4).

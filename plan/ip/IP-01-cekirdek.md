@@ -1,6 +1,6 @@
 # İP-01: Çekirdek alan mantığı
 
-- **Durum:** inceleme
+- **Durum:** tamam
 - **Faz:** 1 (Temeller)
 - **Bağımlılık:** yok
 - **Sahip olduğu yollar:** `packages/cekirdek/**`, `docs/raporlar/IP-01.md`
@@ -63,3 +63,4 @@ HTML ayrıştırma (İP-05), veritabanı (İP-02), YZ çağrısı (İP-03).
 
 - 2026-10-23: Tür sözleşmesi, atıf ayrıştırıcı ve Türkçe yardımcılar iskelette yazıldı.
 - 2026-10-27: Kapsam 1-6 uygulandı: `bologna/denetim.ts` (`bolognaDenetle`), `bologna/taslak.ts` (`taslakDenetle`), `rapor/denetim.ts` (`raporDenetle`), `matris.ts` (`matrisOlustur`, `matrisHedefi`), `oneri.ts` (`oneriRiski`, `etkinRisk`, `kararDogrula`, `politikaUygulanirMi`, `gecerliKarar`, `kararIcerigi`, `matrisOnerisiIncelemesi`), `olcum.ts` (`oturumlariHesapla`, `kararOranlari`, `insanDakikasi`, `ortanca`). 78 Vitest testi; CLI modülleriyle doğrudan eşdeğerlik karşılaştırması (`test/cli.ts`). Satır kapsamı %99,5 (`pnpm --filter @akredit/cekirdek test:kapsam`, eşik %90). Kararlar: Bologna denetiminde `simdi` verilmezse güncellik kuralı atlanır ve tarih UTC yorumlanır; politika zaman aralığı [başlangıç, bitiş); güven eşiğe eşitse uygulanır; etkin risk = öneri riski ile tür riskinin yükseği; alıntı doğrulanamazsa (parça yok ya da erişim verilmemiş) hata. Durum: inceleme.
+- 2026-11-12: Durum `plan.md` ile eşitlendi (inceleme → tamam). Rapor: `docs/raporlar/IP-01.md`. Kurucu kararı: plan tablosu esastır (review.md madde 4).

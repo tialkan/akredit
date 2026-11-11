@@ -1,6 +1,6 @@
 # İP-04: Belge işleme
 
-- **Durum:** inceleme
+- **Durum:** tamam
 - **Faz:** 1 (Temeller)
 - **Bağımlılık:** yok (sözleşme `packages/belge/src/turler.ts` ve `index.ts` imzaları hazır)
 - **Sahip olduğu yollar:** `packages/belge/**`, `docs/raporlar/IP-04.md`
@@ -54,4 +54,4 @@ OCR'ın kendisi (kuyruk ve Tesseract bağdaştırıcısı İP-10'da), gömme (İ
   - Sözleşmeye yalnız ekleme: `CikarmaSecenekleri` (`enBuyukDosyaSayisi`, `enBuyukSikistirmaOrani`, `zamanAsimiMs`), `TabloVerisi.uyarilar?`, `tabloOku`'ya isteğe bağlı üçüncü parametre `secenek`.
   - ODP, `BelgeTuru` içinde ayrı tür olmadığı için `"pptx"` türüyle döner (içerik ODF olarak okunur).
   - Kalan: PDF zaman aşımı yalnız eşzamansız beklemeyi keser; PDF.js eşzamanlı uzun bir döngüye girerse kesilemez. Kesin yalıtım (worker thread / ayrı süreç) İP-10 kanıt hattına bırakıldı.
-
+- 2026-11-12: Durum `plan.md` ile eşitlendi (inceleme → tamam). Rapor: `docs/raporlar/IP-04.md`. Kurucu kararı: plan tablosu esastır (review.md madde 4).

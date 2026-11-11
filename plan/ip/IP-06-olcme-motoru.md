@@ -1,6 +1,6 @@
 # İP-06: Ölçme motoru (ÇK ve PÇ sağlanma düzeyi)
 
-- **Durum:** inceleme
+- **Durum:** tamam
 - **Faz:** 1 (Temeller)
 - **Bağımlılık:** yok (girdi türü `@akredit/cekirdek` `DersOlcmeVerisi`)
 - **Sahip olduğu yollar:** `packages/olcme/**`, `docs/olcme-yontemi.md`, `docs/raporlar/IP-06.md`
@@ -50,3 +50,4 @@ Not dökümünün okunması (İP-05), ders dosyası belgesinin üretimi (İP-16)
 
 - 2026-10-23: İP tanımlandı.
 - 2026-10-27: Uygulandı. `dersiOlc` (soru/araç/karma yöntem, ÇK başarısı, ders içi PÇ, not istatistikleri, madde analizi, 13 kurallı bulgular, örnek kâğıtlar, `hesapSurumu` + `girdiOzeti`), `programPcHesapla` (eşit/AKTS/katkı), `docs/olcme-yontemi.md`. 30 test; kapsam satır %100, dal %97,75 (eşik %95 `vitest.config.ts` ile zorunlu). Kararlar: sd örneklem (n−1); araç ağırlığı varsayılan kapalı; girilmeyen araç ders notunda 0; ağırlıklar ≠ 100 ise not 100'e oranlanır; sorusuz araç `"*"` numaralı sanal soru; varsayılan harf tablosu ve geçme notu 60 "örnek". Yeni geliştirme bağımlılığı: `@vitest/coverage-v8` (MIT, kapsam ölçümü için). Rapor: `docs/raporlar/IP-06.md`.
+- 2026-11-12: Durum `plan.md` ile eşitlendi (inceleme → tamam). Rapor: `docs/raporlar/IP-06.md`. Kurucu kararı: plan tablosu esastır (review.md madde 4).
