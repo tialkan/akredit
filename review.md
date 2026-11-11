@@ -144,7 +144,7 @@ Her madde bu ölçütle karara bağlandı.
 - **16. İşçi bağlantıları:** barındırma geri açılırken yapılacaklar listesinde (ADR 0008 geri açma koşuluna eklenmeli).
 - **17. Bağımlılık uyarıları:** üçü de geçişli ve canlı yolda değil (`drizzle-kit`, `exceljs`, `@better-auth/sso`);
   Dependabot güncellemeleriyle kapanır.
-- **18. npm yayını:** kurucunun hesabıyla yapılır (`npm login`, sonra `apps/acik-mcp` içinde `pnpm publish --access public`).
+- **18. npm yayını:** `.github/workflows/npm-yayin.yml`: `apps/acik-mcp/package.json` sürümü npm'dekinden farklıysa main'e gelen push'ta test eder, paketler, temiz klasörde 22 aracı dener ve anahtarsız (npm trusted publishing, OIDC) yayınlar. Bir kerelik npmjs.com ayarı gerekir (iş akışı dosyasının başında yazılı).
 
 ### Kurucu kararı gerekiyor (önem sırasıyla)
 

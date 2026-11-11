@@ -1,0 +1,89 @@
+# @akredit/acik-mcp npm yayını (İP-49). Anahtarsız: npm "trusted publishing" (GitHub OIDC). Depoda ya da
+# GitHub sırlarında npm anahtarı YOKTUR; npm, isteğin bu deponun bu iş akışından geldiğini kendisi doğrular.
+#
+# Ne zaman yayınlar: main'e gelen bir push apps/acik-mcp/package.json'daki sürümü npm'dekinden farklı yaptıysa.
+# Sürüm aynıysa hiçbir şey yapmaz. Elle de çalıştırılabilir (Actions > npm yayını > Run workflow).
+#
+# Bir kerelik kurulum (paket sahibi, npmjs.com'da): @akredit/acik-mcp > Settings > Trusted Publisher >
+# GitHub Actions: kuruluş/kullanıcı "tialkan", depo "akredit", iş akışı dosyası "npm-yayin.yml". Bu yapılmadan
+# yayın adımı 403/404 ile düşer; başka hiçbir şey etkilenmez.
+
+name: npm yayını
+
+on:
+  push:
+    branches: [main]
+    paths: ["apps/acik-mcp/package.json"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: npm-yayin
+  cancel-in-progress: false
+
+jobs:
+  yayin:
+    name: "@akredit/acik-mcp yayını"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          package-manager-cache: false
+          # Trusted publishing npm 11.5.1 ve üstünü ister; Node 24 bununla gelir.
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - name: pnpm
+        run: corepack enable && corepack prepare --activate
+
+      - name: Sürüm npm'de var mı
+        id: surum
+        run: |
+          yerel=$(node -p "require('./apps/acik-mcp/package.json').version")
+          yayinda=$(npm view @akredit/acik-mcp version 2>/dev/null || echo yok)
+          echo "yerel=$yerel" >> "$GITHUB_OUTPUT"
+          if npm view "@akredit/acik-mcp@$yerel" version >/dev/null 2>&1; then
+            echo "Sürüm $yerel zaten yayında (npm'deki son: $yayinda); yayın yok."
+            echo "yayinla=hayir" >> "$GITHUB_OUTPUT"
+          else
+            echo "Yeni sürüm: $yerel (npm'deki son: $yayinda)."
+            echo "yayinla=evet" >> "$GITHUB_OUTPUT"
+          fi
+
+      - if: steps.surum.outputs.yayinla == 'evet'
+        run: pnpm install --frozen-lockfile
+
+      - name: Test ve tip denetimi
+        if: steps.surum.outputs.yayinla == 'evet'
+        run: |
+          pnpm --filter @akredit/acik-mcp typecheck
+          pnpm --filter @akredit/acik-mcp test
+
+      # pnpm pack: workspace: sürümlerini çözer ve publishConfig'i (dist girişleri) paket dosyasına uygular.
+      - name: Paketle
+        if: steps.surum.outputs.yayinla == 'evet'
+        working-directory: apps/acik-mcp
+        run: pnpm pack --pack-destination "$RUNNER_TEMP"
+
+      - name: Paketi temiz klasörde dene (22 araç)
+        if: steps.surum.outputs.yayinla == 'evet'
+        run: |
+          cd "$RUNNER_TEMP" && mkdir dene && cd dene && npm init -y >/dev/null
+          npm install --silent "$RUNNER_TEMP"/akredit-acik-mcp-*.tgz
+          printf '%s\n%s\n' \
+            '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"ci","version":"1"}}}' \
+            '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}' \
+            | timeout 20 ./node_modules/.bin/akredit-acik-mcp > cikti.txt || true
+          sayi=$(grep -o '"name":"[a-z_]*"' cikti.txt | sort -u | wc -l)
+          echo "Araç sayısı: $sayi"
+          test "$sayi" -ge 22
+
+      - name: Yayınla (anahtarsız, kaynak kanıtlı)
+        if: steps.surum.outputs.yayinla == 'evet'
+        run: npm publish "$RUNNER_TEMP"/akredit-acik-mcp-*.tgz --access public --provenance
