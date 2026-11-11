@@ -197,7 +197,7 @@ describe("hareket ve önizleme (tasarım v2)", () => {
   });
 });
 
-describe("İP-49: sade site, iki adım ve proje ayrıntıları", () => {
+describe("İP-49: sade site, kurulum adımları ve proje ayrıntıları", () => {
   it("üst menü yalnız üç öğe: Nasıl kurulur, Proje ayrıntıları, İletişim", () => {
     expect(UST_MENU).toEqual([
       { ad: "Nasıl kurulur", yol: "/mcp-kullan" },
@@ -217,7 +217,7 @@ describe("İP-49: sade site, iki adım ve proje ayrıntıları", () => {
         adimlar.some((a) => a.yap.includes(MCP_ADRESI)),
         u.kimlik,
       ).toBe(true);
-      // "akredit yazın" ikinci adımdır; birinci adımın listesine girmez.
+      // "akredit yazın" ana sayfada ayrı adımdır (Adım 4); bağlayıcı ekleme listesine girmez.
       expect(
         adimlar.filter((a) => a.goreceginiz === "Odak menüsü." || /yeni sohbet/iu.test(a.yap)),
         u.kimlik,

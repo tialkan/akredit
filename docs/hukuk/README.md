@@ -16,6 +16,8 @@
 | [verbis-degerlendirmesi.md](verbis-degerlendirmesi.md) | VERBİS kayıt değerlendirmesi |
 | [yurt-disi-aktarim.md](yurt-disi-aktarim.md) | YZ sağlayıcılarına yurt dışı aktarım değerlendirmesi ve kurum ayarı |
 | [veri-akis-envanteri.md](veri-akis-envanteri.md) | Kod tabanından üretilen veri akış envanteri (İP-40; elle düzenlenmez) |
+| [veri-akis-envanteri.csv](veri-akis-envanteri.csv) | Aynı envanterin tablo hâli (aynı betik üretir; elle düzenlenmez) |
+| [yetki-devri-yonergesi-taslagi.md](yetki-devri-yonergesi-taslagi.md) | Dijital kalite süreçleri ve yetki devri yönergesi taslağı (avukat ve Senato incelemesi gerekir) |
 | [kurum-paketi/](kurum-paketi/00-okuyun.md) | Kuruma verilecek hukuk paketi (İP-40); .zip olarak `/kvkk` sayfasında |
 
 Köşeli parantezli alanlar (`[KURUM ADI]`, `[İŞLETMECİ]` vb.) kurum ya da işletmeci tarafından doldurulur. İşletmecinin tüzel kimliği bu çalışmada belirlenmemiştir: `EKSİK`.

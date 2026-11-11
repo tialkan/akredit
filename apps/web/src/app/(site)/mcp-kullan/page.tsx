@@ -1,24 +1,27 @@
-import { ACIK_ARACLAR, ACIK_ISTEMLER, baglayiciAdimlari } from "@akredit/acik-mcp";
+import { ACIK_ARACLAR, ACIK_ISTEMLER, AKREDIT_ODAKLARI, baglayiciAdimlari } from "@akredit/acik-mcp";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AdimListesi } from "../../../site/adim-listesi.tsx";
 import { Bolum, Metin, SayfaBasi, YapisalVeri } from "../../../site/bilesenler.tsx";
 import { GORSELLER, Gorsel } from "../../../site/gorsel.tsx";
 import { SAYFALAR } from "../../../site/icerik.ts";
+import { CLAUDE_CODE_KOMUTU, MCP_ADRESI } from "../../../site/kurulum.ts";
 import { sayfaUstVerisi } from "../../../site/yapisal.ts";
 
 export const metadata: Metadata = sayfaUstVerisi(SAYFALAR.mcpKullan);
 
-/** Herkese açık uç nokta. Araç ve istem listesi aşağıda doğrudan sunucunun kodundan okunur, elle yazılmaz. */
-const MCP_ADRESI = "https://akredit.org/mcp";
+// Araç ve istem listesi ile odak menüsü aşağıda doğrudan sunucunun kodundan okunur, elle yazılmaz.
 
-/** Bologna doldurma örnek konuşması. Ders, kurum ve kişiler kurgudur; asistanın yanıtları kısaltılmıştır. */
+/**
+ * Bologna doldurma örnek konuşması. Ders, kurum, kişiler ve sayılar kurgudur; asistanın yanıtları kısaltılmıştır.
+ * Akış sunucunun Bologna istemindeki sıradır (apps/acik-mcp/src/promptlar.ts): giriş, ders listesini sormadan
+ * tarama, tek özet, doldurma, tek değişiklik özeti, kayıt, geri okuma.
+ */
 const ORNEK_KONUSMA: { kim: "Hoca" | "Asistan"; metin: string }[] = [
   { kim: "Hoca", metin: "akredit" },
   {
     kim: "Asistan",
-    metin:
-      "Neye odaklanalım? Numarasını yazın.\n1) Bologna ders paketi\n2) Ders öğrenme çıktısı\n3) ÇK ve PÇ sağlanma düzeyi\n4) Ölçüt ve kanıt rehberi\n5) Dil denetimi",
+    metin: ["Neye odaklanalım? Numarasını yazın.", ...AKREDIT_ODAKLARI.map((o) => `${o.no}) ${o.ad}`)].join("\n"),
   },
   { kim: "Hoca", metin: "1" },
   {
@@ -31,16 +34,19 @@ const ORNEK_KONUSMA: { kim: "Hoca" | "Asistan"; metin: string }[] = [
   {
     kim: "Asistan",
     metin:
-      "KRG204 Kurgu Ölçme Yöntemleri: 9 alan eksik ya da zayıf (amaç boş, 2 öğrenme çıktısı, 3 haftalık akış...).\n1) Alan alan\n2) Yalnız boşlar\n3) Numaraları seçeyim\n4) Hepsini akıllıca doldur (önerilen)",
+      "Üç dersinizin paketini okudum. Şu eksiklikleri tespit ettim:\nKRG204 Kurgu Ölçme Yöntemleri: 9 alan eksik ya da zayıf\nKRG101 Kurgu Dersi: 3 alan eksik\nKRG310 Kurgu Semineri: eksik görünmüyor\nKRG204'ün değerlendirme yüzdeleri sayfada yok; biliyorsanız seçiminizin yanına yazın.\n1) En eksikten başlayıp hepsini sırayla kapatalım (önerilen)\n2) Yalnız en eksik dersi tamamlayalım\n3) Dersi ben seçeyim",
   },
-  { kim: "Hoca", metin: "4" },
+  { kim: "Hoca", metin: "1, ara sınav 40, final 60" },
   {
     kim: "Asistan",
     metin:
-      "Doldurdum, hepsi denetimden geçti. İş yükü 150 saat, 5 AKTS ile uyumlu. İki kaynak katalogda doğrulandı.\nFormu doldurayım, Kaydet'e siz basın?",
+      "İki dersi doldurdum; biçim denetiminden geçti, içerik teyidi sizde. 12 alanın önceki ve yeni değeri tek tabloda.\n1) OBS'ye yaz ve kaydet\n2) Formu doldur, Kaydet'e ben basayım\n3) Alan alan kopya metni ver",
   },
-  { kim: "Hoca", metin: "evet" },
-  { kim: "Asistan", metin: "Sayfayı yeniden okudum ve denetledim: tamamlandı." },
+  { kim: "Hoca", metin: "1" },
+  {
+    kim: "Asistan",
+    metin: "Yazdım ve kaydettim. Sayfayı geri okuyup karşılaştırdım: fark yok. Onaya Gönder'e siz basarsınız.",
+  },
 ];
 
 /** Hiç bilmeyenler için adımlar: her adım tek iş ve ekranda ne görüleceği. */
@@ -53,12 +59,12 @@ const ILK_KEZ: { baslik: string; yap: string; gorursunuz: string }[] = [
   {
     baslik: "akredit yazın",
     yap: "Yeni sohbette akredit yazın. Menü gelmezse Akredit araçlarıyla Bologna paketimi denetle yazın.",
-    gorursunuz: "Beş seçenekli bir menü.",
+    gorursunuz: "Numaralı odak menüsü.",
   },
   {
     baslik: "OBS'nize kendiniz girin",
     yap: "Parola, doğrulama kodu ve CAPTCHA yalnız OBS'nin kendi ekranına, sizin elinizle. Sohbete asla yazmayın.",
-    gorursunuz: "Ders listeniz numaralı.",
+    gorursunuz: "Asistan hangi ders diye sormaz; ders listenizi kendisi tarar ve eksikleri tek özetle gösterir.",
   },
   {
     baslik: "Kenardaki tarayıcı",
@@ -66,9 +72,9 @@ const ILK_KEZ: { baslik: string; yap: string; gorursunuz: string }[] = [
     gorursunuz: "Sohbetin yanında OBS sayfası.",
   },
   {
-    baslik: "Seçin ve yazın",
-    yap: "4 yazarsanız asistan her alanı doldurur ve denetler. Kaydet'e siz basarsınız ya da açık izninizle asistan basar.",
-    gorursunuz: "OBS'nin kayıt iletisi.",
+    baslik: "Seçin ve onaylayın",
+    yap: "Önerilen seçeneğin numarasını yazın. Asistan alanları doldurur, denetler ve tek özet gösterir. Kaydet'e siz basarsınız ya da onayınızla asistan basar. Onaya Gönder her zaman sizdedir.",
+    gorursunuz: "Önceki ve yeni değerlerin özeti, sonra OBS'nin kayıt iletisi.",
   },
   {
     baslik: "Engel olursa",
@@ -120,9 +126,17 @@ export default function McpKullan() {
               Yeni sohbette <code className={KOD}>akredit</code> yazın. Menü gelmezse "Akredit araçlarıyla Bologna
               paketimi denetle" yazın.
             </li>
-            <li>Odağınızı seçin. "4) Hepsini akıllıca doldur" her alanı doldurur, denetler ve tek özet gösterir.</li>
+            <li>
+              Odağınızı numarasıyla seçin. Bologna'da asistan ders listenizi sormadan tarar, eksikleri tek özetle
+              gösterir, alanları doldurur ve denetler.
+            </li>
           </ol>
           <p>Akredit kuralları verir ve hesaplar. OBS'ye siz girersiniz; Kaydet'e siz ya da izninizle asistan basar.</p>
+          <p>
+            Ara soru istemiyorsanız baştan "hepsini yap ve kaydet" yazın. Asistan tarar, doldurur, kaydeder, sayfayı
+            geri okuyup doğrular ve sonda tek rapor verir. Sayfada olmayan değerlendirme yüzdesi ve kaynak uydurulmaz,
+            EKSİK kalır. Onaya Gönder düğmesine yine siz basarsınız.
+          </p>
         </Metin>
         <h3 className="bolum-etiketi mt-8 text-lg text-vurgu">Hazır başlangıçlar</h3>
         <ul className="mt-2 grid gap-x-10 sm:grid-cols-2">
@@ -206,7 +220,7 @@ export default function McpKullan() {
           <AdimListesi adimlar={baglayiciAdimlari("claude_web")} />
 
           <h3>Claude Code</h3>
-          <pre className={BLOK}>claude mcp add --transport http akredit {MCP_ADRESI}</pre>
+          <pre className={BLOK}>{CLAUDE_CODE_KOMUTU}</pre>
 
           <h3>ChatGPT</h3>
           <AdimListesi adimlar={baglayiciAdimlari("chatgpt")} />
@@ -250,7 +264,7 @@ export default function McpKullan() {
           <p>
             Bu bağlantı kurum verisine erişmez. Kanıta bağlı rapor ve onay Akredit platformundadır; kurumunuz kendi
             sunucusuna kurabilir. akredit.org'da kurum hizmeti sponsor bulunana kadar askıda.{" "}
-            <Link href="/deneyin">Demo</Link> hazır, sponsor bulunana kadar askıda.
+            <Link href="/kurum-demosu">Kurum demosu</Link> hazır, sponsor bulunana kadar askıda.
           </p>
         </Metin>
       </Bolum>

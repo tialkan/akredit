@@ -203,7 +203,7 @@ describe("POST /api/deneyin", () => {
     expect((await uc(form("rektorluk", null))).status).toBe(403);
     expect((await uc(form("rektorluk", "https://kotu.example"))).status).toBe(403);
     const y = await uc(form("kurum_yoneticisi"));
-    expect(y.headers.get("location")).toBe(`${ADRES}/deneyin?hata=rol`);
+    expect(y.headers.get("location")).toBe(`${ADRES}/kurum-demosu?hata=rol`);
   });
 
   it("IP başına hız sınırı: sınır dolunca oturum açılmaz", async () => {
@@ -219,7 +219,7 @@ describe("POST /api/deneyin", () => {
     expect((await uc(form("rektorluk", ADRES, "203.0.113.9"))).headers.get("location")).toMatch(/\/panel/u);
     expect((await uc(form("rektorluk", ADRES, "203.0.113.9"))).headers.get("location")).toMatch(/\/panel/u);
     const ucuncu = await uc(form("rektorluk", ADRES, "203.0.113.9"));
-    expect(ucuncu.headers.get("location")).toBe(`${ADRES}/deneyin?hata=cok`);
+    expect(ucuncu.headers.get("location")).toBe(`${ADRES}/kurum-demosu?hata=cok`);
     expect(ucuncu.headers.get("set-cookie")).toBeNull();
     // Başka IP etkilenmez.
     expect((await uc(form("rektorluk", ADRES, "203.0.113.10"))).headers.get("location")).toMatch(/\/panel/u);
@@ -242,7 +242,7 @@ describe("POST /api/deneyin", () => {
       });
     expect((await uc(sahte(1))).headers.get("location")).toMatch(/\/panel/u);
     const ikinci = await uc(sahte(2));
-    expect(ikinci.headers.get("location")).toBe(`${ADRES}/deneyin?hata=cok`);
+    expect(ikinci.headers.get("location")).toBe(`${ADRES}/kurum-demosu?hata=cok`);
     expect(ikinci.headers.get("set-cookie")).toBeNull();
   });
 });

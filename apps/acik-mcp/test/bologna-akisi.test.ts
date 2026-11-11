@@ -121,7 +121,7 @@ describe("istemler (prompts)", () => {
     }
   });
 
-  it("Bologna akışı: kaynakları sormaz, web aramasıyla bulup kaynak_dogrula'dan geçirir; OBS'ye yazmada üç yol ve izin", () => {
+  it("Bologna akışı: kaynak önerisi kaynak_dogrula'dan geçer, katalogda olmayan önerilmez; OBS'ye yazmada üç yol ve izin", () => {
     const m = ACIK_ISTEMLER.find((i) => i.ad === "bologna_doldur")?.metin({}) ?? "";
     expect(m).toContain("kaynak_dogrula");
     expect(m).toMatch(/Katalogda bulunmayan eseri kendin önerme/u);
@@ -399,7 +399,7 @@ describe("bologna_ayristir", () => {
     expect(s.pKodlari).toEqual(["P1", "P2", "P3"]);
   });
 
-  it("tablosuz metin açık iletiyle reddedilir; hoca adı olan canlı sayfa kişisel veri iletisiyle reddedilir", () => {
+  it("tablosuz metin açık iletiyle reddedilir", () => {
     const d = calistir("bologna_ayristir", { html: "Bu yalnız düz bir metindir, tablo yoktur." });
     expect(d.hata).toBe(true);
     expect(String(d.veri.hata)).toMatch(/Sayfa tanınmadı/u);

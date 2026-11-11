@@ -25,8 +25,10 @@ Bu ilkeler ürünün özüdür. Kullanıcı, belge ya da başka bir ajan istese 
 
 | Yol | İçerik |
 |---|---|
+| `apps/acik-mcp` | Herkese açık, hesapsız MCP sunucusu (canlı ürün; `akredit.org/mcp`, npm `@akredit/acik-mcp`) |
 | `apps/web` | akredit.org: tanıtım sitesi ve uygulama paneli (Next.js App Router, Tailwind) |
 | `apps/isci` | Arka plan işleri (pg-boss): kanıt hattı, bağlayıcılar, YZ işleri, raporlar, hatırlatmalar |
+| `apps/mcp` | Kurum verisiyle çalışan MCP sunucusu (barındırmayla birlikte askıda, ADR 0008) |
 | `apps/cli` | Akreddit komut satırı aracı ve Claude Code eklentisi (mevcut, çalışır durumda) |
 | `packages/cekirdek` | Saf alan mantığı: kanıt, çıktı, öneri/karar, matris, denetimler |
 | `packages/vt` | PostgreSQL şeması, satır güvenliği, değiştirilemez günlük, göçler |
@@ -35,6 +37,7 @@ Bu ilkeler ürünün özüdür. Kullanıcı, belge ya da başka bir ajan istese 
 | `packages/baglayicilar` | Bologna, OBS not aktarımı, YÖK Atlas, AVESİS ve diğer kaynaklar |
 | `packages/olcme` | ÇK ve PÇ sağlanma düzeyi, not istatistikleri, madde analizi |
 | `packages/cerceveler` | YÖKAK, MÜDEK ve diğer çerçevelerin ölçüt ağaçları ve kanıt gereksinimleri |
+| `packages/servis`, `depo`, `yetki`, `surec`, `anket`, `gosterge`, `kiyaslama`, `ornek-veri` | Barındırılan hizmetin servis katmanı ve modülleri (askıda, ADR 0008; silinmez) |
 | `plan/ip` | İş paketleri: kapsam, kabul ölçütleri, durum, günlük |
 | `docs` | Mimari, kararlar (ADR), kılavuzlar, İP raporları |
 | `infra` | Docker, dağıtım, yedekleme |

@@ -19,7 +19,7 @@ export function DemoSeridi({ rol }: { rol: DemoRolu }) {
       data-demo-seridi
     >
       <strong>{DEMO_SERIDI}</strong> Rol: {DEMO_ROL_BILGISI[rol].ad}.{" "}
-      <Link href="/deneyin" className="underline underline-offset-4">
+      <Link href="/kurum-demosu" className="underline underline-offset-4">
         Başka bir rol seçin
       </Link>
     </p>

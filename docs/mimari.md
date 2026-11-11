@@ -2,6 +2,8 @@
 
 Bu belge sistemin bileşenlerini, veri modelini ve temel akışları tanımlar. İş paketleri bu sözleşmeye göre yazılır. Değişiklik gerekiyorsa önce `docs/adr/` altına bir karar kaydı eklenir, sonra bu belge güncellenir.
 
+> **Güncel durum (2026-11).** Bu belge barındırılan kurum platformunun sözleşmesidir; o hizmet [ADR 0008](adr/0008-mcp-odagi-barindirma-askida.md) ile askıdadır (kod durur, silinmez). Yayındaki ürün herkese açık MCP sunucusudur: `apps/acik-mcp` (hesapsız, durumsuz, model çağırmaz; `apps/web` içinden `/mcp` adresinde sunulur) ve tanıtım sitesi ile tarayıcı içi araçlardır. Kurum verisiyle çalışan MCP `apps/mcp` altındadır ve askıdadır. Açık MCP'nin kayıtları: `plan/ip/IP-49-acik-mcp.md`, `docs/raporlar/IP-49.md`, [ADR 0009](adr/0009-pesin-onay-tam-otonom-kip.md).
+
 ## 1. Bileşenler
 
 ```

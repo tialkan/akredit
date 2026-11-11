@@ -33,7 +33,8 @@ Değerler yalnız yereldir; gerçek anahtar ve parola `.env.ornek` dosyasına ya
 ## Komutlar
 
 ```bash
-pnpm verify                          # birleştirmeden önce
+pnpm verify                          # birleştirmeden önce (bütün depo)
+pnpm verify:canli                    # yalnız yayındaki ürün: web, açık MCP ve gömdükleri paketler
 pnpm check | pnpm format             # Biome denetimi | düzeltme
 pnpm typecheck
 pnpm test
@@ -56,10 +57,10 @@ docker build -f infra/gelistirme/isci.Dockerfile -t akredit-isci .
 
 `.github/workflows/ci.yml`:
 
-- **Doğrula**: Node 22 ve 24 ile `pnpm verify` ve web derlemesi.
-- **Uçtan uca**: Playwright (`apps/web/e2e`).
-- **Gerçek PostgreSQL**: pgvector'lü PostgreSQL 17 hizmetiyle göçler ve `vt-sinama.ts` (PGlite tek bağlantılı olduğu için birim testlerinde sınanamayan eşzamanlı günlük yazımı ve eşzamanlı göç).
-- **Docker imajları**: iki imaj derlenir, dosya sistemi gitleaks ile taranır, kullanıcının `node` olduğu denetlenir.
+- **Doğrula**: Node 22 ve 24 ile `pnpm check`, `pnpm typecheck`, `pnpm test` (bütün depo; `verify:canli` CI'da kullanılmaz) ve web yolları değiştiyse web derlemesi.
+- **Uçtan uca**: Playwright (`apps/web/e2e`). Yalnız web yolları (`apps/web`, `apps/acik-mcp`, `packages`, kök yapılandırma) değişince çalışır.
+- **Gerçek PostgreSQL** (yalnız `apps/isci`, `packages`, `infra` ya da kök yapılandırma değişince): pgvector'lü PostgreSQL 17 hizmetiyle göçler ve `vt-sinama.ts` (PGlite tek bağlantılı olduğu için birim testlerinde sınanamayan eşzamanlı günlük yazımı ve eşzamanlı göç).
+- **Docker imajları**: yolu değişen imaj (web, işçi) derlenir, dosya sistemi gitleaks ile taranır, kullanıcının `node` olduğu denetlenir.
 - **Gizli bilgi taraması**: bütün git geçmişi gitleaks ile.
 - **Bağımlılık incelemesi**: çekme isteklerinde yüksek önemli açık ya da uyumsuz lisans (GPL/AGPL) varsa kalır.
 

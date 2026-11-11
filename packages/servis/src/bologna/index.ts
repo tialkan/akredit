@@ -37,7 +37,6 @@ import {
   karsiDersler,
   kopyalanabilirCikti,
   okumaParcalari,
-  okunanDers,
   onceSonra,
   tamDenetim,
   taslakFarki,

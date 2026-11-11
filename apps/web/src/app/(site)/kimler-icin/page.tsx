@@ -51,8 +51,8 @@ export default function KimlerIcin() {
               </ol>
               <p className="mt-3 text-sm text-soluk">
                 Zamanlar örnektir, kurumun süreç takvimi belirler. Akışın tamamı{" "}
-                <Link href="/#donem" className="font-semibold text-vurgu underline underline-offset-4">
-                  ana sayfada
+                <Link href="/nasil-calisir#donem" className="font-semibold text-vurgu underline underline-offset-4">
+                  Nasıl çalışır sayfasında
                 </Link>
                 .
               </p>

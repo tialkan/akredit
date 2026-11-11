@@ -179,8 +179,8 @@ const TARAYICI: Record<Istemci, HamAdim[]> = {
       "OBS ana sayfası.",
     ],
     [
-      "Asistana 'girdim' yazın. Asistan ders listesini ve Bologna sayfasını okur.",
-      "Ders listesi sohbette numaralı görünür.",
+      "Asistana 'girdim' yazın. Asistan ders listesini okur ve bütün derslerinizin Bologna sayfasını tarar.",
+      "Eksikler ve öneriler sohbette tek listede görünür.",
     ],
   ],
   claude_chrome: [
@@ -194,7 +194,10 @@ const TARAYICI: Record<Istemci, HamAdim[]> = {
       "Asistan sayfayı okumak için izin isteyebilir; onaylayın.",
       true,
     ],
-    ["Asistan ders listesini okur, dersinizi numarasıyla seçersiniz.", "Ders bilgi paketi alanları."],
+    [
+      "Asistan ders listesini okur ve bütün derslerinizi tarar; hangi dersle başlanacağını numarayla seçersiniz.",
+      "Eksiklerin ve önerilerin tek listesi.",
+    ],
     [
       "Asistan formu doldurursa her alanı gözle denetleyin. Kaydet'e siz basarsınız; isterseniz açık izninizle asistan basar. Onaya Gönder düğmesine siz basarsınız.",
       "OBS'nin kayıt iletisi.",
@@ -365,6 +368,8 @@ export const kurulumYardimiAraci = arac({
   baslik: "Kurulum yardımı",
   aciklama:
     "Akredit bağlayıcısını eklemek ve OBS'ye tarayıcıyla girmek için istemciye göre adım adım rehber verir: Claude web ve masaüstü, Claude in Chrome, ChatGPT, Cursor, VS Code, Claude Code. Her adımda ekranda ne görüleceğini söyler.",
+  // Adımlar hocayla tek tek yürür; her adımda hocanın "oldu" demesi beklenir.
+  hocayaSimdiSor: true,
   sonrakiAdim:
     "Adımları hocaya tek tek gösterin: bir adım verin, 'oldu' demesini bekleyin, sonra sıradakine geçin. 'değişebilir' işaretli menü adını 'sizde biraz farklı olabilir' diye söyleyin. Giriş kuralını hocaya bir kez açıkça söyleyin.",
   girdi: z.object({

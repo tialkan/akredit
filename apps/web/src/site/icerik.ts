@@ -3,7 +3,7 @@
 // Yazım: kısa cümle, em dash yok, yasak kelime yok (src/site/kurallar.test.ts denetler).
 
 export const SITE_ADRESI = "https://akredit.org";
-export const SON_GUNCELLEME = "2026-10-28";
+export const SON_GUNCELLEME = "2026-11-11";
 
 export { ILETISIM_ADRESI, ILETISIM_EPOSTA, PROJE_SAHIBI } from "./iletisim.ts";
 
@@ -47,7 +47,7 @@ export const SAYFALAR = {
     baslik: "Akreditasyon ve Bologna yardımcısı",
     title: "Akredit: akreditasyon ve Bologna yardımcısı",
     aciklama:
-      "İki adımda başlayın: akredit.org/mcp adresini Claude ya da ChatGPT'ye ekleyin, sonra akredit yazın. Ücretsiz, açık kaynak, hesap gerekmez.",
+      "akredit.org/mcp adresini Claude ya da ChatGPT'ye ekleyin, sonra akredit yazın: Bologna denetimi, ÇK/PÇ hesabı, ölçüt rehberi. Ücretsiz, açık kaynak, hesap gerekmez.",
   },
   neYapar: {
     yol: "/ne-yapar",
@@ -204,7 +204,7 @@ export const SAYFALAR = {
     baslik: "Projenin devam eden ayrıntıları",
     title: "Proje ayrıntıları: ne çalışıyor, ne askıda",
     aciklama:
-      "Akredit'in bütün sayfaları ve dürüst durumları: çalışan araçlar, tamamlanmamış demo, sponsor bulunana kadar askıdaki kurum hizmeti, taslak kılavuzlar.",
+      "Akredit'in bütün sayfaları ve dürüst durumları: çalışan araçlar, askıdaki demo, sponsor bulunana kadar askıdaki kurum hizmeti, taslak kılavuzlar.",
   },
 } as const satisfies Record<string, SayfaBilgisi>;
 
@@ -350,7 +350,7 @@ export function projeSayfasi(yol: string): ProjeSayfasi | undefined {
 export const DURUM_NOTU =
   "Platform tamamlandı ve açık kaynaktır. Kurumlara barındırılan hizmet, sponsor bulunana kadar sunulmuyor. Kendi yapay zekânızla kullanılan araçlar açık; demo hazır, sponsor bulunana kadar askıda.";
 
-/** Ana sayfadaki ve askıdaki sayfalardaki "Durum" notu (kurucu kararı 2026-11-01). Sade, kısa maddeler. */
+/** Proje ayrıntılarındaki ve askıdaki sayfalardaki "Durum" notu (kurucu kararı 2026-11-01). Sade, kısa maddeler. */
 export const PLATFORM_DURUMU: string[] = [
   "Platform tamamlandı. Yazılım açık kaynaktır (Apache-2.0).",
   "İsteyen kurum yazılımı kendi sunucusuna kurabilir.",
@@ -406,38 +406,6 @@ export const KURUM_ACILIS_ADIMLARI: { baslik: string; metin: string }[] = [
     baslik: "Çerçeve",
     metin: "Kurumunuzun izleyeceği çerçeveyi seçin, örneğin YÖKAK Değerlendirme Programları Kılavuzu 3.3.",
   },
-];
-
-// ---------------------------------------------------------------- Ana sayfa
-
-/** Sistemin yaptığı işler (plan.md §2 tablosu; ADR 0004). */
-export const SISTEMIN_ISI = [
-  {
-    is: "Kanıt toplar",
-    ayrinti: "Bologna sayfaları, not dökümleri, e-posta ekleri, EBYS paketleri ve bulut klasörlerinden.",
-  },
-  {
-    is: "Hesaplar",
-    ayrinti: "Ders ve program çıktılarının sağlanma düzeyini, not istatistiklerini, göstergeleri. Sayıyı model yazmaz.",
-  },
-  {
-    is: "Taslak yazar",
-    ayrinti: "Ders sayfası, ders dosyası, tutanak ve rapor bölümü. Her olgusal cümle bir kanıta bağlanır.",
-  },
-  {
-    is: "Denetler",
-    ayrinti: "Kaynaksız cümleyi, dayanaksız sayıyı ve eksik kanıtı işaretler. Bağlanamayan içerik EKSİK yazılır.",
-  },
-  {
-    is: "Takip eder",
-    ayrinti: "Süreç takvimini, son tarihleri ve hatırlatmaları. Geciken iş sorumlusunun üstüne bildirilir.",
-  },
-];
-
-export const INSANIN_ISI = [
-  "Önerileri kanıtıyla görür; onaylar, düzeltir ya da reddeder.",
-  "Kurum adına beyanı, olgunluk düzeyini ve dış kuruma son gönderimi kendisi yapar. Bu işler devredilemez.",
-  "Eğitimi, araştırmayı ve toplantının kendisini yapar. Sistem yapılmamış bir faaliyeti yazmaz.",
 ];
 
 // ---------------------------------------------------------------- Ne yapar
@@ -899,7 +867,7 @@ export const SSS: { soru: string; cevap: string }[] = [
   {
     soru: "Şu an kullanabilir miyiz?",
     cevap:
-      "Üç yol var. Ölçüt ve denetim araçlarını kendi yapay zekânıza ekleyip hemen kullanabilirsiniz. Demo hazır ama sponsor bulunana kadar askıda. Yazılımı kendi sunucunuza kurabilirsiniz. Kurumlara barındırılan hizmet sponsor bulunana kadar sunulmuyor; kurum açma ve pilot başvurusu kapalı.",
+      "Üç yol var. Ölçüt ve denetim araçlarını kendi yapay zekânıza ekleyip hemen kullanabilirsiniz. Kurulum istemezseniz ÇK/PÇ hesabı, Bologna denetimi ve ölçüt arama tarayıcınızda çalışır. Yazılımı kendi sunucunuza kurabilirsiniz. Kurum demosu hazır ama sponsor bulunana kadar askıda. Kurumlara barındırılan hizmet sponsor bulunana kadar sunulmuyor; kurum açma ve pilot başvurusu kapalı.",
   },
   {
     soru: "Web araması nasıl çalışır, ne kadar tutar?",
@@ -1040,35 +1008,6 @@ export const BAGLAYICILAR: { ad: string; kaynak: string; okur: string; okumaz: s
 
 /** Ana vaatin çerçevesi (docs/danismanlik/2026-10-28-dis-incelemeler.md, kurucu kararı 1 ve 2). */
 export const VAAT_CERCEVESI = "Sıfır evrak angaryası, tam akademik irade.";
-
-/** İşin bölümü: veri, hesap, yazım ve takip sistemde; pedagojik ve kurumsal karar insanda (ADR 0004). */
-export const IS_BOLUMU: { alan: string; sistem: string; insan: string }[] = [
-  {
-    alan: "Veri toplama",
-    sistem: "Kanıtı kurumun sistemlerinden ve gelen belgelerden toplar.",
-    insan: "Belge aramaz, form doldurmaz.",
-  },
-  {
-    alan: "Hesap",
-    sistem: "ÇK ve PÇ düzeyini, not istatistiğini, göstergeleri hesaplar. Sayıyı model yazmaz.",
-    insan: "Tablo kurmaz, formül yazmaz.",
-  },
-  {
-    alan: "Yazım",
-    sistem: "Ders sayfası, ders dosyası, tutanak ve rapor bölümünü kanıta bağlayarak yazar.",
-    insan: "Taslağa bakar, kararını verir.",
-  },
-  {
-    alan: "Takip",
-    sistem: "Son tarihleri izler, hatırlatır, geciken işi sorumlusunun üstüne bildirir.",
-    insan: "Hatırlatma peşinde koşmaz.",
-  },
-  {
-    alan: "Karar",
-    sistem: "Kararı hazırlar: kanıtı, farkı ve gerekçeyi tek ekranda gösterir.",
-    insan: "Pedagojik ve kurumsal kararı verir. Bu karar her zaman insandadır.",
-  },
-];
 
 /** Sorumluluk kutusu: CLAUDE.md değişmez ilke 3. */
 export const SORUMLULUK =

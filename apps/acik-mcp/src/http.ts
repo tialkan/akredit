@@ -3,7 +3,8 @@
 // verisi taşınmadığı için CORS her kökene açıktır (kimlik bilgisi kabul edilmez).
 //
 // Günlük: istek içeriği YAZILMAZ. Yalnız araç (ya da yöntem) adı, süre, gövde boyutu ve durum kodu.
-// Sınırlar: gövde en çok 512 KB; adres başına kova (varsayılan 60 istek, saniyede 1 dolar).
+// Sınırlar: gövde en çok 512 KB; adres başına kova (varsayılan 60 istek, saniyede 1 jeton dolar); kaynak_dogrula
+// için adres başına ayrı kova (varsayılan dakikada 5).
 
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import { acikSunucu } from "./sunucu.ts";

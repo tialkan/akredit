@@ -130,3 +130,8 @@ Betik isteğe bağlı ikinci argümanla dosya adına ek koyar (`node apps/web/sc
 `docs/tasarim/ekranlar/`: `ana-sayfa`, `ne-yapar`, `nasil-calisir`, `panel`, `onay-kutusu`; her biri 375, 768 ve
 1440 px. Yeniden üretmek: `AKREDIT_ORNEK_VERI=1 pnpm --filter @akredit/web build`, sunucuyu 3108'de açıp
 `node apps/web/scripts/ekran-goruntusu.ts http://127.0.0.1:3108`.
+
+## Bu klasördeki diğer belgeler
+
+- [`gorseller.md`](gorseller.md): tanıtım sitesindeki gravür görsellerinin kaynağı ve kullanıldığı yerler (İP-49).
+- [`yayin-kilavuzu.md`](yayin-kilavuzu.md): Hetzner, Coolify ve Cloudflare ile yayın kılavuzu; §10.1 köken sunucunun yalnız Cloudflare'a açılması (açık MCP hız sınırı için).

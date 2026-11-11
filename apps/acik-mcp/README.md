@@ -1,26 +1,28 @@
 # @akredit/acik-mcp
 
-Yükseköğretimde kalite güvencesi ve akreditasyon işleri için herkese açık, ücretsiz MCP sunucusu. Kendi yapay zekâ aracınıza (Claude, ChatGPT, Claude Code, Cursor, VS Code) bağlanır; hazır başlangıçlar (istemler) ve on sekiz araç verir.
+Yükseköğretimde kalite güvencesi ve akreditasyon işleri için herkese açık, ücretsiz MCP sunucusu. Kendi yapay zekâ aracınıza (Claude, ChatGPT, Claude Code, Cursor, VS Code) bağlanır; hazır başlangıçlar (istemler) ve yirmi iki araç verir.
 
-İlke: süreci sıfır kullanıcı müdahalesiyle, hızlıca ama denetimli ve teyitli tamamlamak. Akredit özgür yazılımdır; halüsinasyona yer yoktur.
+İlke: süreci en az kullanıcı müdahalesiyle, hızlıca ama denetimli ve teyitli tamamlamak. Akredit özgür yazılımdır; halüsinasyona yer yoktur.
 
 ## İlk 2 dakika
 
 1. Asistanınıza `https://akredit.org/mcp` adresini ekleyin (aşağıda "Bağlantı") ya da yerelde `npx -y @akredit/acik-mcp` çalıştırın.
 2. Yeni sohbette `akredit` yazın ya da hazır başlangıçlardan `akredit` komutunu seçin. Claude'da "+" altında Akredit, Cursor ve Claude Code'da eğik çizgi (/) ile görünür. Görünmüyorsa "Akredit ile başlayalım" yazın.
-3. Odağınızı seçin. Her menünün son satırı "4) Hepsini akıllıca doldur"dur: asistan her alanı kendisi doldurur, denetler, geçmeyeni düzeltir ve sonunda tek özet gösterir. Değiştirmek istediğiniz alanın numarasını yazarsınız; sonradan da kolayca güncellersiniz.
+3. Odağınızı numarasıyla seçin ya da ne istediğinizi doğrudan yazın (ör. "akredit ders paketimi doldur"). Asistan ara adımda soru sormaz: her alanı kendisi doldurur, denetler, geçmeyeni düzeltir ve sonunda tek özet gösterir. Değiştirmek istediğiniz alanın numarasını yazarsınız.
 
 ## Hiç bilmeyenler için
 
 Yapay zekâyı ilk kez kullanıyorsanız bu adımları sırayla izleyin. Her adım tek iştir. Menü adları sürüme göre biraz farklı olabilir.
 
-1. Claude'a Akredit'i ekleyin. claude.ai'de sol alttaki adınıza tıklayın, Settings (Ayarlar), sonra Connectors (Bağlayıcılar). Add custom connector düğmesine basın. Ad: Akredit. Adres: `https://akredit.org/mcp`. Add deyin. Listede Akredit görünür.
+1. Claude'a Akredit'i ekleyin. claude.ai'de Customize (Özelleştir), sonra Connectors (Bağlayıcılar) bölümünü açın. + Add, ardından Add custom connector deyin. Ad: Akredit. Adres: `https://akredit.org/mcp`. Authentication altında No sign in seçip Add deyin. Listede Akredit görünür.
 2. Yeni sohbet açın ve `akredit` yazın. Ekranda hangi aracı kullanmak istediğinizi soran bir menü görürsünüz. Bologna için 1 yazın.
 3. OBS'nize kendiniz girin. Asistan OBS adresinizi sorar ve tarayıcı aracı varsa sayfayı kenarda açar. Kullanıcı adınızı ve parolanızı yalnız OBS'nin kendi giriş ekranına, kendiniz yazın. Asistana, sohbete ya da Akredit'e asla yazmayın. Doğrulama kodu ve "Ben robot değilim" kutusu da sizindir. Girince asistana yalnız "girdim" yazın.
-4. Kenardaki tarayıcı. Claude in Chrome eklentisi, Claude masaüstü uygulamasının tarayıcı paneli ya da ChatGPT'nin ajan modu sayfayı okuyabilir. Asistan ders listenizi numaralı gösterir, siz dersin numarasını yazarsınız.
-5. Seçin. Asistan eksik alanları listeler. 4 yazarsanız hepsini akıllıca doldurur ve tek özet gösterir; isterseniz alan alan seçenek de görebilirsiniz. Kaynakları size sormaz: ders içeriğine uygun eserleri kendi web aramasıyla bulur, Akredit'in kaynak doğrulayıcısından geçirir ve bağlantısıyla gösterir. Doğrulanamayan kaynak önerilmez.
-6. OBS'ye yazma. Üç yol var: 1) asistan formu doldurur, Kaydet'e siz basarsınız 2) asistan doldurur ve sizin açık izninizle kaydeder (her sekmeden önce özet gösterip "evet" ister ya da bir kez "hepsini kaydet" izni alır) 3) alan alan kopyalarsınız. Tarayıcı aracı yoksa 3. yol kullanılır. Parolanız yine yalnız sizdedir.
+4. Kenardaki tarayıcı. Claude in Chrome eklentisi, Claude masaüstü uygulamasının tarayıcı paneli ya da ChatGPT'nin ajan modu sayfayı okuyabilir. Asistan "hangi ders?" diye sormaz: bütün derslerinizin Bologna sayfasını tarar, eksikleri sayar ve tek listede gösterir.
+5. Yalnız sizin bilebileceğinizi yazın. Sayfada değerlendirme yüzdeleri ya da kullandığınız kaynaklar yoksa asistan bunları tek mesajda sorar; tahmin etmez. Kaynak önerisi isterseniz eserleri kendi web aramasıyla bulur, Akredit'in kaynak doğrulayıcısından geçirir ve yalnız katalogda bulunanı bağlantısıyla gösterir. Kalan alanları kendisi doldurur ve denetler.
+6. OBS'ye yazma. Asistan alan alan önceki ve yeni değer özetini gösterir ve sorar: 1) OBS'ye yaz ve kaydet 2) formu doldur, Kaydet'e ben basayım 3) alan alan kopya metni ver. Tarayıcı aracı yoksa 3. yol kullanılır. Kayıttan sonra sayfa geri okunur ve yazılanla karşılaştırılır. Onaya Gönder düğmesine yalnız siz basarsınız.
 7. Engel olursa. Tarayıcı aracı yoksa, site açılmıyorsa, CAPTCHA ya da oturum düşmesi olursa asistana ne olduğunu yazın; adım adım çözüm verir. Hiçbiri olmazsa yedek yol hep var: OBS'de ders sayfasında Ctrl+A, Ctrl+C, sohbete Ctrl+V.
+
+Peşin onay: baştan "akredit ders paketlerimi hepsini yap ve kaydet" yazarsanız asistan ara durak yapmaz; tarar, doldurur, OBS'ye kaydeder, geri okuyup doğrular ve sonda tek rapor verir. Sayfada olmayan değerlendirme yüzdesini ve kaynağı sormaz da uydurmaz da: boş bırakıp raporda listeler. "Kaydetme" gibi olumsuz bir söz onay sayılmaz. Onaya Gönder yine sizdedir.
 
 ## Hazır başlangıçlar (istemler)
 
@@ -37,20 +39,24 @@ Yapay zekâyı ilk kez kullanıyorsanız bu adımları sırayla izleyin. Her ad�
 
 | Araç | Ne yapar |
 |---|---|
+| `akredit_basla` | İlk araç: odak menüsünü, kısa kuralları ve seçilen işin adım adım akışını verir; niyetinizi yazdıysanız menüyü atlar. |
 | `olcut_ara` | YÖKAK ya da program akreditasyonu (MÜDEK, FEDEK, SABAK, EPDAD) ölçütlerinde arar. |
 | `olcut_getir` | Bir ölçütün resmî metnini kaynak sayfasıyla getirir. |
 | `olgunluk_duzeyleri` | Alt ölçütün olgunluk düzeylerini ve örnek kanıtlarını getirir. |
 | `oz_degerlendirme_iskeleti` | Öz değerlendirme raporu iskeletini çıkarır; her bölüm EKSİK işaretli gelir. |
-| `bologna_ayristir` | Yapıştırılan ya da tarayıcıyla okunan Bologna sayfasını çözer. Önce Proliz, olmazsa her OBS için genel ayrıştırıcı (HTML ya da düz metin, Türkçe ya da İngilizce). Bulunan ve bulunamayan alanları ve güven düzeyini söyler. Adres çekmez. |
+| `obs_ders_listesi` | OBS'de ders listesi açılınca tarama planını (15'erli dilimler) ve sonuç raporunun biçimini verir; "hangi ders?" diye sordurmaz. |
+| `bologna_ayristir` | Yapıştırılan ya da tarayıcıyla okunan Bologna sayfasını çözer ve aynı yanıtta denetler. Önce Proliz, olmazsa her OBS için genel ayrıştırıcı (HTML ya da düz metin, Türkçe ya da İngilizce). Bulunan ve bulunamayan alanları ve güven düzeyini söyler. Adres çekmez. |
 | `bologna_denetle` | Bologna ders paketini denetler; boş, zayıf ve tamam alanları numaralı verir. |
 | `bologna_alan_rehberi` | Bir alanın doldurma kurallarını, sınırlarını, kalıplarını ve Bloom fiillerini verir. |
-| `bologna_taslak_denetle` | Asistanın yazdığı 1-3 seçeneği kurallarla denetler: geçer ya da eksik nedenleri. Toplamları kendisi hesaplar. |
-| `is_yuku_oner` | AKTS ve T+U+L'den toplamı hedefe tam eşit üç iş yükü dağılımı önerir. |
-| `bologna_durum` | Seçilen alanların bütününe bakar: kaç alan kaldı, tamamlandı mı. |
-| `bologna_kopya_metni` | Seçilen alanları OBS'ye alan alan kopyalanacak düz metin olarak verir. |
+| `bologna_taslak_denetle` | Asistanın yazdığı 1-3 taslağı biçim kurallarıyla denetler: geçti ya da eksik nedenleri. Toplamları kendisi hesaplar; içerik teyidi hocadadır. |
+| `is_yuku_oner` | AKTS, T+U+L ve sayfadaki değerlendirme kalemlerinden iş yükü dağılımı önerir; yalnız derste olan etkinliğe satır açar. |
+| `bologna_durum` | Hazırlanan alanların bütününe bakar: hangi zorunlu alan eksik ya da kurala uymuyor, kaç alan kaldı. |
+| `bologna_kopya_metni` | Hazırlanan alanları OBS'ye alan alan yazılacak paket ve önceki/yeni değer özeti olarak verir. Doğrulanmamış kaynağı ve teyitsiz değerlendirme yüzdesini pakete almaz. |
+| `bologna_toplu_ozet` | Birden çok dersin (en çok 15) yazma paketini tek özet tablosunda, tek onayla verir. |
+| `obs_karsilastir` | Kayıttan sonra geri okunan sayfayı yazılanla karşılaştırır; ders kodu ya da dönem değişmişse dur der. |
 | `kaynak_bicimle` | Kitap ya da makale bilgisini APA 7'ye benzer künyeye çevirir; eksik bilgiyi [EKSİK] yazar, uydurmaz. |
-| `kaynak_dogrula` | DOI, ISBN ya da başlık ile yazarı açık kataloglarda (Crossref, Open Library, Google Books) arar. Bulursa doğrulanmış künye ve bağlantı, bulamazsa "doğrulanamadı" döner; doğrulanamayan kaynak önerilmez. |
-| `not_tablosu_ayristir` | Excel ya da CSV not tablosunu ÇK/PÇ hesabına hazırlar; ad ve numara sütunlarını atıp öğrencilere takma ad verir, başlıklardan soru ve çıktı eşlemesini sezer. |
+| `kaynak_dogrula` | DOI, ISBN ya da başlık ile yazarı açık kataloglarda (Crossref, Open Library, Google Books) arar. Bulursa katalog künyesi ve bağlantısı, bulamazsa "bulunamadı" döner; katalogda bulunmayan kaynak önerilmez, yalnız hoca beyanıyla yazılır. |
+| `not_tablosu_ayristir` | Excel ya da CSV not tablosunu ÇK/PÇ hesabına hazırlar; yalnız not sütunlarını kabul eder (ad ya da numara sütunu görürse işlemez), öğrencilere takma ad verir, başlıklardan soru ve çıktı eşlemesini sezer. |
 | `ck_pc_hesapla` | Ders öğrenme çıktısı ve program çıktısı sağlanma düzeyini hesaplar. |
 | `rapor_dil_denetle` | Rapor metninde kanıtsız üstünlük, belirsiz özne gibi dil sorunlarını işaretler. |
 | `kurulum_yardimi` | Bağlayıcı ekleme ve OBS'ye tarayıcıyla giriş için istemciye göre adım adım rehber. |
@@ -62,34 +68,32 @@ Sunucu model çağırmaz ve metin üretmez. Bologna seçeneklerini sizin asistan
 
 ```
 Hoca:     akredit
-Asistan:  Neye odaklanalım? 1) Bologna paketi 2) Öğrenme çıktısı 3) ÇK/PÇ 4) Ölçüt rehberi 5) Dil denetimi
+Asistan:  Merhaba. Neye odaklanalım? Yalnız numarasını yazın.
+          1) Bologna paketi 2) Öğrenme çıktısı 3) ÇK/PÇ 4) Ölçüt rehberi 5) Dil denetimi 6) Başka bir şey
 Hoca:     1
 Asistan:  Önce bir kural: kullanıcı adınızı ve parolanızı yalnız OBS'nin kendi ekranına, kendiniz yazın.
-          Bana asla yazmayın. OBS adresiniz nedir?
+          Bana asla yazmayın. OBS'nizin adresini yazın.
 Hoca:     obs.kurgu.edu.tr
 Asistan:  OBS giriş ekranını kenarda açtım. Bilgilerinizi oraya yazın, bitince bana yalnız "girdim" yazın.
 Hoca:     girdim
-Asistan:  Dersleriniz: 1) KRG204 Kurgu Ölçme Yöntemleri 2) KRG305 Kurgu Veri Çözümlemesi. Hangisi?
+Asistan:  2 dersiniz var. Hepsini tarıyorum; eksikleri ve önerilerimi birazdan tek listede göstereceğim.
+Asistan:  Şu eksiklikleri tespit ettim, önerilerim şunlar.
+          KRG204 Kurgu Ölçme Yöntemleri: 6 alan eksik ya da zayıf (amaç boş, 3 hafta var)
+          KRG305 Kurgu Veri Çözümlemesi: eksik görünmüyor
+          İki bilgiyi yalnız siz bilebilirsiniz (KRG204):
+          1) Değerlendirme yöntemleri ve yüzdeleri: yazın (ör. Vize 40, Final 60)
+          2) Kaynaklar: a) katalogdan doğrulayıp önereyim b) şunları kullanıyorum: yazın
+          Sonra: 1) Eksikleri en çok olandan başlayarak kapatalım (önerilen) 2) Yalnız en eksik dersi ...
+Hoca:     vize 40 final 60, kaynak a, 1
+Asistan:  KRG204 için değişiklik özeti (öneri yazanlar benim önerimdir, içeriği siz teyit edersiniz):
+          1) Amaç: (boş) -> "Bu ders, kurgu ölçme kavramlarını ..." (öneri)
+          2) Değerlendirme: Ara Sınav %40, Yarıyıl Sonu Sınavı %60 (hoca)
+          3) Kaynaklar: Deneme, C. (2019). Kurgu istatistiği. Kurgu Akademi. (katalogda bulundu) ...
+          1) OBS'ye yaz ve kaydet 2) Formu doldur, Kaydet'e ben basayım 3) Kopya metni ver
+          Değiştirmek istediğiniz alan varsa numarasını yazın.
 Hoca:     1
-Asistan:  Sayfayı okudum. 9 alan eksik ya da zayıf:
-          1) Amaç (boş) 2) İçerik (8 kelime) 3) Çıktılar (2 var, 8-12 olmalı) 4) Haftalar (3 var) ...
-          1) Alan alan seçenek göstereyim 2) Yalnız boşlar 3) Kendim seçeyim 4) Hepsini akıllıca doldur (önerilen)
-Hoca:     4
-Asistan:  Şu alanları şöyle doldurdum, hepsi denetimden geçti:
-          1) Amaç: "Bu ders, kurgu ölçme kavramlarını ..." (66 kelime)
-          2) İçerik: ... 3) Çıktılar: 8 çıktı ... 9) Kaynaklar: 2 eser, ikisi de katalogda doğrulandı:
-             Deneme, C. (2019). Kurgu istatistiği. Kurgu Akademi. https://books.google.com/books?id=...
-          Değiştirmek istediğiniz alanın numarasını yazın; yoksa devam diyebilirsiniz.
-          Bunları daha sonra da kolayca güncelleyebilirsiniz.
-Hoca:     devam
-Asistan:  OBS'ye nasıl yazalım? 1) Formu ben doldurayım, Kaydet'e siz basın
-          2) Formu ben doldurup kaydedeyim (her sekmeden önce evet isterim) 3) Alan alan kopyalayın
-          4) Hepsini akıllıca doldur ve kaydet (önerilen)
-Hoca:     4
-Asistan:  Bütün sekmeleri doldurup kaydetmem için izin veriyor musunuz? hepsini kaydet / hayır
-Hoca:     hepsini kaydet
-Asistan:  Üç sekmeyi doldurdum ve kaydettim. Dersi Verenler satırına dokunmadım.
-Asistan:  Sayfayı yeniden okudum ve denetledim: Tamamlandı.
+Asistan:  Kaydedildi ve geri okunarak doğrulandı; içerik teyidi sizde. Dersi Verenler satırına dokunmadım.
+          Onaya Gönder düğmesine siz basarsınız.
 ```
 
 ## Salt okuma ve güvenlik

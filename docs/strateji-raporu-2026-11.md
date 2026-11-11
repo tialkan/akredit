@@ -7,6 +7,27 @@
 
 ---
 
+## Uygulama durumu (2026-11-11)
+
+Rapor 0.6.3'e göre yazıldı ve aşağıda değiştirilmedi. Bu tablo, §7.3'teki on sorunun rapordan sonraki durumunu depodan okunan kanıtla verir (canlı sürüm 0.8.0). Gövdede "yapılacak" diye geçen işlerde bu tablo geçerlidir.
+
+| # | Sorun (§7.3) | Durum | Kanıt |
+|---|---|---|---|
+| 1 | Tarayıcı içi araçlar ana sayfada yok | Yapıldı (kısmen) | Commit `2797dfa`; ana sayfa `/deneyin`'e bağlanır, askıdaki demo `/kurum-demosu` sayfasında (eski `/deneyin#kurum-demosu`). Önerilen ayrı `/araclar` adresi açılmadı; araçlar `/deneyin`'de. |
+| 2 | Gerçek Codex/Claude sohbetinde doğrulama | Yapılmadı | `plan/ip/IP-49-acik-mcp.md` 0.7.0 kaydı: "Yapılmadı … Codex denemesi". 0.8.0 için de kayıt yok. |
+| 3 | npm paketi eski | Yapılmadı (kısmen) | `npm view @akredit/acik-mcp version` 2026-11-11'de `0.6.0` döndü (raporda 0.5.0); depo 0.8.0. Güncel sürüm yayımlanmadı. |
+| 4 | Tarayıcı turlarında kör nokta | Yapıldı | `tarayiciEylemPlani`, `apps/acik-mcp/src/bologna.ts`; commit `2797dfa` (0.7.0). |
+| 5 | Toplu özet sunucuda değil | Yapıldı | Araç `bologna_toplu_ozet`, `apps/acik-mcp/src/bologna.ts`; senaryo `test/otonomi-senaryosu.test.ts`; commit `2797dfa`. |
+| 6 | `cf-connecting-ip` güveni belgesiz | Belge yapıldı; sunucu ayarı DOĞRULANMADI | `docs/tasarim/yayin-kilavuzu.md` §10.1. Köken sunucunun güvenlik duvarında gerçekten kısıtlandığı depodan görülemez. |
+| 7 | Not tablosu sohbete giriyor (KVKK) | Yapıldı (uyarı ve yönlendirme) | `apps/acik-mcp/src/not-tablosu.ts` araç açıklaması `/deneyin#ck` hesaplayıcısına yönlendirir. Araç kaldırılmadı. |
+| 8 | `dogrulandi: false` çerçeveler | Yapılmadı | `packages/cerceveler/src/veri.ts`, `veri-resmi.ts`, `program-tablolari/cerceveler.ts` hâlâ `dogrulandi: false`; hücre doğrulama sayfası yok (uzman ister). |
+| 9 | CI tam set, askıdaki kod dahil | Yapıldı (kısmen) | Kök `package.json` `verify:canli` var (2026-11-11'de gömülü `baglayicilar` ve `yz` süzgece eklendi). `.github/workflows/ci.yml` hâlâ tam `check`, `typecheck`, `test` çalıştırır. |
+| 10 | `sayfaJetonu` yok | Yapılmadı (ertelendi) | Kodda `sayfaJetonu` geçmiyor; günlük 0.6.2 ve 0.6.3: ertelendi, değerlendirme kanıt kapısı şimdilik yeterli görüldü. |
+
+Rapordan sonra, sorun listesinde olmayan ek: peşin onayla tam otonom kip (0.8.0, [ADR 0009](adr/0009-pesin-onay-tam-otonom-kip.md), commit `1dac082`).
+
+---
+
 ## Bölüm 1: Yönetici özeti, değer önermesi ve büyüme çarkı
 
 ### 1.1 Durum tek paragrafta

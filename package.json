@@ -18,7 +18,7 @@
     "test": "pnpm -r --if-present test",
     "build": "pnpm -r --if-present build",
     "verify": "pnpm check && pnpm typecheck && pnpm test",
-    "verify:canli": "pnpm check && pnpm -r --if-present --filter @akredit/web --filter @akredit/acik-mcp --filter @akredit/cekirdek --filter @akredit/cerceveler --filter @akredit/olcme --filter @akredit/belge typecheck && pnpm -r --if-present --filter @akredit/web --filter @akredit/acik-mcp --filter @akredit/cekirdek --filter @akredit/cerceveler --filter @akredit/olcme --filter @akredit/belge test"
+    "verify:canli": "pnpm check && pnpm -r --if-present --filter @akredit/web --filter @akredit/acik-mcp --filter @akredit/cekirdek --filter @akredit/cerceveler --filter @akredit/olcme --filter @akredit/belge --filter @akredit/baglayicilar --filter @akredit/yz typecheck && pnpm -r --if-present --filter @akredit/web --filter @akredit/acik-mcp --filter @akredit/cekirdek --filter @akredit/cerceveler --filter @akredit/olcme --filter @akredit/belge --filter @akredit/baglayicilar --filter @akredit/yz test"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.4",

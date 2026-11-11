@@ -1,4 +1,5 @@
-// Bologna ders sayfası taslağı denetimi (K1-K12 ve diğer kurallar).
+// Bologna ders sayfası taslağı denetimi (K2-K10, K12 ve diğer kurallar). K1 (ders adıyla tutarlılık, başka
+// dersten kopya) ve K11 (başka dersin yöntem metniyle aynılık) tek taslaktan denetlenemez; burada yoktur.
 // apps/cli/lib/bologna-taslak.mjs `taslakDenetle` işlevinin saf, tipli taşıması. Mesajlar aynen korunur:
 // CLI'deki "K8: metin" dizesi burada { kural: "K8", aciklama: "metin" } olur.
 //
@@ -51,6 +52,12 @@ const bos = (s: unknown): boolean => /^\s*(-|\.|yok|)\s*$/i.test(String(s ?? "")
 // ASCII'ye düşürülmüş Türkçe kelimeler (talimat bölüm 6). CLI ile aynı ifade.
 const ASCII_TURKCE =
   /\b(icin|haftalik|ogrenme|ogrenci|ciktilar[ıi]?|ciktisi|bilisim|kaynag[ıi]|devam[ıi]|uygulamali|notlar[ıi]n[ıi]|incelenmesi|gelistirme|yazilim|programlamanin|tasarim[ıi]?|olusturma|degerlendirme|sinav[ıi]?|calisma|donem|guvenlik|baglant[ıi])\b/i;
+// "guncel" set: aynı kelime listesi, Türkçe harfleri de kelime harfi sayan sınırlarla. CLI ifadesindeki `\b`
+// ASCII dışı harfi kelime sınırı sayar; bu yüzden doğru yazılmış "devamını", "notlarının" kelimelerinin içinde
+// "devamı", "notlarını" eşleşir ve hoca yanlış yere hata alır. Burada "ı" ile yazılan doğru biçimler ve zaten
+// doğru yazılmış olan "incelenmesi" aranmaz.
+const ASCII_TURKCE_GUNCEL =
+  /(?<![\p{L}\p{N}_])(icin|haftalik|ogrenme|ogrenci|ciktilar[ıi]?|ciktisi|bilisim|kaynag[ıi]|devami|uygulamali|notlarini|gelistirme|yazilim|programlamanin|tasarim[ıi]?|olusturma|degerlendirme|sinav[ıi]?|calisma|donem|guvenlik|baglant[ıi])(?![\p{L}\p{N}_])/giu;
 // Ölçülemeyen çıktı kalıpları (K4). "gösterebilir", "açıklayabilir" geçerlidir.
 const OLCULEMEZ = /(bilgi sahibi olur|hakkında bilgi|fikir sahibi olur|(^|\s)(öğrenir|kavrar|anlar|bilir))\.?\s*$/i;
 const ZAYIF = /farkındalık/i;
@@ -246,7 +253,7 @@ export function taslakDenetle(t: DenetlenecekTaslak, secenek: TaslakDenetimSecen
     ...cik.map((c) => c.tr),
     ...haftalar.flatMap((h) => [h.konu?.tr, h.onHazirlik, h.dokuman]),
   ].filter(Boolean);
-  const tumu = new RegExp(ASCII_TURKCE, "gi");
+  const tumu = guncel ? ASCII_TURKCE_GUNCEL : new RegExp(ASCII_TURKCE, "gi");
   const ascii = [...new Set(trMetinler.flatMap((m) => [...String(m).matchAll(tumu)].map((x) => x[0])))];
   if (ascii.length) hata("Türkçe", `Türkçe karakteri düşürülmüş kelimeler: ${ascii.slice(0, 10).join(", ")}.`);
 

@@ -1,4 +1,4 @@
-// Demo oturumu (İP-41): `/deneyin` sayfasında seçilen rolle, etkin demo neslinin kurumuna iki saatlik oturum.
+// Demo oturumu (İP-41): `/kurum-demosu` sayfasında seçilen rolle, etkin demo neslinin kurumuna iki saatlik oturum.
 //
 // Her ziyaretçi için demo kurumunda ayrı bir "Ziyaretçi" kişisi açılır; rol atamaları demo neslinin şablonundan
 // (kurum ayarı) kopyalanır ve oturumla aynı anda biter. Kimlik katmanında ziyaretçi, teslim edilemeyen

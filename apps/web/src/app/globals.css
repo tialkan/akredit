@@ -208,13 +208,6 @@ body:has(#dayanak-9:hover) a[href="#dayanak-9"] {
   background: var(--petrol-zemin);
 }
 
-/* Belge dokusu: ilk ekranın arkasında on iki sütunluk ince ızgara (yalnız geniş ekranda, süs). */
-.belge-izgara {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
 /* Onay kutusu önizlemesi: bir öneri "onay bekliyor" durumundan "onaylandı" durumuna geçer, karar günlüğe eklenir.
    Hareket bir kez oynar. Hareket azaltma tercihinde son durum doğrudan görünür (aşağıdaki @media). */
 .onizleme-kart {

@@ -75,10 +75,21 @@ export class AracHatasi extends Error {}
  * uydurulmaz, EKSİK bırakılıp raporda listelenir (ilke 2).
  */
 const PESIN_ONAY = /hepsini|sen hallet|hallet|otonom|sormadan|tam yetki|kaydet|yaz ve kaydet|onaylıyorum|onayliyorum/iu;
+/**
+ * Olumsuz söz onay değildir: "kaydetme", "kaydetmeden önce sor", "sen halletme", "OBS'ye yazma", "onaylamıyorum",
+ * "istemiyorum", "hayır", "değil". Ad-fiil ("kaydetmek") olumsuz sayılmaz; "kaydetmeni" gibi belirsiz biçimler
+ * bilerek olumsuz sayılır: kuşkuda onay yoktur, hocaya bir kez sorulur (ilke 3).
+ */
+const PESIN_ONAY_OLUMSUZ =
+  /kaydetme(?!k)|halletme(?!k)|(?<!\p{L})(yazma|yapma)(?!k)|onaylam[ıi]yorum|istem[ie]yorum|(?<!\p{L})istemem|verm[ie]yorum|(?<!\p{L})(hay[ıi]r|de[ğg]il)(?!\p{L})/iu;
 export function pesinOnayVar(metin: string | undefined): boolean {
-  return !!metin && metin.trim().length >= 3 && PESIN_ONAY.test(metin);
+  if (!metin || metin.trim().length < 3) return false;
+  // Büyük harfle yazılan Türkçe metin (DEĞİL, HAYIR) için ayrıca Türkçe küçük harfle de bakılır.
+  const kucuk = metin.toLocaleLowerCase("tr");
+  if (PESIN_ONAY_OLUMSUZ.test(metin) || PESIN_ONAY_OLUMSUZ.test(kucuk)) return false;
+  return PESIN_ONAY.test(metin);
 }
 export const PESIN_ONAY_ACIKLAMASI =
-  "Hocanın peşin onayı, kendi sözleriyle olduğu gibi (ör. 'hepsini yap ve kaydet'). Varsa ve kayıt sözü içeriyorsa ara durak olmadan yazılıp kaydedilir; sonda tek rapor verilir. Onaya Gönder hocada kalır.";
+  "Hocanın peşin onayı, kendi sözleriyle olduğu gibi (ör. 'hepsini yap ve kaydet'). Varsa ve kayıt sözü içeriyorsa ara durak olmadan yazılıp kaydedilir; sonda tek rapor verilir. Olumsuz söz ('kaydetme', 'kaydetmeden önce sor') onay sayılmaz. Onaya Gönder hocada kalır.";
 
 export const KOD_KAYNAGI = (yol: string, ad: string): Kaynak => ({ ad, adres: `${DEPO}/tree/main/${yol}` });

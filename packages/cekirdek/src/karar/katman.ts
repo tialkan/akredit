@@ -117,8 +117,8 @@ export function topluOnayaUygunMu(s: KatmanSonucu): boolean {
 }
 
 /**
- * Katman 2 bir kararın kabul edilebilirliği: politika ya da süre dayanağı reddedilir, kararı veren
- * kişi ve kartta geçen süre bulunmalıdır.
+ * Katman 2 bir kararın kabul edilebilirliği: politika ya da süre dayanağı ve toplu onay reddedilir.
+ * Her katmanda kararı veren kişi yazılmalıdır. Kartta geçen süre burada denetlenmez.
  */
 export function zorunluKararDenetle(
   s: KatmanSonucu,

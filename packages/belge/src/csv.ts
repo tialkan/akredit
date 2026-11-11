@@ -2,7 +2,7 @@
 
 import type { HucreDegeri } from "./turler.ts";
 
-/** Baytları metne çevirir: BOM'lu ya da geçerli UTF-8 değilse Windows-1254 (Türkçe) varsayılır. */
+/** Baytları metne çevirir: BOM varsa ona göre (UTF-8, UTF-16LE); yoksa geçerli UTF-8 ise UTF-8, değilse Windows-1254 (Türkçe). */
 export function metneCevir(veri: Uint8Array): { metin: string; kodlama: "utf-8" | "windows-1254" | "utf-16le" } {
   if (veri[0] === 0xef && veri[1] === 0xbb && veri[2] === 0xbf) {
     return { metin: new TextDecoder("utf-8").decode(veri.subarray(3)), kodlama: "utf-8" };

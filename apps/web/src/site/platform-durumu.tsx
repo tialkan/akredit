@@ -1,5 +1,5 @@
-// Platformun bugünkü durumu ve sponsor çağrısı (kurucu kararı 2026-11-01, ADR 0008). Ana sayfada ve askıdaki
-// sayfalarda (/kurum-ac, /pilot, /giris) aynı metin gösterilir.
+// Platformun bugünkü durumu ve sponsor çağrısı (kurucu kararı 2026-11-01, ADR 0008). Proje ayrıntılarında ve
+// askıdaki sayfalarda (/kurum-ac, /pilot, /giris) aynı metin gösterilir.
 import Link from "next/link";
 import { DEPO_ADRESI, ILETISIM_ADRESI, PLATFORM_DURUMU, SPONSOR_CAGRISI } from "./icerik.ts";
 

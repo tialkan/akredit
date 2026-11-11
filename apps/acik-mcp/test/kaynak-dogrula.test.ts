@@ -120,7 +120,7 @@ describe("kaynak_dogrula (sahte fetch, kayıtlı örnekler)", () => {
     });
   });
 
-  it("bulunamayan, geçersiz ya da ağ hatalı kaynak 'doğrulanamadı' döner ve önerilmez", async () => {
+  it("bulunamayan, geçersiz ya da ağ hatalı kaynak 'bulunamadi' döner ve önerilmez", async () => {
     const { f } = sahteFetch({
       "www.googleapis.com": '{ "kind": "books#volumes", "totalItems": 0 }',
       "api.crossref.org": null,
@@ -145,7 +145,7 @@ describe("kaynak_dogrula (sahte fetch, kayıtlı örnekler)", () => {
       expect(k.baglanti).toBeUndefined();
     }
     expect(String(r.veri.sonrakiAdim)).toMatch(/asla kendiniz önermeyin/u);
-    // Ağ hatası da doğrulanamadı sayılır, uydurma künye yazılmaz.
+    // Ağ hatası da 'bulunamadi' sayılır, uydurma künye yazılmaz.
     const hata = (async () => {
       throw new Error("ağ yok");
     }) as unknown as typeof fetch;

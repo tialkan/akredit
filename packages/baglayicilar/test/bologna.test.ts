@@ -65,6 +65,8 @@ describe("CLI senaryoları", () => {
     );
     expect(t[0]?.[1]).toEqual(["1", "Web'in çalışmasını açıklar."]);
     expect(metin("<b>G&#252;ncelleme</b>&nbsp;x")).toBe("Güncelleme x");
+    // Geçersiz kod noktası (0x10FFFF üstü) hata atmaz; başvuru olduğu gibi kalır, geçerli olan çözülür.
+    expect(metin("a&#99999999;b &#x110000; &#x131;")).toBe("a&#99999999;b &#x110000; ı");
   });
 
   it("ders sayfası ayrıştırılır, toplam satırları iş yüküne katılmaz", () => {

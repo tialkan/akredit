@@ -116,6 +116,13 @@ describe("parcala", () => {
     expect(p[1]?.capa).toEqual({ bolum: "Ek", satir: 3 });
   });
 
+  it("tek dolu satırlı tabloda çapa o satırın kendi sırasını gösterir", () => {
+    // Dolu satır 3. sırada: çapa boş 1. satırı değil A3:B3'ü göstermeli.
+    const t = { capa: { hucre: "Özet!A1:B3" }, ad: "Özet", satirlar: [[null, null], [], ["Toplam", 42]] };
+    const p = parcala(belge({ tablolar: [t] }));
+    expect(p).toEqual([{ sira: 0, capa: { hucre: "Özet!A3:B3" }, metin: "Özet\nToplam | 42" }]);
+  });
+
   it("metniBol boş metinde boş liste", () => {
     expect(metniBol("  \n\n ", 100, 200)).toEqual([]);
   });

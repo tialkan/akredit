@@ -195,6 +195,22 @@ describe("Bologna taslak denetimi: güncel kural seti (dış inceleme 2026-11-05
     expect(s.bulgular.some((b) => b.kuralTuru === "resmî")).toBe(false);
   });
 
+  it("Türkçe karakter denetimi doğru yazılmış kelimeyi işaretlemez, düşürülmüşü yakalar", () => {
+    const turkce = (s: ReturnType<typeof guncel>) => s.bulgular.filter((b) => b.kural === "Türkçe");
+    const t = ornekTaslak();
+    // "devamını", "notlarının" ve "incelenmesi" doğru yazılmıştır; içlerindeki "devamı" ve "notlarını" eşleşmemeli.
+    t.notlar.tr = "Dersin devamını izlemek için haftalık ders notlarının incelenmesi önerilir.";
+    expect(turkce(guncel(t))).toEqual([]);
+    // CLI ile eşdeğer varsayılan set bu üç kelimeyi yanlış yere işaretler; eşdeğerlik için böyle kalır.
+    expect(hatalar(t)).toMatch(/Türkçe: .*devamı, notlarını, incelenmesi\./u);
+    esdeger(t);
+    // Düşürülmüş yazım iki sette de yakalanır; önünde Türkçe harf olan kelimenin içi aranmaz ("şicin").
+    t.notlar.tr = "Ders notlarini haftalik olarak izler, devami zorunludur. Şicin bir kelime değildir.";
+    expect(turkce(guncel(t)).map((b) => b.aciklama)).toEqual([
+      "Türkçe karakteri düşürülmüş kelimeler: notlarini, haftalik, devami.",
+    ]);
+  });
+
   it("bölen seçeneği ve taslaktaki bölen", () => {
     const t = ornekTaslak();
     delete t.bolen;

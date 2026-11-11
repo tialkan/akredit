@@ -1,4 +1,4 @@
-// `POST /api/deneyin` (İP-41): rol seçip demo oturumu açar. Betiksiz çalışır: `/deneyin` sayfasındaki düğmeler
+// `POST /api/deneyin` (İP-41): rol seçip demo oturumu açar. Betiksiz çalışır: `/kurum-demosu` sayfasındaki düğmeler
 // sıradan bir form gönderir, yanıt çerezle birlikte panele 303 yönlendirmedir.
 //
 // Güvenlik: yalnız AKREDIT_DEMO=1 iken açıktır; köken denetimi (CSRF); IP başına ve süreç geneli hız sınırı
@@ -45,7 +45,7 @@ async function govdeOku(istek: Request): Promise<unknown> {
 const hataSayfasi = (k: KimlikSunucusu, kod: string) =>
   new Response(null, {
     status: 303,
-    headers: { location: new URL(`/deneyin?hata=${kod}`, k.ayar.temelAdres).toString() },
+    headers: { location: new URL(`/kurum-demosu?hata=${kod}`, k.ayar.temelAdres).toString() },
   });
 
 export function demoUcu(k: KimlikSunucusu, s: DemoUcSecenekleri = {}) {
@@ -62,7 +62,7 @@ export function demoUcu(k: KimlikSunucusu, s: DemoUcSecenekleri = {}) {
       return new Response(null, {
         status: 303,
         headers: {
-          location: new URL("/deneyin?hata=cok", k.ayar.temelAdres).toString(),
+          location: new URL("/kurum-demosu?hata=cok", k.ayar.temelAdres).toString(),
           "retry-after": String(g.bekle),
         },
       });

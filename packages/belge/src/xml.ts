@@ -110,12 +110,6 @@ function metinEkle(ust: XmlDugum, ham: string): void {
   ust.cocuklar.push(varlikCoz(ham));
 }
 
-/** Ad ön ekini (w:, a:, text:) yok sayarak yerel adı verir. */
-export function yerelAd(ad: string): string {
-  const k = ad.indexOf(":");
-  return k === -1 ? ad : ad.slice(k + 1);
-}
-
 export function cocuklar(d: XmlDugum, ad?: string): XmlDugum[] {
   const sonuc: XmlDugum[] = [];
   for (const c of d.cocuklar) if (typeof c !== "string" && (ad === undefined || c.ad === ad)) sonuc.push(c);

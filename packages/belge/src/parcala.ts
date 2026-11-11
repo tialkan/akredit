@@ -100,7 +100,8 @@ function tabloParcalari(t: Tablo, hedef: number, en: number): { capa: Capa; meti
   const sira = t.satirlar.map((s, i) => (s.some((h) => h !== null && h !== "") ? i + 1 : 0)).filter((n) => n > 0);
   const sonuc: { capa: Capa; metin: string }[] = [];
   const onEk = `${ad}${baslik}`;
-  if (satirlar.length === 1) return [{ capa: hucreAraligi(t.capa, 1, 1, sutun), metin: onEk }];
+  const ilkSira = sira[0] as number;
+  if (satirlar.length === 1) return [{ capa: hucreAraligi(t.capa, ilkSira, ilkSira, sutun), metin: onEk }];
   let grup: string[] = [];
   let ilk = 0;
   let son = 0;

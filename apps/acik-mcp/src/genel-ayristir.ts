@@ -2,8 +2,8 @@
 // etiketlerine (Amaç/Objective, İçerik/Content, Öğrenme Çıktıları/Learning Outcomes...) göre bölümlere ayırır.
 // Ağ yoktur, model yoktur: yalnız etiket eşleme ve sayı okuma. Bulunamayan alan boş kalır, tahmin edilmez.
 //
-// Kişi satırları (Dersi Veren, Instructor, e-posta, telefon) ayrıştırmadan önce bellekte atılır. Kaynaklar
-// bölümü künye olarak ayrı alınır (yazar adları yayımlanmış künyedir).
+// Görev satırları (Dersi Veren, Instructor, iletişim) ayrıştırmadan önce yetkililer listesine ayrılır ve olduğu gibi
+// korunur; hiçbir şey atılmaz. Kaynaklar bölümü künye olarak ayrı alınır (yazar adları yayımlanmış künyedir).
 //
 // Düz metin (dış inceleme 2026-11-05): tarayıcıda Ctrl+A, Ctrl+C ile kopyalanan sayfada tablolar sekmeyle ayrılır.
 // ÖÇ-PÇ katkı matrisi ve ders yapısı bu sekmeli metinden de okunur; Proliz sayfasının düz metni tanınır.

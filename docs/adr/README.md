@@ -12,3 +12,4 @@ Her önemli teknik ya da ürün kararı kısa bir kayıtla yazılır: bağlam, k
 | [0006](0006-dis-ornek-kanit-degildir.md) | Başka kurumdan örnek ayrı bir türdür ve kanıt değildir |
 | [0007](0007-sessiz-devir-ve-varsayilan-onay.md) | Sessiz devir ve süreli varsayılan onay |
 | [0008](0008-mcp-odagi-barindirma-askida.md) | Herkese açık MCP odağı, barındırılan hizmetin askıya alınması |
+| [0009](0009-pesin-onay-tam-otonom-kip.md) | Peşin onay ile tam otonom Bologna kipi |

@@ -53,10 +53,6 @@ function metinler(
   return cikti;
 }
 
-/**
- * Girdide kişisel veri olabilecek türlerin adları (değerler değil). Boşsa temiz.
- * `kunyeAnahtarlari`: altındaki metinler künye kuralıyla (yazar adı serbest) değerlendirilen alan adları.
- */
 export type KisiselVeriKapsami = "yok" | "ogrenci" | "tam";
 
 /** "ogrenci" kapsamında aranan türler; öbürleri (ad, e-posta, telefon, adres, imza) kapalıdır. */
@@ -73,6 +69,11 @@ export function gorunenMetin(x: string): string {
     .replace(/&nbsp;/gu, " ");
 }
 
+/**
+ * Girdide kişisel veri olabilecek türlerin adları (değerler değil). Boşsa temiz.
+ * `kunyeAnahtarlari`: altındaki metinler künye kuralıyla (yazar adı serbest) değerlendirilen alan adları.
+ * `kapsam` verilmezse "tam"dır; sunucu, kapsam bildirmeyen araçlar için "ogrenci" verir (bkz. sunucu.ts).
+ */
 export function kisiselVeriTurleri(
   girdi: unknown,
   kunyeAnahtarlari: readonly string[] = [],

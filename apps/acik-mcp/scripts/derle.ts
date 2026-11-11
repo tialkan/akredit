@@ -31,7 +31,7 @@ function dosyalar(d: string): string[] {
 
 /** `from "@akredit/x"` ve `import("@akredit/x")` belirteçlerini derlenmiş kopyaya göreli yola çevirir. */
 export function belirtecleriCevir(metin: string, dosyaYolu: string): string {
-  return metin.replace(/(["'])(@akredit\/[a-z-]+(?:\/[a-z-]+)?)\1/gu, (tam, tirnak: string, ad: string) => {
+  return metin.replace(/(["'])(@akredit\/[a-z-]+(?:\/[a-z-]+)?)\1/gu, (_tam, tirnak: string, ad: string) => {
     const hedef = GOMULU[ad];
     if (!hedef) throw new Error(`${relative(DIST, dosyaYolu)}: gömülmeyen iş alanı paketi ${ad}`);
     let g = relative(dirname(dosyaYolu), join(DIST, hedef)).split(sep).join("/");

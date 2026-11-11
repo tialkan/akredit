@@ -12,11 +12,6 @@ export function kucukHarf(metin: string): string {
   return metin.toLocaleLowerCase("tr-TR");
 }
 
-/** Türkçe kurallarıyla büyük harfe çevirir: "i" → "İ", "ı" → "I". */
-export function buyukHarf(metin: string): string {
-  return metin.toLocaleUpperCase("tr-TR");
-}
-
 /**
  * Karşılaştırma için normalleştirir: Unicode NFC, Türkçe küçük harf, tipografik tırnak ve tireler,
  * yumuşak tire, satır sonunda bölünmüş kelimeler ve boşluklar. Anlamı değiştirmez, harf düşürmez.

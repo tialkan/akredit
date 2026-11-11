@@ -145,15 +145,6 @@ export function Metin({ children }: { children: ReactNode }) {
   return <div className="metin-sayfa [&>*:first-child]:mt-0">{children}</div>;
 }
 
-/** Taslak uyarısı: hukuk metinleri ve doğrulanmamış bilgiler için. */
-export function TaslakNotu({ children }: { children: ReactNode }) {
-  return (
-    <div role="note" className="mt-6 rounded-sm border border-risk-orta bg-risk-orta-zemin px-4 py-3 text-risk-orta">
-      {children}
-    </div>
-  );
-}
-
 /** Tanım listesi: "Girer / Çıkar / Hocaya kalan" gibi etiketli satırlar. */
 export function Tanimlar({ ogeler }: { ogeler: { ad: string; deger: ReactNode }[] }) {
   return (

@@ -1,7 +1,7 @@
 // Sayfa üst verisi ve yapılandırılmış veri (schema.org JSON-LD). Saf işlevler; test edilir.
 
 import type { Metadata } from "next";
-import { SAYFALAR, type SayfaBilgisi, SITE_ADRESI } from "./icerik.ts";
+import { DEPO_ADRESI, ILETISIM_ADRESI, PROJE_SAHIBI, SAYFALAR, type SayfaBilgisi, SITE_ADRESI } from "./icerik.ts";
 
 export function tamAdres(yol: string): string {
   return yol === "/" ? `${SITE_ADRESI}/` : `${SITE_ADRESI}${yol}`;
@@ -32,8 +32,8 @@ export const KURULUS = {
   url: `${SITE_ADRESI}/`,
   logo: `${SITE_ADRESI}/marka/simge-512.png`,
   description: SAYFALAR.ana.aciklama,
-  founder: { "@type": "Person", name: "Tarık İsmet ALKAN", sameAs: "https://www.linkedin.com/in/tialkan/" },
-  sameAs: ["https://github.com/tialkan/akredit", "https://www.npmjs.com/package/@akredit/acik-mcp"],
+  founder: { "@type": "Person", name: PROJE_SAHIBI, sameAs: ILETISIM_ADRESI },
+  sameAs: [DEPO_ADRESI, "https://www.npmjs.com/package/@akredit/acik-mcp"],
 };
 
 /** Ana sayfa için site ve uygulama düğümleri: ücretsiz, açık kaynak, Türkçe. */

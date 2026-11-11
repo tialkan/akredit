@@ -3,7 +3,8 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { ACIK_ARACLAR, aracCalistir } from "../src/index.ts";
+import { ACIK_ARACLAR, aracCalistir, pesinOnayVar } from "../src/index.ts";
+import { SUNUCU_TALIMATI } from "../src/sunucu.ts";
 
 const SIMDI = () => new Date("2026-11-07T09:00:00Z");
 const arac = (ad: string) => {
@@ -247,5 +248,107 @@ describe("peşin onay (tam otonom kip): hoca başta bir kez 'hepsini yap ve kayd
     const b = a.cagir("akredit_basla", { kullaniciMesaji: "ders paketimi doldur" });
     expect(b.sonuc.pesinOnay).toBeUndefined();
     expect(b.sonuc.ipucu).toContain("hepsini yap ve kaydet");
+  });
+
+  it("olumsuz söz onay değildir: 'kaydetme', 'kaydetmeden önce sor', 'sen halletme' peşin onay sayılmaz", () => {
+    // 0.8.0'da PESIN_ONAY yalnız /kaydet|hallet|.../ arıyordu; "kaydetme" de eşleşip sormadan kayda yol açıyordu.
+    for (const m of [
+      "kaydetme",
+      "KAYDETME",
+      "hepsini doldur ama kaydetme",
+      "kaydetmeden önce bana sor",
+      "sormadan kaydetme",
+      "sen halletme",
+      "OBS'ye yazma, yalnız tara",
+      "hepsini yap ama onaylamıyorum",
+      "kaydetmeni istemiyorum",
+      "hayır, kaydet demedim",
+      "HAYIR",
+      "hepsini kaydet değil, yalnız göster",
+    ])
+      expect(pesinOnayVar(m), m).toBe(false);
+    // Olumlu sözler onaydır; ad-fiil ("kaydetmek") olumsuz sayılmaz. Kısa ya da boş metin onay değildir.
+    for (const m of [
+      ONAY,
+      "sen hallet",
+      "sormadan kaydet",
+      "HEPSİNİ YAP VE KAYDET",
+      "onaylıyorum, kaydet",
+      "kaydetmek için hepsini yap",
+    ])
+      expect(pesinOnayVar(m), m).toBe(true);
+    for (const m of [undefined, "", "ok"]) expect(pesinOnayVar(m)).toBe(false);
+
+    // Araç düzeyi: olumsuz sözle gelen çağrı kayıt onayı durağında kalır, onay kaydı yazılmaz.
+    const a = sahteAsistan();
+    const kopya = a.cagir("bologna_kopya_metni", {
+      ders: { kod: "KRG9001", ad: "Kurgu 1" },
+      alanlar: { amac },
+      pesinOnay: "hepsini doldur ama kaydetme",
+    });
+    expect(kopya.hocayaSimdiSor).toBe(true);
+    expect(kopya.sonuc.pesinOnayKaydi).toBeUndefined();
+    expect(kopya.sonuc.not).toContain("hoca bir kez 'kaydet' der");
+    const liste = a.cagir("obs_ders_listesi", { dersler: [{ kod: "KRG9001" }], pesinOnay: "sormadan kaydetme" });
+    expect(liste.sonuc.hocayaGoster).not.toContain("kaydedeceğim");
+    expect(liste.sonuc.raporBicimi).toBeDefined();
+    const basla = a.cagir("akredit_basla", { kullaniciMesaji: "akredit ders paketimi doldur ama kaydetme" });
+    expect(basla.sonuc.pesinOnay).toBeUndefined();
+  });
+
+  it("peşin onayda yanıt kendi içinde tutarlı: rapor biçimi ve seçenek yok, özet sondaki raporda", () => {
+    const a = sahteAsistan();
+    const liste = a.cagir("obs_ders_listesi", { dersler: [{ kod: "KRG9001" }], pesinOnay: ONAY });
+    expect(liste.sonuc.raporBicimi).toBeUndefined();
+    expect(liste.sonuc.tarayiciEylemPlani.join(" ")).not.toContain("raporBicimi");
+    const kopya = a.cagir("bologna_kopya_metni", {
+      ders: { kod: "KRG9001", ad: "Kurgu 1" },
+      alanlar: { amac },
+      pesinOnay: ONAY,
+    });
+    expect(kopya.sonuc.not).not.toContain("hoca bir kez 'kaydet' der");
+    expect(kopya.sonuc.not).toContain("sondaki tek raporda");
+    const toplu = a.cagir("bologna_toplu_ozet", {
+      dersler: [{ ders: { kod: "KRG9001", ad: "Kurgu 1" }, alanlar: { amac } }],
+      pesinOnay: ONAY,
+    });
+    expect(toplu.sonuc.hocayaGoster).not.toContain("1) 1 dersin tamamını");
+    expect(toplu.sonuc.hocayaGoster).toContain("Onaya Gönder'e siz basarsınız.");
+    expect(a.duraklar).toEqual([]);
+  });
+
+  it("peşin onay yalnız OBS'ye yazan odaklarda açılır; dil denetiminde 'hepsini düzelt' kayıt sözü vermez", () => {
+    const a = sahteAsistan();
+    const dil = a.cagir("akredit_basla", { kullaniciMesaji: "raporumun dil denetimini yap, hepsini düzelt" });
+    expect(dil.sonuc.odak.no).toBe("5");
+    expect(dil.sonuc.pesinOnay).toBeUndefined();
+    expect(dil.sonuc.hocayaGoster).not.toContain("OBS");
+    expect(dil.sonuc.ipucu).toBeUndefined();
+  });
+});
+
+describe("durak bayrağı ve talimat sırası", () => {
+  it("hocayı bekleyen adımlar hocayaSimdiSor true döner: kurulum adımları, not tablosunda eksik bilgi", () => {
+    const a = sahteAsistan();
+    const kurulum = a.cagir("kurulum_yardimi", { istemci: "claude_web" });
+    expect(kurulum.sonrakiAdim).toContain("'oldu' demesini bekleyin");
+    expect(kurulum.hocayaSimdiSor).toBe(true);
+    expect(kurulum.simdiYap).toBeUndefined();
+    // Başlıkta tam puan, çıktı eşlemesi ve yüzde yok: eksikler hocaya TEK mesajda sorulur.
+    const eksik = a.cagir("not_tablosu_ayristir", { tablo: "Vize S1\tFinal S1\n10\t20\n15\t30" });
+    expect(eksik.sonuc.hazir).toBe(false);
+    expect(eksik.hocayaSimdiSor).toBe(true);
+    // Eksik yoksa durak yok: taslak doğrudan hesaba gider.
+    const tam = a.cagir("not_tablosu_ayristir", {
+      tablo: "Vize S1 (ÇK1) /20\tFinal S1 (ÇK1) /50\n10\t20\n15\t30",
+      agirliklar: { ara_sinav: 40, yariyil_sonu: 60 },
+    });
+    expect(tam.sonuc.hazir).toBe(true);
+    expect(tam.hocayaSimdiSor).toBe(false);
+  });
+
+  it("sunucu talimatında KURAL 1-7 sıralıdır", () => {
+    const sira = [...SUNUCU_TALIMATI.matchAll(/KURAL (\d):/gu)].map((m) => Number(m[1]));
+    expect(sira).toEqual([1, 2, 3, 4, 5, 6, 7]);
   });
 });

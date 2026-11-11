@@ -78,7 +78,10 @@ export async function istekBaglami(k: KimlikSunucusu, istek: Request): Promise<I
   if (uyelik.demoBitis) {
     // Demo oturumu: süre üyelikte tutulur (oturum yenilense bile uzamaz) ve izinler demo sınırıyla kesişir.
     if (uyelik.demoBitis.getTime() <= k.simdi().getTime())
-      throw new ErisimHatasi(401, "Örnek oturumunuzun süresi doldu. Deneyin sayfasından yeniden başlayabilirsiniz.");
+      throw new ErisimHatasi(
+        401,
+        "Örnek oturumunuzun süresi doldu. Kurum demosu sayfasından yeniden başlayabilirsiniz.",
+      );
     return {
       tur: "oturum",
       kullaniciId: oturum.user.id,
@@ -239,9 +242,8 @@ export function korumali(
   return async (istek) => {
     try {
       const anahtarla = istek.headers.get("authorization")?.startsWith("Bearer ") ?? false;
-      const koken =
-        istek.headers.get("origin") ??
-        (istek.headers.get("referer") ? new URL(istek.headers.get("referer") as string).origin : null);
+      // Köken yoksa Referer kullanılır; csrfDenetle adresi kendisi ayrıştırır, bozuk değer 403 olur (500 değil).
+      const koken = istek.headers.get("origin") ?? istek.headers.get("referer");
       const izinli = [k.ayar.temelAdres, ...k.ayar.izinliKokenler];
       if (
         !csrfDenetle(

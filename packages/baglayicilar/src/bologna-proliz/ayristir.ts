@@ -12,14 +12,18 @@ const VARLIKLAR: Record<string, string> = { nbsp: " ", amp: "&", lt: "<", gt: ">
 const ETIKET = /<(?:[^>"']|"[^"]*"|'[^']*')*>/g;
 const BETIK = /<(script|style)\b(?:[^>"']|"[^"]*"|'[^']*')*>[\s\S]*?<\/\1>/gi;
 
+/** Sayısal karakter başvurusu; geçersiz kod noktası (ör. `&#99999999;`) hata atmaz, olduğu gibi kalır. */
+const kodNoktasi = (n: number, ham: string): string =>
+  Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : ham;
+
 /** HTML parçasını düz metne çevirir. */
 export function metin(html: string): string {
   return html
     .replace(BETIK, "")
     .replace(/<br\s*\/?>/gi, " ")
     .replace(ETIKET, " ")
-    .replace(/&#(\d+);/g, (_, n: string) => String.fromCodePoint(Number(n)))
-    .replace(/&#x([0-9a-f]+);/gi, (_, n: string) => String.fromCodePoint(Number.parseInt(n, 16)))
+    .replace(/&#(\d+);/g, (m, n: string) => kodNoktasi(Number(n), m))
+    .replace(/&#x([0-9a-f]+);/gi, (m, n: string) => kodNoktasi(Number.parseInt(n, 16), m))
     .replace(/&([a-z]+);/gi, (m, a: string) => VARLIKLAR[a.toLowerCase()] ?? m)
     .replace(/\s+/g, " ")
     .trim();

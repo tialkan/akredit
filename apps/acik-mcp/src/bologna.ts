@@ -5,8 +5,9 @@
 // Akredit kurallarıyla denetler ve bütün sayıları (iş yükü, toplamlar) kendisi hesaplar (ilke 2).
 // Kurallar @akredit/cekirdek taslak ve sayfa denetiminden gelir; resmî ölçüt değildir, öyle etiketlenir.
 // Sunucu adres çekmez (SSRF yok): Bologna sayfası yapıştırılan HTML olarak gelir, ağsız ayrıştırılır.
-// Yetkili alanı kişi adı içerir; bu araçlar onu taşımaz (ilke 7), hoca OBS'ye kendisi yazar. Kaynaklar ise
-// yayımlanmış künyedir: yazar adı künye kuralıyla serbesttir, e-posta ve telefon yine reddedilir.
+// Yetkili satırları (Dersi Verenler, Koordinatör) sayfada yayımlanmış görev bilgisidir: olduğu gibi okunur, taşınır
+// ve korunur; araçlar onları değiştirmez. Kaynaklar yayımlanmış künyedir: yazar adı künye kuralıyla serbesttir.
+// Öğrenci ve kimlik verisi (T.C. kimlik no, öğrenci numarası, IBAN) ile giriş bilgisi reddedilir.
 
 import { dersSayfasiCoz, programCiktilari, tablolar } from "@akredit/baglayicilar/bologna-ayristir";
 import {
@@ -26,7 +27,6 @@ import {
   type AcikArac,
   type AracBaglami,
   AracHatasi,
-  type AracSonucu,
   arac,
   KOD_KAYNAGI,
   PESIN_ONAY_ACIKLAMASI,
@@ -266,7 +266,7 @@ const RESMI_DAYANAK = {
 };
 
 const SECENEK_KURALI =
-  "Sunucu metin üretmez. Seçenekleri asistan üretir: 2-3 kısa, birbirinden gerçekten farklı seçenek (A, B, C), ilki önerilen. Her seçeneği bologna_taslak_denetle ile denetleyin, yalnız geçenleri gösterin. Hocanın vermediği bilgi (kitap, araç, proje adı) uydurulmaz.";
+  "Sunucu metin üretmez. Taslağı asistan yazar: isterseniz 2-3 kısa, birbirinden gerçekten farklı aday (A, B, C) yazıp bologna_taslak_denetle ile denetleyin ve geçenlerden en iyisini kendiniz seçin; hocaya alan alan seçenek sormayın, seçileni son özette gösterin. Hocanın vermediği bilgi (kitap, araç, proje adı) uydurulmaz.";
 
 const KAYNAK_KURALLAR = KOD_KAYNAGI("packages/cekirdek/src/bologna/taslak.ts", "Akredit Bologna taslak kuralları");
 const KAYNAK_SAYFA = KOD_KAYNAGI("packages/cekirdek/src/bologna/denetim.ts", "Akredit Bologna sayfa denetim kuralları");
@@ -839,6 +839,107 @@ function alanDurumlari(d: BolognaDersGirdisiT, sayfaBulgulari: Bulgu[]): AlanSat
   }));
 }
 
+const BolognaDenetleGirdisi = z.object({
+  ders: BolognaDersGirdisi,
+  programCiktilari: z
+    .array(z.object({ kod: z.string().max(20), metin: z.string().max(1000) }))
+    .max(40)
+    .optional()
+    .describe("Program çıktıları; verilirse program düzeyindeki kurallar da çalışır"),
+  matrisSatiri: z
+    .record(z.string().max(20), z.string().max(5))
+    .optional()
+    .describe("Program matrisinde bu dersin satırı: program çıktısı kodu ve değer"),
+  aktsSaat: z
+    .tuple([z.number().min(1), z.number().max(60)])
+    .optional()
+    .describe("AKTS başına saat aralığı; varsayılan [25, 30]"),
+  kurumBoleni: z
+    .number()
+    .int()
+    .min(20)
+    .max(40)
+    .optional()
+    .describe("Kurumun AKTS başına saat değeri; verilirse aralık yerine bu değer kullanılır (taslak denetimiyle aynı)"),
+});
+
+/** bologna_denetle hesabı. Ayrı işlevdir: bologna_ayristir aynı denetimi gömülü döndürür (tip dökümü gerekmez). */
+const bolognaDenetimi = (
+  { ders, programCiktilari, matrisSatiri, aktsSaat: aralik, kurumBoleni }: z.infer<typeof BolognaDenetleGirdisi>,
+  b: AracBaglami,
+) => {
+  const aktsSaat: [number, number] | undefined = kurumBoleni ? [kurumBoleni, kurumBoleni] : aralik;
+  const { amac: _a, icerik: _i, yontem: _y, notlar: _n, kaynakSayisi: _k, kaynaklar: _kk, ...sayfaAlanlari } = ders;
+  const sayfa: BolognaDersSayfasi & { kod: string } = {
+    ...sayfaAlanlari,
+    ad: ders.ad ?? ders.kod,
+    bilgiler: {},
+  };
+  const pkodlar = Object.keys(matrisSatiri ?? {});
+  const veri: BolognaVerisi = {
+    adres: "kullanici-girdisi",
+    okundu: b.simdi().toISOString(),
+    programCiktilari: programCiktilari ?? [],
+    matris: {
+      pkodlar,
+      dersler: matrisSatiri
+        ? [
+            {
+              kod: ders.kod,
+              ad: ders.ad ?? ders.kod,
+              zorunlu: ders.zorunlu,
+              grup: null,
+              yariyil: ders.yariyil,
+              grupBasligi: false,
+              degerler: matrisSatiri,
+            },
+          ]
+        : [],
+    },
+    tyycIsaret: null,
+    dersler: [{ ...sayfa, zorunlu: ders.zorunlu, bos: false, kaynak: "kullanici-girdisi" }],
+  };
+  let bulgular: Bulgu[] = bolognaDenetle(veri, { simdi: b.simdi().getTime(), ...(aktsSaat ? { aktsSaat } : {}) }).map(
+    (x) => ({
+      ...x,
+      kuralTuru: x.kural === "akts-isyuku" && kurumBoleni ? ("kurum" as const) : ("Akredit önerisi" as const),
+      dayanak:
+        x.kural === "akts-isyuku"
+          ? kurumBoleni
+            ? "Kurumun verdiği AKTS başına saat değeri."
+            : "AKTS başına 25-30 saat yaygın uygulamadır; resmî metinle DOĞRULANMADI."
+          : "Akredit iç kuralı (packages/cekirdek/src/bologna/denetim.ts); resmî dayanağı DOĞRULANMADI.",
+    }),
+  );
+  // Program düzeyi kuralları yalnız program çıktıları verildiyse anlamlıdır.
+  if (!programCiktilari) bulgular = bulgular.filter((x) => x.konu !== "-");
+  const alanlar = alanDurumlari(ders, bulgular);
+  const doldurulacak = alanlar.filter((a) => a.durum === "bos" || a.durum === "zayif");
+  return {
+    sonuc: {
+      ders: ders.kod,
+      hataSayisi: bulgular.filter((x) => x.duzey === "hata").length,
+      uyariSayisi: bulgular.filter((x) => x.duzey === "uyari").length,
+      ozet: doldurulacak.length
+        ? `${doldurulacak.length} alan doldurulmalı ya da iyileştirilmeli: ${doldurulacak.map((a) => `${a.no}) ${a.ad}`).join(", ")}.`
+        : "Gönderilen alanlarda boş ya da zayıf alan bulunmadı.",
+      alanlar,
+      doldurulacak: doldurulacak.map((a) => a.no),
+      kalanAlanSayisi: doldurulacak.length,
+      dokunulmayacak: ["Dersin Yetkilileri sayfadaki hâliyle korunur; değiştirilmez."],
+      bulgular,
+      not: "Kurallar Akredit'in iç kurallarıdır, resmî ölçüt değildir. Düzeltme kararını ders sorumlusu ve komisyon verir.",
+    },
+    kaynak: [KAYNAK_SAYFA, KAYNAK_KURALLAR],
+    ...(doldurulacak.length
+      ? {}
+      : {
+          sonrakiAdim:
+            "Eksik görünmüyor. Bunu tek cümleyle söyleyin ve sormadan kaliteyi artıracak 2-4 somut öneri verin: zayıf ya da kısa alanlar, öğrenme çıktılarında Bloom düzeyi ve ölçülebilirlik, iş yükü ile AKTS uyumu, kaynakların güncelliği, İngilizce alanlar. Altına: 1) önerileri uygulayalım (önerilen) 2) sıradaki derse geç 3) bitir.",
+        }),
+  };
+};
+
 export const bolognaDenetleAraci = arac({
   ad: "bologna_denetle",
   baslik: "Bologna ders paketini denetle",
@@ -848,103 +949,8 @@ export const bolognaDenetleAraci = arac({
     "Nasıl doldurulacağını hocaya sormayın; doğrudan akıllı doldurun. Sayfada değerlendirme yüzdeleri ya da kaynaklar yoksa yalnız bunları TEK mesajda sorun (yüzdeyi tahmin etmeyin). Gerisini sormadan bologna_alan_rehberi(alan='hepsi'), is_yuku_oner ve bologna_taslak_denetle ile doldurup denetleyin; sonunda bologna_kopya_metni özetini tek seferde gösterin.",
   kisiselVeriKapsami: BOLOGNA_KAPSAMI,
   kunyeAlanlari: BOLOGNA_KUNYE_ALANLARI,
-  girdi: z.object({
-    ders: BolognaDersGirdisi,
-    programCiktilari: z
-      .array(z.object({ kod: z.string().max(20), metin: z.string().max(1000) }))
-      .max(40)
-      .optional()
-      .describe("Program çıktıları; verilirse program düzeyindeki kurallar da çalışır"),
-    matrisSatiri: z
-      .record(z.string().max(20), z.string().max(5))
-      .optional()
-      .describe("Program matrisinde bu dersin satırı: program çıktısı kodu ve değer"),
-    aktsSaat: z
-      .tuple([z.number().min(1), z.number().max(60)])
-      .optional()
-      .describe("AKTS başına saat aralığı; varsayılan [25, 30]"),
-    kurumBoleni: z
-      .number()
-      .int()
-      .min(20)
-      .max(40)
-      .optional()
-      .describe(
-        "Kurumun AKTS başına saat değeri; verilirse aralık yerine bu değer kullanılır (taslak denetimiyle aynı)",
-      ),
-  }),
-  calistir: ({ ders, programCiktilari, matrisSatiri, aktsSaat: aralik, kurumBoleni }, b) => {
-    const aktsSaat: [number, number] | undefined = kurumBoleni ? [kurumBoleni, kurumBoleni] : aralik;
-    const { amac: _a, icerik: _i, yontem: _y, notlar: _n, kaynakSayisi: _k, kaynaklar: _kk, ...sayfaAlanlari } = ders;
-    const sayfa: BolognaDersSayfasi & { kod: string } = {
-      ...sayfaAlanlari,
-      ad: ders.ad ?? ders.kod,
-      bilgiler: {},
-    };
-    const pkodlar = Object.keys(matrisSatiri ?? {});
-    const veri: BolognaVerisi = {
-      adres: "kullanici-girdisi",
-      okundu: b.simdi().toISOString(),
-      programCiktilari: programCiktilari ?? [],
-      matris: {
-        pkodlar,
-        dersler: matrisSatiri
-          ? [
-              {
-                kod: ders.kod,
-                ad: ders.ad ?? ders.kod,
-                zorunlu: ders.zorunlu,
-                grup: null,
-                yariyil: ders.yariyil,
-                grupBasligi: false,
-                degerler: matrisSatiri,
-              },
-            ]
-          : [],
-      },
-      tyycIsaret: null,
-      dersler: [{ ...sayfa, zorunlu: ders.zorunlu, bos: false, kaynak: "kullanici-girdisi" }],
-    };
-    let bulgular: Bulgu[] = bolognaDenetle(veri, { simdi: b.simdi().getTime(), ...(aktsSaat ? { aktsSaat } : {}) }).map(
-      (x) => ({
-        ...x,
-        kuralTuru: x.kural === "akts-isyuku" && kurumBoleni ? ("kurum" as const) : ("Akredit önerisi" as const),
-        dayanak:
-          x.kural === "akts-isyuku"
-            ? kurumBoleni
-              ? "Kurumun verdiği AKTS başına saat değeri."
-              : "AKTS başına 25-30 saat yaygın uygulamadır; resmî metinle DOĞRULANMADI."
-            : "Akredit iç kuralı (packages/cekirdek/src/bologna/denetim.ts); resmî dayanağı DOĞRULANMADI.",
-      }),
-    );
-    // Program düzeyi kuralları yalnız program çıktıları verildiyse anlamlıdır.
-    if (!programCiktilari) bulgular = bulgular.filter((x) => x.konu !== "-");
-    const alanlar = alanDurumlari(ders, bulgular);
-    const doldurulacak = alanlar.filter((a) => a.durum === "bos" || a.durum === "zayif");
-    return {
-      sonuc: {
-        ders: ders.kod,
-        hataSayisi: bulgular.filter((x) => x.duzey === "hata").length,
-        uyariSayisi: bulgular.filter((x) => x.duzey === "uyari").length,
-        ozet: doldurulacak.length
-          ? `${doldurulacak.length} alan doldurulmalı ya da iyileştirilmeli: ${doldurulacak.map((a) => `${a.no}) ${a.ad}`).join(", ")}.`
-          : "Gönderilen alanlarda boş ya da zayıf alan bulunmadı.",
-        alanlar,
-        doldurulacak: doldurulacak.map((a) => a.no),
-        kalanAlanSayisi: doldurulacak.length,
-        dokunulmayacak: ["Dersin Yetkilileri kişi adı içerir; hoca OBS'de kendisi yazar."],
-        bulgular,
-        not: "Kurallar Akredit'in iç kurallarıdır, resmî ölçüt değildir. Düzeltme kararını ders sorumlusu ve komisyon verir.",
-      },
-      kaynak: [KAYNAK_SAYFA, KAYNAK_KURALLAR],
-      ...(doldurulacak.length
-        ? {}
-        : {
-            sonrakiAdim:
-              "Eksik görünmüyor. Bunu tek cümleyle söyleyin ve sormadan kaliteyi artıracak 2-4 somut öneri verin: zayıf ya da kısa alanlar, öğrenme çıktılarında Bloom düzeyi ve ölçülebilirlik, iş yükü ile AKTS uyumu, kaynakların güncelliği, İngilizce alanlar. Altına: 1) önerileri uygulayalım (önerilen) 2) sıradaki derse geç 3) bitir.",
-          }),
-    };
-  },
+  girdi: BolognaDenetleGirdisi,
+  calistir: bolognaDenetimi,
 });
 
 // ---------------------------------------------------------------- bologna_alan_rehberi
@@ -1187,16 +1193,10 @@ export function ayristirOnAyikla(g: unknown): { girdi: unknown; atilan: string[]
  * Girdi denetimin şemasından geçmezse (sayfa eksik okunduysa) denetim atlanır, asistan bologna_denetle'yi çağırır.
  */
 function gomuluDenetim(ders: unknown, b: AracBaglami) {
-  const g = bolognaDenetleAraci.girdi.safeParse({ ders });
+  const g = BolognaDenetleGirdisi.safeParse({ ders });
   if (!g.success) return undefined;
-  const r = bolognaDenetleAraci.calistir(g.data, b) as AracSonucu;
-  const s = r.sonuc as {
-    ozet: string;
-    doldurulacak: number[];
-    kalanAlanSayisi: number;
-    alanlar: { no: number; ad: string; durum: string }[];
-  };
-  const d = ders as { degerlendirme?: unknown[]; kaynaklar?: unknown[]; kaynakSayisi?: number };
+  const s = bolognaDenetimi(g.data, b).sonuc;
+  const d = g.data.ders;
   return {
     ozet: s.ozet,
     kalanAlanSayisi: s.kalanAlanSayisi,
@@ -1205,7 +1205,7 @@ function gomuluDenetim(ders: unknown, b: AracBaglami) {
       .map((a) => ({ no: a.no, ad: a.ad, durum: a.durum })),
     // Yalnız hocanın bilebileceği resmî bilgi sorulur; sayfada varsa sorulmaz.
     teyitSorulacak: [
-      ...(d.degerlendirme?.length ? [] : ["Değerlendirme yöntem ve yüzdeleri"]),
+      ...(d.degerlendirme.length ? [] : ["Değerlendirme yöntem ve yüzdeleri"]),
       ...(d.kaynaklar?.length || d.kaynakSayisi ? [] : ["Kullanılan kaynaklar"]),
     ],
   };
@@ -1216,6 +1216,7 @@ const AYRISTIRMA_SONRASI = [
   "ADIM 1: Hocaya soru sormayın. Tarama planında ders kaldıysa ders listesine dönüp sıradakini açın.",
   "ADIM 2: Plan bittiyse bütün derslerin denetim özetinden TEK rapor yazın (obs_ders_listesi'nin raporBicimi); sayfada olmayan değerlendirme yüzdeleri ve kaynakları aynı mesajda sorun.",
   "ADIM 3: Hoca seçince taslakları bologna_alan_rehberi ve bologna_taslak_denetle ile sormadan hazırlayın; sonra bologna_kopya_metni (birden çok derste bologna_toplu_ozet) ile tek özet ve tek kayıt onayı.",
+  "Peşin onay varsa ADIM 1-3 yerine obs_ders_listesi'nin peşin onay adımlarını izleyin: rapor durağı ve teyit sorusu yoktur.",
 ];
 
 const gomuluDenetimAlani = (ders: unknown, b: AracBaglami) => {
@@ -1310,7 +1311,7 @@ const ayristirAraci = arac({
           bulunamayan: bulunamayan.map((k) => GENEL_ALAN_ADLARI[k] ?? k),
           okunamayan: bulunamayan.length
             ? [
-                "Bu alanlar sayfada görünmedi. Hocaya tek soruyla sorun ya da tarayıcı aracınızla OBS düzenleme ekranından okuyun.",
+                "Bu alanlar sayfada görünmedi. Tarayıcı aracınız varsa OBS düzenleme ekranından okuyun. Yoksa önden sormayın: kaynaklar teyit sorusuyla birlikte sorulur, öbürleri 'öneri' olarak yazılıp son özette teyide sunulur.",
               ]
             : [],
         },
@@ -1344,8 +1345,8 @@ const ayristirAraci = arac({
         bulunamayan: g.bulunamayan.map((k) => GENEL_ALAN_ADLARI[k] ?? k),
         not:
           g.guven === "yüksek"
-            ? "Genel ayrıştırıcı alanların çoğunu buldu. Yine de hocaya kısaca gösterip doğrulatın."
-            : "Genel ayrıştırıcı bazı alanları bulamadı. Bulunanları hocaya gösterip doğrulatın; bulunamayanları sorun.",
+            ? "Genel ayrıştırıcı alanların çoğunu buldu. Okunan değerleri son özette 'sayfa' dayanağıyla gösterin; hoca orada doğrular."
+            : "Genel ayrıştırıcı bazı alanları bulamadı. Bulunanları son özette gösterin; bulunamayanları tarayıcıyla OBS düzenleme ekranından okuyun ya da 'öneri' olarak yazıp son özette teyide sunun. Yalnız değerlendirme ve kaynaklar hocaya sorulur.",
       },
       kaynak: [KOD_KAYNAGI("apps/acik-mcp/src/genel-ayristir.ts", "Akredit genel Bologna ayrıştırıcısı")],
     };
@@ -1371,9 +1372,9 @@ const durumAraci = arac({
   ad: "bologna_durum",
   baslik: "Bologna paketi ne kadar tamam",
   aciklama:
-    "Hocanın seçtiği alanların bütününe bakar: hangi zorunlu alan tamam, hangisi eksik ya da kurala uymuyor, kaç alan kaldı. Eksik kalmadıysa 'tamamlandı' der. Her seçimden sonra ve OBS'ye yazdıktan sonra çağrılır.",
+    "Hazırlanan taslak alanların bütününe bakar: hangi zorunlu alan tamam, hangisi eksik ya da kurala uymuyor, kaç alan kaldı. Eksik kalmadıysa biçim denetiminden geçti der. Bütün alanlar yazılınca, OBS'ye yazmadan önce çağrılır.",
   sonrakiAdim:
-    "Kalan alan sayısını hocaya tek cümleyle söyleyin ve sıradaki alana geçin. Kalan yoksa OBS'ye yazma adımına geçin.",
+    "Kalan alanları hocaya sormadan tamamlayın ya da düzeltin (bologna_alan_rehberi, bologna_taslak_denetle) ve yeniden denetleyin; ara rapor vermeyin. Yalnız hocanın bilebileceği resmî bilgi (değerlendirme, kullanılan kaynak) eksikse onu TEK mesajda sorun. Kalan yoksa OBS'ye yazma adımına geçin.",
   kisiselVeriKapsami: BOLOGNA_KAPSAMI,
   kunyeAlanlari: BOLOGNA_KUNYE_ALANLARI,
   girdi: z.object({
@@ -1802,199 +1803,215 @@ export function degerlendirmeTeyitli(a: {
 const PESIN_ONAY_YAZMA =
   "Peşin onay var (pesinOnayKaydi): hocaya sormadan yalnız bu paketteki alanları OBS'ye yazın, Kaydet'e basın, sayfayı geri okuyup obs_karsilastir ile doğrulayın. yazilamayan ve kalanEksikler'i uydurmayın, boş bırakın. Başka ders kaldıysa sormadan ona geçin. Hepsi bitince TEK rapor: ders ders yazılan alanlar, 'EKSİK' bırakılanlar (değerlendirme yüzdesi, kaynak), geri okuma sonucu, ve 'Onaya Gönder'e siz basarsınız; itirazınız olan alanı OBS'de düzeltin ya da bana numarasını yazın.' dur/fark çıkarsa o derste durun, rapora yazın.";
 
+const KopyaMetniGirdisi = z.object({
+  ders: DersTemeli,
+  alanlar: TaslakAlanlari,
+  programCiktilari: z.array(z.string().max(10)).max(40).optional(),
+  ingilizce: z.boolean().default(false).describe("bologna_ayristir'in ingilizce değeri"),
+  oncekiDegerler: z
+    .record(z.string().max(120), z.string().max(20_000))
+    .optional()
+    .describe("OBS'deki şimdiki değerler (alan adı, ör. 'Dersin Amacı (Türkçe)' → değer); önceki/yeni özeti için"),
+  pesinOnay: z.string().max(500).optional().describe(PESIN_ONAY_ACIKLAMASI),
+});
+
+/** bologna_kopya_metni hesabı. Ayrı işlevdir: bologna_toplu_ozet her ders için aynı kapıları çalıştırır. */
+const kopyaPaketi = ({
+  ders,
+  alanlar: gelen,
+  programCiktilari,
+  ingilizce,
+  oncekiDegerler,
+  pesinOnay,
+}: z.infer<typeof KopyaMetniGirdisi>) => {
+  const pesin = pesinOnayVar(pesinOnay);
+  // Yazma paketi kapısı: doğrulanmamış kaynak ve teyitsiz değerlendirme yüzdesi pakete giremez (ilke 1-3).
+  const yazilamayan: { alan: string; neden: string }[] = [];
+  const kaynaklar = gelen.kaynaklar?.filter((k, i) => {
+    if (kaynakDurumu(k) !== "dogrulanmamis") return true;
+    yazilamayan.push({
+      alan: "Kaynaklar",
+      neden: `${i + 1}. kaynak doğrulanmamış (katalogda bulunmadı ya da hoca beyanı yok); OBS'ye yazılmaz.`,
+    });
+    return false;
+  });
+  const teyitli = degerlendirmeTeyitli(gelen);
+  if (gelen.degerlendirme && !teyitli)
+    yazilamayan.push({
+      alan: "Değerlendirme",
+      neden:
+        "Değerlendirme yöntem ve yüzdeleri teyitsiz (sayfadan okunmadı, hoca söylemedi ya da yüzdeler degerlendirmeKaniti metninde yok); OBS'ye yazılmaz. Hocaya sorun.",
+    });
+  const { degerlendirme: _d, kaynaklar: _k, ...kalanAlanlar } = gelen;
+  const alanlar: TaslakAlanlariT = {
+    ...kalanAlanlar,
+    ...(gelen.degerlendirme && teyitli ? { degerlendirme: gelen.degerlendirme } : {}),
+    ...(kaynaklar ? { kaynaklar } : {}),
+  };
+  const bolumler: { sira: number; sekme: string; alan: string; deger: string }[] = [];
+  const ekle = (sekme: string, alan: string, deger: string) =>
+    bolumler.push({ sira: bolumler.length + 1, sekme, alan, deger });
+  const hesap = bolognaHesabi(ders, alanlar);
+  const iki = (ad: string, m: { tr: string; en?: string | undefined } | undefined) => {
+    if (!m) return;
+    ekle(DERS_BILGILERI, `${ad} (Türkçe)`, m.tr.trim());
+    if (m.en?.trim()) ekle(DERS_BILGILERI, `${ad} (İngilizce)`, m.en.trim());
+  };
+  iki("Dersin Amacı", alanlar.amac);
+  iki("Dersin İçeriği", alanlar.icerik);
+  iki("Yöntem ve Teknikler", alanlar.yontem);
+  iki("Ders Notları", alanlar.notlar);
+  if (alanlar.onKosul !== undefined) ekle(DERS_BILGILERI, "Ön Koşul", alanlar.onKosul.trim());
+  if (alanlar.degerlendirme)
+    ekle(
+      DERS_BILGILERI,
+      "Değerlendirme (ad, sayı, katkı %)",
+      [
+        ...alanlar.degerlendirme.map((x) => `${x.ad}\t${x.sayi}\t${x.katki}`),
+        `Toplam\t\t${hesap.degerlendirmeToplami}`,
+      ].join("\n"),
+    );
+  if (hesap.isyuku)
+    ekle(
+      DERS_BILGILERI,
+      "AKTS İş Yükü (ad, sayı, süre, toplam saat)",
+      [
+        ...hesap.isyuku.satirlar.map((x) => `${x.ad}\t${x.sayi}\t${x.sure}\t${x.toplam}`),
+        `Toplam İş Yükü\t\t\t${hesap.isyuku.toplam}`,
+        ...(hesap.isyuku.hedef !== null ? [`AKTS\t\t\t${ders.akts}`] : []),
+      ].join("\n"),
+    );
+  if (alanlar.dersYapisi)
+    ekle(DERS_BILGILERI, "Ders Yapısı (alan, %)", alanlar.dersYapisi.map((x) => `${x.alan}\t${x.yuzde}`).join("\n"));
+  if (alanlar.ciktilar)
+    ekle(
+      "Öğrenme Çıktıları",
+      "Öğrenme çıktıları (kod, tür, Türkçe, İngilizce)",
+      alanlar.ciktilar.map((c) => `${c.kod}\t${c.tur}\t${c.tr.trim()}\t${c.en?.trim() ?? ""}`).join("\n"),
+    );
+  if (alanlar.haftalar)
+    ekle(
+      "Ders Akışı",
+      "Haftalar (hafta, konu, İngilizce konu, ön hazırlık, dokümanlar)",
+      alanlar.haftalar
+        .map(
+          (h) =>
+            `${h.hafta}\t${h.konu.tr.trim()}\t${h.konu.en?.trim() ?? ""}\t${h.onHazirlik.trim()}\t${h.dokuman.trim()}`,
+        )
+        .join("\n"),
+    );
+  if (alanlar.katki) {
+    const p = programCiktilari?.length
+      ? programCiktilari
+      : [...new Set(Object.values(alanlar.katki).flatMap((s) => Object.keys(s)))];
+    ekle(
+      "Prg.Çıktısına Katkısı",
+      "Katkı tablosu ('Tüm' satırına dokunmayın)",
+      [
+        `\t${p.join("\t")}`,
+        ...Object.entries(alanlar.katki).map(([o, s]) => `${o}\t${p.map((k) => s[k] ?? "").join("\t")}`),
+      ].join("\n"),
+    );
+  }
+  if (alanlar.ska) ekle("Sür. Kalkınma Amaçları", "Seçilecek amaç numaraları", alanlar.ska.join(", "));
+  if (alanlar.kaynaklar?.length)
+    ekle("Diğer Kaynaklar", "Kaynaklar (her satır bir künye)", alanlar.kaynaklar.map(kunyeMetni).join("\n"));
+  if (!bolumler.length && !yazilamayan.length) throw new AracHatasi("Kopyalanacak alan yok. En az bir alan gönderin.");
+  const b = alanBulgulari(ders, alanlar, { ingilizce, programCiktilari });
+  const kalanEksikler = [...b.entries()].flatMap(([alan, xs]) =>
+    xs.filter((x) => x.duzey === "hata").map((x) => ({ alan, neden: x.aciklama })),
+  );
+  const baslik = [ders.kod, ders.ad].filter(Boolean).join(" ") || "Ders";
+  const sirali = [...bolumler].sort(
+    (x, y) => SEKME_SIRASI.indexOf(x.sekme) - SEKME_SIRASI.indexOf(y.sekme) || x.sira - y.sira,
+  );
+  const metin = [
+    `${baslik}: OBS'ye kopyalanacak alanlar`,
+    "",
+    ...sirali.flatMap((x, i) => [`${i + 1}. ${x.sekme} > ${x.alan}`, x.deger, ""]),
+    ...(ders.yetkililer?.length
+      ? [
+          "Dersin Yetkilileri (sayfadaki hâliyle; değiştirmeyin, OBS'de zaten böyle kayıtlı):",
+          ...ders.yetkililer.map((y) => `${y.rol}: ${y.deger}`),
+        ]
+      : ["Dersin Yetkilileri: bu metin onlara dokunmaz; OBS'deki hâliyle kalır."]),
+    ...(kalanEksikler.length
+      ? [
+          "",
+          "Kalan eksikler:",
+          ...kalanEksikler.map((e) => `- ${ALANLAR[e.alan as AlanKodu]?.ad ?? "Genel"}: ${e.neden}`),
+        ]
+      : []),
+    ...(yazilamayan.length
+      ? ["", "Yazma paketine alınmayanlar:", ...yazilamayan.map((y) => `- ${y.alan}: ${y.neden}`)]
+      : []),
+  ].join("\n");
+  const numarali = sirali.map((x, i) => ({ ...x, sira: i + 1 }));
+  const normal = (v: string) => v.replace(/\s+/gu, " ").trim();
+  const degisiklikOzeti = numarali.map((x) => {
+    const onceki = oncekiDegerler?.[x.alan];
+    return {
+      no: x.sira,
+      sekme: x.sekme,
+      alan: x.alan,
+      onceki: onceki === undefined ? null : onceki,
+      yeni: x.deger,
+      degisim: onceki === undefined ? "bilinmiyor" : normal(onceki) === normal(x.deger) ? "aynı" : "değişecek",
+    };
+  });
+  return {
+    sonuc: {
+      metin,
+      bolumler: numarali,
+      degisiklikOzeti,
+      yazilamayan,
+      hesap,
+      kalanEksikler,
+      obsKarsilastirGirdisi: {
+        ...(ders.kod ? { dersKodu: ders.kod } : {}),
+        ...(ders.donem ? { donem: ders.donem } : {}),
+        beklenen: numarali.map((x) => ({ alan: x.alan, deger: x.deger })),
+      },
+      ...(pesin ? { pesinOnayKaydi: pesinOnay } : {}),
+      not: `Biçim denetiminden geçti; içerik teyidi: hoca. ${
+        pesin
+          ? "Peşin onay var: degisiklikOzeti'ni sondaki tek raporda gösterin."
+          : "Yazmadan önce degisiklikOzeti'ni (önceki/yeni) hocaya alan alan gösterin; hoca bir kez 'kaydet' der."
+      } Kayıttan sonra sayfayı geri okuyup obs_karsilastir ile doğrulayın. Alan adları OBS sürümüne göre küçük farklar gösterebilir.`,
+    },
+    kaynak: [KAYNAK_KURALLAR],
+    ...(pesin
+      ? {
+          hocayaSimdiSor: false,
+          sonrakiAdim: PESIN_ONAY_YAZMA,
+        }
+      : pesinOnay
+        ? {
+            sonrakiAdim:
+              "pesinOnay metninde kayıt sözü yok ya da söz olumsuz; peşin onay sayılmadı. degisiklikOzeti'ni gösterip kayıt onayını isteyin: 1) OBS'ye yaz ve kaydet 2) formu doldur, Kaydet'e ben basayım 3) kopya metni.",
+          }
+        : {}),
+    ...(kalanEksikler.length && !pesin
+      ? {
+          sonrakiAdim:
+            "Kalan eksikleri sormadan doldurmaya dönün (bologna_alan_rehberi, bologna_taslak_denetle); yalnız hocanın bilebileceği resmî bilgi (değerlendirme, kullanılan kaynak) eksikse onu TEK mesajda, numaralı sorun. Sonra degisiklikOzeti ile kayıt onayını aynı mesajda isteyin.",
+        }
+      : {}),
+  };
+};
+
 const kopyaMetniAraci = arac({
   ad: "bologna_kopya_metni",
   baslik: "OBS'ye kopyalanacak metin",
   hocayaSimdiSor: true,
   aciklama:
-    "Hocanın seçtiği alanları OBS sekmesi ve alan adıyla sıralı, alan alan kopyalanacak düz metin olarak verir. Tablolar sekmeyle ayrılır. Toplamları kendisi hesaplar ve kalan eksikleri yazar. OBS'ye yazmaz; kaydı hoca yapar.",
+    "Hocanın seçtiği alanları OBS sekmesi ve alan adıyla sıralı, alan alan kopyalanacak düz metin olarak verir. Tablolar sekmeyle ayrılır. Toplamları kendisi hesaplar ve kalan eksikleri yazar. Doğrulanmamış kaynağı ve teyitsiz değerlendirme yüzdesini pakete almaz. Sunucu OBS'ye yazmaz.",
   sonrakiAdim:
     "Metnin tamamını basmayın. Yalnız degisiklikOzeti'ni tablo olarak gösterin (Alan | Önceki | Yeni, ilk cümle | Dayanak: sayfa/hoca/öneri) ve AYNI mesajda sorun: 1) OBS'ye yaz ve kaydet (önerilen; bu seçim özete 'kaydet' onayıdır) 2) formu doldur, Kaydet'e ben basayım 3) alan alan kopya metnini ver. Değiştirmek istediği alan varsa numarasını yazar. Tarayıcı aracınız yoksa yalnız 3'ü uygulayın ve metni kod bloğunda verin. Birden çok ders taranıyorsa tüm derslerin özetini tek tabloda gösterip tek onay alın.",
   kisiselVeriKapsami: BOLOGNA_KAPSAMI,
   kunyeAlanlari: BOLOGNA_KUNYE_ALANLARI,
-  girdi: z.object({
-    ders: DersTemeli,
-    alanlar: TaslakAlanlari,
-    programCiktilari: z.array(z.string().max(10)).max(40).optional(),
-    ingilizce: z.boolean().default(false).describe("bologna_ayristir'in ingilizce değeri"),
-    oncekiDegerler: z
-      .record(z.string().max(120), z.string().max(20_000))
-      .optional()
-      .describe("OBS'deki şimdiki değerler (alan adı, ör. 'Dersin Amacı (Türkçe)' → değer); önceki/yeni özeti için"),
-    pesinOnay: z.string().max(500).optional().describe(PESIN_ONAY_ACIKLAMASI),
-  }),
-  calistir: ({ ders, alanlar: gelen, programCiktilari, ingilizce, oncekiDegerler, pesinOnay }) => {
-    // Yazma paketi kapısı: doğrulanmamış kaynak ve teyitsiz değerlendirme yüzdesi pakete giremez (ilke 1-3).
-    const yazilamayan: { alan: string; neden: string }[] = [];
-    const kaynaklar = gelen.kaynaklar?.filter((k, i) => {
-      if (kaynakDurumu(k) !== "dogrulanmamis") return true;
-      yazilamayan.push({
-        alan: "Kaynaklar",
-        neden: `${i + 1}. kaynak doğrulanmamış (katalogda bulunmadı ya da hoca beyanı yok); OBS'ye yazılmaz.`,
-      });
-      return false;
-    });
-    const teyitli = degerlendirmeTeyitli(gelen);
-    if (gelen.degerlendirme && !teyitli)
-      yazilamayan.push({
-        alan: "Değerlendirme",
-        neden:
-          "Değerlendirme yöntem ve yüzdeleri teyitsiz (sayfadan okunmadı, hoca söylemedi ya da yüzdeler degerlendirmeKaniti metninde yok); OBS'ye yazılmaz. Hocaya sorun.",
-      });
-    const { degerlendirme: _d, kaynaklar: _k, ...kalanAlanlar } = gelen;
-    const alanlar: TaslakAlanlariT = {
-      ...kalanAlanlar,
-      ...(gelen.degerlendirme && teyitli ? { degerlendirme: gelen.degerlendirme } : {}),
-      ...(kaynaklar ? { kaynaklar } : {}),
-    };
-    const bolumler: { sira: number; sekme: string; alan: string; deger: string }[] = [];
-    const ekle = (sekme: string, alan: string, deger: string) =>
-      bolumler.push({ sira: bolumler.length + 1, sekme, alan, deger });
-    const hesap = bolognaHesabi(ders, alanlar);
-    const iki = (ad: string, m: { tr: string; en?: string | undefined } | undefined) => {
-      if (!m) return;
-      ekle(DERS_BILGILERI, `${ad} (Türkçe)`, m.tr.trim());
-      if (m.en?.trim()) ekle(DERS_BILGILERI, `${ad} (İngilizce)`, m.en.trim());
-    };
-    iki("Dersin Amacı", alanlar.amac);
-    iki("Dersin İçeriği", alanlar.icerik);
-    iki("Yöntem ve Teknikler", alanlar.yontem);
-    iki("Ders Notları", alanlar.notlar);
-    if (alanlar.onKosul !== undefined) ekle(DERS_BILGILERI, "Ön Koşul", alanlar.onKosul.trim());
-    if (alanlar.degerlendirme)
-      ekle(
-        DERS_BILGILERI,
-        "Değerlendirme (ad, sayı, katkı %)",
-        [
-          ...alanlar.degerlendirme.map((x) => `${x.ad}\t${x.sayi}\t${x.katki}`),
-          `Toplam\t\t${hesap.degerlendirmeToplami}`,
-        ].join("\n"),
-      );
-    if (hesap.isyuku)
-      ekle(
-        DERS_BILGILERI,
-        "AKTS İş Yükü (ad, sayı, süre, toplam saat)",
-        [
-          ...hesap.isyuku.satirlar.map((x) => `${x.ad}\t${x.sayi}\t${x.sure}\t${x.toplam}`),
-          `Toplam İş Yükü\t\t\t${hesap.isyuku.toplam}`,
-          ...(hesap.isyuku.hedef !== null ? [`AKTS\t\t\t${ders.akts}`] : []),
-        ].join("\n"),
-      );
-    if (alanlar.dersYapisi)
-      ekle(DERS_BILGILERI, "Ders Yapısı (alan, %)", alanlar.dersYapisi.map((x) => `${x.alan}\t${x.yuzde}`).join("\n"));
-    if (alanlar.ciktilar)
-      ekle(
-        "Öğrenme Çıktıları",
-        "Öğrenme çıktıları (kod, tür, Türkçe, İngilizce)",
-        alanlar.ciktilar.map((c) => `${c.kod}\t${c.tur}\t${c.tr.trim()}\t${c.en?.trim() ?? ""}`).join("\n"),
-      );
-    if (alanlar.haftalar)
-      ekle(
-        "Ders Akışı",
-        "Haftalar (hafta, konu, İngilizce konu, ön hazırlık, dokümanlar)",
-        alanlar.haftalar
-          .map(
-            (h) =>
-              `${h.hafta}\t${h.konu.tr.trim()}\t${h.konu.en?.trim() ?? ""}\t${h.onHazirlik.trim()}\t${h.dokuman.trim()}`,
-          )
-          .join("\n"),
-      );
-    if (alanlar.katki) {
-      const p = programCiktilari?.length
-        ? programCiktilari
-        : [...new Set(Object.values(alanlar.katki).flatMap((s) => Object.keys(s)))];
-      ekle(
-        "Prg.Çıktısına Katkısı",
-        "Katkı tablosu ('Tüm' satırına dokunmayın)",
-        [
-          `\t${p.join("\t")}`,
-          ...Object.entries(alanlar.katki).map(([o, s]) => `${o}\t${p.map((k) => s[k] ?? "").join("\t")}`),
-        ].join("\n"),
-      );
-    }
-    if (alanlar.ska) ekle("Sür. Kalkınma Amaçları", "Seçilecek amaç numaraları", alanlar.ska.join(", "));
-    if (alanlar.kaynaklar?.length)
-      ekle("Diğer Kaynaklar", "Kaynaklar (her satır bir künye)", alanlar.kaynaklar.map(kunyeMetni).join("\n"));
-    if (!bolumler.length && !yazilamayan.length)
-      throw new AracHatasi("Kopyalanacak alan yok. En az bir alan gönderin.");
-    const b = alanBulgulari(ders, alanlar, { ingilizce, programCiktilari });
-    const kalanEksikler = [...b.entries()].flatMap(([alan, xs]) =>
-      xs.filter((x) => x.duzey === "hata").map((x) => ({ alan, neden: x.aciklama })),
-    );
-    const baslik = [ders.kod, ders.ad].filter(Boolean).join(" ") || "Ders";
-    const sirali = [...bolumler].sort(
-      (x, y) => SEKME_SIRASI.indexOf(x.sekme) - SEKME_SIRASI.indexOf(y.sekme) || x.sira - y.sira,
-    );
-    const metin = [
-      `${baslik}: OBS'ye kopyalanacak alanlar`,
-      "",
-      ...sirali.flatMap((x, i) => [`${i + 1}. ${x.sekme} > ${x.alan}`, x.deger, ""]),
-      ...(ders.yetkililer?.length
-        ? [
-            "Dersin Yetkilileri (sayfadaki hâliyle; değiştirmeyin, OBS'de zaten böyle kayıtlı):",
-            ...ders.yetkililer.map((y) => `${y.rol}: ${y.deger}`),
-          ]
-        : ["Dersin Yetkilileri: bu metin onlara dokunmaz; OBS'deki hâliyle kalır."]),
-      ...(kalanEksikler.length
-        ? [
-            "",
-            "Kalan eksikler:",
-            ...kalanEksikler.map((e) => `- ${ALANLAR[e.alan as AlanKodu]?.ad ?? "Genel"}: ${e.neden}`),
-          ]
-        : []),
-      ...(yazilamayan.length
-        ? ["", "Yazma paketine alınmayanlar:", ...yazilamayan.map((y) => `- ${y.alan}: ${y.neden}`)]
-        : []),
-    ].join("\n");
-    const numarali = sirali.map((x, i) => ({ ...x, sira: i + 1 }));
-    const normal = (v: string) => v.replace(/\s+/gu, " ").trim();
-    const degisiklikOzeti = numarali.map((x) => {
-      const onceki = oncekiDegerler?.[x.alan];
-      return {
-        no: x.sira,
-        sekme: x.sekme,
-        alan: x.alan,
-        onceki: onceki === undefined ? null : onceki,
-        yeni: x.deger,
-        degisim: onceki === undefined ? "bilinmiyor" : normal(onceki) === normal(x.deger) ? "aynı" : "değişecek",
-      };
-    });
-    return {
-      sonuc: {
-        metin,
-        bolumler: numarali,
-        degisiklikOzeti,
-        yazilamayan,
-        hesap,
-        kalanEksikler,
-        obsKarsilastirGirdisi: {
-          ...(ders.kod ? { dersKodu: ders.kod } : {}),
-          ...(ders.donem ? { donem: ders.donem } : {}),
-          beklenen: numarali.map((x) => ({ alan: x.alan, deger: x.deger })),
-        },
-        ...(pesinOnayVar(pesinOnay) ? { pesinOnayKaydi: pesinOnay } : {}),
-        not: "Biçim denetiminden geçti; içerik teyidi: hoca. Yazmadan önce degisiklikOzeti'ni (önceki/yeni) hocaya alan alan gösterin; hoca bir kez 'kaydet' der. Kayıttan sonra sayfayı geri okuyup obs_karsilastir ile doğrulayın. Alan adları OBS sürümüne göre küçük farklar gösterebilir.",
-      },
-      kaynak: [KAYNAK_KURALLAR],
-      ...(pesinOnayVar(pesinOnay)
-        ? {
-            hocayaSimdiSor: false,
-            sonrakiAdim: PESIN_ONAY_YAZMA,
-          }
-        : pesinOnay
-          ? {
-              sonrakiAdim:
-                "pesinOnay metninde kayıt sözü yok; peşin onay sayılmadı. degisiklikOzeti'ni gösterip kayıt onayını isteyin: 1) OBS'ye yaz ve kaydet 2) formu doldur, Kaydet'e ben basayım 3) kopya metni.",
-            }
-          : {}),
-      ...(kalanEksikler.length && !pesinOnayVar(pesinOnay)
-        ? {
-            sonrakiAdim:
-              "Kalan eksikleri sormadan doldurmaya dönün (bologna_alan_rehberi, bologna_taslak_denetle); yalnız hocanın bilebileceği resmî bilgi (değerlendirme, kullanılan kaynak) eksikse onu TEK mesajda, numaralı sorun. Sonra degisiklikOzeti ile kayıt onayını aynı mesajda isteyin.",
-          }
-        : {}),
-    };
-  },
+  girdi: KopyaMetniGirdisi,
+  calistir: kopyaPaketi,
 });
 
 /** OBS'de ders listesi açılınca: hocaya "hangi ders?" sordurmaz, tarama planını ve rapor biçimini verir. */
@@ -2045,18 +2062,27 @@ const dersListesiAraci = arac({
           `ADIM 1: Hocaya soru sormayın. Listede '${plan[0]?.kod ?? ""}' satırının düzenleme/ders bilgi paketi bağlantısına tıklayın.`,
           "ADIM 2: Açılan sayfanın tamamını (metin ya da HTML) okuyup bologna_ayristir'a verin; yanıttaki 'denetim' alanı eksikleri sayar, bologna_denetle'yi ayrıca çağırmayın.",
           "ADIM 3: Sayfa iframe içindeyse iframe'in src adresine gidin. Alanlar ayrı sekmelerdeyse (Ders Bilgileri, Öğrenme Çıktıları, Ders Akışı, Katkı) sırayla açıp metinleri birleştirin.",
-          "ADIM 4: Listeye dönüp sıradaki derse geçin; bütün plan bitene kadar hocaya hiçbir şey yazmayın.",
+          pesin
+            ? "ADIM 4: Bu dersin eksiklerini doldurup kaydedin (sonrakiAdim'daki sıra), sonra listeye dönüp sıradaki derse geçin; bütün plan bitene kadar hocaya hiçbir şey yazmayın."
+            : "ADIM 4: Listeye dönüp sıradaki derse geçin; bütün plan bitene kadar hocaya hiçbir şey yazmayın.",
           "ADIM 5: Giriş ekranına düşerseniz durun: 'Oturum düştü; OBS sekmesinde yeniden girip girdim yazın' deyin. Parola ve doğrulama kodu istemeyin.",
-          "ADIM 6: Plan bitince raporBicimi'ne göre TEK mesaj yazın.",
+          pesin
+            ? "ADIM 6: Plan bitince sonrakiAdim'daki TEK raporu yazın; ara rapor ve seçenek yok."
+            : "ADIM 6: Plan bitince raporBicimi'ne göre TEK mesaj yazın.",
         ],
         ...(kalan > 0 ? { taranmayan: kalan, sonrakiBaslangic: sonraki } : {}),
-        raporBicimi: [
-          "Başlık: 'Şu eksiklikleri tespit ettim, önerilerim şunlar.'",
-          "Her ders bir satır, en eksikten en tamama: ders kodu, eksik ya da kurala uymayan alan sayısı, en önemli 1-2 eksik.",
-          "Eksiği olmayan dersler için: 'eksik görünmüyor' ve kaliteyi artıracak 1-2 somut öneri (zayıf alan, Bloom düzeyi, iş yükü ile AKTS uyumu, kaynak güncelliği, İngilizce alanlar).",
-          "Sayfada olmayan değerlendirme yüzdeleri ve kaynakları aynı mesajda sor (tahmin etme).",
-          "Altına: 1) eksikleri en çok olandan başlayarak hepsini kapatalım (önerilen) 2) yalnız en eksik dersi 3) kalite önerilerini de uygulayalım 4) dersi ben seçeyim.",
-        ],
+        // Peşin onayda rapor durağı yoktur; rapor biçimi yalnız olağan akışta döner.
+        ...(pesin
+          ? {}
+          : {
+              raporBicimi: [
+                "Başlık: 'Şu eksiklikleri tespit ettim, önerilerim şunlar.'",
+                "Her ders bir satır, en eksikten en tamama: ders kodu, eksik ya da kurala uymayan alan sayısı, en önemli 1-2 eksik.",
+                "Eksiği olmayan dersler için: 'eksik görünmüyor' ve kaliteyi artıracak 1-2 somut öneri (zayıf alan, Bloom düzeyi, iş yükü ile AKTS uyumu, kaynak güncelliği, İngilizce alanlar).",
+                "Sayfada olmayan değerlendirme yüzdeleri ve kaynakları aynı mesajda sor (tahmin etme).",
+                "Altına: 1) eksikleri en çok olandan başlayarak hepsini kapatalım (önerilen) 2) yalnız en eksik dersi 3) kalite önerilerini de uygulayalım 4) dersi ben seçeyim.",
+              ],
+            }),
       },
       kaynak: [KAYNAK_KURALLAR],
       hocayaSimdiSor: false,
@@ -2091,20 +2117,13 @@ const topluOzetAraci = arac({
   kisiselVeriKapsami: BOLOGNA_KAPSAMI,
   kunyeAlanlari: BOLOGNA_KUNYE_ALANLARI,
   girdi: z.object({
-    dersler: z.array(kopyaMetniAraci.girdi).min(1).max(15).describe("Her öğe bologna_kopya_metni girdisiyle aynı"),
+    dersler: z.array(KopyaMetniGirdisi).min(1).max(15).describe("Her öğe bologna_kopya_metni girdisiyle aynı"),
     pesinOnay: z.string().max(500).optional().describe(PESIN_ONAY_ACIKLAMASI),
   }),
-  calistir: (g, b) => {
+  calistir: (g) => {
     const pesin = pesinOnayVar(g.pesinOnay);
     const satirlar = g.dersler.map((d, i) => {
-      const r = kopyaMetniAraci.calistir(d, b) as AracSonucu;
-      const s = r.sonuc as {
-        degisiklikOzeti: { alan: string; degisim: string }[];
-        yazilamayan: { alan: string }[];
-        hesap: { degerlendirmeToplami?: number; isyuku?: { toplam: number } };
-        kalanEksikler: unknown[];
-        obsKarsilastirGirdisi: unknown;
-      };
+      const s = kopyaPaketi(d).sonuc;
       const dayanak = d.alanlar.degerlendirmeDayanagi;
       const degerlendirme = d.alanlar.degerlendirme
         ? degerlendirmeTeyitli(d.alanlar)
@@ -2144,9 +2163,14 @@ const topluOzetAraci = arac({
                 `Pakete alınmayan ya da eksik kalan alanı olan dersler: ${sorunlu.map((s) => `${s.no}) ${s.kod}`).join(", ")}.`,
               ]
             : []),
-          `1) ${satirlar.length} dersin tamamını OBS'ye yaz ve kaydet (önerilen; bu seçim 'kaydet' onayıdır)`,
-          "2) Yalnız şu dersleri yaz: numaralarını yazın (ör. 1, 3)",
-          "3) Bir dersin tam metnini göster: numarasını yazın (ör. detay 2)",
+          // Peşin onayda seçenek sorulmaz; özet sondaki raporda yer alır.
+          ...(pesin
+            ? []
+            : [
+                `1) ${satirlar.length} dersin tamamını OBS'ye yaz ve kaydet (önerilen; bu seçim 'kaydet' onayıdır)`,
+                "2) Yalnız şu dersleri yaz: numaralarını yazın (ör. 1, 3)",
+                "3) Bir dersin tam metnini göster: numarasını yazın (ör. detay 2)",
+              ]),
           "Onaya Gönder'e siz basarsınız.",
         ].join("\n"),
         ...(pesin ? { pesinOnayKaydi: g.pesinOnay } : {}),

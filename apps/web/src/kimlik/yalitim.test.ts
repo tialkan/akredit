@@ -154,4 +154,18 @@ describe("uçtan uca kiracı yalıtımı", () => {
     const y3 = await uc(istek(`/v/kurum/${o.a.kurumId}`, { kavanoz: aKavanoz, yontem: "POST" }));
     expect(y3.status).toBe(200);
   });
+
+  it("köken yokken Referer kullanılır; bozuk Referer 500 değil 403 verir", async () => {
+    const uc = okuma();
+    const gonder = (referer: string) =>
+      uc(istek(`/v/kurum/${o.a.kurumId}`, { kavanoz: aKavanoz, yontem: "POST", koken: null, basliklar: { referer } }));
+    expect((await gonder("adres-degil")).status).toBe(403);
+    expect((await gonder("https://kotu.example/sayfa")).status).toBe(403);
+    expect((await gonder(`${o.k.ayar.temelAdres}/panel`)).status).toBe(200);
+    // Okuma isteğinde bozuk Referer isteği düşürmez.
+    const oku = await uc(
+      istek(`/v/kurum/${o.a.kurumId}`, { kavanoz: aKavanoz, koken: null, basliklar: { referer: "adres-degil" } }),
+    );
+    expect(oku.status).toBe(200);
+  });
 });

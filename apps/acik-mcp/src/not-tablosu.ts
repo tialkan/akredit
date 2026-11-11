@@ -4,8 +4,9 @@
 // Kişisel veri (dış inceleme 2026-11-05): tablo sohbete yapıştırıldığı anda yapay zekâ sağlayıcısına gitmiştir;
 // sunucunun sonradan sütun atması bunu geri almaz. Bu yüzden ad, soyad ya da öğrenci numarası sütunu ya da 9-11
 // haneli bir numara görülürse tablo işlenmez; hoca bu sütunları Excel'de silip yalnız not sütunlarını yapıştırır ya
-// da verinin tarayıcıdan çıkmadığı hesaplayıcıyı kullanır. Değerler hiçbir yere yazılmaz. Sütun başlıklarından ölçme aracı, soru numarası, tam puan ve ders çıktısı (ÇK)
-// eşlemesi sezilir; sezilemeyen bilgi tahmin edilmez, eksikler listesine girer. Sayılar yalnız tablodan okunur.
+// da verinin tarayıcıdan çıkmadığı hesaplayıcıyı kullanır. Değerler hiçbir yere yazılmaz. Sütun başlıklarından ölçme
+// aracı, soru numarası, tam puan ve ders çıktısı (ÇK) eşlemesi sezilir; sezilemeyen bilgi tahmin edilmez, eksikler
+// listesine girer. Sayılar yalnız tablodan okunur.
 
 import { z } from "zod";
 import { type AracSonucu, arac, KOD_KAYNAGI } from "./temel.ts";
@@ -76,7 +77,10 @@ export function takmaAdEkle(metin: string): string {
   return satirlar.map((r, i) => [i === 0 ? "Takma ad" : `o${i}`, ...r].join("\t")).join("\n");
 }
 
-/** Tablodan kimlik sütunlarını atar, başa o1, o2 takma adı koyar. Yalnız bellekte çalışır. */
+/**
+ * Tablodan kimlik sütunlarını atar, başa o1, o2 takma adı koyar. Yalnız bellekte çalışır. MCP aracı bunu kullanmaz
+ * (kimlik sütunu görürse tabloyu reddeder); verinin tarayıcıdan çıkmadığı /deneyin hesaplayıcısı kullanır.
+ */
 export function notTablosuAyikla(metin: string): { tablo: string; atilan: string[] } {
   const { satirlar } = tabloOku(metin);
   if (satirlar.length < 2) return { tablo: metin, atilan: [] };
@@ -280,6 +284,8 @@ export const notTablosuAyristirAraci = arac({
       kaynak: [KOD_KAYNAGI("apps/acik-mcp/src/not-tablosu.ts", "Akredit not tablosu ayrıştırıcısı")],
       ...(eksikler.length
         ? {
+            // Eksik bilgi yalnız hocadadır: bu adımda sorulur.
+            hocayaSimdiSor: true,
             sonrakiAdim:
               "Bütün eksikleri TEK mesajda, numaralı sorun (tahmin etmeyin); yanıtları tamPuanlar, eslemeler ve agirliklar olarak verip aracı yeniden çağırın. Tabloyu yeniden yapıştırtmayın, aynı tabloyu kullanın.",
           }

@@ -2,6 +2,8 @@
 
 Bu klasör akredit.org'un kurulumu, yayını, yedeği ve izlenmesi içindir. Kaynak dosyalar `infra/uretim/` altındadır.
 
+> **Güncel durum (2026-11).** Bu klasör kendi sunucumuzda Caddy ve `dagit.sh` ile yayın düzenini anlatır (İP-26, askıda). Yayındaki akredit.org bugün Coolify ile `infra/coolify/docker-compose.yml` dosyasından derlenir; o yolun kılavuzu [`../tasarim/yayin-kilavuzu.md`](../tasarim/yayin-kilavuzu.md), açık MCP hız sınırı notu [`acik-mcp-hiz-siniri.md`](acik-mcp-hiz-siniri.md).
+
 | Belge | Konu |
 |---|---|
 | [kurulum.md](kurulum.md) | Sıfırdan kurulum: sunucu, yazılım, sırlar, ilk yayın |

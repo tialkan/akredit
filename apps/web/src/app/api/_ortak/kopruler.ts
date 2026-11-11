@@ -18,7 +18,7 @@ type Ortam = Record<string, string | undefined>;
 
 export class KopruYapilandirmaHatasi extends Error {}
 
-const dolu = (v: string | undefined) => (v && v.trim() ? v.trim() : undefined);
+const dolu = (v: string | undefined) => v?.trim() || undefined;
 
 /** Ortamdan nesne deposunu kurar. Hiç tanım yoksa `null`; yarım ya da hatalı tanımda açık Türkçe hata. */
 export function ortamdanDepo(o: Ortam): NesneDeposu | null {

@@ -1,6 +1,6 @@
 // Ana sayfadaki kurulum adımları (İP-49). Adımlar elle yazılmaz; herkese açık MCP'nin kurulum rehberinden
 // (kurulum_yardimi aracı, apps/acik-mcp) okunur. Sitede yalnız bağlayıcıyı ekleyen adımlar gösterilir;
-// "akredit yazın" ana sayfada ikinci adımdır.
+// "akredit yazın" ana sayfada ayrı adımdır (Adım 4).
 
 import { type Adim, baglayiciAdimlari, type Istemci, MCP_ADRESI } from "@akredit/acik-mcp";
 

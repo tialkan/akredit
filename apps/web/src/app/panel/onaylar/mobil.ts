@@ -187,10 +187,6 @@ export function manifest() {
 export const SIMGE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><title>Akredit</title><rect width="512" height="512" fill="#10325B"/><g transform="translate(256 262) scale(4.1) translate(-39.964999999999996 -39.925)"><path d="m39.96 9.8-35.34 60.25h12.67c7.01-13.96 15.25-29.69 22.65-42.71l8.64 16.27 7.38-6.31-16-27.5z" fill="#FFFFFF"/><path d="m61.26 46.38-7.68 6.91 8.69 16.76h13.04l-14.05-23.67z" fill="#FFFFFF"/><path d="m56.69 38.84-18.31 15.59-8.36-5.79-2.93 5.71 11.39 10.8 21.98-20.06-3.77-6.25z" fill="#5CC6C6"/></g></svg>`;
 
 /**
- * Servis çalışanının kaynağı. Karar mantığı `onbellekKarari` ile aynıdır; aynı işlev JS olarak gömülür;
- * testte bu metin çalıştırılıp `onbellekKarari` ile aynı sonucu verdiği sınanır.
- */
-/**
  * Oturum kapatma yanıtına `Clear-Site-Data: "cache"` ekler: tarayıcı, bu cihazdaki önbelleğe alınmış onay
  * listesini (servis çalışanı önbelleği dahil) siler. Diğer kimlik yanıtları değişmez.
  */
@@ -201,6 +197,10 @@ export function cikisYanitiniSertlestir(yol: string, y: Response): Response {
   return new Response(y.body, { status: y.status, statusText: y.statusText, headers: basliklar });
 }
 
+/**
+ * Servis çalışanının kaynağı. Karar mantığı `onbellekKarari` ile aynıdır; aynı işlev JS olarak gömülür;
+ * testte bu metin çalıştırılıp `onbellekKarari` ile aynı sonucu verdiği sınanır.
+ */
 export function servisCalisaniKaynagi(): string {
   return `// Akredit onay kutusu servis çalışanı (İP-33). Yalnız onay listesi önbelleğe alınır.
 "use strict";
