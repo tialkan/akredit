@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AskidaTanitim } from "../../../site/askida-tanitim.tsx";
 import { barindirmaAcik } from "../../../site/barindirma.ts";
 import { Bolum, SayfaBasi, YapisalVeri } from "../../../site/bilesenler.tsx";
 import { KURUM_ACILIS_ADIMLARI, SAYFALAR } from "../../../site/icerik.ts";
@@ -25,7 +26,8 @@ export default function KurumAc() {
         }
       >
         {acik ? null : (
-          <div className="mt-8 max-w-3xl">
+          <div className="mt-8 grid max-w-3xl gap-6">
+            <AskidaTanitim sayfa="kurumAc" />
             <PlatformDurumu />
           </div>
         )}

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { AskidaTanitim } from "../../../site/askida-tanitim.tsx";
 import { barindirmaAcik } from "../../../site/barindirma.ts";
 import { Bolum, SayfaBasi, Tanimlar, YapisalVeri } from "../../../site/bilesenler.tsx";
 import { PILOT_ROLLERI, PILOT_SURECLERI, SAYFALAR, SORUMLULUK } from "../../../site/icerik.ts";
@@ -26,7 +27,8 @@ export default function Pilot() {
         }
       >
         {acik ? null : (
-          <div className="mt-8 max-w-3xl">
+          <div className="mt-8 grid max-w-3xl gap-6">
+            <AskidaTanitim sayfa="pilot" />
             <PlatformDurumu />
           </div>
         )}

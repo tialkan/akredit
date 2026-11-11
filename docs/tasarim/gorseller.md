@@ -25,6 +25,11 @@ Tanıtım sitesindeki gravür görsellerinin kaynağı ve kullanıldığı yerle
 | `marka/og.jpg` | 1200×630 | Hamamönü evleri ve Ankara Kalesi; solda logo ve kısa metin (Pillow ile, Lato) | Bütün sayfaların paylaşım kartı | `PAYLASIM_ALT` (`site/yapisal.ts`) |
 | `infra/coolify/bakim/bakim.webp` | 1280×720 | Akşamüstü kütüphane okuma salonu, pencerede Ankara Kalesi, masa lambası | Güncelleme (bakım) sayfasının üstü | Süs (`alt=""`) |
 
+| `kurum-platformu-800/1600.webp` | 1600×640 | Düzenli kalite arşivi, raflar, masada açık klasör ve mühür, pencerede Ankara Kalesi | `/kurum-ac`, `/kurulum` tanıtımı | Süs |
+| `pilot-800/1600.webp` | 1600×640 | Sabah seminer odası, yuvarlak masada kâğıtlar, iki kahve, dizüstü; pencerede kale | `/pilot` tanıtımı | Süs |
+| `giris-800/1600.webp` | 1600×640 | Kemerli kampüs kapısından fakülteye yürüyen iki kişi | `/giris`, `/davet` tanıtımı | Süs |
+| `kurum-demosu-800/1600.webp` | 1600×640 | Kurgu bir üniversite kampüsü, kuşbakışı; uzakta kale | `/kurum-demosu` tanıtımı | Süs |
+
 ## Ankara serisi (12.11.2026)
 
 - Üretim: Midjourney V8.2 HD, raw, relax kipi, kurucunun hesabı. Asıllar Midjourney'dedir; depoya yalnız tarayıcıda

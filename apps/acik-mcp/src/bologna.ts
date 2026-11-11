@@ -23,6 +23,7 @@ import { z } from "zod";
 import { GENEL_ALAN_ADLARI, genelAyikla, genelAyristir, ingilizceAlanVar, prolizMetniMi } from "./genel-ayristir.ts";
 import { kaynakImzasiDogru } from "./kaynak-dogrula.ts";
 import { girisBilgisiAyikla } from "./kisisel-veri.ts";
+import { prolizMetniCoz, prolizSayfaMetniMi } from "./proliz-metin.ts";
 import {
   type AcikArac,
   type AracBaglami,
@@ -1178,6 +1179,19 @@ export function ayristirOnAyikla(g: unknown): { girdi: unknown; atilan: string[]
       atilan,
       ...ek,
     };
+  // Proliz ders sayfasının düz metni: bölüm bölüm ayrıştırıcı ham metni okur (görev ve kaynak satırları dahil).
+  if (prolizSayfaMetniMi(giris.metin))
+    return {
+      girdi: {
+        ...kalan,
+        sayfaIpucu: { ...sayfaIpucu, prolizMetni: true },
+        metin: giris.metin,
+        ...(onceki.length ? { kaynaklar: onceki } : {}),
+        ...(oncekiY.length ? { yetkililer: oncekiY } : {}),
+      },
+      atilan,
+      ...ek,
+    };
   // Proliz dışı: önce tablo satırları, sonra etiketli bölümler.
   const r = genelAyikla(satir.html);
   return {
@@ -1229,6 +1243,80 @@ const gomuluDenetimAlani = (ders: unknown, b: AracBaglami) => {
   return d ? { denetim: d } : {};
 };
 
+/** Proliz ders sayfasının düz metninden ayrıştırma sonucu (dolu ya da boş paket). */
+function prolizMetniSonucu(
+  ham: string,
+  ek: {
+    kaynaklar: string[];
+    yetkililer: Yetkili[];
+    dersIpucu?: { kod: string; ad?: string | undefined; akts?: number | undefined } | undefined;
+  },
+  b: AracBaglami,
+) {
+  const p = prolizMetniCoz(ham);
+  const d = p.ders;
+  const kaynaklar = [...ek.kaynaklar, ...p.kaynaklar];
+  const yetkililer = [...ek.yetkililer, ...p.yetkililer];
+  const ad = d.ad ?? ek.dersIpucu?.ad;
+  const ders = {
+    kod: d.kod ?? ek.dersIpucu?.kod ?? "DERS",
+    ...(ad ? { ad } : {}),
+    yariyil: d.yariyil,
+    ...(d.tul ? { tul: d.tul } : {}),
+    kredi: d.kredi,
+    akts: d.akts ?? ek.dersIpucu?.akts ?? null,
+    ...(d.guncelleme ? { guncelleme: d.guncelleme } : {}),
+    amac: d.amac,
+    icerik: d.icerik,
+    yontem: d.yontem,
+    notlar: d.notlar,
+    kaynaklar,
+    kaynakSayisi: kaynaklar.length,
+    ...(yetkililer.length ? { yetkililer } : {}),
+    ciktilar: d.ciktilar,
+    degerlendirme: d.degerlendirme,
+    isyuku: d.isyuku,
+    dersYapisi: d.dersYapisi,
+    haftalar: d.haftaKonulari.length,
+    // Denetim şeması metin değer bekler; sayısal matris ayrıca katkiMatrisi'nde.
+    katki: Object.fromEntries(
+      Object.entries(d.katki).map(([o, s]) => [
+        o,
+        Object.fromEntries(p.ders.pKodlari.map((k) => [k, s[k] === undefined ? "" : String(s[k])])),
+      ]),
+    ),
+  };
+  const bosPaket = p.bulunan.length === 0 || (!d.amac && !d.icerik && !d.ciktilar.length && !d.degerlendirme.length);
+  const sonrakiAdim = bosPaket
+    ? "Boş paket: sayfadaki bütün alanlar boş (denetim.doldurulacak). Hepsini öneriyle doldurun (bologna_alan_rehberi, bologna_taslak_denetle) ve 'öneri' etiketiyle son özette gösterin. Değerlendirme yöntem ve yüzdeleri ile kullanılan kaynaklar hocaya TEK mesajda sorulur; peşin onayda sorulmaz, EKSİK bırakılır. Uydurmayın."
+    : d.degerlendirme.length
+      ? "Yanıttaki denetim alanı hazırdır; bologna_denetle'yi ayrıca çağırmayın. Değerlendirme sayfadan okundu: hocaya sormayın; taslakta degerlendirmeDayanagi: 'sayfa' ve degerlendirmeKaniti olarak bu yanıttaki degerlendirmeKaniti metnini aynen verin. Yalnız denetim.teyitSorulacak'taki bilgiler hocaya TEK mesajda sorulur. Sonraki çağrılarda ingilizce değerini aynen verin."
+      : "Yanıttaki denetim alanı hazırdır; bologna_denetle'yi ayrıca çağırmayın. Değerlendirme yöntem ve yüzdeleri sayfada yok: hocaya TEK mesajda sorun (peşin onayda EKSİK bırakın), tahmin etmeyin. Sonraki çağrılarda ingilizce değerini aynen verin.";
+  return {
+    sonuc: {
+      tur: "ders",
+      bicim: "proliz_duz_metin",
+      guven: bosPaket ? "düşük" : p.bulunamayan.length <= 3 ? "yüksek" : "orta",
+      bosPaket,
+      ingilizce: ingilizceAlanVar(ham),
+      bolognaDenetleGirdisi: { ders },
+      ...gomuluDenetimAlani(ders, b),
+      tarayiciEylemPlani: AYRISTIRMA_SONRASI,
+      bilgiler: p.bilgiler,
+      haftaKonulari: d.haftaKonulari,
+      ...(d.degerlendirmeKaniti ? { degerlendirmeDayanagi: "sayfa", degerlendirmeKaniti: d.degerlendirmeKaniti } : {}),
+      katkiMatrisi: d.katki,
+      ...(Object.keys(d.katkiTum).length ? { katkiTum: d.katkiTum } : {}),
+      ...(d.pKodlari.length ? { pKodlari: d.pKodlari } : {}),
+      ...(!d.kod && ek.dersIpucu ? { dersKimligi: "dersIpucu" } : {}),
+      bulunan: p.bulunan.map((k) => GENEL_ALAN_ADLARI[k] ?? k),
+      bulunamayan: p.bulunamayan.map((k) => GENEL_ALAN_ADLARI[k] ?? k),
+    },
+    kaynak: [KOD_KAYNAGI("apps/acik-mcp/src/proliz-metin.ts", "Akredit Proliz düz metin ayrıştırıcısı")],
+    sonrakiAdim,
+  };
+}
+
 const ayristirAraci = arac({
   ad: "bologna_ayristir",
   baslik: "Bologna sayfasını ayrıştır",
@@ -1250,12 +1338,22 @@ const ayristirAraci = arac({
     kaynaklar: z.array(z.string().max(600)).max(30).optional().describe("Ayrıca verilen künyeler"),
     yetkililer: z.array(YetkiliSemasi).max(20).optional().describe("Sayfadaki görev satırları, olduğu gibi"),
     tur: z.enum(["otomatik", "ders", "program_ciktilari"]).default("otomatik"),
+    dersIpucu: z
+      .object({
+        kod: z.string().trim().min(1).max(30),
+        ad: z.string().trim().max(200).optional(),
+        akts: z.number().min(0).max(60).optional(),
+      })
+      .optional()
+      .describe(
+        "Ders listesinden bilinen kod, ad ve AKTS (obs_ders_listesi taramaPlani). Sayfada yoksa bunlar kullanılır; boş pakette ders kodu ve adı sayfada görünmez.",
+      ),
     sayfaIpucu: z
       .object({ prolizMetni: z.boolean(), ingilizce: z.boolean() })
       .optional()
       .describe("Sunucu doldurur; göndermeyin"),
   }),
-  calistir: ({ html, metin, kaynaklar = [], yetkililer = [], tur, sayfaIpucu }, b) => {
+  calistir: ({ html, metin, kaynaklar = [], yetkililer = [], tur, dersIpucu, sayfaIpucu }, b) => {
     if (!html && !metin) throw new AracHatasi("Sayfanın HTML'ini ya da metnini yapıştırın.");
     const kaynakAlani = {
       ...(kaynaklar.length ? { kaynaklar, kaynakSayisi: kaynaklar.length } : {}),
@@ -1324,6 +1422,7 @@ const ayristirAraci = arac({
       };
     }
     const ham = html ?? metin ?? "";
+    if (prolizSayfaMetniMi(ham)) return prolizMetniSonucu(ham, { kaynaklar, yetkililer, dersIpucu }, b);
     const g = genelAyristir(ham, kaynaklar.length);
     if (g.bulunan.length < 2)
       throw new AracHatasi(

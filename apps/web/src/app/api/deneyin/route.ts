@@ -1,11 +1,17 @@
 // Demo oturumu açma ucu (İP-41). Mantık `src/demo/uc.ts`; burada yalnız tekil nesneler bağlanır.
 
 import { beklenmeyenHataYaniti, demoAcikMi, demoUcu } from "../../../demo/uc.ts";
+import { tanitimaYonlendir } from "../../../site/barindirma.ts";
 import { tekiller } from "../_ortak/sunucu.ts";
 
 export const dynamic = "force-dynamic";
 
 const kuresel = globalThis as unknown as { __akreditDemoUcu?: ReturnType<typeof demoUcu> };
+
+/** Tarayıcıda açılınca boş 405 yerine tanıtım sayfası (POST aynen kalır). */
+export function GET(): Response {
+  return tanitimaYonlendir("/kurum-demosu");
+}
 
 export async function POST(istek: Request): Promise<Response> {
   if (!demoAcikMi(process.env)) return Response.json({ hata: "Örnek kurum bu kurulumda kapalı." }, { status: 404 });

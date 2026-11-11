@@ -18,3 +18,21 @@ export const BARINDIRMA_KAPALI_YANITI = {
 export function barindirmaKapaliYaniti(): Response {
   return Response.json(BARINDIRMA_KAPALI_YANITI.govde, { status: BARINDIRMA_KAPALI_YANITI.durum });
 }
+
+/**
+ * Yalnız POST kabul eden form uçları tarayıcıda açılınca (GET) boş 405 yerine ilgili tanıtım sayfasına 303 ile
+ * yönlenir. POST davranışı değişmez. Göreli adres: tarayıcı aynı sitede kalır, temel adres bilinmesi gerekmez.
+ */
+export function tanitimaYonlendir(yol: string): Response {
+  return new Response(null, { status: 303, headers: { location: yol, "cache-control": "no-store" } });
+}
+
+/**
+ * Panel ve değerlendirici portalının tanıtım sayfasına yönleneceği durum: barındırma kapalı, demo oturumu da
+ * açılamıyor ve gerçek veri kipi. Bu durumda akredit.org'da oturum olamaz; sayfa veritabanına gitmeden yönlenir
+ * (önceden veritabanı olmadığı için 500 dönüyordu). Barındırma ya da demo açıkken `null`: davranış aynen kalır.
+ */
+export function askidaPanelYonlendirmesi(ortam: Ortam = process.env, gercekVeri = true): "/kurum-demosu" | null {
+  if (!gercekVeri || barindirmaAcik(ortam) || ortam.AKREDIT_DEMO === "1") return null;
+  return "/kurum-demosu";
+}

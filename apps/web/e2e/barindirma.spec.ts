@@ -96,6 +96,30 @@ test.describe("barındırma kapalı (varsayılan)", () => {
     }
   });
 
+  test("askıdaki sayfalar ne hedeflendiğini anlatır; form uçları ve panel tanıtıma yönlenir", async ({
+    page,
+    request,
+  }) => {
+    for (const yol of ["/kurum-ac", "/pilot", "/giris", "/davet", "/kurulum", "/kurum-demosu"]) {
+      await page.goto(yol);
+      const t = page.getByRole("region", { name: "Hizmet açılınca burada" });
+      await expect(t, yol).toBeVisible();
+      await expect(t.getByRole("link", { name: "Tarayıcıda deneyin" }), yol).toHaveAttribute("href", "/deneyin");
+    }
+    for (const [uc, yol] of [
+      ["/api/deneyin", "/kurum-demosu"],
+      ["/api/deneyin/cikis", "/kurum-demosu"],
+      ["/api/pilot", "/pilot"],
+      ["/api/kurum-acilisi", "/kurum-ac"],
+      ["/api/kurum-acilisi/dogrula", "/kurum-ac"],
+      ["/api/davet", "/davet"],
+    ] as const) {
+      const y = await request.get(uc, { maxRedirects: 0 });
+      expect(y.status(), uc).toBe(303);
+      expect(y.headers().location, uc).toBe(yol);
+    }
+  });
+
   test("demo askıda görünür ama etkilenmez: rol seçimi panele götürür", async ({ page }) => {
     await page.goto("/proje");
     await expect(page.locator('[data-proje-sayfasi="/kurum-demosu"] [data-durum]')).toHaveText("Askıda");

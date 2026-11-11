@@ -3,6 +3,8 @@ import Link from "next/link";
 import { dugmeSinifi } from "../../../bilesenler/dugme.tsx";
 import { DEMO_ROL_BILGISI, DEMO_ROLLERI, DEMO_SERIDI } from "../../../demo/roller.ts";
 import { demoAcikMi } from "../../../demo/uc.ts";
+import { AskidaTanitim } from "../../../site/askida-tanitim.tsx";
+import { barindirmaAcik } from "../../../site/barindirma.ts";
 import { Bolum, YapisalVeri } from "../../../site/bilesenler.tsx";
 import { DEMO_NOTU, ILETISIM_ADRESI, SAYFALAR } from "../../../site/icerik.ts";
 import { sayfaUstVerisi } from "../../../site/yapisal.ts";
@@ -61,6 +63,11 @@ export default async function KurumDemosu({
             .
           </p>
         </div>
+        {barindirmaAcik() ? null : (
+          <div className="mt-6 max-w-3xl">
+            <AskidaTanitim sayfa="kurumDemosu" />
+          </div>
+        )}
         {oturumAcilir ? (
           <div className="mt-6">
             <p className="max-w-[60ch]">

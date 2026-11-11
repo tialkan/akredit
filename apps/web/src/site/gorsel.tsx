@@ -19,6 +19,11 @@ export const GORSELLER = {
   arsiv: { ad: "arsiv", en: 1000, boy: 1000, genislikler: [320, 640] },
   // Ankara serisi (Midjourney, 12.11.2026): Hamamönü evleri ve Ankara Kalesi, alt bant.
   hamamonu: { ad: "hamamonu", en: 1200, boy: 420, genislikler: [600, 1200] },
+  // Askıdaki sayfaların tanıtım görselleri (askida-tanitim.tsx), oran 5:2.
+  kurumPlatformu: { ad: "kurum-platformu", en: 1600, boy: 640, genislikler: [800, 1600] },
+  pilot: { ad: "pilot", en: 1600, boy: 640, genislikler: [800, 1600] },
+  giris: { ad: "giris", en: 1600, boy: 640, genislikler: [800, 1600] },
+  kurumDemosu: { ad: "kurum-demosu", en: 1600, boy: 640, genislikler: [800, 1600] },
 } as const satisfies Record<string, GorselBilgisi>;
 
 export function gorselKaynaklari(g: GorselBilgisi): { src: string; srcSet: string } {

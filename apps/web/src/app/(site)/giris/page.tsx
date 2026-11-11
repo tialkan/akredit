@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Logo } from "../../../bilesenler/logo.tsx";
+import { AskidaTanitim } from "../../../site/askida-tanitim.tsx";
 import { barindirmaAcik } from "../../../site/barindirma.ts";
 import { PlatformDurumu } from "../../../site/platform-durumu.tsx";
 import { GirisFormu } from "./giris-formu.tsx";
@@ -21,7 +22,10 @@ export default function Giris() {
         <p className="mt-2 mb-8 text-soluk">
           akredit.org'da kurum girişi şu an kapalı. Kurumlara barındırılan hizmet sponsor bulunana kadar sunulmuyor.
         </p>
-        <PlatformDurumu />
+        <div className="grid gap-6">
+          <AskidaTanitim sayfa="giris" />
+          <PlatformDurumu />
+        </div>
       </div>
     );
   return (

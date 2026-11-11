@@ -3,11 +3,17 @@
 import { z } from "zod";
 import { hataYaniti } from "../../../kimlik/erisim.ts";
 import { davetKabulEt } from "../../../kimlik/yonetim.ts";
+import { tanitimaYonlendir } from "../../../site/barindirma.ts";
 import { tekiller } from "../_ortak/sunucu.ts";
 
 export const dynamic = "force-dynamic";
 
 const Govde = z.object({ belirtec: z.string().min(16).max(200) }).strict();
+
+/** Tarayıcıda açılınca boş 405 yerine davet sayfası (POST aynen kalır). */
+export function GET(): Response {
+  return tanitimaYonlendir("/davet");
+}
 
 export async function POST(istek: Request): Promise<Response> {
   const { kimlik } = await tekiller();

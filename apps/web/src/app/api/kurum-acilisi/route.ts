@@ -1,10 +1,15 @@
 // "Kurumunuzu açın" başvurusu (İP-35): doğrulama bağlantısı yöneticinin kurumsal e-postasına gider.
 
 import { basvuruIsle } from "../../../kimlik/kurum-acilisi.ts";
-import { barindirmaAcik, barindirmaKapaliYaniti } from "../../../site/barindirma.ts";
+import { barindirmaAcik, barindirmaKapaliYaniti, tanitimaYonlendir } from "../../../site/barindirma.ts";
 import { tekiller } from "../_ortak/sunucu.ts";
 
 export const dynamic = "force-dynamic";
+
+/** Tarayıcıda açılınca boş 405 yerine tanıtım sayfası (POST aynen kalır). */
+export function GET(): Response {
+  return tanitimaYonlendir("/kurum-ac");
+}
 
 export async function POST(istek: Request): Promise<Response> {
   // Barındırılan hizmet askıdayken yeni kayıt alınmaz (src/site/barindirma.ts).

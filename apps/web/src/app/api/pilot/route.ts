@@ -2,10 +2,15 @@
 
 import { ortamdanEpostaAyari, smtpTasiyici } from "@akredit/surec";
 import { ortamdanPilotAlicisi, pilotBasvurusuIsle } from "../../../pilot/basvuru.ts";
-import { barindirmaAcik, barindirmaKapaliYaniti } from "../../../site/barindirma.ts";
+import { barindirmaAcik, barindirmaKapaliYaniti, tanitimaYonlendir } from "../../../site/barindirma.ts";
 import { tekiller } from "../_ortak/sunucu.ts";
 
 export const dynamic = "force-dynamic";
+
+/** Tarayıcıda açılınca boş 405 yerine tanıtım sayfası (POST aynen kalır). */
+export function GET(): Response {
+  return tanitimaYonlendir("/pilot");
+}
 
 export async function POST(istek: Request): Promise<Response> {
   // Barındırılan hizmet askıdayken yeni kayıt alınmaz (src/site/barindirma.ts).

@@ -1,0 +1,84 @@
+Dersin Ayrıntıları
+Yarıyıl	Kodu	Adı	T+U+L	Kredi	AKTS	Son Güncelleme Tarihi
+3	CENG201	OBJECT ORIENTED PROGRAMMING	3+2+0	0	6	21.05.2024
+Dersin Detayları
+Dersin Dili	İngilizce
+Dersin Düzeyi	Lisans
+Bölümü / Programı	BİLGİSAYAR MÜHENDİSLİĞİ(İNG)
+Öğrenim Türü	Örgün Öğretim
+Dersin Türü	Zorunlu
+Dersin Öğretim Şekli	Yüz Yüze
+Dersin Amacı	1.Nesne tabanlı programlamayı tanıtmak
+2.Iyi programlamayı kurgulamak için bu programlama şemalarını Java programlama diliyle öğrenmek.
+Dersin İçeriği	Java ile programlamaya giriş, Nesne tabanlı programlamaya giriş, Nesneler ve Sınıflar, Constructors and destructors, Fonksiyon overloading, Operator overloading, Kalıtım, Obje göstericileri, Çok biçimlilik, Birleştirilmiş Modelleme Dili (BMD), Kural dışı durumlar, Şablonlar, Standart Şablon Kütüphanesi.
+Dersin Yöntem ve Teknikleri	
+Ön Koşulları	( CENG104 veya CENG114 )
+Dersin Koordinatörü	Yok
+Dersi Verenler	Dr. Öğr. Üyesi Deniz KURGU
+Dersin Yardımcıları	Yok
+Dersin Staj Durumu	Yok
+Ders Kaynakları
+Kaynaklar	Y. Daniel Liang. Introduction to Java Programming, 10E, 2014.
+Ders Notları	1. Java: How to Program, 9th Edition, Paul Deitel, Harvey Deitel, Prentice Hall
+2. The Object-Oriented Thought Process (4th Edition), Matt Weisfeld
+Dökümanlar	.
+Ödevler	.
+Sınavlar	.
+Ders Yapısı
+Matematik ve Temel Bilimler	%0
+Mühendislik Bilimleri	%50
+Mühendislik Tasarımı	%50
+Sosyal Bilimler	%0
+Eğitim Bilimleri	%0
+Fen Bilimleri	%0
+Sağlık Bilimleri	%0
+Alan Bilgisi	%0
+Planlanan Öğrenme Aktiviteleri ve Metodları
+Etkinlikler ayrıntılı olarak "Değerlendirme" ve "İş Yükü Hesaplaması" bölümlerinde verilmiştir.
+Değerlendirme Ölçütleri
+Yarıyıl Çalışmaları	Sayısı	Katkı
+Ara Sınav	1	% 30
+Kısa Sınav	1	% 5
+Ödev	1	% 5
+Uygulama	1	% 10
+Proje	1	% 10
+Yarıyıl Sonu Sınavı	1	% 40
+Toplam :	6	% 100
+AKTS Hesaplama İçeriği
+İş Yükü	Sayısı	Süre	Toplam İş Yükü (Saat)
+Ders Süresi	1	36	36
+Sınıf Dışı Ç. Süresi	1	6	6
+Ödevler	1	30	30
+Laboratuvar	1	40	40
+Proje	1	50	50
+Toplam İş Yükü	AKTS Kredisi : 5	162
+Dersin Öğrenme Çıktıları: Bu dersin başarılı bir şekilde tamamlanmasıyla öğrenciler şunları yapabileceklerdir:
+Sıra No	Açıklama
+1	Problemi çözmek için nesne,constructor ve destructor tanımlama
+2	Overload edilen metod ve operatorleri tanımlamak
+3	Objelerde kalıtımı kullanmak
+4	Run time da oluşan istisnaları analiz etmek
+Ders Konuları
+Hafta	Konu	Ön Hazırlık	Dökümanlar
+1	Java language programming concept: Primitive Data Types and Operations
+2	Primitive type Arrays Object Oriented Programming: Classes, Constructors
+3	Object Oriented Programming: Classes, Constructors, Data Members, Member Methods Static and Final Members, Visibility Modifiers, Accessors and Mutators
+4	Static and Final Members, Visibility Modifiers, Accessors and Mutators
+5	Object Methods, Array of Objects Some handy Java Classes; Arrays, String, StringBuffer
+6	Vector, ArrayList, Generics
+7	Inheritance, Object Class
+8	Concrete Class, Abstract Class, Interface Polymorphism, Object Oriented Design
+9	Vize Haftası
+10	GUI Programming, Event-driven programming, Creating User Interfaces, Multiple Frames
+11	GUI Programming, Event-driven programming, Creating User Interfaces, Multiple Frames
+12	Exceptions
+13	Text Files
+14	Project Presentations Genreal Review
+Dersin Program Çıktılarına Katkısı
+	P1	P2	P3	P4	P5	P6	P7	P8	P9	P10	P11	P12
+Tüm	5	5	4	1	4	1	1	1	1	1	1	1
+Ö1	5	5	4	1	4	1	1	1	1	1	1	1
+Ö2	5	5	4	1	4	1	1	1	1	1	1	1
+Ö3	5	5	4	1	4	1	1	1	1	1	1	1
+Ö4	5	5	4	1	4	1	1	1	1	1	1	1
+Katkı Düzeyi: 1: Çok Düşük 2: Düşük 3: Orta 4: Yüksek 5: Çok Yüksek

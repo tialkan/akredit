@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { type ReactNode, Suspense } from "react";
 import { BildirimSaglayici } from "../../bilesenler/etkilesimli.tsx";
 import { KenarCubugu } from "../../bilesenler/kenar-cubugu.tsx";
@@ -6,11 +7,15 @@ import { Logo } from "../../bilesenler/logo.tsx";
 import { OrnekVeriSeridi } from "../../bilesenler/temel.tsx";
 import { panelDemoBilgisi } from "../../demo/panel.ts";
 import { RehberTuru } from "../../demo/rehber-turu.tsx";
+import { askidaPanelYonlendirmesi } from "../../site/barindirma.ts";
 import { GERCEK_VERI, panelVeriKaynagi } from "../../veri/sunucu.ts";
 
 export const metadata = { title: { default: "Panel", template: "%s · Panel · Akredit" } };
 
 export default async function PanelYerlesimi({ children }: { children: ReactNode }) {
+  // Barındırma ve demo kapalıyken oturum olamaz: veritabanına gitmeden tanıtım sayfasına (ADR 0008).
+  const tanitim = askidaPanelYonlendirmesi(process.env, GERCEK_VERI);
+  if (tanitim) redirect(tanitim);
   const kaynak = await panelVeriKaynagi();
   const [kullanici, ayarlar, bekleyen, demo] = await Promise.all([
     kaynak.kullanici(),
