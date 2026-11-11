@@ -17,6 +17,8 @@ export const GORSELLER = {
   amfi: { ad: "amfi", en: 1680, boy: 720, genislikler: [840, 1680] },
   avlu: { ad: "avlu", en: 1456, boy: 816, genislikler: [728, 1456] },
   arsiv: { ad: "arsiv", en: 1000, boy: 1000, genislikler: [320, 640] },
+  // Ankara serisi (Midjourney, 12.11.2026): Hamamönü evleri ve Ankara Kalesi, alt bant.
+  hamamonu: { ad: "hamamonu", en: 1200, boy: 420, genislikler: [600, 1200] },
 } as const satisfies Record<string, GorselBilgisi>;
 
 export function gorselKaynaklari(g: GorselBilgisi): { src: string; srcSet: string } {

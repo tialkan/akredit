@@ -328,22 +328,27 @@ dialog::backdrop {
     0 18px 40px -28px rgb(16 50 91 / 0.35);
 }
 
-/* İlk ekran zemini: Ankara tepeleri panoraması (Midjourney, 12.11.2026, docs/tasarim/gorseller.md), yalnız geniş
-   ekranda (telefonda indirilmez), alta yaslı. Yüzde 16 örtücülükte en koyu yeri bile metin kontrastını AA altına
-   düşürmez. */
+/* İlk ekran zemini: Ankara tepeleri panoraması (Midjourney, 12.11.2026, docs/tasarim/gorseller.md), her ekranda
+   (19 KB). Alta yaslıdır ve yukarı doğru silinir: tepeler ilk ekranın altında net görünür, metnin durduğu üst
+   yarıda zemin neredeyse düz kalır (kontrast AA). */
 .ilk-ekran {
   position: relative;
   isolation: isolate;
 }
-@media (min-width: 64rem) {
+.ilk-ekran::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: url("/gorsel/tasarim/arkaplan.webp") center bottom / 100% auto no-repeat;
+  opacity: 0.85;
+  mask-image: linear-gradient(to bottom, transparent 35%, black 90%);
+  pointer-events: none;
+}
+@media (max-width: 40rem) {
   .ilk-ekran::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: url("/gorsel/tasarim/arkaplan.webp") center bottom / cover no-repeat;
-    opacity: 0.16;
-    pointer-events: none;
+    background-size: 220% auto;
+    background-position: 70% bottom;
   }
 }
 

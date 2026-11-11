@@ -20,7 +20,8 @@ Tanıtım sitesindeki gravür görsellerinin kaynağı ve kullanıldığı yerle
 | `avlu.webp` | 1456×816 | Kemerli revaklar, ağaçlar ve havuzlu üniversite avlusu | `/proje` ilk ekranı | Anlamlı |
 | `arsiv.webp` | 1000×1000 | Kurdeleyle bağlanmış dosya ve defter yığını | 404, 500 ve bakım sayfalarında küçük görsel | Süs (`alt=""`, `aria-hidden`) |
 | `kagit-dokusu.webp` | 1456×816 | Çok soluk, ince çizgili eski kâğıt dokusu | 12.11.2026'dan beri kullanılmıyor (yerine `tasarim/arkaplan.webp`) | CSS arka planı |
-| `tasarim/arkaplan.webp` | 1800×600 | Sabah Ankara tepeleri, uzakta küçük kale silueti, boş gök; düz vektör, kâğıt dokusu | Ana sayfa ilk ekran zemini, yalnız geniş ekranda, alta yaslı, yüzde 16 örtücülükle | CSS arka planı |
+| `tasarim/arkaplan.webp` | 1800×600 | Sabah Ankara tepeleri, uzakta küçük kale silueti, boş gök; düz vektör, kâğıt dokusu | Ana sayfa ilk ekran zemini, her ekranda, alta yaslı, yüzde 85 örtücülük ve yukarı doğru silinme (metin bölgesi düz kalır) | CSS arka planı |
+| `hamamonu-600/1200.webp` | 1200×420 | Hamamönü evleri ve Ankara Kalesi (paylaşım kartı çiziminin alt bandı) | Ana sayfa, kurulum adımlarından sonra tam genişlikte ara (tembel yüklenir; eski `araclar` şeridinin yerine) | Süs (`alt=""`, `aria-hidden`) |
 | `marka/og.jpg` | 1200×630 | Hamamönü evleri ve Ankara Kalesi; solda logo ve kısa metin (Pillow ile, Lato) | Bütün sayfaların paylaşım kartı | `PAYLASIM_ALT` (`site/yapisal.ts`) |
 | `infra/coolify/bakim/bakim.webp` | 1280×720 | Akşamüstü kütüphane okuma salonu, pencerede Ankara Kalesi, masa lambası | Güncelleme (bakım) sayfasının üstü | Süs (`alt=""`) |
 

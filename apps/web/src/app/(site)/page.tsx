@@ -430,11 +430,15 @@ export default function AnaSayfa() {
         </div>
       </section>
 
+      {/* Ankara serisi: kurulum adımlarından sonra tam genişlikte görsel ara (süs; tembel yüklenir). */}
+      <div aria-hidden className="border-t border-cizgi bg-zemin">
+        <div className="mx-auto max-w-6xl">
+          <Gorsel gorsel={GORSELLER.hamamonu} alt="" boyutlar="(min-width: 72rem) 72rem, 100vw" />
+        </div>
+      </div>
+
       <section aria-labelledby="takildiniz" className="border-t border-cizgi bg-yuzey">
         <div data-belir className="mx-auto max-w-3xl px-4 py-10 text-lg sm:py-14">
-          <div aria-hidden className="mx-auto mb-8 max-w-xl overflow-hidden border-y border-cizgi py-2">
-            <Gorsel gorsel={GORSELLER.araclar} alt="" boyutlar="(min-width: 40rem) 36rem, calc(100vw - 2rem)" />
-          </div>
           <h2 id="takildiniz" className="text-[1.75rem] leading-tight text-vurgu">
             Takıldınız mı?
           </h2>
