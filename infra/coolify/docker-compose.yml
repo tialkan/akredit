@@ -123,7 +123,20 @@ services:
     build:
       context: .
       dockerfile: infra/coolify/vt.Dockerfile
-    command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
+    # WAL arşivi Coolify'da KAPALI (kesinti 2026-11-11): ayar dosyasındaki archive_command '/yedek/wal-arsivle.sh'
+    # üretim kurulumunun (infra/uretim) yedek birimine dayanır; burada o birim yok. Arşivleme hep başarısız olunca
+    # PostgreSQL WAL'ları silemedi, archive_timeout=300 her 5 dakikada 16 MB'lık dosya açtı ve 13 günde 61 GB birikip
+    # diski doldurdu. Bu kurulumda zaman noktasına dönüş yedeği YOKTUR; açmak için önce yedek birimi ve betiği bağlanmalı.
+    command:
+      [
+        "postgres",
+        "-c",
+        "config_file=/etc/postgresql/postgresql.conf",
+        "-c",
+        "archive_mode=off",
+        "-c",
+        "archive_timeout=0",
+      ]
     restart: unless-stopped
     shm_size: 1g
     environment:
