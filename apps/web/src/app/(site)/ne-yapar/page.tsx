@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Bolum, SayfaBasi, Tanimlar, YapisalVeri } from "../../../site/bilesenler.tsx";
+import { GORSELLER, SayfaGorseli } from "../../../site/gorsel.tsx";
 import { BAGLAYICILAR, DURUM_ADI, MODULLER, type ModulDurumu, SAYFALAR } from "../../../site/icerik.ts";
 import { sayfaUstVerisi } from "../../../site/yapisal.ts";
 
@@ -28,6 +29,7 @@ export default function NeYapar() {
     <>
       <YapisalVeri sayfa={SAYFALAR.neYapar} />
       <SayfaBasi
+        gorsel={<SayfaGorseli gorsel={GORSELLER.neYapar} />}
         sayfa={SAYFALAR.neYapar}
         ozet="Akredit birbirine bağlı modüllerden oluşur. Her modül için neyin girdiği, neyin çıktığı ve öğretim elemanına ne kaldığı aşağıda yazılı."
         kunye={[

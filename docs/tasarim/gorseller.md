@@ -26,6 +26,7 @@ Tanıtım sitesindeki görsellerin (12.11.2026'dan beri hepsi Ankara serisi) kay
 | `pilot-800/1600.webp` | 1600×640 | Sabah seminer odası, yuvarlak masada kâğıtlar, iki kahve, dizüstü; pencerede kale | `/pilot` tanıtımı | Süs |
 | `giris-800/1600.webp` | 1600×640 | Kemerli kampüs kapısından fakülteye yürüyen iki kişi | `/giris`, `/davet` tanıtımı | Süs |
 | `kurum-demosu-800/1600.webp` | 1600×640 | Kurgu bir üniversite kampüsü, kuşbakışı; uzakta kale | `/kurum-demosu` tanıtımı | Süs |
+| `sayfa-*-640/1280.webp` (8 görsel) | 1280×512 | Ankara serisi, 13.11.2026: ne-yapar (düzenli masa, kontrol listesi, büyüteç), nasil (tepeye kıvrılan yol ve fakülte), kimler-icin (açık ofis kapılı koridor), cerceveler (okuma salonu), yapay-zeka (lamba, defter, soyut ışık biçimi), guvenlik (taş arşiv odası, anahtar), yol-haritasi (Anadolu tepeleri, kaleye giden yol), sss (çay köşesi, pano) | Aynı adlı sayfaların başlığında (`SayfaBasi`/`MetinSayfasi` `gorsel`, `SayfaGorseli`) | Süs |
 
 ## Ankara serisi (12.11.2026)
 

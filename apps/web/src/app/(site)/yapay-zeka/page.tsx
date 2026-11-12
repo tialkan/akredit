@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Bolum, Dayanak, Dayanaklar, Metin, SayfaBasi, YapisalVeri } from "../../../site/bilesenler.tsx";
+import { GORSELLER, SayfaGorseli } from "../../../site/gorsel.tsx";
 import { type DayanakKaynagi, depo, SAYFALAR } from "../../../site/icerik.ts";
 import { sayfaUstVerisi } from "../../../site/yapisal.ts";
 
@@ -89,6 +90,7 @@ export default function YapayZeka() {
     <>
       <YapisalVeri sayfa={SAYFALAR.yz} />
       <SayfaBasi
+        gorsel={<SayfaGorseli gorsel={GORSELLER.yapayZeka} />}
         sayfa={SAYFALAR.yz}
         ozet="Akredit ilk etapta ücretsizdir. Yapay zekâ için kurum yöneticisi kurumun OpenRouter anahtarını bir kez girer. Kurumdaki herkes bu anahtarla çalışır, ücret kurumun OpenRouter hesabına yansır."
       />

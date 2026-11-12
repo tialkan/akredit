@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SayfaBasi, YapisalVeri } from "../../../site/bilesenler.tsx";
+import { GORSELLER, SayfaGorseli } from "../../../site/gorsel.tsx";
 import { SAYFALAR, SSS } from "../../../site/icerik.ts";
 import { sayfaUstVerisi, sssVerisi } from "../../../site/yapisal.ts";
 
@@ -10,7 +11,11 @@ export default function Sss() {
   return (
     <>
       <YapisalVeri sayfa={SAYFALAR.sss} ek={[sssVerisi(SSS)]} />
-      <SayfaBasi sayfa={SAYFALAR.sss} ozet="Kısa cevaplar. Ayrıntısı ilgili sayfada." />
+      <SayfaBasi
+        gorsel={<SayfaGorseli gorsel={GORSELLER.sss} />}
+        sayfa={SAYFALAR.sss}
+        ozet="Kısa cevaplar. Ayrıntısı ilgili sayfada."
+      />
       <div className="mx-auto max-w-6xl px-4 py-12">
         <div className="max-w-3xl divide-y divide-cizgi border-y border-cizgi">
           {SSS.map((x) => (

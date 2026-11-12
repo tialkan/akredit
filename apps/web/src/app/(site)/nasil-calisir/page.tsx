@@ -10,6 +10,7 @@ import {
   SayfaBasi,
   YapisalVeri,
 } from "../../../site/bilesenler.tsx";
+import { GORSELLER, SayfaGorseli } from "../../../site/gorsel.tsx";
 import { AKIS, type DayanakKaynagi, DONEM_AKISI, depo, ILKELER, RISKLER, SAYFALAR } from "../../../site/icerik.ts";
 import { sayfaUstVerisi } from "../../../site/yapisal.ts";
 
@@ -37,6 +38,7 @@ export default function NasilCalisir() {
     <>
       <YapisalVeri sayfa={SAYFALAR.nasil} />
       <SayfaBasi
+        gorsel={<SayfaGorseli gorsel={GORSELLER.nasil} />}
         sayfa={SAYFALAR.nasil}
         ozet="Akredit işi ikiye böler. Hazırlığı sistem yapar, kararı yetkili kişi verir. Aradaki her adım kayıt altındadır."
         kunye={[

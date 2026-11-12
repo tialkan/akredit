@@ -2,6 +2,7 @@ import { EYLEMLER, KURUM_DUZEYI_EYLEMLER, ROL_EYLEMLERI, ROLLER } from "@akredit
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Bolum, SayfaBasi, Tanimlar, YapisalVeri } from "../../../site/bilesenler.tsx";
+import { GORSELLER, SayfaGorseli } from "../../../site/gorsel.tsx";
 import { DONEM_AKISI, DORT_ROL, EYLEM_ADI, ROL_ADI, SAYFALAR, SORUMLULUK } from "../../../site/icerik.ts";
 import { sayfaUstVerisi } from "../../../site/yapisal.ts";
 
@@ -15,6 +16,7 @@ export default function KimlerIcin() {
     <>
       <YapisalVeri sayfa={SAYFALAR.kimler} />
       <SayfaBasi
+        gorsel={<SayfaGorseli gorsel={GORSELLER.kimlerIcin} />}
         sayfa={SAYFALAR.kimler}
         ozet="Akredit dört karar vericiye dört ayrı soruyla bakar. Evrak işini sistem yapar; her role kendi kararı kalır. Herkes yalnız kendi kapsamını görür."
       >

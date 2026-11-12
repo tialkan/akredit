@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { MetinSayfasi } from "../../../bilesenler/logo.tsx";
+import { GORSELLER, SayfaGorseli } from "../../../site/gorsel.tsx";
 import { SAYFALAR } from "../../../site/icerik.ts";
 import { sayfaUstVerisi } from "../../../site/yapisal.ts";
 
@@ -7,7 +8,7 @@ export const metadata: Metadata = sayfaUstVerisi(SAYFALAR.guvenlik);
 
 export default function Sayfa() {
   return (
-    <MetinSayfasi baslik="Güvenlik ve kişisel veriler">
+    <MetinSayfasi baslik="Güvenlik ve kişisel veriler" gorsel={<SayfaGorseli gorsel={GORSELLER.guvenlik} />}>
       <section>
         <h2>Hizmetin mevcut durumu</h2>
         <p>

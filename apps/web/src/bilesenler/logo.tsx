@@ -33,11 +33,23 @@ export function Logo({ boy = "orta" }: { boy?: "orta" | "buyuk" }) {
   );
 }
 
-export function MetinSayfasi({ baslik, ozet, children }: { baslik: string; ozet?: string; children: React.ReactNode }) {
+export function MetinSayfasi({
+  baslik,
+  ozet,
+  gorsel,
+  children,
+}: {
+  baslik: string;
+  ozet?: string;
+  /** İsteğe bağlı süs görseli, başlığın altında. */
+  gorsel?: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
     <article className="metin-sayfa mx-auto max-w-3xl px-4 py-12">
       <h1 className="text-3xl font-semibold tracking-[-0.01em] text-vurgu sm:text-4xl">{baslik}</h1>
       {ozet ? <p className="mt-3 text-lg text-soluk">{ozet}</p> : null}
+      {gorsel ? <div className="gravur-levha mt-6">{gorsel}</div> : null}
       {children}
     </article>
   );

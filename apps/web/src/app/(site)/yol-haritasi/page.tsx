@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Bolum, SayfaBasi, YapisalVeri } from "../../../site/bilesenler.tsx";
+import { GORSELLER, SayfaGorseli } from "../../../site/gorsel.tsx";
 import { DEPO_ADRESI, SAYFALAR, YOL_HARITASI } from "../../../site/icerik.ts";
 import { sayfaUstVerisi } from "../../../site/yapisal.ts";
 
@@ -26,6 +27,7 @@ export default function YolHaritasi() {
     <>
       <YapisalVeri sayfa={SAYFALAR.yolHaritasi} />
       <SayfaBasi
+        gorsel={<SayfaGorseli gorsel={GORSELLER.yolHaritasi} />}
         sayfa={SAYFALAR.yolHaritasi}
         ozet={
           <>

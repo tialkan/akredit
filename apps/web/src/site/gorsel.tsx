@@ -24,6 +24,15 @@ export const GORSELLER = {
   pilot: { ad: "pilot", en: 1600, boy: 640, genislikler: [800, 1600] },
   giris: { ad: "giris", en: 1600, boy: 640, genislikler: [800, 1600] },
   kurumDemosu: { ad: "kurum-demosu", en: 1600, boy: 640, genislikler: [800, 1600] },
+  // Bilgi sayfalarının ilk ekran görselleri (Ankara serisi, 13.11.2026), oran 5:2, SayfaBasi'nin yanında.
+  neYapar: { ad: "sayfa-ne-yapar", en: 1280, boy: 512, genislikler: [640, 1280] },
+  nasil: { ad: "sayfa-nasil", en: 1280, boy: 512, genislikler: [640, 1280] },
+  kimlerIcin: { ad: "sayfa-kimler-icin", en: 1280, boy: 512, genislikler: [640, 1280] },
+  cerceveler: { ad: "sayfa-cerceveler", en: 1280, boy: 512, genislikler: [640, 1280] },
+  yapayZeka: { ad: "sayfa-yapay-zeka", en: 1280, boy: 512, genislikler: [640, 1280] },
+  guvenlik: { ad: "sayfa-guvenlik", en: 1280, boy: 512, genislikler: [640, 1280] },
+  yolHaritasi: { ad: "sayfa-yol-haritasi", en: 1280, boy: 512, genislikler: [640, 1280] },
+  sss: { ad: "sayfa-sss", en: 1280, boy: 512, genislikler: [640, 1280] },
 } as const satisfies Record<string, GorselBilgisi>;
 
 export function gorselKaynaklari(g: GorselBilgisi): { src: string; srcSet: string } {
@@ -66,6 +75,18 @@ export function Gorsel({
       decoding={oncelikli ? "sync" : "async"}
       fetchPriority={oncelikli ? "high" : undefined}
       className={`gravur h-auto w-full ${className}`}
+    />
+  );
+}
+
+/** Bilgi sayfası başlığının yanındaki süs görseli (SayfaBasi gorsel). */
+export function SayfaGorseli({ gorsel }: { gorsel: GorselBilgisi }) {
+  return (
+    <Gorsel
+      gorsel={gorsel}
+      alt=""
+      boyutlar="(min-width: 64rem) 32rem, (min-width: 28rem) 28rem, calc(100vw - 2rem)"
+      oncelikli
     />
   );
 }

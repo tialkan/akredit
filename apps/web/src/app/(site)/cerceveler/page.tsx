@@ -2,6 +2,7 @@ import { YOKAK_KIDR_3_2_1 } from "@akredit/cerceveler";
 import type { Metadata } from "next";
 import { Bolum, Metin, SayfaBasi, YapisalVeri } from "../../../site/bilesenler.tsx";
 import { programCerceveleri, yokakOzeti } from "../../../site/cerceve-ozeti.ts";
+import { GORSELLER, SayfaGorseli } from "../../../site/gorsel.tsx";
 import { SAYFALAR } from "../../../site/icerik.ts";
 import { sayfaUstVerisi } from "../../../site/yapisal.ts";
 
@@ -32,6 +33,7 @@ export default function Cerceveler() {
     <>
       <YapisalVeri sayfa={SAYFALAR.cerceveler} />
       <SayfaBasi
+        gorsel={<SayfaGorseli gorsel={GORSELLER.cerceveler} />}
         sayfa={SAYFALAR.cerceveler}
         ozet="Ölçüt metinleri hafızadan yazılmaz. Resmî belgeden çıkarılır; belgenin adresi, erişim tarihi ve dosya özeti metnin yanında saklanır."
       />
