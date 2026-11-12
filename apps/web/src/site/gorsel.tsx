@@ -11,10 +11,12 @@ export interface GorselBilgisi {
   genislikler: number[];
 }
 
+// Dosya adı içerik değişince değişmeli: /gorsel/* bir yıl değişmez önbellektedir (guvenlik/basliklar.ts).
+// Gravürden Ankara serisine geçen üç görsel bu yüzden "ankara-" önekiyle yeniden adlandırıldı (12.11.2026).
 export const GORSELLER = {
-  amfi: { ad: "amfi", en: 1680, boy: 720, genislikler: [840, 1680] },
-  avlu: { ad: "avlu", en: 1456, boy: 816, genislikler: [728, 1456] },
-  arsiv: { ad: "arsiv", en: 1000, boy: 1000, genislikler: [320, 640] },
+  amfi: { ad: "ankara-amfi", en: 1680, boy: 720, genislikler: [840, 1680] },
+  avlu: { ad: "ankara-avlu", en: 1456, boy: 816, genislikler: [728, 1456] },
+  arsiv: { ad: "ankara-arsiv", en: 1000, boy: 1000, genislikler: [320, 640] },
   // Ankara serisi (Midjourney, 12.11.2026): Hamamönü evleri ve Ankara Kalesi, alt bant.
   hamamonu: { ad: "hamamonu", en: 1200, boy: 420, genislikler: [600, 1200] },
   // Askıdaki sayfaların tanıtım görselleri (askida-tanitim.tsx), oran 5:2.
