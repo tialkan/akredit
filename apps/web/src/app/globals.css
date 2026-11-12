@@ -313,7 +313,7 @@ dialog::backdrop {
   background: rgb(10 12 16 / 0.55);
 }
 
-/* Gravür görselleri (İP-49): lacivert mürekkep, kâğıt zemin. İnce çerçeveyle levha gibi durur. */
+/* Site görselleri (Ankara serisi, Midjourney): düz vektör, kâğıt dokusu. İnce çerçeveyle levha gibi durur. */
 .gravur {
   display: block;
   background: #fbf6ea;

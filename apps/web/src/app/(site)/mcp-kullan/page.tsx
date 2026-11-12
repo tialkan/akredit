@@ -96,7 +96,7 @@ export default function McpKullan() {
         gorsel={
           <Gorsel
             gorsel={GORSELLER.amfi}
-            alt="Gravür çizim: yüksek pencereli, basamak basamak sıralarıyla boş bir üniversite amfisi."
+            alt="Çizim: yüksek pencerelerinden Ankara Kalesi görünen, basamak basamak sıralarıyla boş bir üniversite amfisi."
             boyutlar="(min-width: 64rem) 32rem, (min-width: 28rem) 28rem, calc(100vw - 2rem)"
             oncelikli
           />

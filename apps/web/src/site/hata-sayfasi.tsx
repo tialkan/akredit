@@ -7,7 +7,7 @@ import { Logo } from "../bilesenler/logo.tsx";
 import { GORSELLER, Gorsel } from "./gorsel.tsx";
 import { ILETISIM_ADRESI } from "./iletisim.ts";
 
-/** Hata sayfalarının sol sütunu: süs numarası ve küçük arşiv gravürü (ikisi de ekran okuyucudan gizli). */
+/** Hata sayfalarının sol sütunu: süs numarası ve küçük arşiv görseli (ikisi de ekran okuyucudan gizli). */
 export function HataSusu({ kod }: { kod?: string }) {
   return (
     <div aria-hidden className="flex items-end gap-6 lg:flex-col lg:items-start">

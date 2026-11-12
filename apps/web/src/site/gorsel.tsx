@@ -1,4 +1,4 @@
-// Sitenin gravür görselleri (İP-49). Kaynak ve istem özetleri: docs/tasarim/gorseller.md.
+// Sitenin görselleri (İP-49; 12.11.2026'dan beri Ankara serisi). Kaynak ve istem özetleri: docs/tasarim/gorseller.md.
 // Her görsel public/gorsel/ altında birkaç genişlikte durur (<ad>-<genişlik>.webp); tarayıcı ekrana uygun olanı
 // seçer. En ve boy her zaman verilir (yerleşim kayması olmaz). Süs görselleri alt="" ve aria-hidden taşır.
 
@@ -12,8 +12,6 @@ export interface GorselBilgisi {
 }
 
 export const GORSELLER = {
-  calismaMasasi: { ad: "calisma-masasi", en: 1344, boy: 896, genislikler: [480, 960, 1344] },
-  araclar: { ad: "araclar", en: 1800, boy: 450, genislikler: [900, 1800] },
   amfi: { ad: "amfi", en: 1680, boy: 720, genislikler: [840, 1680] },
   avlu: { ad: "avlu", en: 1456, boy: 816, genislikler: [728, 1456] },
   arsiv: { ad: "arsiv", en: 1000, boy: 1000, genislikler: [320, 640] },

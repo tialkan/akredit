@@ -75,7 +75,7 @@ export default function Proje() {
             <div className="gravur-levha w-full max-w-md lg:max-w-none">
               <Gorsel
                 gorsel={GORSELLER.avlu}
-                alt="Gravür çizim: kemerli revaklarla çevrili, ağaçlı ve ortasında havuz bulunan bir üniversite avlusu."
+                alt="Çizim: kemerli revaklarla çevrili, çınar ağaçlı ve ortasında küçük bir havuz bulunan üniversite avlusu; uzakta Ankara Kalesi."
                 boyutlar="(min-width: 64rem) 30rem, (min-width: 28rem) 28rem, calc(100vw - 2rem)"
                 oncelikli
               />
