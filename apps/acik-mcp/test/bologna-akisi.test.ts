@@ -281,6 +281,19 @@ describe("bologna_taslak_denetle", () => {
     expect(b.bicimDenetimi).toBe("geçti");
     expect(b.hesap.isyuku.toplam).toBe(150);
     expect(s.not).toMatch(/^Biçim denetiminden geçti; içerik teyidi: hoca/u);
+    expect(s.not).toMatch(/Yalnız şu seçenekler geçti: B/u);
+  });
+
+  it("hiçbir seçenek geçmezse not 'geçti' demez", () => {
+    const s = sonuc(
+      calistir("bologna_taslak_denetle", {
+        ders: { kod: "KRG101", akts: 5, tul: "2+1+0", bolen: 30 },
+        // 14 x 3 = 42 saat; hedef 150: geçmez.
+        secenekler: [{ etiket: "A", alanlar: { isyuku: [{ ad: "Ders Süresi", sayi: 14, sure: 3 }] } }],
+      }),
+    );
+    expect(s.bicimdenGecenler).toEqual([]);
+    expect(s.not).toBe("Biçim denetiminden geçmeyen alanlar var; düzeltip yeniden denetleyin. İçerik teyidi: hoca.");
   });
 
   it("kurum değeri yoksa AKTS başına 25-30 saat aralığı: 140 saat geçer, 120 saat düşer (taslak ve sayfa denetimi tutarlı)", () => {

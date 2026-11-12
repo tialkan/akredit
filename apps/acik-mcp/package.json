@@ -1,6 +1,6 @@
 {
   "name": "@akredit/acik-mcp",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "type": "module",
   "license": "Apache-2.0",
   "description": "Herkese açık Akredit MCP sunucusu: hesapsız, salt okuma, deterministik araçlar (ölçüt, Bologna denetimi, ÇK/PÇ hesabı, rapor dil denetimi). Kurum verisine erişmez, model çağırmaz.",

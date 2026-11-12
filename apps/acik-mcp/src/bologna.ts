@@ -1080,7 +1080,7 @@ const taslakDenetleAraci = arac({
       sonuc: {
         bicimdenGecenler: sonuclar.filter((x) => x.bicimDenetimi === "geçti").map((x) => x.etiket),
         secenekler: sonuclar,
-        not: "Biçim denetiminden geçti; içerik teyidi: hoca. Sonuç yalnız Akredit'in biçim kurallarına uyulduğunu söyler; içeriğin doğruluğuna ve derse uygunluğuna hoca karar verir.",
+        not: taslakNotu(sonuclar),
         resmiDayanak: RESMI_DAYANAK,
       },
       kaynak: [KAYNAK_KURALLAR],
@@ -1207,6 +1207,20 @@ export function ayristirOnAyikla(g: unknown): { girdi: unknown; atilan: string[]
   };
 }
 
+/** Taslak denetiminin notu sonuca göre: hiçbiri geçmediyse "geçti" denmez. */
+function taslakNotu(xs: { etiket: string; bicimDenetimi: string }[]): string {
+  const gecen = xs.filter((x) => x.bicimDenetimi === "geçti").map((x) => x.etiket);
+  if (!gecen.length)
+    return "Biçim denetiminden geçmeyen alanlar var; düzeltip yeniden denetleyin. İçerik teyidi: hoca.";
+  const kismi =
+    gecen.length < xs.length
+      ? ` Yalnız şu seçenekler geçti: ${gecen.join(", ")}; öbürlerinde geçmeyen alanlar var.`
+      : "";
+  return `Biçim denetiminden geçti; içerik teyidi: hoca.${kismi} Sonuç yalnız Akredit'in biçim kurallarına uyulduğunu söyler; içeriğin doğruluğuna ve derse uygunluğuna hoca karar verir.`;
+}
+
+const TUL_TEYIDI = "Haftalık ders saatleri (teori + uygulama + laboratuvar)";
+
 /**
  * Ayrıştırmanın hemen ardından denetim: tarama sırasında ders başına iki çağrı yerine bir çağrı yeter.
  * Girdi denetimin şemasından geçmezse (sayfa eksik okunduysa) denetim atlanır, asistan bologna_denetle'yi çağırır.
@@ -1226,6 +1240,8 @@ function gomuluDenetim(ders: unknown, b: AracBaglami) {
     teyitSorulacak: [
       ...(d.degerlendirme.length ? [] : ["Değerlendirme yöntem ve yüzdeleri"]),
       ...(d.kaynaklar?.length || d.kaynakSayisi ? [] : ["Kullanılan kaynaklar"]),
+      // T+U+L yoksa ya da 0+0+0 ise (kayıt yok) iş yükü hesaplanamaz; haftalık saatler hocaya sorulur.
+      ...((tulSaati(d.tul) ?? 0) > 0 ? [] : [TUL_TEYIDI]),
     ],
   };
 }
@@ -1249,7 +1265,9 @@ function prolizMetniSonucu(
   ek: {
     kaynaklar: string[];
     yetkililer: Yetkili[];
-    dersIpucu?: { kod: string; ad?: string | undefined; akts?: number | undefined } | undefined;
+    dersIpucu?:
+      | { kod: string; ad?: string | undefined; akts?: number | undefined; tul?: string | undefined }
+      | undefined;
   },
   b: AracBaglami,
 ) {
@@ -1258,11 +1276,14 @@ function prolizMetniSonucu(
   const kaynaklar = [...ek.kaynaklar, ...p.kaynaklar];
   const yetkililer = [...ek.yetkililer, ...p.yetkililer];
   const ad = d.ad ?? ek.dersIpucu?.ad;
+  // 0+0+0 kayıt yok demektir: sayfadaki ya da ipucundaki sıfırdan büyük T+U+L kullanılır, yoksa alan boş kalır.
+  const tul = [d.tul, ek.dersIpucu?.tul].find((t) => (tulSaati(t) ?? 0) > 0);
+  const tulYok = tul === undefined;
   const ders = {
     kod: d.kod ?? ek.dersIpucu?.kod ?? "DERS",
     ...(ad ? { ad } : {}),
     yariyil: d.yariyil,
-    ...(d.tul ? { tul: d.tul } : {}),
+    ...(tul ? { tul } : {}),
     kredi: d.kredi,
     akts: d.akts ?? ek.dersIpucu?.akts ?? null,
     ...(d.guncelleme ? { guncelleme: d.guncelleme } : {}),
@@ -1287,11 +1308,16 @@ function prolizMetniSonucu(
     ),
   };
   const bosPaket = p.bulunan.length === 0 || (!d.amac && !d.icerik && !d.ciktilar.length && !d.degerlendirme.length);
-  const sonrakiAdim = bosPaket
-    ? "Boş paket: sayfadaki bütün alanlar boş (denetim.doldurulacak). Hepsini öneriyle doldurun (bologna_alan_rehberi, bologna_taslak_denetle) ve 'öneri' etiketiyle son özette gösterin. Değerlendirme yöntem ve yüzdeleri ile kullanılan kaynaklar hocaya TEK mesajda sorulur; peşin onayda sorulmaz, EKSİK bırakılır. Uydurmayın."
-    : d.degerlendirme.length
-      ? "Yanıttaki denetim alanı hazırdır; bologna_denetle'yi ayrıca çağırmayın. Değerlendirme sayfadan okundu: hocaya sormayın; taslakta degerlendirmeDayanagi: 'sayfa' ve degerlendirmeKaniti olarak bu yanıttaki degerlendirmeKaniti metnini aynen verin. Yalnız denetim.teyitSorulacak'taki bilgiler hocaya TEK mesajda sorulur. Sonraki çağrılarda ingilizce değerini aynen verin."
-      : "Yanıttaki denetim alanı hazırdır; bologna_denetle'yi ayrıca çağırmayın. Değerlendirme yöntem ve yüzdeleri sayfada yok: hocaya TEK mesajda sorun (peşin onayda EKSİK bırakın), tahmin etmeyin. Sonraki çağrılarda ingilizce değerini aynen verin.";
+  const tulNotu = tulYok
+    ? " T+U+L yok ya da 0+0+0: haftalık ders saatleri (teori + uygulama + laboratuvar) aynı TEK mesajda sorulur; peşin onayda sorulmaz, iş yükü EKSİK kalır."
+    : "";
+  const sonrakiAdim = `${
+    bosPaket
+      ? "Boş paket: sayfadaki bütün alanlar boş (denetim.doldurulacak). Hepsini öneriyle doldurun (bologna_alan_rehberi, bologna_taslak_denetle) ve 'öneri' etiketiyle son özette gösterin. Değerlendirme yöntem ve yüzdeleri ile kullanılan kaynaklar hocaya TEK mesajda sorulur; peşin onayda sorulmaz, EKSİK bırakılır. Uydurmayın."
+      : d.degerlendirme.length
+        ? "Yanıttaki denetim alanı hazırdır; bologna_denetle'yi ayrıca çağırmayın. Değerlendirme sayfadan okundu: hocaya sormayın; taslakta degerlendirmeDayanagi: 'sayfa' ve degerlendirmeKaniti olarak bu yanıttaki degerlendirmeKaniti metnini aynen verin. Yalnız denetim.teyitSorulacak'taki bilgiler hocaya TEK mesajda sorulur. Sonraki çağrılarda ingilizce değerini aynen verin."
+        : "Yanıttaki denetim alanı hazırdır; bologna_denetle'yi ayrıca çağırmayın. Değerlendirme yöntem ve yüzdeleri sayfada yok: hocaya TEK mesajda sorun (peşin onayda EKSİK bırakın), tahmin etmeyin. Sonraki çağrılarda ingilizce değerini aynen verin."
+  }${tulNotu}`;
   return {
     sonuc: {
       tur: "ders",
@@ -1323,7 +1349,7 @@ const ayristirAraci = arac({
   aciklama:
     "Yapıştırılan Bologna ders sayfasını ya da program çıktıları sayfasını çözer. Önce Proliz biçimini dener, olmazsa her OBS için genel ayrıştırıcı çalışır (HTML ya da düz metin, Türkçe ya da İngilizce etiketler). Bulunan ve bulunamayan alanları, güven düzeyini söyler. Adres çekmez.",
   sonrakiAdim:
-    "Yanıttaki denetim alanı varsa bologna_denetle'yi ayrıca çağırmayın: eksikler (denetim.doldurulacak) ve teyit sorulacaklar (denetim.teyitSorulacak) hazırdır. Denetim alanı yoksa ders verisini bologna_denetle'ye verin (girdi hazır: bolognaDenetleGirdisi). Sonraki çağrılarda ingilizce değerini aynen verin. Sayfada değerlendirme yüzdeleri ya da kaynaklar yoksa yalnız bunları hocaya TEK mesajda sorun; yüzdeyi tahmin etmeyin. Uygulama/lab T+U+L'den okunur (U+L > 0 ise var), sorulmaz. Amaç ve içerik sayfada yoksa önden sorulmaz; 'öneri' olarak yazılıp son özette teyide sunulur.",
+    "Yanıttaki denetim alanı varsa bologna_denetle'yi ayrıca çağırmayın: eksikler (denetim.doldurulacak) ve teyit sorulacaklar (denetim.teyitSorulacak) hazırdır. Denetim alanı yoksa ders verisini bologna_denetle'ye verin (girdi hazır: bolognaDenetleGirdisi). Sonraki çağrılarda ingilizce değerini aynen verin. Sayfada değerlendirme yüzdeleri ya da kaynaklar yoksa yalnız bunları hocaya TEK mesajda sorun; yüzdeyi tahmin etmeyin. Uygulama/lab T+U+L'den okunur (U+L > 0 ise var), sorulmaz; T+U+L yok ya da 0+0+0 ise haftalık ders saatleri (teori + uygulama + laboratuvar) aynı TEK mesajda sorulur (peşin onayda sorulmaz, iş yükü EKSİK kalır). Amaç ve içerik sayfada yoksa önden sorulmaz; 'öneri' olarak yazılıp son özette teyide sunulur.",
   kisiselVeriKapsami: BOLOGNA_KAPSAMI,
   kunyeAlanlari: BOLOGNA_KUNYE_ALANLARI,
   onAyikla: ayristirOnAyikla,
@@ -1343,10 +1369,16 @@ const ayristirAraci = arac({
         kod: z.string().trim().min(1).max(30),
         ad: z.string().trim().max(200).optional(),
         akts: z.number().min(0).max(60).optional(),
+        tul: z
+          .string()
+          .trim()
+          .max(20)
+          .optional()
+          .describe("Ders listesindeki T+U+L, ör. '2+1+0'. 0+0+0 kayıt yok demektir."),
       })
       .optional()
       .describe(
-        "Ders listesinden bilinen kod, ad ve AKTS (obs_ders_listesi taramaPlani). Sayfada yoksa bunlar kullanılır; boş pakette ders kodu ve adı sayfada görünmez.",
+        "Ders listesinden bilinen kod, ad, AKTS ve T+U+L (obs_ders_listesi taramaPlani). Sayfada yoksa bunlar kullanılır; boş pakette ders kodu ve adı sayfada görünmez.",
       ),
     sayfaIpucu: z
       .object({ prolizMetni: z.boolean(), ingilizce: z.boolean() })

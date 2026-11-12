@@ -16,7 +16,7 @@ import { GIRIS_BILGISI_ILETISI, girisBilgisiVar, kisiselVeriIletisi, kisiselVeri
 import { ACIK_ISTEMLER, type AcikIstem, AKILLI_DOLDURMA_KURALI, istemSemasi } from "./promptlar.ts";
 
 export const SUNUCU_ADI = "akredit-acik";
-export const SUNUCU_SURUMU = "0.8.1";
+export const SUNUCU_SURUMU = "0.8.2";
 
 export const SUNUCU_TALIMATI = [
   "Akredit açık araçları öğretim elemanlarına kalite ve akreditasyon işlerinde yardım eder: Bologna ders paketi denetimi ve doldurma, öğrenme çıktısı yazma, ÇK/PÇ hesabı, YÖKAK ve program akreditasyonu (MÜDEK, FEDEK, SABAK, EPDAD) ölçüt ve kanıt rehberi, rapor dil denetimi, kaynak doğrulama.",

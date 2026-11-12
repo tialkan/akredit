@@ -143,9 +143,26 @@ describe("Proliz düz metni: boş paket", () => {
     const eksik = s.denetim.doldurulacak.map((x: { ad: string }) => x.ad).join(" ");
     for (const a of [/amacı/u, /içeriği/u, /Değerlendirme/u, /Kaynaklar/u, /Öğrenme çıktıları/u, /Haftalık/u])
       expect(eksik).toMatch(a);
-    expect(s.denetim.teyitSorulacak).toEqual(["Değerlendirme yöntem ve yüzdeleri", "Kullanılan kaynaklar"]);
+    // Boş pakette T+U+L de yok: iş yükü hesaplanamaz, haftalık saatler aynı mesajda sorulur.
+    expect(s.denetim.teyitSorulacak).toEqual([
+      "Değerlendirme yöntem ve yüzdeleri",
+      "Kullanılan kaynaklar",
+      "Haftalık ders saatleri (teori + uygulama + laboratuvar)",
+    ]);
+    expect(v.sonrakiAdim).toMatch(/haftalık ders saatleri/u);
     expect(v.sonrakiAdim).toMatch(/öneriyle doldur/u);
     expect(v.sonrakiAdim).toMatch(/EKSİK/u);
+  });
+
+  it("T+U+L ipucu: 0+0+0 kayıt yok sayılır ve sorulur; sıfırdan büyükse kullanılır, sorulmaz", () => {
+    const sifir = veri(calistir({ metin: BOS, dersIpucu: { kod: "KRG101", tul: "0+0+0" } }));
+    expect(sifir.sonuc.bolognaDenetleGirdisi.ders.tul).toBeUndefined();
+    expect(sifir.sonuc.denetim.teyitSorulacak).toContain("Haftalık ders saatleri (teori + uygulama + laboratuvar)");
+    expect(sifir.sonrakiAdim).toMatch(/iş yükü EKSİK kalır/u);
+    const dolu = veri(calistir({ metin: BOS, dersIpucu: { kod: "KRG101", tul: "2+1+0" } }));
+    expect(dolu.sonuc.bolognaDenetleGirdisi.ders.tul).toBe("2+1+0");
+    expect(dolu.sonuc.denetim.teyitSorulacak).not.toContain("Haftalık ders saatleri (teori + uygulama + laboratuvar)");
+    expect(dolu.sonrakiAdim).not.toMatch(/0\+0\+0/u);
   });
 
   it("ipucu yoksa kod DERS kalır, ad uydurulmaz", () => {

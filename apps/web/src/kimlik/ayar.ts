@@ -63,10 +63,20 @@ export const KimlikAyari = z.object({
 });
 export type KimlikAyari = z.infer<typeof KimlikAyari>;
 
+/**
+ * Coolify SERVICE_FQDN_* değişkeni bazen yalnız alan adını verir ("akredit.org"); şema tam adres ister. Şeması
+ * yoksa https:// eklenir. Boşsa olduğu gibi kalır (şema açık hatayla reddeder).
+ */
+export function tamAdres(adres: string | undefined): string | undefined {
+  const a = adres?.trim();
+  if (!a) return a;
+  return /^https?:\/\//u.test(a) ? a : `https://${a}`;
+}
+
 /** Ortam değişkenlerinden ayar: AKREDIT_ADRES, AKREDIT_KIMLIK_GIZLI, AKREDIT_SSO (JSON). */
 export function ortamdanAyar(ortam: Record<string, string | undefined>): KimlikAyari {
   return KimlikAyari.parse({
-    temelAdres: ortam.AKREDIT_ADRES,
+    temelAdres: tamAdres(ortam.AKREDIT_ADRES),
     gizli: ortam.AKREDIT_KIMLIK_GIZLI,
     uretim: ortam.NODE_ENV === "production",
     ssoSaglayicilari: ortam.AKREDIT_SSO ? JSON.parse(ortam.AKREDIT_SSO) : [],

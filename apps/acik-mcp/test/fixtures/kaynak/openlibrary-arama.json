@@ -1,0 +1,30 @@
+{
+  "numFound": 3,
+  "start": 0,
+  "numFoundExact": true,
+  "docs": [
+    {
+      "key": "/works/OL1000001W",
+      "title": "Introduction to Java Programming",
+      "author_name": ["Y. Daniel Liang"],
+      "first_publish_year": 1999,
+      "publish_year": [1999, 2009, 2011, 2014],
+      "isbn": ["9780133761313"]
+    },
+    {
+      "key": "/works/OL1000002W",
+      "title": "Java: How to Program",
+      "author_name": ["Harvey M. Deitel", "Paul J. Deitel"],
+      "first_publish_year": 1997,
+      "publish_year": [1997, 2002, 2012],
+      "publisher": ["Prentice Hall"]
+    },
+    {
+      "key": "/works/OL1000003W",
+      "title": "The Object-Oriented Thought Process",
+      "author_name": ["Matt Weisfeld"],
+      "first_publish_year": 2000,
+      "publish_year": [2000, 2008, 2013]
+    }
+  ]
+}

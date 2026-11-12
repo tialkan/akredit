@@ -139,10 +139,12 @@ export function yazarEslesir(sorgu: string, yazarlar: string[]): boolean {
 
 // ---------------------------------------------------------------- Güvenli istek
 
-async function getir(f: typeof fetch, adres: URL): Promise<unknown | null> {
+async function getir(f: typeof fetch, adres: URL, hata?: () => void): Promise<unknown | null> {
   if (adres.protocol !== "https:" || !(IZINLI_HOSTLAR as readonly string[]).includes(adres.hostname))
     throw new Error("İzinsiz host");
   if (adres.hostname === "www.googleapis.com" && !adres.pathname.startsWith("/books/")) throw new Error("İzinsiz yol");
+  if (adres.hostname === "openlibrary.org" && !OPENLIBRARY_YOLLARI.includes(adres.pathname))
+    throw new Error("İzinsiz yol");
   return sinirli(async () => {
     let y: Response;
     try {
@@ -152,9 +154,13 @@ async function getir(f: typeof fetch, adres: URL): Promise<unknown | null> {
         headers: { accept: "application/json", "user-agent": "akredit-acik-mcp (https://akredit.org)" },
       });
     } catch {
+      hata?.();
       return null;
     }
-    if (!y.ok) return null;
+    if (!y.ok) {
+      hata?.();
+      return null;
+    }
     const uzunluk = Number(y.headers.get("content-length") ?? "0");
     if (uzunluk > EN_BUYUK_YANIT) return null;
     const metin = await sinirliMetin(y, EN_BUYUK_YANIT);
@@ -219,6 +225,21 @@ const OpenLibraryKitap = z.object({
   publish_date: z.string().optional(),
 });
 const OpenLibraryYanit = z.record(z.string(), OpenLibraryKitap);
+
+const OpenLibraryAramaYanit = z.object({
+  docs: z
+    .array(
+      z.object({
+        key: z.string().regex(/^\/works\/OL\d+W$/u),
+        title: z.string(),
+        author_name: z.array(z.string()).optional(),
+        publish_year: z.array(z.number().int()).optional(),
+        publisher: z.array(z.string()).optional(),
+        isbn: z.array(z.string()).optional(),
+      }),
+    )
+    .optional(),
+});
 
 const GoogleCilt = z.object({
   id: z.string(),
@@ -367,6 +388,8 @@ function googleKunye(c: GoogleCiltT): Dogrulanmis {
 
 const CROSSREF = "https://api.crossref.org/works";
 const OPENLIBRARY = "https://openlibrary.org/api/books";
+const OPENLIBRARY_ARAMA = "https://openlibrary.org/search.json";
+const OPENLIBRARY_YOLLARI = ["/api/books", "/search.json"];
 const GOOGLE = "https://www.googleapis.com/books/v1/volumes";
 
 type AranTur = "kitap" | "makale" | "kitap_bolumu" | "herhangi";
@@ -448,23 +471,18 @@ async function isbnIle(f: typeof fetch, isbn: string): Promise<Dogrulanmis | nul
   return c ? googleKunye(c) : null;
 }
 
+/**
+ * Başlık+yazar araması. Sıra: Crossref (makale), Open Library (kitap), Google Books (son çare).
+ * Google'a ulaşılamazsa (kota, HTTP hatası) o katalog atlanır ve bu durum bildirilir.
+ */
 async function baslikIle(
   f: typeof fetch,
   baslik: string,
   yazar: string,
   s: { tur?: AranTur | undefined; yil?: number | undefined },
-): Promise<Dogrulanmis | null> {
+): Promise<{ k: Dogrulanmis | null; googleUlasilamadi: boolean }> {
   const uygun = (k: Dogrulanmis) =>
     baslikEslesir(baslik, k.baslik) && yazarEslesir(yazar, k.yazarlar) && ekDenetim(k, s) === null;
-  const g = new URL(GOOGLE);
-  g.searchParams.set("q", `intitle:${baslik} inauthor:${yazar}`);
-  g.searchParams.set("maxResults", "5");
-  const gy = GoogleYanit.safeParse(await getir(f, g));
-  if (gy.success)
-    for (const x of gy.data.items ?? []) {
-      const k = googleKunye(x);
-      if (baslikEslesir(baslik, x.volumeInfo.title) && uygun(k)) return k;
-    }
   const cr = new URL(CROSSREF);
   cr.searchParams.set("query.bibliographic", baslik);
   cr.searchParams.set("query.author", yazar);
@@ -473,9 +491,50 @@ async function baslikIle(
   if (cy.success)
     for (const e of cy.data.message.items) {
       const k = crossrefKunye(e);
-      if (k && uygun(k)) return k;
+      if (k && uygun(k)) return { k, googleUlasilamadi: false };
     }
-  return null;
+  if (s.tur === undefined || s.tur === "kitap" || s.tur === "herhangi") {
+    const ol = new URL(OPENLIBRARY_ARAMA);
+    ol.searchParams.set("title", baslik);
+    ol.searchParams.set("author", yazar);
+    ol.searchParams.set("limit", "10");
+    ol.searchParams.set("fields", "key,title,author_name,publish_year,publisher,isbn");
+    const oy = OpenLibraryAramaYanit.safeParse(await getir(f, ol));
+    if (oy.success)
+      for (const d of oy.data.docs ?? []) {
+        // Yıl verildiyse kaydın baskı yılları (publish_year) arasında geçmeli; ilk yayın yılı tek başına yetmez.
+        // Yıl verilmediyse künyeye yıl yazılmaz (hangi baskı olduğu bilinmez).
+        const yil = s.yil !== undefined && (d.publish_year ?? []).includes(s.yil) ? s.yil : undefined;
+        if (s.yil !== undefined && yil === undefined) continue;
+        const k = kur(
+          {
+            tur: "kitap",
+            yazarlar: d.author_name ?? [],
+            baslik: d.title,
+            ...(yil ? { yil } : {}),
+            ...(d.publisher?.length === 1 && d.publisher[0] ? { yayinevi: d.publisher[0] } : {}),
+          },
+          `https://openlibrary.org${d.key}`,
+          "Open Library",
+        );
+        if (uygun(k)) return { k, googleUlasilamadi: false };
+      }
+  }
+  let googleUlasilamadi = false;
+  const g = new URL(GOOGLE);
+  g.searchParams.set("q", `intitle:${baslik} inauthor:${yazar}`);
+  g.searchParams.set("maxResults", "5");
+  const gy = GoogleYanit.safeParse(
+    await getir(f, g, () => {
+      googleUlasilamadi = true;
+    }),
+  );
+  if (gy.success)
+    for (const x of gy.data.items ?? []) {
+      const k = googleKunye(x);
+      if (baslikEslesir(baslik, x.volumeInfo.title) && uygun(k)) return { k, googleUlasilamadi: false };
+    }
+  return { k: null, googleUlasilamadi };
 }
 
 const KaynakSorgusu = z
@@ -513,17 +572,21 @@ export async function kaynakDogrula(f: typeof fetch, k: KaynakSorgusuT): Promise
       "Bu ISBN Open Library ve Google Books'ta bulunamadı.",
     );
   }
+  const b = await baslikIle(f, k.baslik ?? "", k.yazar ?? "", ek);
   return sonla(
-    await baslikIle(f, k.baslik ?? "", k.yazar ?? "", ek),
+    b.k,
     "baslik_yazar",
     ek,
-    "Bu başlık ve yazarla (tam soyad, verildiyse tür ve yıl) eşleşen eser Google Books ve Crossref kataloglarında bulunamadı. Türkçe kitapların çoğu bu kataloglarda yoktur.",
+    b.googleUlasilamadi
+      ? "Bu başlık ve yazarla (tam soyad, verildiyse tür ve yıl) eşleşen eser Crossref ve Open Library kataloglarında bulunamadı; Google Books'a ulaşılamadı (kota ya da bağlantı sorunu), orada aranamadı. Daha sonra yeniden deneyin ya da ISBN ile arayın."
+      : "Bu başlık ve yazarla (tam soyad, verildiyse tür ve yıl) eşleşen eser Crossref, Open Library ve Google Books kataloglarında bulunamadı. Türkçe kitapların çoğu bu kataloglarda yoktur.",
   );
 }
 
 const KATALOG_KAYNAKLARI: Kaynak[] = [
   { ad: "Crossref REST API", adres: "https://api.crossref.org" },
   { ad: "Open Library Books API", adres: "https://openlibrary.org/developers/api" },
+  { ad: "Open Library Search API", adres: "https://openlibrary.org/dev/docs/api/search" },
   { ad: "Google Books API", adres: "https://developers.google.com/books" },
 ];
 

@@ -246,3 +246,89 @@ describe("kaynak_dogrula sıkılaştırma (dış inceleme 2026-11-05)", () => {
     expect(ESZAMANLI_DIS_ISTEK).toBe(4);
   });
 });
+
+describe("başlık+yazar: Open Library araması ve Google kota hatası", () => {
+  /** Google 429 kota yanıtı verir; Open Library arama örneğini döndürür; Crossref boş. */
+  function kotaFetch() {
+    const cagrilar: string[] = [];
+    const f = (async (adres: string | URL) => {
+      const a = String(adres);
+      cagrilar.push(a);
+      if (a.includes("www.googleapis.com"))
+        return new Response('{"error":{"code":429,"message":"Quota exceeded for quota metric \'Queries\'"}}', {
+          status: 429,
+        });
+      if (a.includes("openlibrary.org/search.json")) return new Response(ornek("openlibrary-arama.json"));
+      return new Response("bulunamadı", { status: 404 });
+    }) as typeof fetch;
+    return { f, cagrilar };
+  }
+
+  it("Google kotası dolu olsa da Open Library'den bulur; künye ve bağlantı katalogdan, imza doğrulanır", async () => {
+    const { f, cagrilar } = kotaFetch();
+    const s = sonuc(
+      await calistir(
+        {
+          kaynaklar: [
+            { baslik: "Introduction to Java Programming", yazar: "Liang", tur: "kitap", yil: 2014 },
+            { baslik: "Java: How to Program", yazar: "Deitel", tur: "kitap" },
+            { baslik: "The Object-Oriented Thought Process", yazar: "Weisfeld", tur: "kitap" },
+          ],
+        },
+        f,
+      ),
+    );
+    expect(s.kaynaklar[0]).toMatchObject({
+      durum: "katalogda_bulundu",
+      katalog: "Open Library",
+      yil: 2014,
+      baglanti: "https://openlibrary.org/works/OL1000001W",
+      kimlik_eslesmesi: { yontem: "baslik_yazar", denetlenen: ["başlık sözcükleri, tam soyad", "kayıt türü", "yıl"] },
+    });
+    expect(kaynakImzasiDogru(s.kaynaklar[0].kunye, s.kaynaklar[0].baglanti, s.kaynaklar[0].imza)).toBe(true);
+    expect(s.kaynaklar[1]).toMatchObject({
+      durum: "katalogda_bulundu",
+      baglanti: "https://openlibrary.org/works/OL1000002W",
+    });
+    // Yıl verilmedi: künyeye yıl yazılmaz (ilk yayın yılı baskı yılı sayılmaz).
+    expect(s.kaynaklar[1].yil).toBeUndefined();
+    expect(s.kaynaklar[2]).toMatchObject({ durum: "katalogda_bulundu", katalog: "Open Library" });
+    // Bulunan kitaplar için Google'a hiç gidilmez.
+    expect(cagrilar.some((a) => a.includes("googleapis"))).toBe(false);
+  });
+
+  it("yıl publish_year dizisinde yoksa eşleşmez; first_publish_year tek başına yetmez", async () => {
+    const { f } = kotaFetch();
+    const s = sonuc(
+      await calistir(
+        {
+          kaynaklar: [
+            { baslik: "Introduction to Java Programming", yazar: "Liang", yil: 2016 },
+            // 1999 hem ilk yayın hem baskı yılı: eşleşir.
+            { baslik: "Introduction to Java Programming", yazar: "Liang", yil: 1999 },
+          ],
+        },
+        f,
+      ),
+    );
+    expect(s.kaynaklar[0].durum).toBe("bulunamadi");
+    expect(s.kaynaklar[1]).toMatchObject({ durum: "katalogda_bulundu", yil: 1999 });
+  });
+
+  it("Google'a ulaşılamayınca neden bunu söyler; 'Türkçe kitaplar' cümlesi yalnız gerçekten aranınca", async () => {
+    const { f } = kotaFetch();
+    const s = sonuc(await calistir({ kaynaklar: [{ baslik: "Var olmayan kurgu kitap", yazar: "Hayalsoy" }] }, f));
+    expect(s.kaynaklar[0].durum).toBe("bulunamadi");
+    expect(s.kaynaklar[0].neden).toMatch(/Google Books'a ulaşılamadı/u);
+    expect(s.kaynaklar[0].neden).not.toMatch(/Türkçe kitapların/u);
+    const { f: f2 } = sahteFetch({ "www.googleapis.com": '{"totalItems":0}', "openlibrary.org": '{"docs":[]}' });
+    const s2 = sonuc(await calistir({ kaynaklar: [{ baslik: "Var olmayan kurgu kitap", yazar: "Hayalsoy" }] }, f2));
+    expect(s2.kaynaklar[0].neden).toMatch(/Türkçe kitapların/u);
+  });
+
+  it("makale aranırken Open Library'ye sorulmaz", async () => {
+    const { f, cagrilar } = kotaFetch();
+    await calistir({ kaynaklar: [{ baslik: "Introduction to Java Programming", yazar: "Liang", tur: "makale" }] }, f);
+    expect(cagrilar.some((a) => a.includes("openlibrary"))).toBe(false);
+  });
+});
