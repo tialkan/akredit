@@ -196,3 +196,22 @@ notlarındaki yerel mutlak yollar, eksik çerçeve SHA kayıtları, `apps/cli`'d
 
 `review.md` ve `review/` geçici inceleme kaydıdır. Kararlar verilince `docs/raporlar/` altına taşınabilir ya da
 silinebilir.
+
+## Uçtan uca canlı deneme (2026-11-12)
+
+Gerçek bir Proliz OBS'nin (AYBÜ) herkese açık Bologna sayfalarında, Akredit araçları canlı MCP üzerinden bir hocanın
+asistanı gibi kullanıldı (OBS'ye yazma hariç; o herkese açık sayfada yapılamaz, birim testlerinde sınanıyor).
+
+| # | Bulgu | Durum |
+|---|---|---|
+| 1 | Boş paket ("Kayıt Yok", "Veri yok") "sayfa tanınmadı" hatası veriyordu; asıl doldurma durumu buydu | Düzeltildi (`bosPaket`, `dersIpucu`) |
+| 2 | Düz metin (tarayıcının okuduğu biçim) yanlış ayrıştırılıyordu: kod/AKTS yok, haftalar çıktı sanılıyor, değerlendirme tablosu okunmuyor ve hocaya soruluyordu, alanlar birbirine karışıyordu | Düzeltildi (`proliz-metin.ts`, 11 test) |
+| 3 | T+U+L "0+0+0" iken iş yükü hesaplanamıyor ama sorulmuyordu | Düzeltildi (teyit sorusuna eklendi) |
+| 4 | Taslak geçmediğinde de not "Biçim denetiminden geçti" diyordu | Düzeltildi |
+| 5 | Bilinen kitaplar bile "bulunamadı": Google Books anahtarsız kotası dolmuş, başlık aramasında Open Library'ye sorulmuyordu | Düzeltildi (Open Library arama; canlıda 3/3 bulundu) |
+| 6 | `/panel` ve `/degerlendirici` 500: demo açık ama kimlik gizlisi tanımsız, adres şemasız | Düzeltildi (demo canlıda kapalı varsayılan, `/kurum-demosu`'na yönlenir; adres sağlamlaştırıldı) |
+| 7 | Form uçları tarayıcıda boş 405; askıdaki sayfalar yalnız "askıda" diyordu | Düzeltildi (303 yönlendirme; altı sayfaya görselli "Hizmet açılınca burada" tanıtımı) |
+
+Doğru çalışanlar: niyet çözümü ve menüsüz başlangıç; "hangi ders?" sormadan tarama planı; dolu sayfada teyit sorusu
+olmaması; taslak denetiminin kısa amaç/yöntemi yakalaması; kayıt sözü olmayan metnin peşin onay sayılmaması; peşin onay
+akışında durak olmaması ve onay sözünün kayda geçmesi.
