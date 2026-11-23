@@ -21,7 +21,7 @@
     "verify:canli": "pnpm check && pnpm -r --if-present --filter @akredit/web --filter @akredit/acik-mcp --filter @akredit/cekirdek --filter @akredit/cerceveler --filter @akredit/olcme --filter @akredit/belge --filter @akredit/baglayicilar --filter @akredit/yz typecheck && pnpm -r --if-present --filter @akredit/web --filter @akredit/acik-mcp --filter @akredit/cekirdek --filter @akredit/cerceveler --filter @akredit/olcme --filter @akredit/belge --filter @akredit/baglayicilar --filter @akredit/yz test"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.6.4",
+    "@biomejs/biome": "^2.6.8",
     "@types/node": "^22.18.0",
     "typescript": "~6.0.3",
     "vitest": "^4.1.12"
